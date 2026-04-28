@@ -51,6 +51,7 @@ public final class AdministracaoMapeadorJpa {
         return new Usuario(
                 entidade.getId(),
                 entidade.getNome(),
+                entidade.getLogin(),
                 entidade.getEmail(),
                 entidade.isAtivo(),
                 paraDominio(entidade.getPerfilAcesso()),

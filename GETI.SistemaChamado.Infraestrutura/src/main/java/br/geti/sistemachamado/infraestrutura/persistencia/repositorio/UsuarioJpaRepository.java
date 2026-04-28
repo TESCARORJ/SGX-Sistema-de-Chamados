@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface UsuarioJpaRepository extends RepositorioJpaBase<UsuarioEntidadeJpa> {
 
+    Optional<UsuarioEntidadeJpa> findByLoginIgnoreCase(String login);
+
     Optional<UsuarioEntidadeJpa> findByEmailIgnoreCase(String email);
 
     List<UsuarioEntidadeJpa> findByAtivoTrue();

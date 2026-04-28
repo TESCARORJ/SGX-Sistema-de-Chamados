@@ -1,6 +1,10 @@
 spring:
   application:
     name: GETI.SistemaChamado.Api
+  profiles:
+    group:
+      local:
+        - development
   jpa:
     open-in-view: false
     hibernate:
@@ -15,6 +19,12 @@ spring:
 
 app:
   ambiente: local
+  seguranca:
+    modo-local-habilitado: false
+    local:
+      header-login: X-Auth-Login
+      header-nome: X-Auth-Nome
+      header-email: X-Auth-Email
 
 management:
   endpoints:

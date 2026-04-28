@@ -34,18 +34,26 @@ public class UsuarioRepositorioJpa implements UsuarioRepositorio {
     @Override
     @Transactional
     public Usuario salvar(final Usuario usuario) {
-        final var entidade = new UsuarioEntidadeJpa();
+        final var entidade = usuarioJpaRepository.findById(usuario.id()).orElseGet(UsuarioEntidadeJpa::new);
         entidade.setNome(usuario.nome());
+        entidade.setLogin(usuario.login());
         entidade.setEmail(usuario.email());
         entidade.setAtivo(usuario.ativo());
         entidade.setPerfilAcesso(perfilAcessoJpaRepository.getReferenceById(usuario.perfilAcesso().id()));
 
         if (usuario.departamento() != null) {
             entidade.setDepartamento(departamentoJpaRepository.getReferenceById(usuario.departamento().id()));
+        } else {
+            entidade.setDepartamento(null);
         }
 
         final var salva = usuarioJpaRepository.save(entidade);
         return AdministracaoMapeadorJpa.paraDominio(salva);
+    }
+
+    @Override
+    public Optional<Usuario> buscarPorLogin(final String login) {
+        return usuarioJpaRepository.findByLoginIgnoreCase(login).map(AdministracaoMapeadorJpa::paraDominio);
     }
 
     @Override

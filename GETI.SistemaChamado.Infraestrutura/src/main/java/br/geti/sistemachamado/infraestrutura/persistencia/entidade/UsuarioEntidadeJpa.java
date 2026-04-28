@@ -14,6 +14,9 @@ public class UsuarioEntidadeJpa extends EntidadeBaseJpa {
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;
 
+    @Column(name = "login", nullable = false, length = 120)
+    private String login;
+
     @Column(name = "email", nullable = false, length = 255)
     private String email;
 
@@ -34,6 +37,14 @@ public class UsuarioEntidadeJpa extends EntidadeBaseJpa {
 
     public void setNome(final String nome) {
         this.nome = nome;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(final String login) {
+        this.login = login;
     }
 
     public String getEmail() {

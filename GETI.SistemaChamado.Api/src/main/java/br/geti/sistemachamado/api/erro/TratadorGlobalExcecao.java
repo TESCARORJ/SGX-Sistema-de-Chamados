@@ -3,6 +3,7 @@ package br.geti.sistemachamado.api.erro;
 import br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
+import org.springframework.security.access.AccessDeniedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,19 @@ public class TratadorGlobalExcecao {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ErroApiResposta(
                 "ERRO_VALIDACAO",
                 mensagem,
+                request.getRequestURI(),
+                OffsetDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErroApiResposta> tratarAcessoNegado(
+            final AccessDeniedException exception,
+            final HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErroApiResposta(
+                "ACESSO_NEGADO",
+                "Usuario autenticado sem permissao para este recurso.",
                 request.getRequestURI(),
                 OffsetDateTime.now()
         ));

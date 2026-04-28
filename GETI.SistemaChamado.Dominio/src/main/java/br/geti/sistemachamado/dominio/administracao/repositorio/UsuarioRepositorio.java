@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface UsuarioRepositorio extends RepositorioDominio<Usuario> {
 
+    Optional<Usuario> buscarPorLogin(String login);
+
     Optional<Usuario> buscarPorEmail(String email);
 
     List<Usuario> listarAtivos();

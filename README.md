@@ -49,6 +49,9 @@ npm run dev
 - API saude aplicacional: `GET /api/saude`
 - Actuator health: `GET /actuator/health`
 - Actuator info: `GET /actuator/info`
+- Usuario autenticado: `GET /api/me`
+- Contexto portal autenticado: `GET /api/portal/contexto`
+- Contexto admin autenticado: `GET /api/admin/contexto`
 
 ## Perfis
 - `development`
@@ -57,4 +60,17 @@ npm run dev
 - `prd`
 
 Defina via `SPRING_PROFILES_ACTIVE`.
+
+## Autenticacao corporativa (Sprint 5)
+- Estrategia principal: OAuth2 Resource Server com JWT do AD/Azure.
+- Propriedade obrigatoria para `development` (sem `local`), `hml` e `prd`:
+  - `APP_SECURITY_OAUTH2_ISSUER_URI`
+
+### Modo local isolado
+- No profile `local`, a autenticacao corporativa real fica desabilitada e e usado um modo tecnico isolado.
+- Headers aceitos:
+  - `X-Auth-Login` (obrigatorio)
+  - `X-Auth-Nome` (opcional)
+  - `X-Auth-Email` (opcional)
+- O backend continua aplicando autorizacao por `PerfilAcesso` interno sincronizado no banco.
 

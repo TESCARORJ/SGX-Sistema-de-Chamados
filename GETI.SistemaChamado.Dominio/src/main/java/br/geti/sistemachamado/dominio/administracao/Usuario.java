@@ -8,6 +8,7 @@ import br.geti.sistemachamado.dominio.compartilhado.ValidadorDominio;
 public record Usuario(
         UUID id,
         String nome,
+        String login,
         String email,
         boolean ativo,
         PerfilAcesso perfilAcesso,
@@ -19,6 +20,7 @@ public record Usuario(
     public Usuario {
         ValidadorDominio.obrigatorio(id, "id do usuario e obrigatorio");
         nome = ValidadorDominio.textoObrigatorio(nome, "nome do usuario e obrigatorio");
+        login = ValidadorDominio.textoObrigatorio(login, "login do usuario e obrigatorio");
         email = ValidadorDominio.textoObrigatorio(email, "email do usuario e obrigatorio");
         ValidadorDominio.obrigatorio(perfilAcesso, "perfilAcesso do usuario e obrigatorio");
         validarAuditoria();

@@ -1,6 +1,13 @@
 app:
   ambiente: producao
 
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${APP_SECURITY_OAUTH2_ISSUER_URI}
+
 management:
   endpoint:
     health:

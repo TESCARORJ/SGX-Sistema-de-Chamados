@@ -1,6 +1,4 @@
-spring:
-  profiles:
-    include: development
-
 app:
   ambiente: local
+  seguranca:
+    modo-local-habilitado: true
