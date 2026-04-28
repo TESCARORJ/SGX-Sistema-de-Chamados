@@ -1,4 +1,4 @@
-export type UsuarioAtual = {
+﻿export type UsuarioAtual = {
   usuarioId: string;
   login: string;
   nome: string;
@@ -11,7 +11,7 @@ const PERFIS_ADMINISTRATIVOS = new Set(['Atendente', 'Supervisor', 'Administrado
 
 let cacheUsuarioAtual: UsuarioAtual | null | undefined;
 
-function headersAutenticacaoLocal(): HeadersInit {
+export function obterCabecalhosAutenticacaoLocal(): HeadersInit {
   const login = import.meta.env.VITE_AUTH_LOCAL_LOGIN;
   if (!login) {
     return {};
@@ -32,7 +32,7 @@ export async function obterUsuarioAtual(forcarAtualizacao = false): Promise<Usua
   const resposta = await fetch('/api/me', {
     method: 'GET',
     headers: {
-      ...headersAutenticacaoLocal()
+      ...obterCabecalhosAutenticacaoLocal()
     }
   });
 

@@ -1,8 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router';
+﻿import { createRouter, createWebHistory } from 'vue-router';
 import PortalLayout from '@/layouts/PortalLayout.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import PortalSolicitantePagina from '@/pages/portal/PortalSolicitantePagina.vue';
 import AdminDashboardPagina from '@/pages/admin/AdminDashboardPagina.vue';
+import DepartamentosAdminPagina from '@/pages/admin/DepartamentosAdminPagina.vue';
+import CaixasEmailAdminPagina from '@/pages/admin/CaixasEmailAdminPagina.vue';
+import CategoriasAdminPagina from '@/pages/admin/CategoriasAdminPagina.vue';
+import ServicosAdminPagina from '@/pages/admin/ServicosAdminPagina.vue';
+import GruposAtendimentoAdminPagina from '@/pages/admin/GruposAtendimentoAdminPagina.vue';
 import NaoAutenticadoPagina from '@/pages/acesso/NaoAutenticadoPagina.vue';
 import AcessoNegadoPagina from '@/pages/acesso/AcessoNegadoPagina.vue';
 import { obterUsuarioAtual, possuiAcessoAdministrativo } from '@/services/sessaoUsuario';
@@ -32,6 +37,51 @@ export const router = createRouter({
           path: '',
           name: 'admin-dashboard',
           component: AdminDashboardPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'departamentos',
+          name: 'admin-departamentos',
+          component: DepartamentosAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'caixas-email',
+          name: 'admin-caixas-email',
+          component: CaixasEmailAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'categorias',
+          name: 'admin-categorias',
+          component: CategoriasAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'servicos',
+          name: 'admin-servicos',
+          component: ServicosAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'grupos-atendimento',
+          name: 'admin-grupos-atendimento',
+          component: GruposAtendimentoAdminPagina,
           meta: {
             requerAutenticacao: true,
             requerAcessoAdmin: true

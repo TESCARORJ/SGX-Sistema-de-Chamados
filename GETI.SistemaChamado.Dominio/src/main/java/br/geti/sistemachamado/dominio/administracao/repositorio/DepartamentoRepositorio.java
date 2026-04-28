@@ -9,5 +9,7 @@ public interface DepartamentoRepositorio extends RepositorioDominio<Departamento
 
     Optional<Departamento> buscarPorNome(String nome);
 
+    List<Departamento> listarTodos();
+
     List<Departamento> listarAtivos();
 }

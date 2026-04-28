@@ -30,7 +30,7 @@ public class CaixaDeEmailRepositorioJpa implements CaixaDeEmailRepositorio {
     @Override
     @Transactional
     public CaixaDeEmail salvar(final CaixaDeEmail caixaDeEmail) {
-        final var entidade = new CaixaDeEmailEntidadeJpa();
+        final var entidade = caixaDeEmailJpaRepository.findById(caixaDeEmail.id()).orElseGet(CaixaDeEmailEntidadeJpa::new);
         entidade.setEnderecoEmail(caixaDeEmail.enderecoEmail());
         entidade.setNomeExibicao(caixaDeEmail.nomeExibicao());
         entidade.setAtiva(caixaDeEmail.ativa());
@@ -52,8 +52,15 @@ public class CaixaDeEmailRepositorioJpa implements CaixaDeEmailRepositorio {
     }
 
     @Override
+    public List<CaixaDeEmail> listarTodos() {
+        return caixaDeEmailJpaRepository.findAllByOrderByNomeExibicaoAsc().stream()
+                .map(AdministracaoMapeadorJpa::paraDominio)
+                .toList();
+    }
+
+    @Override
     public List<CaixaDeEmail> listarAtivas() {
-        return caixaDeEmailJpaRepository.findByAtivaTrue().stream()
+        return caixaDeEmailJpaRepository.findByAtivaTrueOrderByNomeExibicaoAsc().stream()
                 .map(AdministracaoMapeadorJpa::paraDominio)
                 .toList();
     }

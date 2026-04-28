@@ -8,5 +8,7 @@ public interface DepartamentoJpaRepository extends RepositorioJpaBase<Departamen
 
     Optional<DepartamentoEntidadeJpa> findByNomeIgnoreCase(String nome);
 
-    List<DepartamentoEntidadeJpa> findByAtivoTrue();
+    List<DepartamentoEntidadeJpa> findAllByOrderByNomeAsc();
+
+    List<DepartamentoEntidadeJpa> findByAtivoTrueOrderByNomeAsc();
 }

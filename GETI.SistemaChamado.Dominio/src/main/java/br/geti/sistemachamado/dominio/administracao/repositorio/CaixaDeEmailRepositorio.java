@@ -9,5 +9,7 @@ public interface CaixaDeEmailRepositorio extends RepositorioDominio<CaixaDeEmail
 
     Optional<CaixaDeEmail> buscarPorEnderecoEmail(String enderecoEmail);
 
+    List<CaixaDeEmail> listarTodos();
+
     List<CaixaDeEmail> listarAtivas();
 }

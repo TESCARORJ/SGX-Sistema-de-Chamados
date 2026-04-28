@@ -8,5 +8,7 @@ public interface CaixaDeEmailJpaRepository extends RepositorioJpaBase<CaixaDeEma
 
     Optional<CaixaDeEmailEntidadeJpa> findByEnderecoEmailIgnoreCase(String enderecoEmail);
 
-    List<CaixaDeEmailEntidadeJpa> findByAtivaTrue();
+    List<CaixaDeEmailEntidadeJpa> findAllByOrderByNomeExibicaoAsc();
+
+    List<CaixaDeEmailEntidadeJpa> findByAtivaTrueOrderByNomeExibicaoAsc();
 }

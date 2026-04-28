@@ -24,7 +24,7 @@ public class DepartamentoRepositorioJpa implements DepartamentoRepositorio {
     @Override
     @Transactional
     public Departamento salvar(final Departamento departamento) {
-        final var entidade = new DepartamentoEntidadeJpa();
+        final var entidade = departamentoJpaRepository.findById(departamento.id()).orElseGet(DepartamentoEntidadeJpa::new);
         entidade.setNome(departamento.nome());
         entidade.setAtivo(departamento.ativo());
 
@@ -43,8 +43,15 @@ public class DepartamentoRepositorioJpa implements DepartamentoRepositorio {
     }
 
     @Override
+    public List<Departamento> listarTodos() {
+        return departamentoJpaRepository.findAllByOrderByNomeAsc().stream()
+                .map(AdministracaoMapeadorJpa::paraDominio)
+                .toList();
+    }
+
+    @Override
     public List<Departamento> listarAtivos() {
-        return departamentoJpaRepository.findByAtivoTrue().stream()
+        return departamentoJpaRepository.findByAtivoTrueOrderByNomeAsc().stream()
                 .map(AdministracaoMapeadorJpa::paraDominio)
                 .toList();
     }
