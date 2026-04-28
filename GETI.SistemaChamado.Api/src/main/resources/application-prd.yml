@@ -1,0 +1,13 @@
+app:
+  ambiente: producao
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: WARN
+    br.geti.sistemachamado: INFO
+

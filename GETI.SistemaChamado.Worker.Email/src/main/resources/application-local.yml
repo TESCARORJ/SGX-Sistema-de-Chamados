@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    include: development
+
+app:
+  ambiente: local

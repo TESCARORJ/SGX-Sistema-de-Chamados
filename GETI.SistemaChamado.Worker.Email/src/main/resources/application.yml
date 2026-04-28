@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: GETI.SistemaChamado.Worker.Email
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+app:
+  ambiente: local
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    br.geti.sistemachamado: INFO

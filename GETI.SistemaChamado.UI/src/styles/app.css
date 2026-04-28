@@ -1,0 +1,27 @@
+:root {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #1f2933;
+  background: linear-gradient(120deg, #f6f9fc, #eef3f8);
+}
+
+body {
+  margin: 0;
+}
+
+.pagina-cabecalho {
+  margin-bottom: 1.5rem;
+}
+
+.pagina-cabecalho h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.pagina-cabecalho p {
+  margin-top: 0.5rem;
+  color: #52606d;
+}
+
+.card-inicial {
+  max-width: 860px;
+}

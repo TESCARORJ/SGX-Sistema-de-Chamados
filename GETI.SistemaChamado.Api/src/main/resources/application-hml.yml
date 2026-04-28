@@ -1,0 +1,7 @@
+app:
+  ambiente: homologacao
+
+logging:
+  level:
+    br.geti.sistemachamado: INFO
+
