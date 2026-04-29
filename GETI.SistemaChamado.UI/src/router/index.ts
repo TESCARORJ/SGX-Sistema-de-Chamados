@@ -1,7 +1,9 @@
-﻿import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import PortalLayout from '@/layouts/PortalLayout.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import PortalSolicitantePagina from '@/pages/portal/PortalSolicitantePagina.vue';
+import PortalChamadosListaPagina from '@/pages/portal/chamados/PortalChamadosListaPagina.vue';
+import PortalChamadoAberturaPagina from '@/pages/portal/chamados/PortalChamadoAberturaPagina.vue';
+import PortalChamadoDetalhePagina from '@/pages/portal/chamados/PortalChamadoDetalhePagina.vue';
 import AdminDashboardPagina from '@/pages/admin/AdminDashboardPagina.vue';
 import DepartamentosAdminPagina from '@/pages/admin/DepartamentosAdminPagina.vue';
 import CaixasEmailAdminPagina from '@/pages/admin/CaixasEmailAdminPagina.vue';
@@ -21,8 +23,24 @@ export const router = createRouter({
       children: [
         {
           path: '',
-          name: 'portal-solicitante',
-          component: PortalSolicitantePagina,
+          name: 'portal-chamados-lista',
+          component: PortalChamadosListaPagina,
+          meta: {
+            requerAutenticacao: true
+          }
+        },
+        {
+          path: 'portal/chamados/novo',
+          name: 'portal-chamados-abertura',
+          component: PortalChamadoAberturaPagina,
+          meta: {
+            requerAutenticacao: true
+          }
+        },
+        {
+          path: 'portal/chamados/:id',
+          name: 'portal-chamados-detalhe',
+          component: PortalChamadoDetalhePagina,
           meta: {
             requerAutenticacao: true
           }
