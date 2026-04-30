@@ -22,6 +22,16 @@
             <div class="col-12 col-md-4"><strong>Situacao:</strong> {{ chamado.situacao }}</div>
             <div class="col-12 col-md-4"><strong>Prioridade:</strong> {{ chamado.prioridade }}</div>
             <div class="col-12 col-md-4"><strong>Origem:</strong> {{ chamado.origem }}</div>
+            <div class="col-12 col-md-4">
+              <strong>Status SLA:</strong>
+              <q-badge :color="corStatusSla(chamado.statusSla)" text-color="white" class="q-ml-sm">
+                {{ chamado.statusSla }}
+              </q-badge>
+            </div>
+            <div class="col-12 col-md-4"><strong>Prazo SLA:</strong> {{ chamado.prazoSlaMinutos }} min</div>
+            <div class="col-12 col-md-4"><strong>Data Limite SLA:</strong> {{ formatarData(chamado.dataLimiteSla) }}</div>
+            <div class="col-12 col-md-4"><strong>Minutos Restantes:</strong> {{ chamado.minutosRestantesSla }}</div>
+            <div class="col-12 col-md-4"><strong>Minutos em Atraso:</strong> {{ chamado.minutosAtrasoSla }}</div>
             <div class="col-12 col-md-4"><strong>Solicitante:</strong> {{ chamado.solicitanteNome }}</div>
             <div class="col-12 col-md-4"><strong>Login:</strong> {{ chamado.solicitanteLogin }}</div>
             <div class="col-12 col-md-4"><strong>E-mail:</strong> {{ chamado.solicitanteEmail }}</div>
@@ -335,6 +345,16 @@ function formatarBytes(valor: number): string {
     return `${(valor / 1024).toFixed(1)} KB`;
   }
   return `${(valor / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function corStatusSla(statusSla: string): string {
+  if (statusSla === 'VENCIDO') {
+    return 'negative';
+  }
+  if (statusSla === 'PROXIMO_DO_VENCIMENTO') {
+    return 'warning';
+  }
+  return 'positive';
 }
 
 async function carregarCatalogo(): Promise<void> {

@@ -22,6 +22,8 @@ public record Chamado(
         Departamento departamento,
         Categoria categoria,
         Servico servico,
+        Integer prazoSlaMinutos,
+        LocalDateTime dataLimiteSla,
         LocalDateTime dataCriacao,
         LocalDateTime dataAtualizacao
 ) implements AgregadoRaiz {
@@ -43,6 +45,13 @@ public record Chamado(
         ValidadorDominio.obrigatorio(departamento, "departamento do chamado e obrigatorio");
         ValidadorDominio.obrigatorio(categoria, "categoria do chamado e obrigatoria");
         ValidadorDominio.obrigatorio(servico, "servico do chamado e obrigatorio");
+        prazoSlaMinutos = ValidadorDominio.obrigatorio(prazoSlaMinutos, "prazo de sla do chamado e obrigatorio");
+        if (prazoSlaMinutos <= 0) {
+            throw new br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio(
+                    "prazo de sla do chamado deve ser maior que zero"
+            );
+        }
+        ValidadorDominio.obrigatorio(dataLimiteSla, "data limite de sla do chamado e obrigatoria");
 
         if (!departamento.id().equals(servico.departamento().id())) {
             throw new br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio(
@@ -56,6 +65,11 @@ public record Chamado(
         }
 
         validarAuditoria(dataCriacao, dataAtualizacao);
+        if (dataLimiteSla.isBefore(dataCriacao)) {
+            throw new br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio(
+                    "data limite de sla nao pode ser anterior a data de criacao do chamado"
+            );
+        }
     }
 }
 

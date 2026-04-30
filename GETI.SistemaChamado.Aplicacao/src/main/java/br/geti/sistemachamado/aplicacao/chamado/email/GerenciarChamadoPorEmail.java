@@ -2,7 +2,9 @@ package br.geti.sistemachamado.aplicacao.chamado.email;
 
 import br.geti.sistemachamado.aplicacao.acesso.ComandoSincronizacaoUsuarioAutenticado;
 import br.geti.sistemachamado.aplicacao.acesso.SincronizarUsuarioAutenticado;
+import br.geti.sistemachamado.aplicacao.chamado.automacao.AutomacaoOperacionalChamado;
 import br.geti.sistemachamado.aplicacao.chamado.portal.ArmazenadorAnexoChamado;
+import br.geti.sistemachamado.aplicacao.chamado.sla.CalculadoraSlaChamado;
 import br.geti.sistemachamado.dominio.administracao.CaixaDeEmail;
 import br.geti.sistemachamado.dominio.administracao.Servico;
 import br.geti.sistemachamado.dominio.administracao.Usuario;
@@ -50,6 +52,8 @@ public class GerenciarChamadoPorEmail {
     private final SincronizarUsuarioAutenticado sincronizarUsuarioAutenticado;
     private final GeradorNumeroChamado geradorNumeroChamado;
     private final ArmazenadorAnexoChamado armazenadorAnexoChamado;
+    private final CalculadoraSlaChamado calculadoraSlaChamado;
+    private final AutomacaoOperacionalChamado automacaoOperacionalChamado;
 
     public GerenciarChamadoPorEmail(
             final ChamadoRepositorio chamadoRepositorio,
@@ -61,7 +65,9 @@ public class GerenciarChamadoPorEmail {
             final UsuarioRepositorio usuarioRepositorio,
             final SincronizarUsuarioAutenticado sincronizarUsuarioAutenticado,
             final GeradorNumeroChamado geradorNumeroChamado,
-            final ArmazenadorAnexoChamado armazenadorAnexoChamado
+            final ArmazenadorAnexoChamado armazenadorAnexoChamado,
+            final CalculadoraSlaChamado calculadoraSlaChamado,
+            final AutomacaoOperacionalChamado automacaoOperacionalChamado
     ) {
         this.chamadoRepositorio = chamadoRepositorio;
         this.interacaoChamadoRepositorio = interacaoChamadoRepositorio;
@@ -73,6 +79,8 @@ public class GerenciarChamadoPorEmail {
         this.sincronizarUsuarioAutenticado = sincronizarUsuarioAutenticado;
         this.geradorNumeroChamado = geradorNumeroChamado;
         this.armazenadorAnexoChamado = armazenadorAnexoChamado;
+        this.calculadoraSlaChamado = calculadoraSlaChamado;
+        this.automacaoOperacionalChamado = automacaoOperacionalChamado;
     }
 
     @Transactional
@@ -82,6 +90,13 @@ public class GerenciarChamadoPorEmail {
         final var servico = obterPrimeiroServicoAtivoDoDepartamento(caixaDeEmail.departamento().id());
         final var solicitante = resolverSolicitante(comando.remetenteNome(), comando.remetenteEmail());
         final var agora = LocalDateTime.now();
+        final var prioridade = comando.prioridade() != null ? comando.prioridade() : PrioridadeChamado.MEDIA;
+        final var prazoSlaMinutos = calculadoraSlaChamado.calcularPrazoInicialMinutos(prioridade);
+        final var dataLimiteSla = calculadoraSlaChamado.calcularDataLimite(agora, prazoSlaMinutos);
+        final var atribuicaoAutomatica = automacaoOperacionalChamado.resolverAtribuicaoAutomatica(
+                caixaDeEmail.departamento(),
+                null
+        );
 
         final var chamadoSalvo = chamadoRepositorio.salvar(new Chamado(
                 UUID.randomUUID(),
@@ -89,13 +104,15 @@ public class GerenciarChamadoPorEmail {
                 resolverTitulo(comando.assunto()),
                 resolverDescricao(comando.corpoMensagem()),
                 SituacaoChamado.ABERTO,
-                comando.prioridade() != null ? comando.prioridade() : PrioridadeChamado.MEDIA,
+                prioridade,
                 OrigemChamado.EMAIL,
                 solicitante,
-                null,
+                atribuicaoAutomatica.map(resultado -> resultado.responsavel()).orElse(null),
                 caixaDeEmail.departamento(),
                 servico.categoria(),
                 servico,
+                prazoSlaMinutos,
+                dataLimiteSla,
                 agora,
                 null
         ));
@@ -121,6 +138,31 @@ public class GerenciarChamadoPorEmail {
                 agora,
                 null
         ));
+
+        if (atribuicaoAutomatica.isPresent()) {
+            final var resultado = atribuicaoAutomatica.get();
+            interacaoChamadoRepositorio.salvar(new InteracaoChamado(
+                    UUID.randomUUID(),
+                    chamadoSalvo.id(),
+                    TipoInteracao.ATRIBUICAO,
+                    resultado.motivo() + " Responsavel definido: " + resultado.responsavel().nome() + ".",
+                    false,
+                    resultado.responsavel(),
+                    agora,
+                    null
+            ));
+
+            historicoChamadoRepositorio.salvar(new HistoricoChamado(
+                    UUID.randomUUID(),
+                    chamadoSalvo.id(),
+                    "Atribuicao automatica inicial realizada para " + resultado.responsavel().nome() + ".",
+                    chamadoSalvo.situacao(),
+                    chamadoSalvo.situacao(),
+                    false,
+                    agora,
+                    null
+            ));
+        }
 
         salvarAnexos(comando.anexos(), chamadoSalvo, solicitante, agora);
         return new ChamadoAbertoPorEmailDto(chamadoSalvo.id(), chamadoSalvo.numero());

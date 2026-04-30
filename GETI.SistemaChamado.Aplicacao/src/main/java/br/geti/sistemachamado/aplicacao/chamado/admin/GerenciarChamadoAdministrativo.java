@@ -1,5 +1,7 @@
 package br.geti.sistemachamado.aplicacao.chamado.admin;
 
+import br.geti.sistemachamado.aplicacao.chamado.automacao.AutomacaoOperacionalChamado;
+import br.geti.sistemachamado.aplicacao.chamado.sla.CalculadoraSlaChamado;
 import br.geti.sistemachamado.dominio.administracao.Categoria;
 import br.geti.sistemachamado.dominio.administracao.Departamento;
 import br.geti.sistemachamado.dominio.administracao.Servico;
@@ -15,6 +17,7 @@ import br.geti.sistemachamado.dominio.chamado.InteracaoChamado;
 import br.geti.sistemachamado.dominio.chamado.OrigemChamado;
 import br.geti.sistemachamado.dominio.chamado.PrioridadeChamado;
 import br.geti.sistemachamado.dominio.chamado.SituacaoChamado;
+import br.geti.sistemachamado.dominio.chamado.StatusSlaChamado;
 import br.geti.sistemachamado.dominio.chamado.TipoInteracao;
 import br.geti.sistemachamado.dominio.chamado.repositorio.AnexoChamadoRepositorio;
 import br.geti.sistemachamado.dominio.chamado.repositorio.ChamadoRepositorio;
@@ -27,6 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,8 @@ public class GerenciarChamadoAdministrativo {
     private final DepartamentoRepositorio departamentoRepositorio;
     private final CategoriaRepositorio categoriaRepositorio;
     private final ServicoRepositorio servicoRepositorio;
+    private final CalculadoraSlaChamado calculadoraSlaChamado;
+    private final AutomacaoOperacionalChamado automacaoOperacionalChamado;
 
     public GerenciarChamadoAdministrativo(
             final ChamadoRepositorio chamadoRepositorio,
@@ -51,7 +57,9 @@ public class GerenciarChamadoAdministrativo {
             final UsuarioRepositorio usuarioRepositorio,
             final DepartamentoRepositorio departamentoRepositorio,
             final CategoriaRepositorio categoriaRepositorio,
-            final ServicoRepositorio servicoRepositorio
+            final ServicoRepositorio servicoRepositorio,
+            final CalculadoraSlaChamado calculadoraSlaChamado,
+            final AutomacaoOperacionalChamado automacaoOperacionalChamado
     ) {
         this.chamadoRepositorio = chamadoRepositorio;
         this.interacaoChamadoRepositorio = interacaoChamadoRepositorio;
@@ -61,6 +69,8 @@ public class GerenciarChamadoAdministrativo {
         this.departamentoRepositorio = departamentoRepositorio;
         this.categoriaRepositorio = categoriaRepositorio;
         this.servicoRepositorio = servicoRepositorio;
+        this.calculadoraSlaChamado = calculadoraSlaChamado;
+        this.automacaoOperacionalChamado = automacaoOperacionalChamado;
     }
 
     public CatalogoChamadoAdminDto consultarCatalogo() {
@@ -107,7 +117,11 @@ public class GerenciarChamadoAdministrativo {
     }
 
     public DashboardAdminChamadoDto consultarDashboard() {
+        final var referencia = LocalDateTime.now();
         final var chamados = chamadoRepositorio.listarTodos();
+        final var pendentes = chamados.stream()
+                .filter(this::chamadoPendente)
+                .toList();
 
         final var porSituacao = List.of(
                 SituacaoChamado.ABERTO,
@@ -130,31 +144,112 @@ public class GerenciarChamadoAdministrativo {
                 chamados.stream().filter(ch -> ch.prioridade() == prioridade).count()
         )).toList();
 
-        final var porDepartamento = chamados.stream()
-                .collect(java.util.stream.Collectors.groupingBy(
-                        chamado -> chamado.departamento().nome(),
-                        java.util.stream.Collectors.counting()
-                ))
-                .entrySet().stream()
-                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
-                .map(entry -> new IndicadorAdminChamadoDto(entry.getKey(), entry.getValue()))
-                .toList();
+        final var porDepartamento = agruparPorDescricao(
+                chamados,
+                chamado -> chamado.departamento().nome()
+        );
+        final var porResponsavel = agruparPorDescricao(
+                chamados,
+                chamado -> chamado.responsavel() != null ? chamado.responsavel().nome() : "SEM_RESPONSAVEL"
+        );
+        final var porStatusSla = agruparPorDescricao(
+                pendentes,
+                chamado -> calcularSla(chamado, referencia).statusSla().name()
+        );
 
-        final var pendentesRecentes = chamados.stream()
-                .filter(chamado -> chamado.situacao() != SituacaoChamado.RESOLVIDO
-                        && chamado.situacao() != SituacaoChamado.CANCELADO)
+        final var pendentesRecentes = pendentes.stream()
                 .sorted(Comparator.comparing(Chamado::dataCriacao).reversed())
                 .limit(10)
-                .map(this::paraResumoDashboard)
+                .map(chamado -> paraResumoDashboard(chamado, referencia))
                 .toList();
 
-        return new DashboardAdminChamadoDto(porSituacao, porPrioridade, porDepartamento, pendentesRecentes);
+        final var chamadosVencidosSla = pendentes.stream()
+                .filter(chamado -> calcularSla(chamado, referencia).statusSla() == StatusSlaChamado.VENCIDO)
+                .sorted(Comparator.comparingLong((Chamado chamado) -> calcularSla(chamado, referencia).minutosAtraso())
+                        .reversed())
+                .limit(15)
+                .map(chamado -> paraResumoDashboard(chamado, referencia))
+                .toList();
+
+        final var chamadosProximosVencimentoSla = pendentes.stream()
+                .filter(chamado -> calcularSla(chamado, referencia).statusSla() == StatusSlaChamado.PROXIMO_DO_VENCIMENTO)
+                .sorted(Comparator.comparing((Chamado chamado) -> calcularSla(chamado, referencia).dataLimiteSla()))
+                .limit(15)
+                .map(chamado -> paraResumoDashboard(chamado, referencia))
+                .toList();
+
+        return new DashboardAdminChamadoDto(
+                porSituacao,
+                porPrioridade,
+                porDepartamento,
+                porResponsavel,
+                porStatusSla,
+                chamadosVencidosSla.size(),
+                chamadosProximosVencimentoSla.size(),
+                pendentesRecentes,
+                chamadosVencidosSla,
+                chamadosProximosVencimentoSla
+        );
+    }
+
+    public RelatorioOperacionalChamadoAdminDto consultarRelatorioOperacional(
+            final RelatorioOperacionalChamadoAdminFiltroComando filtro
+    ) {
+        final var filtroAplicado = filtro != null
+                ? filtro
+                : new RelatorioOperacionalChamadoAdminFiltroComando(null, null, null, null, null);
+        final var referencia = LocalDateTime.now();
+        final var chamados = chamadoRepositorio.listarTodos().stream()
+                .filter(chamado -> filtroAplicado.departamentoId() == null
+                        || chamado.departamento().id().equals(filtroAplicado.departamentoId()))
+                .filter(chamado -> filtroAplicado.situacao() == null || chamado.situacao() == filtroAplicado.situacao())
+                .filter(chamado -> filtroAplicado.prioridade() == null || chamado.prioridade() == filtroAplicado.prioridade())
+                .filter(chamado -> filtroAplicado.responsavelId() == null
+                        || (chamado.responsavel() != null && chamado.responsavel().id().equals(filtroAplicado.responsavelId())))
+                .filter(chamado -> filtroAplicado.statusSla() == null
+                        || calcularSla(chamado, referencia).statusSla() == filtroAplicado.statusSla())
+                .toList();
+
+        final var porDepartamento = agruparPorDescricao(chamados, chamado -> chamado.departamento().nome());
+        final var porSituacao = agruparPorDescricao(chamados, chamado -> chamado.situacao().name());
+        final var porPrioridade = agruparPorDescricao(chamados, chamado -> chamado.prioridade().name());
+        final var porResponsavel = agruparPorDescricao(
+                chamados,
+                chamado -> chamado.responsavel() != null ? chamado.responsavel().nome() : "SEM_RESPONSAVEL"
+        );
+        final var porStatusSla = agruparPorDescricao(chamados, chamado -> calcularSla(chamado, referencia).statusSla().name());
+
+        final var chamadosVencidosSla = chamados.stream()
+                .filter(this::chamadoPendente)
+                .filter(chamado -> calcularSla(chamado, referencia).statusSla() == StatusSlaChamado.VENCIDO)
+                .sorted(Comparator.comparingLong((Chamado chamado) -> calcularSla(chamado, referencia).minutosAtraso())
+                        .reversed())
+                .map(chamado -> paraResumoDashboard(chamado, referencia))
+                .toList();
+
+        final var chamadosProximosVencimentoSla = chamados.stream()
+                .filter(this::chamadoPendente)
+                .filter(chamado -> calcularSla(chamado, referencia).statusSla() == StatusSlaChamado.PROXIMO_DO_VENCIMENTO)
+                .sorted(Comparator.comparing((Chamado chamado) -> calcularSla(chamado, referencia).dataLimiteSla()))
+                .map(chamado -> paraResumoDashboard(chamado, referencia))
+                .toList();
+
+        return new RelatorioOperacionalChamadoAdminDto(
+                porDepartamento,
+                porSituacao,
+                porPrioridade,
+                porResponsavel,
+                porStatusSla,
+                chamadosVencidosSla,
+                chamadosProximosVencimentoSla
+        );
     }
 
     public List<ChamadoAdminFilaDto> listarFila(final ChamadoAdminFiltroFilaComando filtro) {
         final var filtroAplicado = filtro != null
                 ? filtro
-                : new ChamadoAdminFiltroFilaComando(null, null, null, null, null);
+                : new ChamadoAdminFiltroFilaComando(null, null, null, null, null, null);
+        final var referencia = LocalDateTime.now();
 
         return chamadoRepositorio.listarTodos().stream()
                 .filter(chamado -> filtroAplicado.situacao() == null || chamado.situacao() == filtroAplicado.situacao())
@@ -164,8 +259,10 @@ public class GerenciarChamadoAdministrativo {
                 .filter(chamado -> filtroAplicado.origem() == null || chamado.origem() == filtroAplicado.origem())
                 .filter(chamado -> filtroAplicado.responsavelId() == null
                         || (chamado.responsavel() != null && chamado.responsavel().id().equals(filtroAplicado.responsavelId())))
+                .filter(chamado -> filtroAplicado.statusSla() == null
+                        || calcularSla(chamado, referencia).statusSla() == filtroAplicado.statusSla())
                 .sorted(Comparator.comparing(Chamado::dataCriacao).reversed())
-                .map(this::paraFila)
+                .map(chamado -> paraFila(chamado, referencia))
                 .toList();
     }
 
@@ -264,10 +361,24 @@ public class GerenciarChamadoAdministrativo {
             throw new ErroDeDominio("Encaminhamento nao alterou departamento/categoria/servico do chamado.");
         }
 
+        Usuario responsavelAposEncaminhamento = chamado.responsavel();
+        if (responsavelAposEncaminhamento != null
+                && responsavelAposEncaminhamento.departamento() != null
+                && !responsavelAposEncaminhamento.departamento().id().equals(departamento.id())) {
+            responsavelAposEncaminhamento = null;
+        }
+
+        final java.util.Optional<br.geti.sistemachamado.aplicacao.chamado.automacao.ResultadoAtribuicaoAutomaticaChamado> atribuicaoAutomatica = responsavelAposEncaminhamento == null
+                ? automacaoOperacionalChamado.resolverAtribuicaoAutomatica(departamento, null)
+                : java.util.Optional.empty();
+        if (atribuicaoAutomatica.isPresent()) {
+            responsavelAposEncaminhamento = atribuicaoAutomatica.get().responsavel();
+        }
+
         final var atualizado = atualizarChamado(
                 chamado,
                 chamado.situacao(),
-                null,
+                responsavelAposEncaminhamento,
                 departamento,
                 categoria,
                 servico
@@ -289,6 +400,24 @@ public class GerenciarChamadoAdministrativo {
                 salvo.situacao(),
                 false
         );
+
+        if (atribuicaoAutomatica.isPresent()) {
+            final var resultado = atribuicaoAutomatica.get();
+            registrarInteracao(
+                    salvo.id(),
+                    TipoInteracao.ATRIBUICAO,
+                    resultado.motivo() + " Responsavel definido: " + resultado.responsavel().nome() + ".",
+                    false,
+                    agente
+            );
+            registrarHistorico(
+                    salvo.id(),
+                    "Atribuicao automatica executada apos encaminhamento para " + resultado.responsavel().nome() + ".",
+                    salvo.situacao(),
+                    salvo.situacao(),
+                    false
+            );
+        }
 
         return montarDetalhe(salvo);
     }
@@ -327,6 +456,7 @@ public class GerenciarChamadoAdministrativo {
     }
 
     private ChamadoAdminDetalheDto montarDetalhe(final Chamado chamado) {
+        final var sla = calcularSla(chamado, LocalDateTime.now());
         final var interacoes = interacaoChamadoRepositorio.listarPorChamado(chamado.id()).stream()
                 .map(this::paraInteracao)
                 .toList();
@@ -357,6 +487,11 @@ public class GerenciarChamadoAdministrativo {
                 chamado.categoria().nome(),
                 chamado.servico().id(),
                 chamado.servico().nome(),
+                sla.statusSla().name(),
+                sla.prazoSlaMinutos(),
+                sla.dataLimiteSla(),
+                sla.minutosRestantes(),
+                sla.minutosAtraso(),
                 chamado.dataCriacao(),
                 chamado.dataAtualizacao(),
                 interacoes,
@@ -365,7 +500,8 @@ public class GerenciarChamadoAdministrativo {
         );
     }
 
-    private ChamadoAdminFilaDto paraFila(final Chamado chamado) {
+    private ChamadoAdminFilaDto paraFila(final Chamado chamado, final LocalDateTime referencia) {
+        final var sla = calcularSla(chamado, referencia);
         return new ChamadoAdminFilaDto(
                 chamado.id(),
                 chamado.numero(),
@@ -379,12 +515,18 @@ public class GerenciarChamadoAdministrativo {
                 chamado.servico().nome(),
                 chamado.responsavel() != null ? chamado.responsavel().id() : null,
                 chamado.responsavel() != null ? chamado.responsavel().nome() : null,
+                sla.statusSla().name(),
+                sla.prazoSlaMinutos(),
+                sla.dataLimiteSla(),
+                sla.minutosRestantes(),
+                sla.minutosAtraso(),
                 chamado.dataCriacao(),
                 chamado.dataAtualizacao()
         );
     }
 
-    private ChamadoAdminResumoDashboardDto paraResumoDashboard(final Chamado chamado) {
+    private ChamadoAdminResumoDashboardDto paraResumoDashboard(final Chamado chamado, final LocalDateTime referencia) {
+        final var sla = calcularSla(chamado, referencia);
         return new ChamadoAdminResumoDashboardDto(
                 chamado.id(),
                 chamado.numero(),
@@ -393,6 +535,10 @@ public class GerenciarChamadoAdministrativo {
                 chamado.prioridade().name(),
                 chamado.departamento().nome(),
                 chamado.responsavel() != null ? chamado.responsavel().nome() : "Sem responsavel",
+                sla.statusSla().name(),
+                sla.dataLimiteSla(),
+                sla.minutosRestantes(),
+                sla.minutosAtraso(),
                 chamado.dataCriacao()
         );
     }
@@ -491,9 +637,34 @@ public class GerenciarChamadoAdministrativo {
                 departamento,
                 categoria,
                 servico,
+                chamado.prazoSlaMinutos(),
+                chamado.dataLimiteSla(),
                 chamado.dataCriacao(),
                 LocalDateTime.now()
         );
+    }
+
+    private br.geti.sistemachamado.aplicacao.chamado.sla.SlaChamadoCalculado calcularSla(
+            final Chamado chamado,
+            final LocalDateTime referencia
+    ) {
+        return calculadoraSlaChamado.calcular(chamado, referencia);
+    }
+
+    private boolean chamadoPendente(final Chamado chamado) {
+        return chamado.situacao() != SituacaoChamado.RESOLVIDO && chamado.situacao() != SituacaoChamado.CANCELADO;
+    }
+
+    private List<IndicadorAdminChamadoDto> agruparPorDescricao(
+            final List<Chamado> chamados,
+            final java.util.function.Function<Chamado, String> extratorDescricao
+    ) {
+        return chamados.stream()
+                .collect(Collectors.groupingBy(extratorDescricao, Collectors.counting()))
+                .entrySet().stream()
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                .map(entry -> new IndicadorAdminChamadoDto(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     private Chamado obterChamado(final UUID chamadoId) {

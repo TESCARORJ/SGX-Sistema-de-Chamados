@@ -58,6 +58,8 @@ public class ChamadoRepositorioJpa implements ChamadoRepositorio {
         entidade.setDepartamento(departamentoJpaRepository.getReferenceById(chamado.departamento().id()));
         entidade.setCategoria(categoriaJpaRepository.getReferenceById(chamado.categoria().id()));
         entidade.setServico(servicoJpaRepository.getReferenceById(chamado.servico().id()));
+        entidade.setPrazoSlaMinutos(chamado.prazoSlaMinutos());
+        entidade.setDataLimiteSla(chamado.dataLimiteSla());
 
         return ChamadoMapeadorJpa.paraDominio(chamadoJpaRepository.save(entidade));
     }

@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CorrelacionadorRespostaEmail {
+
+    private static final Pattern PADRAO_MESSAGE_ID = Pattern.compile("<([^>]+)>");
 
     private final LogDeIntegracaoEmailRepositorio logDeIntegracaoEmailRepositorio;
 
@@ -36,22 +39,51 @@ public class CorrelacionadorRespostaEmail {
 
     private List<String> extrairMessageIdsCandidatos(final MensagemEmailRecebida mensagem) {
         final var candidatos = new LinkedHashSet<String>();
-        adicionarSeValido(candidatos, mensagem.inReplyTo());
+        adicionarCabecalhoMessageId(candidatos, mensagem.inReplyTo());
 
         if (mensagem.references() != null && !mensagem.references().isEmpty()) {
             final var referencias = new ArrayList<>(mensagem.references());
             for (int indice = referencias.size() - 1; indice >= 0; indice--) {
-                adicionarSeValido(candidatos, referencias.get(indice));
+                adicionarCabecalhoMessageId(candidatos, referencias.get(indice));
             }
         }
+
+        adicionarCabecalhoMessageId(candidatos, mensagem.messageId());
         return List.copyOf(candidatos);
     }
 
-    private void adicionarSeValido(final LinkedHashSet<String> destino, final String valor) {
+    private void adicionarCabecalhoMessageId(final LinkedHashSet<String> destino, final String valor) {
         if (valor == null || valor.isBlank()) {
             return;
         }
-        destino.add(normalizarMessageId(valor));
+
+        final var candidatos = extrairMessageIds(valor);
+        if (candidatos.isEmpty()) {
+            destino.add(normalizarMessageId(valor));
+            return;
+        }
+
+        destino.addAll(candidatos);
+    }
+
+    private List<String> extrairMessageIds(final String valorCabecalho) {
+        final var encontrados = new LinkedHashSet<String>();
+        final var matcher = PADRAO_MESSAGE_ID.matcher(valorCabecalho);
+        while (matcher.find()) {
+            encontrados.add(normalizarMessageId(matcher.group(1)));
+        }
+
+        if (!encontrados.isEmpty()) {
+            return List.copyOf(encontrados);
+        }
+
+        for (final var token : valorCabecalho.split("[,\\s]+")) {
+            if (token == null || token.isBlank()) {
+                continue;
+            }
+            encontrados.add(normalizarMessageId(token));
+        }
+        return List.copyOf(encontrados);
     }
 
     private String normalizarMessageId(final String messageId) {

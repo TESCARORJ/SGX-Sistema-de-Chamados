@@ -3,7 +3,7 @@
     <div class="pagina-cabecalho row items-center justify-between q-col-gutter-md">
       <div>
         <h1>Fila Administrativa</h1>
-        <p>Operacao dos chamados com filtros por situacao, prioridade, origem, departamento e responsavel.</p>
+        <p>Operacao dos chamados com filtros por situacao, prioridade, origem, departamento, responsavel e SLA.</p>
       </div>
       <q-btn flat icon="refresh" label="Atualizar" :loading="carregando" @click="carregarFila" />
     </div>
@@ -48,7 +48,18 @@
               map-options
             />
           </div>
-          <div class="col-12 col-md-3">
+          <div class="col-12 col-md-2">
+            <q-select
+              v-model="filtro.statusSla"
+              :options="opcoesStatusSla"
+              label="Status SLA"
+              outlined
+              clearable
+              emit-value
+              map-options
+            />
+          </div>
+          <div class="col-12 col-md-2">
             <q-select
               v-model="filtro.departamentoId"
               :options="catalogo.departamentos"
@@ -61,7 +72,7 @@
               map-options
             />
           </div>
-          <div class="col-12 col-md-3">
+          <div class="col-12 col-md-2">
             <q-select
               v-model="filtro.responsavelId"
               :options="catalogo.responsaveis"
@@ -103,6 +114,18 @@
             {{ props.row.prioridade }}
           </q-badge>
         </q-td>
+      </template>
+
+      <template #body-cell-statusSla="props">
+        <q-td :props="props">
+          <q-badge :color="corStatusSla(props.row.statusSla)" text-color="white">
+            {{ props.row.statusSla }}
+          </q-badge>
+        </q-td>
+      </template>
+
+      <template #body-cell-dataLimiteSla="props">
+        <q-td :props="props">{{ formatarData(props.row.dataLimiteSla) }}</q-td>
       </template>
 
       <template #body-cell-dataCriacao="props">
@@ -154,12 +177,14 @@ const filtro = reactive<{
   departamentoId: string | null;
   origem: string | null;
   responsavelId: string | null;
+  statusSla: string | null;
 }>({
   situacao: null,
   prioridade: null,
   departamentoId: null,
   origem: null,
-  responsavelId: null
+  responsavelId: null,
+  statusSla: null
 });
 
 const colunas: QTableColumn[] = [
@@ -167,6 +192,8 @@ const colunas: QTableColumn[] = [
   { name: 'titulo', label: 'Titulo', field: 'titulo', align: 'left', sortable: true },
   { name: 'situacao', label: 'Situacao', field: 'situacao', align: 'left', sortable: true },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
+  { name: 'statusSla', label: 'SLA', field: 'statusSla', align: 'left', sortable: true },
+  { name: 'dataLimiteSla', label: 'Data Limite SLA', field: 'dataLimiteSla', align: 'left', sortable: true },
   { name: 'origem', label: 'Origem', field: 'origem', align: 'left', sortable: true },
   { name: 'departamentoNome', label: 'Departamento', field: 'departamentoNome', align: 'left', sortable: true },
   { name: 'responsavelNome', label: 'Responsavel', field: 'responsavelNome', align: 'left', sortable: true },
@@ -177,6 +204,11 @@ const colunas: QTableColumn[] = [
 const opcoesSituacao = ref<Array<{ label: string; value: string }>>([]);
 const opcoesPrioridade = ref<Array<{ label: string; value: string }>>([]);
 const opcoesOrigem = ref<Array<{ label: string; value: string }>>([]);
+const opcoesStatusSla = [
+  { label: 'Dentro do prazo', value: 'DENTRO_DO_PRAZO' },
+  { label: 'Proximo do vencimento', value: 'PROXIMO_DO_VENCIMENTO' },
+  { label: 'Vencido', value: 'VENCIDO' }
+];
 
 function formatarData(valor: string): string {
   return new Date(valor).toLocaleString('pt-BR');
@@ -190,6 +222,16 @@ function corPrioridade(prioridade: string): string {
     return 'deep-orange';
   }
   if (prioridade === 'MEDIA') {
+    return 'warning';
+  }
+  return 'positive';
+}
+
+function corStatusSla(statusSla: string): string {
+  if (statusSla === 'VENCIDO') {
+    return 'negative';
+  }
+  if (statusSla === 'PROXIMO_DO_VENCIMENTO') {
     return 'warning';
   }
   return 'positive';
@@ -219,7 +261,8 @@ async function carregarFila(): Promise<void> {
       prioridade: filtro.prioridade,
       departamentoId: filtro.departamentoId,
       origem: filtro.origem,
-      responsavelId: filtro.responsavelId
+      responsavelId: filtro.responsavelId,
+      statusSla: filtro.statusSla
     });
   } catch (ex) {
     erro.value = ex instanceof Error ? ex.message : 'Falha ao carregar fila administrativa.';
@@ -234,6 +277,7 @@ async function limparFiltros(): Promise<void> {
   filtro.departamentoId = null;
   filtro.origem = null;
   filtro.responsavelId = null;
+  filtro.statusSla = null;
   await carregarFila();
 }
 

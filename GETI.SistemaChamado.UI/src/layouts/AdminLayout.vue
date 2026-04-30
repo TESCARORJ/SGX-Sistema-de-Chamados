@@ -17,7 +17,7 @@
           no-caps
           :label="item.label"
           :to="item.to"
-          :class="{ 'bg-white text-secondary': rotaAtual.startsWith(item.to) }"
+          :class="{ 'bg-white text-secondary': itemAtivo(item.to) }"
         />
       </q-toolbar>
     </q-header>
@@ -41,12 +41,24 @@ const rotaAtual = computed(() => route.path);
 const menuAdmin = [
   { label: 'Dashboard', to: '/admin' },
   { label: 'Fila de Chamados', to: '/admin/chamados' },
+  { label: 'Relatorios Operacionais', to: '/admin/chamados/relatorios' },
   { label: 'Departamentos', to: '/admin/departamentos' },
   { label: 'Caixas de E-mail', to: '/admin/caixas-email' },
   { label: 'Categorias', to: '/admin/categorias' },
   { label: 'Servicos', to: '/admin/servicos' },
   { label: 'Grupos de Atendimento', to: '/admin/grupos-atendimento' }
 ];
+
+function itemAtivo(caminho: string): boolean {
+  if (caminho === '/admin/chamados/relatorios') {
+    return rotaAtual.value.startsWith('/admin/chamados/relatorios');
+  }
+  if (caminho === '/admin/chamados') {
+    return rotaAtual.value === '/admin/chamados'
+      || (rotaAtual.value.startsWith('/admin/chamados/') && !rotaAtual.value.startsWith('/admin/chamados/relatorios'));
+  }
+  return rotaAtual.value.startsWith(caminho);
+}
 
 onMounted(async () => {
   try {

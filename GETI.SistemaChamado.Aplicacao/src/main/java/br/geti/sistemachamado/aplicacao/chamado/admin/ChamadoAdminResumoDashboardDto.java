@@ -11,6 +11,10 @@ public record ChamadoAdminResumoDashboardDto(
         String prioridade,
         String departamento,
         String responsavel,
+        String statusSla,
+        LocalDateTime dataLimiteSla,
+        Long minutosRestantesSla,
+        Long minutosAtrasoSla,
         LocalDateTime dataCriacao
 ) {
 }

@@ -16,6 +16,11 @@ public record ChamadoAdminFilaDto(
         String servicoNome,
         UUID responsavelId,
         String responsavelNome,
+        String statusSla,
+        Integer prazoSlaMinutos,
+        LocalDateTime dataLimiteSla,
+        Long minutosRestantesSla,
+        Long minutosAtrasoSla,
         LocalDateTime dataCriacao,
         LocalDateTime dataAtualizacao
 ) {

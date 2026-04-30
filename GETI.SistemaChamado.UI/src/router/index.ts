@@ -12,6 +12,7 @@ import ServicosAdminPagina from '@/pages/admin/ServicosAdminPagina.vue';
 import GruposAtendimentoAdminPagina from '@/pages/admin/GruposAtendimentoAdminPagina.vue';
 import AdminChamadosFilaPagina from '@/pages/admin/chamados/AdminChamadosFilaPagina.vue';
 import AdminChamadoDetalhePagina from '@/pages/admin/chamados/AdminChamadoDetalhePagina.vue';
+import AdminRelatoriosOperacionaisPagina from '@/pages/admin/chamados/AdminRelatoriosOperacionaisPagina.vue';
 import NaoAutenticadoPagina from '@/pages/acesso/NaoAutenticadoPagina.vue';
 import AcessoNegadoPagina from '@/pages/acesso/AcessoNegadoPagina.vue';
 import { obterUsuarioAtual, possuiAcessoAdministrativo } from '@/services/sessaoUsuario';
@@ -111,6 +112,15 @@ export const router = createRouter({
           path: 'chamados',
           name: 'admin-chamados-fila',
           component: AdminChamadosFilaPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'chamados/relatorios',
+          name: 'admin-chamados-relatorios',
+          component: AdminRelatoriosOperacionaisPagina,
           meta: {
             requerAutenticacao: true,
             requerAcessoAdmin: true

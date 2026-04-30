@@ -16,6 +16,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "chamados")
@@ -61,6 +62,12 @@ public class ChamadoEntidadeJpa extends EntidadeBaseJpa {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "servico_id", nullable = false)
     private ServicoEntidadeJpa servico;
+
+    @Column(name = "prazo_sla_minutos", nullable = false)
+    private Integer prazoSlaMinutos;
+
+    @Column(name = "data_limite_sla", nullable = false)
+    private LocalDateTime dataLimiteSla;
 
     public String getNumero() {
         return numero;
@@ -148,5 +155,21 @@ public class ChamadoEntidadeJpa extends EntidadeBaseJpa {
 
     public void setServico(final ServicoEntidadeJpa servico) {
         this.servico = servico;
+    }
+
+    public Integer getPrazoSlaMinutos() {
+        return prazoSlaMinutos;
+    }
+
+    public void setPrazoSlaMinutos(final Integer prazoSlaMinutos) {
+        this.prazoSlaMinutos = prazoSlaMinutos;
+    }
+
+    public LocalDateTime getDataLimiteSla() {
+        return dataLimiteSla;
+    }
+
+    public void setDataLimiteSla(final LocalDateTime dataLimiteSla) {
+        this.dataLimiteSla = dataLimiteSla;
     }
 }

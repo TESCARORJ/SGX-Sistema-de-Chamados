@@ -32,6 +32,8 @@ public final class ChamadoMapeadorJpa {
                 AdministracaoMapeadorJpa.paraDominio(entidade.getDepartamento()),
                 AdministracaoMapeadorJpa.paraDominio(entidade.getCategoria()),
                 AdministracaoMapeadorJpa.paraDominio(entidade.getServico()),
+                entidade.getPrazoSlaMinutos(),
+                entidade.getDataLimiteSla(),
                 dataCriacao,
                 dataAtualizacao
         );

@@ -1,9 +1,11 @@
 package br.geti.sistemachamado.aplicacao.chamado.portal;
 
+import br.geti.sistemachamado.aplicacao.chamado.automacao.AutomacaoOperacionalChamado;
 import br.geti.sistemachamado.dominio.administracao.Categoria;
 import br.geti.sistemachamado.dominio.administracao.Departamento;
 import br.geti.sistemachamado.dominio.administracao.Servico;
 import br.geti.sistemachamado.dominio.administracao.Usuario;
+import br.geti.sistemachamado.aplicacao.chamado.sla.CalculadoraSlaChamado;
 import br.geti.sistemachamado.dominio.administracao.repositorio.CategoriaRepositorio;
 import br.geti.sistemachamado.dominio.administracao.repositorio.DepartamentoRepositorio;
 import br.geti.sistemachamado.dominio.administracao.repositorio.ServicoRepositorio;
@@ -44,6 +46,8 @@ public class GerenciarChamadoPortalSolicitante {
     private final ServicoRepositorio servicoRepositorio;
     private final GeradorNumeroChamado geradorNumeroChamado;
     private final ArmazenadorAnexoChamado armazenadorAnexoChamado;
+    private final CalculadoraSlaChamado calculadoraSlaChamado;
+    private final AutomacaoOperacionalChamado automacaoOperacionalChamado;
 
     public GerenciarChamadoPortalSolicitante(
             final ChamadoRepositorio chamadoRepositorio,
@@ -55,7 +59,9 @@ public class GerenciarChamadoPortalSolicitante {
             final CategoriaRepositorio categoriaRepositorio,
             final ServicoRepositorio servicoRepositorio,
             final GeradorNumeroChamado geradorNumeroChamado,
-            final ArmazenadorAnexoChamado armazenadorAnexoChamado
+            final ArmazenadorAnexoChamado armazenadorAnexoChamado,
+            final CalculadoraSlaChamado calculadoraSlaChamado,
+            final AutomacaoOperacionalChamado automacaoOperacionalChamado
     ) {
         this.chamadoRepositorio = chamadoRepositorio;
         this.interacaoChamadoRepositorio = interacaoChamadoRepositorio;
@@ -67,6 +73,8 @@ public class GerenciarChamadoPortalSolicitante {
         this.servicoRepositorio = servicoRepositorio;
         this.geradorNumeroChamado = geradorNumeroChamado;
         this.armazenadorAnexoChamado = armazenadorAnexoChamado;
+        this.calculadoraSlaChamado = calculadoraSlaChamado;
+        this.automacaoOperacionalChamado = automacaoOperacionalChamado;
     }
 
     public CatalogoAberturaChamadoPortalDto consultarCatalogoAbertura() {
@@ -91,21 +99,27 @@ public class GerenciarChamadoPortalSolicitante {
         final var departamento = obterDepartamentoAtivo(comando.departamentoId());
         final var categoria = obterCategoriaAtiva(comando.categoriaId());
         final var servico = obterServicoAtivo(comando.servicoId());
+        final var prioridade = ValidadorDominio.obrigatorio(comando.prioridade(), "prioridade do chamado e obrigatoria");
 
         final var agora = LocalDateTime.now();
+        final var prazoSlaMinutos = calculadoraSlaChamado.calcularPrazoInicialMinutos(prioridade);
+        final var dataLimiteSla = calculadoraSlaChamado.calcularDataLimite(agora, prazoSlaMinutos);
+        final var atribuicaoAutomatica = automacaoOperacionalChamado.resolverAtribuicaoAutomatica(departamento, null);
         final var chamadoSalvo = chamadoRepositorio.salvar(new Chamado(
                 UUID.randomUUID(),
                 geradorNumeroChamado.gerarNumero(),
                 ValidadorDominio.textoObrigatorio(comando.titulo(), "titulo do chamado e obrigatorio"),
                 ValidadorDominio.textoObrigatorio(comando.descricao(), "descricao do chamado e obrigatoria"),
                 SituacaoChamado.ABERTO,
-                ValidadorDominio.obrigatorio(comando.prioridade(), "prioridade do chamado e obrigatoria"),
+                prioridade,
                 OrigemChamado.PORTAL,
                 solicitante,
-                null,
+                atribuicaoAutomatica.map(resultado -> resultado.responsavel()).orElse(null),
                 departamento,
                 categoria,
                 servico,
+                prazoSlaMinutos,
+                dataLimiteSla,
                 agora,
                 null
         ));
@@ -131,6 +145,31 @@ public class GerenciarChamadoPortalSolicitante {
                 agora,
                 null
         ));
+
+        if (atribuicaoAutomatica.isPresent()) {
+            final var resultado = atribuicaoAutomatica.get();
+            interacaoChamadoRepositorio.salvar(new InteracaoChamado(
+                    UUID.randomUUID(),
+                    chamadoSalvo.id(),
+                    TipoInteracao.ATRIBUICAO,
+                    resultado.motivo() + " Responsavel definido: " + resultado.responsavel().nome() + ".",
+                    false,
+                    resultado.responsavel(),
+                    agora,
+                    null
+            ));
+
+            historicoChamadoRepositorio.salvar(new HistoricoChamado(
+                    UUID.randomUUID(),
+                    chamadoSalvo.id(),
+                    "Atribuicao automatica inicial realizada para " + resultado.responsavel().nome() + ".",
+                    chamadoSalvo.situacao(),
+                    chamadoSalvo.situacao(),
+                    false,
+                    agora,
+                    null
+            ));
+        }
 
         return buscarDetalheDoSolicitante(solicitante.id(), chamadoSalvo.id());
     }

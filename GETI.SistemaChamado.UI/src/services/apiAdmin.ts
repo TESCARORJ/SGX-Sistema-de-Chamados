@@ -87,6 +87,10 @@ export type ChamadoPendenteDashboardAdmin = {
   prioridade: string;
   departamento: string;
   responsavel: string;
+  statusSla: string;
+  dataLimiteSla: string;
+  minutosRestantesSla: number;
+  minutosAtrasoSla: number;
   dataCriacao: string;
 };
 
@@ -94,7 +98,23 @@ export type DashboardAdminChamado = {
   porSituacao: IndicadorDashboardAdminChamado[];
   porPrioridade: IndicadorDashboardAdminChamado[];
   porDepartamento: IndicadorDashboardAdminChamado[];
+  porResponsavel: IndicadorDashboardAdminChamado[];
+  porStatusSla: IndicadorDashboardAdminChamado[];
+  totalVencidosSla: number;
+  totalProximosVencimentoSla: number;
   pendentesRecentes: ChamadoPendenteDashboardAdmin[];
+  chamadosVencidosSla: ChamadoPendenteDashboardAdmin[];
+  chamadosProximosVencimentoSla: ChamadoPendenteDashboardAdmin[];
+};
+
+export type RelatorioOperacionalChamadoAdmin = {
+  porDepartamento: IndicadorDashboardAdminChamado[];
+  porSituacao: IndicadorDashboardAdminChamado[];
+  porPrioridade: IndicadorDashboardAdminChamado[];
+  porResponsavel: IndicadorDashboardAdminChamado[];
+  porStatusSla: IndicadorDashboardAdminChamado[];
+  chamadosVencidosSla: ChamadoPendenteDashboardAdmin[];
+  chamadosProximosVencimentoSla: ChamadoPendenteDashboardAdmin[];
 };
 
 export type ChamadoFilaAdmin = {
@@ -110,6 +130,11 @@ export type ChamadoFilaAdmin = {
   servicoNome: string;
   responsavelId: string | null;
   responsavelNome: string | null;
+  statusSla: string;
+  prazoSlaMinutos: number;
+  dataLimiteSla: string;
+  minutosRestantesSla: number;
+  minutosAtrasoSla: number;
   dataCriacao: string;
   dataAtualizacao: string | null;
 };
@@ -163,6 +188,11 @@ export type ChamadoDetalheAdmin = {
   categoriaNome: string;
   servicoId: string;
   servicoNome: string;
+  statusSla: string;
+  prazoSlaMinutos: number;
+  dataLimiteSla: string;
+  minutosRestantesSla: number;
+  minutosAtrasoSla: number;
   dataCriacao: string;
   dataAtualizacao: string | null;
   interacoes: InteracaoChamadoAdmin[];
@@ -176,6 +206,15 @@ export type FiltroFilaAdminChamado = {
   departamentoId?: string | null;
   origem?: string | null;
   responsavelId?: string | null;
+  statusSla?: string | null;
+};
+
+export type FiltroRelatorioOperacionalAdminChamado = {
+  departamentoId?: string | null;
+  situacao?: string | null;
+  prioridade?: string | null;
+  responsavelId?: string | null;
+  statusSla?: string | null;
 };
 
 type MetodoHttp = 'GET' | 'POST' | 'PUT' | 'PATCH';
@@ -384,9 +423,38 @@ export function listarFilaChamadoAdmin(filtro: FiltroFilaAdminChamado): Promise<
   if (filtro.responsavelId) {
     params.set('responsavelId', filtro.responsavelId);
   }
+  if (filtro.statusSla) {
+    params.set('statusSla', filtro.statusSla);
+  }
 
   const sufixo = params.toString() ? `?${params.toString()}` : '';
   return requisicaoJson<ChamadoFilaAdmin[]>(`/api/admin/chamados${sufixo}`, 'GET');
+}
+
+export function consultarRelatoriosOperacionaisChamadoAdmin(
+  filtro: FiltroRelatorioOperacionalAdminChamado
+): Promise<RelatorioOperacionalChamadoAdmin> {
+  const params = new URLSearchParams();
+  if (filtro.departamentoId) {
+    params.set('departamentoId', filtro.departamentoId);
+  }
+  if (filtro.situacao) {
+    params.set('situacao', filtro.situacao);
+  }
+  if (filtro.prioridade) {
+    params.set('prioridade', filtro.prioridade);
+  }
+  if (filtro.responsavelId) {
+    params.set('responsavelId', filtro.responsavelId);
+  }
+  if (filtro.statusSla) {
+    params.set('statusSla', filtro.statusSla);
+  }
+  const sufixo = params.toString() ? `?${params.toString()}` : '';
+  return requisicaoJson<RelatorioOperacionalChamadoAdmin>(
+    `/api/admin/chamados/relatorios-operacionais${sufixo}`,
+    'GET'
+  );
 }
 
 export function detalharChamadoAdmin(id: string): Promise<ChamadoDetalheAdmin> {

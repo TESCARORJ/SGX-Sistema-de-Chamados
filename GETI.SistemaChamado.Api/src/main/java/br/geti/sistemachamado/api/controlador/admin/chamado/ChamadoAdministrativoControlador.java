@@ -11,9 +11,12 @@ import br.geti.sistemachamado.aplicacao.chamado.admin.ComentarioChamadoAdminComa
 import br.geti.sistemachamado.aplicacao.chamado.admin.DashboardAdminChamadoDto;
 import br.geti.sistemachamado.aplicacao.chamado.admin.EncaminhamentoChamadoAdminComando;
 import br.geti.sistemachamado.aplicacao.chamado.admin.GerenciarChamadoAdministrativo;
+import br.geti.sistemachamado.aplicacao.chamado.admin.RelatorioOperacionalChamadoAdminDto;
+import br.geti.sistemachamado.aplicacao.chamado.admin.RelatorioOperacionalChamadoAdminFiltroComando;
 import br.geti.sistemachamado.dominio.chamado.OrigemChamado;
 import br.geti.sistemachamado.dominio.chamado.PrioridadeChamado;
 import br.geti.sistemachamado.dominio.chamado.SituacaoChamado;
+import br.geti.sistemachamado.dominio.chamado.StatusSlaChamado;
 import br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -50,20 +53,39 @@ public class ChamadoAdministrativoControlador {
         return gerenciarChamadoAdministrativo.consultarDashboard();
     }
 
+    @GetMapping("/relatorios-operacionais")
+    public RelatorioOperacionalChamadoAdminDto consultarRelatoriosOperacionais(
+            @RequestParam(name = "departamentoId", required = false) final UUID departamentoId,
+            @RequestParam(name = "situacao", required = false) final SituacaoChamado situacao,
+            @RequestParam(name = "prioridade", required = false) final PrioridadeChamado prioridade,
+            @RequestParam(name = "responsavelId", required = false) final UUID responsavelId,
+            @RequestParam(name = "statusSla", required = false) final StatusSlaChamado statusSla
+    ) {
+        return gerenciarChamadoAdministrativo.consultarRelatorioOperacional(new RelatorioOperacionalChamadoAdminFiltroComando(
+                departamentoId,
+                situacao,
+                prioridade,
+                responsavelId,
+                statusSla
+        ));
+    }
+
     @GetMapping
     public List<ChamadoAdminFilaDto> listarFila(
             @RequestParam(name = "situacao", required = false) final SituacaoChamado situacao,
             @RequestParam(name = "prioridade", required = false) final PrioridadeChamado prioridade,
             @RequestParam(name = "departamentoId", required = false) final UUID departamentoId,
             @RequestParam(name = "origem", required = false) final OrigemChamado origem,
-            @RequestParam(name = "responsavelId", required = false) final UUID responsavelId
+            @RequestParam(name = "responsavelId", required = false) final UUID responsavelId,
+            @RequestParam(name = "statusSla", required = false) final StatusSlaChamado statusSla
     ) {
         return gerenciarChamadoAdministrativo.listarFila(new ChamadoAdminFiltroFilaComando(
                 situacao,
                 prioridade,
                 departamentoId,
                 origem,
-                responsavelId
+                responsavelId,
+                statusSla
         ));
     }
 
