@@ -1,7 +1,10 @@
 package br.geti.sistemachamado.infraestrutura.persistencia.entidade;
 
+import br.geti.sistemachamado.dominio.administracao.TipoAutenticacaoUsuario;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -19,6 +22,13 @@ public class UsuarioEntidadeJpa extends EntidadeBaseJpa {
 
     @Column(name = "email", nullable = false, length = 255)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_autenticacao", nullable = false, length = 30)
+    private TipoAutenticacaoUsuario tipoAutenticacao;
+
+    @Column(name = "senha_hash", length = 255)
+    private String senhaHash;
 
     @Column(name = "ativo", nullable = false)
     private boolean ativo;
@@ -61,6 +71,22 @@ public class UsuarioEntidadeJpa extends EntidadeBaseJpa {
 
     public void setAtivo(final boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public TipoAutenticacaoUsuario getTipoAutenticacao() {
+        return tipoAutenticacao;
+    }
+
+    public void setTipoAutenticacao(final TipoAutenticacaoUsuario tipoAutenticacao) {
+        this.tipoAutenticacao = tipoAutenticacao;
+    }
+
+    public String getSenhaHash() {
+        return senhaHash;
+    }
+
+    public void setSenhaHash(final String senhaHash) {
+        this.senhaHash = senhaHash;
     }
 
     public PerfilAcessoEntidadeJpa getPerfilAcesso() {

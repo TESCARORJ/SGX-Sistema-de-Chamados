@@ -1,9 +1,11 @@
 package br.geti.sistemachamado.api.configuracao.seguranca;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,7 +22,9 @@ public class SegurancaApiConfiguracao {
             final HttpSecurity http,
             final ConversorJwtParaAutenticacaoInterna conversorJwtParaAutenticacaoInterna,
             final FiltroAutenticacaoLocalDesenvolvimento filtroAutenticacaoLocalDesenvolvimento,
-            @Value("${app.seguranca.modo-local-habilitado:false}") final boolean modoLocalHabilitado
+            final ObjectProvider<AuthenticationProvider> autenticacaoAdministradorLocalProvider,
+            @Value("${app.seguranca.modo-local-habilitado:false}") final boolean modoLocalHabilitado,
+            @Value("${app.admin-local.autenticacao-habilitada:true}") final boolean autenticacaoAdminLocalHabilitada
     ) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -38,6 +42,14 @@ public class SegurancaApiConfiguracao {
                         .requestMatchers("/api/portal/**", "/api/me").authenticated()
                         .anyRequest().authenticated()
                 );
+
+        if (autenticacaoAdminLocalHabilitada) {
+            final var provider = autenticacaoAdministradorLocalProvider.getIfAvailable();
+            if (provider != null) {
+                http.authenticationProvider(provider);
+            }
+            http.httpBasic(Customizer.withDefaults());
+        }
 
         if (modoLocalHabilitado) {
             http.addFilterBefore(filtroAutenticacaoLocalDesenvolvimento, AnonymousAuthenticationFilter.class);

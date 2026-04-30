@@ -21,6 +21,12 @@ app:
   ambiente: local
   api:
     expor-endpoints-tecnicos: false
+  admin-local:
+    habilitado: ${APP_ADMIN_LOCAL_HABILITADO:false}
+    autenticacao-habilitada: ${APP_ADMIN_LOCAL_AUTENTICACAO_HABILITADA:false}
+    nome: ${APP_ADMIN_LOCAL_NOME:Administrador Local}
+    email: ${APP_ADMIN_LOCAL_EMAIL:admin.local@crea-rj.org.br}
+    senha-inicial: ${APP_ADMIN_LOCAL_SENHA_INICIAL:}
   seguranca:
     modo-local-habilitado: false
     local:
@@ -41,3 +47,8 @@ logging:
   level:
     root: INFO
     br.geti.sistemachamado: INFO
+
+AdminLocal:
+  Nome: ${APP_ADMIN_LOCAL_NOME:Administrador Local}
+  Email: ${APP_ADMIN_LOCAL_EMAIL:admin.local@crea-rj.org.br}
+  SenhaInicial: ${APP_ADMIN_LOCAL_SENHA_INICIAL:}

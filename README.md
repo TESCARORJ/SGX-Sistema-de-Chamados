@@ -35,6 +35,11 @@ Defina via `SPRING_PROFILES_ACTIVE`.
 ### API
 - `SPRING_PROFILES_ACTIVE`
 - `APP_SECURITY_OAUTH2_ISSUER_URI` (obrigatoria em `development` sem local, `hml` e `prd`)
+- `APP_ADMIN_LOCAL_HABILITADO` (padrao: `false`, habilite conscientemente)
+- `APP_ADMIN_LOCAL_AUTENTICACAO_HABILITADA` (padrao: `false`)
+- `APP_ADMIN_LOCAL_NOME` (padrao: `Administrador Local`)
+- `APP_ADMIN_LOCAL_EMAIL` (padrao: `admin.local@crea-rj.org.br`)
+- `APP_ADMIN_LOCAL_SENHA_INICIAL` (sem padrao global por seguranca)
 
 ### Worker IMAP
 - `SPRING_PROFILES_ACTIVE`
@@ -56,10 +61,13 @@ Defina via `SPRING_PROFILES_ACTIVE`.
 
 ### Modo local tecnico
 - Habilitado apenas no profile `local`.
+- Provisiona automaticamente um administrador local inicial (idempotente) quando habilitado.
 - Headers aceitos:
   - `X-Auth-Login` (obrigatorio)
   - `X-Auth-Nome` (opcional)
   - `X-Auth-Email` (opcional)
+- Autenticacao local por e-mail/senha (HTTP Basic) para administrador local:
+  - `Authorization: Basic base64(email:senha)`
 - Endpoints tecnicos da API (`/api/tecnico/**`) ficam desabilitados por padrao e devem ser expostos apenas por propriedade local.
 
 ## Flyway e migracoes
@@ -74,6 +82,7 @@ Defina via `SPRING_PROFILES_ACTIVE`.
   - `V7__expandir_operacao_administrativa_chamado.sql`
   - `V8__criar_log_integracao_email.sql`
   - `V9__adicionar_controle_sla_chamado.sql`
+  - `V10__adicionar_autenticacao_local_usuario.sql`
 - `ddl-auto` permanece `validate` para impedir drift estrutural.
 
 ## Execucao local
@@ -106,6 +115,11 @@ npm run lint
 npm run build
 npm run dev
 ```
+
+Variaveis opcionais do frontend para autenticacao local:
+- `VITE_AUTH_LOCAL_EMAIL`
+- `VITE_AUTH_LOCAL_SENHA`
+- fallback legado por header: `VITE_AUTH_LOCAL_LOGIN`, `VITE_AUTH_LOCAL_NOME`, `VITE_AUTH_LOCAL_EMAIL`
 
 ## Endpoints de verificacao
 - `GET /api/saude`

@@ -2,5 +2,16 @@ app:
   ambiente: local
   api:
     expor-endpoints-tecnicos: true
+  admin-local:
+    habilitado: true
+    autenticacao-habilitada: true
+    nome: ${APP_ADMIN_LOCAL_NOME:Administrador Local}
+    email: ${APP_ADMIN_LOCAL_EMAIL:admin.local@crea-rj.org.br}
+    senha-inicial: ${APP_ADMIN_LOCAL_SENHA_INICIAL:Alterar@123}
   seguranca:
     modo-local-habilitado: true
+
+AdminLocal:
+  Nome: ${APP_ADMIN_LOCAL_NOME:Administrador Local}
+  Email: ${APP_ADMIN_LOCAL_EMAIL:admin.local@crea-rj.org.br}
+  SenhaInicial: ${APP_ADMIN_LOCAL_SENHA_INICIAL:Alterar@123}

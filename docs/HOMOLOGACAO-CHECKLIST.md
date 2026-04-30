@@ -6,6 +6,7 @@
 - [ ] PostgreSQL acessivel com base `chamados_geti`.
 - [ ] `SPRING_PROFILES_ACTIVE` configurado para API e Worker.
 - [ ] `APP_SECURITY_OAUTH2_ISSUER_URI` configurada em `hml` (API).
+- [ ] Estrategia de admin local definida para o ambiente (`APP_ADMIN_LOCAL_*`).
 - [ ] Credenciais IMAP configuradas no Worker (`APP_WORKER_EMAIL_IMAP_*`).
 - [ ] Dependencias externas acessiveis:
   - [ ] AD/Azure (issuer JWT)
@@ -17,7 +18,7 @@
 - [ ] Frontend: `npm run build` sem falhas.
 
 ## 3. Banco e migracoes
-- [ ] Flyway aplicado ate a ultima versao (`V9`).
+- [ ] Flyway aplicado ate a ultima versao (`V10`).
 - [ ] Sem drift entre entidade e banco (`ddl-auto=validate`).
 - [ ] Sem necessidade de migration pendente da sprint.
 
@@ -34,6 +35,7 @@
 
 ## 5. Seguranca e permissao
 - [ ] Rotas admin exigindo perfis internos corretos.
+- [ ] Autenticacao local administrativa habilitada apenas quando explicitamente necessario.
 - [ ] Endpoints tecnicos desabilitados fora de local (`app.api.expor-endpoints-tecnicos=false`).
 - [ ] Actuator exposto apenas com `health` e `info`.
 - [ ] Backend permanecendo como fonte de verdade da autorizacao.
@@ -44,7 +46,7 @@
 - [ ] Logs de integracao por e-mail rastreaveis por `messageId` e caixa.
 
 ## 7. Pontos de atencao conhecidos
-- [ ] `local` usa autenticacao tecnica por header apenas para desenvolvimento.
+- [ ] `local` pode usar autenticacao tecnica por header ou admin local via Basic.
 - [ ] Integracao AD/Azure depende de issuer e claims corporativos corretos.
 - [ ] Integracao IMAP depende de politica de rede e credenciais do ambiente.
 - [ ] Cenarios de carga alta ainda exigem avaliacao de capacidade em homologacao.

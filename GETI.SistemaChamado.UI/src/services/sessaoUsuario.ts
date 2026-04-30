@@ -12,6 +12,15 @@ const PERFIS_ADMINISTRATIVOS = new Set(['Atendente', 'Supervisor', 'Administrado
 let cacheUsuarioAtual: UsuarioAtual | null | undefined;
 
 export function obterCabecalhosAutenticacaoLocal(): HeadersInit {
+  const email = import.meta.env.VITE_AUTH_LOCAL_EMAIL;
+  const senha = import.meta.env.VITE_AUTH_LOCAL_SENHA;
+  if (email && senha) {
+    const token = btoa(`${email}:${senha}`);
+    return {
+      Authorization: `Basic ${token}`
+    };
+  }
+
   const login = import.meta.env.VITE_AUTH_LOCAL_LOGIN;
   if (!login) {
     return {};

@@ -110,6 +110,8 @@ public final class AdministracaoMapeadorJpa {
                 entidade.getNome(),
                 entidade.getLogin(),
                 entidade.getEmail(),
+                entidade.getTipoAutenticacao(),
+                entidade.getSenhaHash(),
                 entidade.isAtivo(),
                 paraDominio(entidade.getPerfilAcesso()),
                 entidade.getDepartamento() != null ? paraDominio(entidade.getDepartamento()) : null,

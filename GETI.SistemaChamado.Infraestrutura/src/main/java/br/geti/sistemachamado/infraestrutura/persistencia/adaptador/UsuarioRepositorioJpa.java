@@ -38,6 +38,8 @@ public class UsuarioRepositorioJpa implements UsuarioRepositorio {
         entidade.setNome(usuario.nome());
         entidade.setLogin(usuario.login());
         entidade.setEmail(usuario.email());
+        entidade.setTipoAutenticacao(usuario.tipoAutenticacao());
+        entidade.setSenhaHash(usuario.senhaHash());
         entidade.setAtivo(usuario.ativo());
         entidade.setPerfilAcesso(perfilAcessoJpaRepository.getReferenceById(usuario.perfilAcesso().id()));
 
