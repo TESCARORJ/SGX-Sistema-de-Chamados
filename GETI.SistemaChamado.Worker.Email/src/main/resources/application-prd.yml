@@ -1,5 +1,8 @@
 app:
   ambiente: producao
+  worker:
+    email:
+      modo-local-habilitado: false
 
 management:
   endpoint:

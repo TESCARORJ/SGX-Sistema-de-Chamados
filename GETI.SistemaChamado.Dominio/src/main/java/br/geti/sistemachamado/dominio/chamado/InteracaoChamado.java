@@ -23,6 +23,7 @@ public record InteracaoChamado(
         ValidadorDominio.obrigatorio(tipoInteracao, "tipo da interacao e obrigatorio");
         mensagem = ValidadorDominio.textoObrigatorio(mensagem, "mensagem da interacao e obrigatoria");
         ValidadorDominio.obrigatorio(autor, "autor da interacao e obrigatorio");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

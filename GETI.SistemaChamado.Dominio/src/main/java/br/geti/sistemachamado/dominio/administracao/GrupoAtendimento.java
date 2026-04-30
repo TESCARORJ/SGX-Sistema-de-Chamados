@@ -25,6 +25,7 @@ public record GrupoAtendimento(
                 descricao = null;
             }
         }
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

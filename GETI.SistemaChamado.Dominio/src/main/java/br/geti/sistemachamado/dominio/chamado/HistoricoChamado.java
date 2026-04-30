@@ -11,6 +11,7 @@ public record HistoricoChamado(
         String descricao,
         SituacaoChamado situacaoAnterior,
         SituacaoChamado situacaoNova,
+        boolean visivelSolicitante,
         LocalDateTime dataCriacao,
         LocalDateTime dataAtualizacao
 ) implements AgregadoRaiz {
@@ -20,6 +21,7 @@ public record HistoricoChamado(
         ValidadorDominio.obrigatorio(chamadoId, "chamado do historico e obrigatorio");
         descricao = ValidadorDominio.textoObrigatorio(descricao, "descricao do historico e obrigatoria");
         ValidadorDominio.obrigatorio(situacaoNova, "situacao nova do historico e obrigatoria");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

@@ -10,6 +10,8 @@ import CaixasEmailAdminPagina from '@/pages/admin/CaixasEmailAdminPagina.vue';
 import CategoriasAdminPagina from '@/pages/admin/CategoriasAdminPagina.vue';
 import ServicosAdminPagina from '@/pages/admin/ServicosAdminPagina.vue';
 import GruposAtendimentoAdminPagina from '@/pages/admin/GruposAtendimentoAdminPagina.vue';
+import AdminChamadosFilaPagina from '@/pages/admin/chamados/AdminChamadosFilaPagina.vue';
+import AdminChamadoDetalhePagina from '@/pages/admin/chamados/AdminChamadoDetalhePagina.vue';
 import NaoAutenticadoPagina from '@/pages/acesso/NaoAutenticadoPagina.vue';
 import AcessoNegadoPagina from '@/pages/acesso/AcessoNegadoPagina.vue';
 import { obterUsuarioAtual, possuiAcessoAdministrativo } from '@/services/sessaoUsuario';
@@ -100,6 +102,24 @@ export const router = createRouter({
           path: 'grupos-atendimento',
           name: 'admin-grupos-atendimento',
           component: GruposAtendimentoAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'chamados',
+          name: 'admin-chamados-fila',
+          component: AdminChamadosFilaPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'chamados/:id',
+          name: 'admin-chamados-detalhe',
+          component: AdminChamadoDetalhePagina,
           meta: {
             requerAutenticacao: true,
             requerAcessoAdmin: true

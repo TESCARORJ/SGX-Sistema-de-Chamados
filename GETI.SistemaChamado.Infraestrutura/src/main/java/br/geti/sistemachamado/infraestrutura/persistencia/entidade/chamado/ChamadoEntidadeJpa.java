@@ -46,6 +46,10 @@ public class ChamadoEntidadeJpa extends EntidadeBaseJpa {
     @JoinColumn(name = "solicitante_id", nullable = false)
     private UsuarioEntidadeJpa solicitante;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "responsavel_usuario_id")
+    private UsuarioEntidadeJpa responsavel;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "departamento_id", nullable = false)
     private DepartamentoEntidadeJpa departamento;
@@ -112,6 +116,14 @@ public class ChamadoEntidadeJpa extends EntidadeBaseJpa {
 
     public void setSolicitante(final UsuarioEntidadeJpa solicitante) {
         this.solicitante = solicitante;
+    }
+
+    public UsuarioEntidadeJpa getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(final UsuarioEntidadeJpa responsavel) {
+        this.responsavel = responsavel;
     }
 
     public DepartamentoEntidadeJpa getDepartamento() {

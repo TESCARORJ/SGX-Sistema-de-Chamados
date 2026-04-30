@@ -23,6 +23,7 @@ public record Usuario(
         login = ValidadorDominio.textoObrigatorio(login, "login do usuario e obrigatorio");
         email = ValidadorDominio.textoObrigatorio(email, "email do usuario e obrigatorio");
         ValidadorDominio.obrigatorio(perfilAcesso, "perfilAcesso do usuario e obrigatorio");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

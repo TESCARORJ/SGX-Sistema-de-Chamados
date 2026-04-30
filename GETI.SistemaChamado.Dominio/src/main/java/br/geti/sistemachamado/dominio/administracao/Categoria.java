@@ -23,6 +23,7 @@ public record Categoria(
                 descricao = null;
             }
         }
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

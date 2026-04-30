@@ -13,4 +13,6 @@ public interface ChamadoJpaRepository extends RepositorioJpaBase<ChamadoEntidade
     Optional<ChamadoEntidadeJpa> findByIdAndSolicitanteId(UUID id, UUID solicitanteId);
 
     List<ChamadoEntidadeJpa> findBySolicitanteIdOrderByDataCriacaoDesc(UUID solicitanteId);
+
+    List<ChamadoEntidadeJpa> findAllByOrderByDataCriacaoDesc();
 }

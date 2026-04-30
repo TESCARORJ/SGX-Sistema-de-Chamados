@@ -36,6 +36,7 @@ public class HistoricoChamadoRepositorioJpa implements HistoricoChamadoRepositor
         entidade.setDescricao(agregado.descricao());
         entidade.setSituacaoAnterior(agregado.situacaoAnterior());
         entidade.setSituacaoNova(agregado.situacaoNova());
+        entidade.setVisivelSolicitante(agregado.visivelSolicitante());
 
         return ChamadoMapeadorJpa.paraDominio(historicoChamadoJpaRepository.save(entidade));
     }

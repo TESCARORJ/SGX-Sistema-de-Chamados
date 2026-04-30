@@ -102,6 +102,7 @@ public class GerenciarChamadoPortalSolicitante {
                 ValidadorDominio.obrigatorio(comando.prioridade(), "prioridade do chamado e obrigatoria"),
                 OrigemChamado.PORTAL,
                 solicitante,
+                null,
                 departamento,
                 categoria,
                 servico,
@@ -126,6 +127,7 @@ public class GerenciarChamadoPortalSolicitante {
                 "Chamado aberto via portal.",
                 null,
                 chamadoSalvo.situacao(),
+                true,
                 agora,
                 null
         ));
@@ -152,6 +154,7 @@ public class GerenciarChamadoPortalSolicitante {
                 .map(this::paraInteracao)
                 .toList();
         final var historicos = historicoChamadoRepositorio.listarPorChamado(chamado.id()).stream()
+                .filter(HistoricoChamado::visivelSolicitante)
                 .map(this::paraHistorico)
                 .toList();
         final var anexos = anexoChamadoRepositorio.listarPorChamado(chamado.id()).stream()

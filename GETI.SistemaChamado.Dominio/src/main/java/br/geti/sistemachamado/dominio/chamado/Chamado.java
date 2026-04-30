@@ -18,6 +18,7 @@ public record Chamado(
         PrioridadeChamado prioridade,
         OrigemChamado origem,
         Usuario solicitante,
+        Usuario responsavel,
         Departamento departamento,
         Categoria categoria,
         Servico servico,
@@ -34,6 +35,11 @@ public record Chamado(
         ValidadorDominio.obrigatorio(prioridade, "prioridade do chamado e obrigatoria");
         ValidadorDominio.obrigatorio(origem, "origem do chamado e obrigatoria");
         ValidadorDominio.obrigatorio(solicitante, "solicitante do chamado e obrigatorio");
+        if (responsavel != null && !responsavel.ativo()) {
+            throw new br.geti.sistemachamado.dominio.compartilhado.ErroDeDominio(
+                    "responsavel do chamado precisa estar ativo"
+            );
+        }
         ValidadorDominio.obrigatorio(departamento, "departamento do chamado e obrigatorio");
         ValidadorDominio.obrigatorio(categoria, "categoria do chamado e obrigatoria");
         ValidadorDominio.obrigatorio(servico, "servico do chamado e obrigatorio");
@@ -49,7 +55,8 @@ public record Chamado(
             );
         }
 
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+
 

@@ -28,6 +28,7 @@ public final class ChamadoMapeadorJpa {
                 entidade.getPrioridade(),
                 entidade.getOrigem(),
                 AdministracaoMapeadorJpa.paraDominio(entidade.getSolicitante()),
+                entidade.getResponsavel() != null ? AdministracaoMapeadorJpa.paraDominio(entidade.getResponsavel()) : null,
                 AdministracaoMapeadorJpa.paraDominio(entidade.getDepartamento()),
                 AdministracaoMapeadorJpa.paraDominio(entidade.getCategoria()),
                 AdministracaoMapeadorJpa.paraDominio(entidade.getServico()),
@@ -60,6 +61,7 @@ public final class ChamadoMapeadorJpa {
                 entidade.getDescricao(),
                 entidade.getSituacaoAnterior(),
                 entidade.getSituacaoNova(),
+                entidade.isVisivelSolicitante(),
                 dataCriacao,
                 dataAtualizacao
         );

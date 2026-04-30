@@ -52,6 +52,132 @@ export type ServicoAdministrativo = {
   dataAtualizacao: string | null;
 };
 
+export type OpcaoCatalogoAdminChamado = {
+  id: string;
+  nome: string;
+};
+
+export type ResponsavelAdminChamado = {
+  id: string;
+  nome: string;
+  login: string;
+  perfilAcesso: string;
+};
+
+export type CatalogoAdminChamado = {
+  departamentos: OpcaoCatalogoAdminChamado[];
+  categorias: OpcaoCatalogoAdminChamado[];
+  servicos: OpcaoCatalogoAdminChamado[];
+  responsaveis: ResponsavelAdminChamado[];
+  situacoes: string[];
+  prioridades: string[];
+  origens: string[];
+};
+
+export type IndicadorDashboardAdminChamado = {
+  chave: string;
+  total: number;
+};
+
+export type ChamadoPendenteDashboardAdmin = {
+  id: string;
+  numero: string;
+  titulo: string;
+  situacao: string;
+  prioridade: string;
+  departamento: string;
+  responsavel: string;
+  dataCriacao: string;
+};
+
+export type DashboardAdminChamado = {
+  porSituacao: IndicadorDashboardAdminChamado[];
+  porPrioridade: IndicadorDashboardAdminChamado[];
+  porDepartamento: IndicadorDashboardAdminChamado[];
+  pendentesRecentes: ChamadoPendenteDashboardAdmin[];
+};
+
+export type ChamadoFilaAdmin = {
+  id: string;
+  numero: string;
+  titulo: string;
+  situacao: string;
+  prioridade: string;
+  origem: string;
+  solicitanteNome: string;
+  departamentoNome: string;
+  categoriaNome: string;
+  servicoNome: string;
+  responsavelId: string | null;
+  responsavelNome: string | null;
+  dataCriacao: string;
+  dataAtualizacao: string | null;
+};
+
+export type InteracaoChamadoAdmin = {
+  id: string;
+  tipoInteracao: string;
+  mensagem: string;
+  visivelSolicitante: boolean;
+  autorId: string;
+  autorNome: string;
+  dataCriacao: string;
+};
+
+export type HistoricoChamadoAdmin = {
+  id: string;
+  descricao: string;
+  situacaoAnterior: string | null;
+  situacaoNova: string;
+  visivelSolicitante: boolean;
+  dataCriacao: string;
+};
+
+export type AnexoChamadoAdmin = {
+  id: string;
+  nomeArquivo: string;
+  tipoConteudo: string;
+  tamanhoBytes: number;
+  autorId: string;
+  autorNome: string;
+  dataCriacao: string;
+};
+
+export type ChamadoDetalheAdmin = {
+  id: string;
+  numero: string;
+  titulo: string;
+  descricao: string;
+  situacao: string;
+  prioridade: string;
+  origem: string;
+  solicitanteId: string;
+  solicitanteNome: string;
+  solicitanteLogin: string;
+  solicitanteEmail: string;
+  responsavelId: string | null;
+  responsavelNome: string | null;
+  departamentoId: string;
+  departamentoNome: string;
+  categoriaId: string;
+  categoriaNome: string;
+  servicoId: string;
+  servicoNome: string;
+  dataCriacao: string;
+  dataAtualizacao: string | null;
+  interacoes: InteracaoChamadoAdmin[];
+  historicos: HistoricoChamadoAdmin[];
+  anexos: AnexoChamadoAdmin[];
+};
+
+export type FiltroFilaAdminChamado = {
+  situacao?: string | null;
+  prioridade?: string | null;
+  departamentoId?: string | null;
+  origem?: string | null;
+  responsavelId?: string | null;
+};
+
 type MetodoHttp = 'GET' | 'POST' | 'PUT' | 'PATCH';
 
 async function requisicaoJson<TResposta>(
@@ -231,4 +357,75 @@ export function atualizarServico(
 
 export function inativarServico(id: string): Promise<void> {
   return requisicaoJson<void>(`/api/admin/cadastros/servicos/${id}/inativacao`, 'PATCH');
+}
+
+export function consultarCatalogoChamadoAdmin(): Promise<CatalogoAdminChamado> {
+  return requisicaoJson<CatalogoAdminChamado>('/api/admin/chamados/catalogo', 'GET');
+}
+
+export function consultarDashboardChamadoAdmin(): Promise<DashboardAdminChamado> {
+  return requisicaoJson<DashboardAdminChamado>('/api/admin/chamados/dashboard', 'GET');
+}
+
+export function listarFilaChamadoAdmin(filtro: FiltroFilaAdminChamado): Promise<ChamadoFilaAdmin[]> {
+  const params = new URLSearchParams();
+  if (filtro.situacao) {
+    params.set('situacao', filtro.situacao);
+  }
+  if (filtro.prioridade) {
+    params.set('prioridade', filtro.prioridade);
+  }
+  if (filtro.departamentoId) {
+    params.set('departamentoId', filtro.departamentoId);
+  }
+  if (filtro.origem) {
+    params.set('origem', filtro.origem);
+  }
+  if (filtro.responsavelId) {
+    params.set('responsavelId', filtro.responsavelId);
+  }
+
+  const sufixo = params.toString() ? `?${params.toString()}` : '';
+  return requisicaoJson<ChamadoFilaAdmin[]>(`/api/admin/chamados${sufixo}`, 'GET');
+}
+
+export function detalharChamadoAdmin(id: string): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}`, 'GET');
+}
+
+export function atribuirChamadoAdmin(id: string, responsavelId: string): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}/atribuicao`, 'PATCH', {
+    responsavelId
+  });
+}
+
+export function alterarSituacaoChamadoAdmin(id: string, novaSituacao: string): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}/situacao`, 'PATCH', {
+    novaSituacao
+  });
+}
+
+export function encaminharChamadoAdmin(
+  id: string,
+  departamentoId: string,
+  categoriaId: string,
+  servicoId: string
+): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}/encaminhamento`, 'PATCH', {
+    departamentoId,
+    categoriaId,
+    servicoId
+  });
+}
+
+export function comentarPublicamenteChamadoAdmin(id: string, mensagem: string): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}/comentarios/publico`, 'POST', {
+    mensagem
+  });
+}
+
+export function comentarInternamenteChamadoAdmin(id: string, mensagem: string): Promise<ChamadoDetalheAdmin> {
+  return requisicaoJson<ChamadoDetalheAdmin>(`/api/admin/chamados/${id}/comentarios/interno`, 'POST', {
+    mensagem
+  });
 }

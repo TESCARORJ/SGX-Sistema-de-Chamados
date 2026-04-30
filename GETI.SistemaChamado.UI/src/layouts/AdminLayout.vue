@@ -40,6 +40,7 @@ const rotaAtual = computed(() => route.path);
 
 const menuAdmin = [
   { label: 'Dashboard', to: '/admin' },
+  { label: 'Fila de Chamados', to: '/admin/chamados' },
   { label: 'Departamentos', to: '/admin/departamentos' },
   { label: 'Caixas de E-mail', to: '/admin/caixas-email' },
   { label: 'Categorias', to: '/admin/categorias' },

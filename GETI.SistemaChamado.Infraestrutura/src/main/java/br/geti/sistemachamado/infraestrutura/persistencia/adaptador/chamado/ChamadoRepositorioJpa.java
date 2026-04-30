@@ -50,6 +50,11 @@ public class ChamadoRepositorioJpa implements ChamadoRepositorio {
         entidade.setPrioridade(chamado.prioridade());
         entidade.setOrigem(chamado.origem());
         entidade.setSolicitante(usuarioJpaRepository.getReferenceById(chamado.solicitante().id()));
+        if (chamado.responsavel() != null) {
+            entidade.setResponsavel(usuarioJpaRepository.getReferenceById(chamado.responsavel().id()));
+        } else {
+            entidade.setResponsavel(null);
+        }
         entidade.setDepartamento(departamentoJpaRepository.getReferenceById(chamado.departamento().id()));
         entidade.setCategoria(categoriaJpaRepository.getReferenceById(chamado.categoria().id()));
         entidade.setServico(servicoJpaRepository.getReferenceById(chamado.servico().id()));
@@ -75,6 +80,13 @@ public class ChamadoRepositorioJpa implements ChamadoRepositorio {
     @Override
     public List<Chamado> listarPorSolicitante(final UUID solicitanteId) {
         return chamadoJpaRepository.findBySolicitanteIdOrderByDataCriacaoDesc(solicitanteId).stream()
+                .map(ChamadoMapeadorJpa::paraDominio)
+                .toList();
+    }
+
+    @Override
+    public List<Chamado> listarTodos() {
+        return chamadoJpaRepository.findAllByOrderByDataCriacaoDesc().stream()
                 .map(ChamadoMapeadorJpa::paraDominio)
                 .toList();
     }

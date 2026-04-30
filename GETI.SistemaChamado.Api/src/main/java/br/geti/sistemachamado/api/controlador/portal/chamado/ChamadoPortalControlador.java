@@ -66,7 +66,7 @@ public class ChamadoPortalControlador {
     @GetMapping("/{id}")
     public ChamadoPortalDetalheDto detalharChamado(
             @AuthenticationPrincipal final UsuarioAutenticadoPrincipal principal,
-            @PathVariable final UUID id
+            @PathVariable("id") final UUID id
     ) {
         return gerenciarChamadoPortalSolicitante.buscarDetalheDoSolicitante(obterSolicitanteId(principal), id);
     }
@@ -74,7 +74,7 @@ public class ChamadoPortalControlador {
     @PostMapping(path = "/{id}/anexos", consumes = "multipart/form-data")
     public AnexoChamadoPortalDto anexarArquivo(
             @AuthenticationPrincipal final UsuarioAutenticadoPrincipal principal,
-            @PathVariable final UUID id,
+            @PathVariable("id") final UUID id,
             @RequestPart("arquivo") final MultipartFile arquivo
     ) {
         if (arquivo == null || arquivo.isEmpty()) {

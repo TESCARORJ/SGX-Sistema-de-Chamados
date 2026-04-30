@@ -27,6 +27,7 @@ public record Servico(
                 descricao = null;
             }
         }
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

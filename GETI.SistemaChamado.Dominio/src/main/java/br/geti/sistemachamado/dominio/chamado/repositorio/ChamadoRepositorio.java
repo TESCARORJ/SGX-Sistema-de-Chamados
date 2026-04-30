@@ -13,4 +13,6 @@ public interface ChamadoRepositorio extends RepositorioDominio<Chamado> {
     Optional<Chamado> buscarPorIdESolicitante(UUID chamadoId, UUID solicitanteId);
 
     List<Chamado> listarPorSolicitante(UUID solicitanteId);
+
+    List<Chamado> listarTodos();
 }

@@ -30,6 +30,9 @@ public class HistoricoChamadoEntidadeJpa extends EntidadeBaseJpa {
     @Column(name = "situacao_nova", nullable = false, length = 40)
     private SituacaoChamado situacaoNova;
 
+    @Column(name = "visivel_solicitante", nullable = false)
+    private boolean visivelSolicitante;
+
     public ChamadoEntidadeJpa getChamado() {
         return chamado;
     }
@@ -60,5 +63,13 @@ public class HistoricoChamadoEntidadeJpa extends EntidadeBaseJpa {
 
     public void setSituacaoNova(final SituacaoChamado situacaoNova) {
         this.situacaoNova = situacaoNova;
+    }
+
+    public boolean isVisivelSolicitante() {
+        return visivelSolicitante;
+    }
+
+    public void setVisivelSolicitante(final boolean visivelSolicitante) {
+        this.visivelSolicitante = visivelSolicitante;
     }
 }

@@ -16,6 +16,7 @@ public record Departamento(
     public Departamento {
         ValidadorDominio.obrigatorio(id, "id do departamento e obrigatorio");
         nome = ValidadorDominio.textoObrigatorio(nome, "nome do departamento e obrigatorio");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

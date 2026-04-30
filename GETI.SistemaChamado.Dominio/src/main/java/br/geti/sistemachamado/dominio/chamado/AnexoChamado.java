@@ -35,6 +35,7 @@ public record AnexoChamado(
             );
         }
         ValidadorDominio.obrigatorio(autor, "autor do anexo e obrigatorio");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+

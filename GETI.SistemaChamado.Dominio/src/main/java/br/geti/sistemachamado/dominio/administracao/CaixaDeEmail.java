@@ -20,6 +20,7 @@ public record CaixaDeEmail(
         enderecoEmail = ValidadorDominio.textoObrigatorio(enderecoEmail, "enderecoEmail da caixa de email e obrigatorio");
         nomeExibicao = ValidadorDominio.textoObrigatorio(nomeExibicao, "nomeExibicao da caixa de email e obrigatorio");
         ValidadorDominio.obrigatorio(departamento, "departamento da caixa de email e obrigatorio");
-        validarAuditoria();
+        validarAuditoria(dataCriacao, dataAtualizacao);
     }
 }
+
