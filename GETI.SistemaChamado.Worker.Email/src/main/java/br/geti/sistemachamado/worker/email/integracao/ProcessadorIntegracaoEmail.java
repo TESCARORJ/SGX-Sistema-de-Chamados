@@ -72,9 +72,18 @@ public class ProcessadorIntegracaoEmail {
             return;
         }
 
+        int totalSemCaixaRelacionada = 0;
+        int totalDuplicadas = 0;
+        int totalAutomaticas = 0;
+        int totalCorrelacionadas = 0;
+        int totalNovosChamados = 0;
+        int totalFalhas = 0;
+        int totalInvalidas = 0;
+
         for (final var mensagem : mensagens) {
             final var caixasRelacionadas = encontrarCaixasRelacionadas(mensagem, caixasPorEndereco);
             if (caixasRelacionadas.isEmpty()) {
+                totalSemCaixaRelacionada++;
                 LOGGER.info(
                         "Mensagem sem caixa de destino cadastrada. origem={} messageId={}",
                         mensagem.identificadorOrigem(),
@@ -83,9 +92,29 @@ public class ProcessadorIntegracaoEmail {
                 continue;
             }
             for (final var caixaDeEmail : caixasRelacionadas) {
-                processarMensagemDaCaixa(mensagem, caixaDeEmail);
+                final var resultado = processarMensagemDaCaixa(mensagem, caixaDeEmail);
+                switch (resultado) {
+                    case DUPLICADO -> totalDuplicadas++;
+                    case AUTOMATICA_IGNORADA -> totalAutomaticas++;
+                    case RESPOSTA_CORRELACIONADA -> totalCorrelacionadas++;
+                    case CHAMADO_ABERTO -> totalNovosChamados++;
+                    case FALHA -> totalFalhas++;
+                    case INVALIDA -> totalInvalidas++;
+                }
             }
         }
+
+        LOGGER.info(
+                "Resumo ciclo worker e-mail: lidas={} semCaixa={} duplicadas={} automaticas={} correlacionadas={} novosChamados={} invalidas={} falhas={}",
+                mensagens.size(),
+                totalSemCaixaRelacionada,
+                totalDuplicadas,
+                totalAutomaticas,
+                totalCorrelacionadas,
+                totalNovosChamados,
+                totalInvalidas,
+                totalFalhas
+        );
     }
 
     private List<CaixaDeEmail> encontrarCaixasRelacionadas(
@@ -109,7 +138,10 @@ public class ProcessadorIntegracaoEmail {
         return List.copyOf(caixas);
     }
 
-    private void processarMensagemDaCaixa(final MensagemEmailRecebida mensagem, final CaixaDeEmail caixaDeEmail) {
+    private ResultadoProcessamentoMensagem processarMensagemDaCaixa(
+            final MensagemEmailRecebida mensagem,
+            final CaixaDeEmail caixaDeEmail
+    ) {
         final var chaveDeduplicacaoOriginal = gerarChaveDeduplicacao(mensagem);
         final var duplicado = logDeIntegracaoEmailRepositorio.buscarPorCaixaEChaveDeduplicacao(
                 caixaDeEmail.id(),
@@ -134,7 +166,7 @@ public class ProcessadorIntegracaoEmail {
                     caixaDeEmail.enderecoEmail(),
                     chaveDeduplicacaoOriginal
             );
-            return;
+            return ResultadoProcessamentoMensagem.DUPLICADO;
         }
 
         final var logInicial = salvarNovoLog(
@@ -160,7 +192,7 @@ public class ProcessadorIntegracaoEmail {
                         mensagem.messageId(),
                         mensagem.identificadorOrigem()
                 );
-                return;
+                return ResultadoProcessamentoMensagem.INVALIDA;
             }
 
             if (detectorRespostaAutomaticaEmail.ehRespostaAutomatica(mensagem)) {
@@ -175,7 +207,7 @@ public class ProcessadorIntegracaoEmail {
                         caixaDeEmail.enderecoEmail(),
                         mensagem.messageId()
                 );
-                return;
+                return ResultadoProcessamentoMensagem.AUTOMATICA_IGNORADA;
             }
 
             final var correlacao = correlacionadorRespostaEmail.correlacionar(caixaDeEmail.id(), mensagem);
@@ -204,7 +236,7 @@ public class ProcessadorIntegracaoEmail {
                         interacao.chamadoId(),
                         correlacao.get().messageIdCorrelacionado()
                 );
-                return;
+                return ResultadoProcessamentoMensagem.RESPOSTA_CORRELACIONADA;
             }
 
             final var chamado = gerenciarChamadoPorEmail.abrirChamadoPorEmail(new AberturaChamadoEmailComando(
@@ -225,6 +257,7 @@ public class ProcessadorIntegracaoEmail {
                     "Chamado aberto automaticamente com numero " + chamado.numeroChamado() + ".",
                     chamado.chamadoId()
             );
+            return ResultadoProcessamentoMensagem.CHAMADO_ABERTO;
         } catch (final Exception exception) {
             atualizarLog(
                     logInicial,
@@ -239,6 +272,7 @@ public class ProcessadorIntegracaoEmail {
                     exception.getMessage(),
                     exception
             );
+            return ResultadoProcessamentoMensagem.FALHA;
         }
     }
 
@@ -369,5 +403,14 @@ public class ProcessadorIntegracaoEmail {
             return null;
         }
         return valor.length() <= tamanhoMaximo ? valor : valor.substring(0, tamanhoMaximo);
+    }
+
+    private enum ResultadoProcessamentoMensagem {
+        DUPLICADO,
+        AUTOMATICA_IGNORADA,
+        RESPOSTA_CORRELACIONADA,
+        CHAMADO_ABERTO,
+        INVALIDA,
+        FALHA
     }
 }

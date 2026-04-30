@@ -1,4 +1,6 @@
 app:
   ambiente: local
+  api:
+    expor-endpoints-tecnicos: true
   seguranca:
     modo-local-habilitado: true

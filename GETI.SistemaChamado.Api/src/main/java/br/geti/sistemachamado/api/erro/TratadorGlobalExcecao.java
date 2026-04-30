@@ -22,6 +22,12 @@ public class TratadorGlobalExcecao {
             final ErroDeDominio exception,
             final HttpServletRequest request
     ) {
+        LOGGER.warn(
+                "Erro de dominio em {} {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                exception.getMessage()
+        );
         return ResponseEntity.badRequest().body(new ErroApiResposta(
                 "ERRO_DOMINIO",
                 exception.getMessage(),
@@ -39,6 +45,12 @@ public class TratadorGlobalExcecao {
                 .findFirst()
                 .map(e -> String.format("Campo %s %s", e.getField(), e.getDefaultMessage()))
                 .orElse("Falha de validacao");
+        LOGGER.warn(
+                "Erro de validacao em {} {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                mensagem
+        );
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ErroApiResposta(
                 "ERRO_VALIDACAO",
@@ -53,6 +65,12 @@ public class TratadorGlobalExcecao {
             final AccessDeniedException exception,
             final HttpServletRequest request
     ) {
+        LOGGER.warn(
+                "Acesso negado em {} {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                exception.getMessage()
+        );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErroApiResposta(
                 "ACESSO_NEGADO",
                 "Usuario autenticado sem permissao para este recurso.",
@@ -66,7 +84,12 @@ public class TratadorGlobalExcecao {
             final Exception exception,
             final HttpServletRequest request
     ) {
-        LOGGER.error("Erro nao tratado na API", exception);
+        LOGGER.error(
+                "Erro nao tratado na API em {} {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                exception
+        );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErroApiResposta(
                 "ERRO_INTERNO",
