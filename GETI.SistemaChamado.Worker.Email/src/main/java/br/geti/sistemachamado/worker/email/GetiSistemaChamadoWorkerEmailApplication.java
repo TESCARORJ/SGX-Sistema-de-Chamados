@@ -2,7 +2,7 @@ package br.geti.sistemachamado.worker.email;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import br.geti.sistemachamado.infraestrutura.configuracao.PacotesJpa;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,4 +17,3 @@ public class GetiSistemaChamadoWorkerEmailApplication {
         SpringApplication.run(GetiSistemaChamadoWorkerEmailApplication.class, args);
     }
 }
-

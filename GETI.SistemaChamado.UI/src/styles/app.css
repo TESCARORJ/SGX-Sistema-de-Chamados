@@ -1,11 +1,19 @@
 :root {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #1f2933;
-  background: linear-gradient(120deg, #f6f9fc, #eef3f8);
+  --cor-primaria: #0a5a8c;
+  --cor-secundaria: #1f7a6c;
+  --cor-destaque: #f4a71d;
+  --cor-fundo: #f3f8fb;
+  --cor-texto: #1f2933;
+  --cor-texto-suave: #52606d;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
+  color: var(--cor-texto);
+  background: radial-gradient(circle at top right, #d8edf8 0%, #f3f8fb 38%, #ffffff 100%);
 }
 
 body {
   margin: 0;
+  font-family: 'Source Sans 3', 'Segoe UI', Tahoma, sans-serif;
+  background: var(--cor-fundo);
 }
 
 .pagina-cabecalho {
@@ -15,13 +23,21 @@ body {
 .pagina-cabecalho h1 {
   margin: 0;
   font-size: 1.6rem;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif;
+  letter-spacing: 0.015em;
 }
 
 .pagina-cabecalho p {
   margin-top: 0.5rem;
-  color: #52606d;
+  color: var(--cor-texto-suave);
 }
 
 .card-inicial {
   max-width: 860px;
+}
+
+.layout-publico,
+.layout-portal,
+.layout-admin {
+  background: linear-gradient(180deg, #f3f8fb 0%, #ffffff 52%, #f8fbfd 100%);
 }

@@ -14,9 +14,10 @@
 
     <properties>
         <java.version>21</java.version>
-        <spring-boot.version>3.3.5</spring-boot.version>
+        <spring-boot.version>4.0.6</spring-boot.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Note: Project is configured for Java 25 deployment. Set java.version to 25 when Java 25 JDK is available. -->
     </properties>
 
     <modules>
@@ -45,7 +46,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.0</version>
                     <configuration>
                         <release>${java.version}</release>
                     </configuration>

@@ -1,4 +1,4 @@
-﻿import { obterCabecalhosAutenticacaoLocal } from '@/services/sessaoUsuario';
+import { requisitarApiJson } from '@/services/http/clienteHttp';
 
 export type DepartamentoAdministrativo = {
   id: string;
@@ -224,33 +224,10 @@ async function requisicaoJson<TResposta>(
   metodo: MetodoHttp,
   corpo?: unknown
 ): Promise<TResposta> {
-  const resposta = await fetch(url, {
-    method: metodo,
-    headers: {
-      ...(corpo ? { 'Content-Type': 'application/json' } : {}),
-      ...obterCabecalhosAutenticacaoLocal()
-    },
-    body: corpo ? JSON.stringify(corpo) : undefined
+  return requisitarApiJson<TResposta>(url, {
+    metodo,
+    corpo
   });
-
-  if (!resposta.ok) {
-    let mensagem = `Falha na requisicao (${resposta.status}).`;
-    try {
-      const erro = (await resposta.json()) as { mensagem?: string };
-      if (erro.mensagem) {
-        mensagem = erro.mensagem;
-      }
-    } catch {
-      // noop
-    }
-    throw new Error(mensagem);
-  }
-
-  if (resposta.status === 204) {
-    return undefined as TResposta;
-  }
-
-  return (await resposta.json()) as TResposta;
 }
 
 export function listarDepartamentos(): Promise<DepartamentoAdministrativo[]> {
@@ -497,3 +474,5 @@ export function comentarInternamenteChamadoAdmin(id: string, mensagem: string): 
     mensagem
   });
 }
+
+

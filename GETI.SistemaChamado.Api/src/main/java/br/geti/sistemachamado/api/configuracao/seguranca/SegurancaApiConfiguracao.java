@@ -35,8 +35,20 @@ public class SegurancaApiConfiguracao {
                         .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(403))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/actuator",
+                                "/actuator/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/favicon.ico",
+                                "/error"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/admin/local-login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/saude").permitAll()
+                        .requestMatchers("/admin/**").hasAnyRole("ATENDENTE", "SUPERVISOR", "ADMINISTRADOR")
                         .requestMatchers("/api/admin/**").hasAnyRole("ATENDENTE", "SUPERVISOR", "ADMINISTRADOR")
                         .requestMatchers("/api/tecnico/acesso/**").hasAnyRole("SUPERVISOR", "ADMINISTRADOR")
                         .requestMatchers("/api/portal/**", "/api/me").authenticated()

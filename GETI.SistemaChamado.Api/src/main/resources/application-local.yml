@@ -1,7 +1,12 @@
+server:
+  port: 18080
+
 app:
   ambiente: local
   api:
     expor-endpoints-tecnicos: true
+  cors:
+    origens-permitidas: http://localhost:9000
   admin-local:
     habilitado: true
     autenticacao-habilitada: true

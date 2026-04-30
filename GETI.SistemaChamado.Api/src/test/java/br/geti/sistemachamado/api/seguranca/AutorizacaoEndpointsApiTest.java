@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,9 +40,9 @@ class AutorizacaoEndpointsApiTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private FiltroAutenticacaoLocalDesenvolvimento filtroAutenticacaoLocalDesenvolvimento;
-    @MockBean
+    @MockitoBean
     private ConversorJwtParaAutenticacaoInterna conversorJwtParaAutenticacaoInterna;
 
     @BeforeEach
@@ -86,7 +86,7 @@ class AutorizacaoEndpointsApiTest {
     @EnableAutoConfiguration(exclude = {
             DataSourceAutoConfiguration.class,
             HibernateJpaAutoConfiguration.class,
-            JpaRepositoriesAutoConfiguration.class
+            DataJpaRepositoriesAutoConfiguration.class
     })
     @Import({SegurancaApiConfiguracao.class, EndpointsTesteControlador.class})
     static class ConfiguracaoTeste {
