@@ -1,15 +1,15 @@
-package br.geti.sistemachamado.api.configuracao.seguranca;
+package br.geti.sistemachamado.infraestrutura.seguranca;
 
 import br.geti.sistemachamado.aplicacao.acesso.CodificadorSenha;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CodificadorSenhaBcrypt implements CodificadorSenha {
+public class CodificadorSenhaSpringSecurity implements CodificadorSenha {
 
     private final PasswordEncoder passwordEncoder;
 
-    public CodificadorSenhaBcrypt(final PasswordEncoder passwordEncoder) {
+    public CodificadorSenhaSpringSecurity(final PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 

@@ -1,10 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import PublicoLayout from '@/layouts/PublicoLayout.vue';
 import PortalLayout from '@/layouts/PortalLayout.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
+import LoginPagina from '@/pages/acesso/LoginPagina.vue';
+import PortalInicioPagina from '@/pages/portal/PortalInicioPagina.vue';
 import PortalChamadosListaPagina from '@/pages/portal/chamados/PortalChamadosListaPagina.vue';
 import PortalChamadoAberturaPagina from '@/pages/portal/chamados/PortalChamadoAberturaPagina.vue';
 import PortalChamadoDetalhePagina from '@/pages/portal/chamados/PortalChamadoDetalhePagina.vue';
 import AdminDashboardPagina from '@/pages/admin/AdminDashboardPagina.vue';
+import UsuariosAdminPagina from '@/pages/admin/UsuariosAdminPagina.vue';
 import DepartamentosAdminPagina from '@/pages/admin/DepartamentosAdminPagina.vue';
 import CaixasEmailAdminPagina from '@/pages/admin/CaixasEmailAdminPagina.vue';
 import CategoriasAdminPagina from '@/pages/admin/CategoriasAdminPagina.vue';
@@ -22,18 +26,43 @@ export const router = createRouter({
   routes: [
     {
       path: '/',
+      component: PublicoLayout,
+      children: [
+        {
+          path: '',
+          redirect: '/login'
+        },
+        {
+          path: 'login',
+          name: 'login',
+          component: LoginPagina
+        }
+      ]
+    },
+    {
+      path: '/portal',
       component: PortalLayout,
       children: [
         {
           path: '',
+          name: 'portal-inicio',
+          component: PortalInicioPagina,
+          meta: {
+            requerAutenticacao: true
+          }
+        },
+        {
+          path: 'chamados',
           name: 'portal-chamados-lista',
+          alias: ['/portal/meus-chamados'],
           component: PortalChamadosListaPagina,
           meta: {
             requerAutenticacao: true
           }
         },
         {
-          path: 'portal/chamados/novo',
+          path: 'chamados/novo',
+          alias: ['/portal/novo-chamado'],
           name: 'portal-chamados-abertura',
           component: PortalChamadoAberturaPagina,
           meta: {
@@ -41,7 +70,7 @@ export const router = createRouter({
           }
         },
         {
-          path: 'portal/chamados/:id',
+          path: 'chamados/:id',
           name: 'portal-chamados-detalhe',
           component: PortalChamadoDetalhePagina,
           meta: {
@@ -67,6 +96,15 @@ export const router = createRouter({
           path: 'departamentos',
           name: 'admin-departamentos',
           component: DepartamentosAdminPagina,
+          meta: {
+            requerAutenticacao: true,
+            requerAcessoAdmin: true
+          }
+        },
+        {
+          path: 'usuarios',
+          name: 'admin-usuarios',
+          component: UsuariosAdminPagina,
           meta: {
             requerAutenticacao: true,
             requerAcessoAdmin: true
@@ -146,6 +184,10 @@ export const router = createRouter({
       path: '/acesso-negado',
       name: 'acesso-negado',
       component: AcessoNegadoPagina
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/login'
     }
   ]
 });
@@ -162,14 +204,10 @@ router.beforeEach(async (to) => {
   try {
     usuario = await obterUsuarioAtual(true);
   } catch {
-    return { name: 'nao-autenticado' };
+    return { name: 'login', query: { redirecionar: to.fullPath } };
   }
   if (!usuario) {
-    if (to.name === 'nao-autenticado') {
-      return true;
-    }
-
-    return { name: 'nao-autenticado' };
+    return { name: 'login', query: { redirecionar: to.fullPath } };
   }
 
   if (requerAcessoAdmin && !possuiAcessoAdministrativo(usuario)) {

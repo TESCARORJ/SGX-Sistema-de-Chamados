@@ -9,6 +9,9 @@
       <q-card-section>
         O backend controla autorizacao por perfil de acesso interno. Solicite ajuste de permissao ao administrador.
       </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat no-caps label="Voltar para portal" to="/portal" />
+      </q-card-actions>
     </q-card>
   </q-page>
 </template>

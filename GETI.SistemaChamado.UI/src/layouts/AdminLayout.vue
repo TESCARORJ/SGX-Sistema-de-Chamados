@@ -2,11 +2,11 @@
   <q-layout view="lHh Lpr lFf" class="layout-admin">
     <q-header elevated class="bg-secondary text-white">
       <q-toolbar class="q-px-md q-py-sm">
-        <q-toolbar-title>Ambiente Administrativo</q-toolbar-title>
+        <q-toolbar-title>Sistema de Chamados CREA-RJ | Admin</q-toolbar-title>
         <div v-if="usuario" class="q-mr-md text-caption">
           {{ usuario.nome }} ({{ usuario.perfilAcesso }})
         </div>
-        <q-btn flat dense icon="home" label="Portal" to="/" />
+        <q-btn flat dense icon="home" label="Portal" to="/portal" />
       </q-toolbar>
       <q-toolbar class="q-gutter-sm q-px-md q-pb-sm">
         <q-btn
@@ -41,6 +41,7 @@ const rotaAtual = computed(() => route.path);
 const menuAdmin = [
   { label: 'Dashboard', to: '/admin' },
   { label: 'Fila de Chamados', to: '/admin/chamados' },
+  { label: 'Usuarios', to: '/admin/usuarios' },
   { label: 'Relatorios Operacionais', to: '/admin/chamados/relatorios' },
   { label: 'Departamentos', to: '/admin/departamentos' },
   { label: 'Caixas de E-mail', to: '/admin/caixas-email' },

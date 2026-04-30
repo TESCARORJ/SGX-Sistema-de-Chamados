@@ -10,6 +10,9 @@
         Nao foi possivel identificar seu usuario. Se estiver em ambiente local, configure os headers de
         autenticacao de desenvolvimento.
       </q-card-section>
+      <q-card-actions align="right">
+        <q-btn color="primary" no-caps label="Ir para login" to="/login" />
+      </q-card-actions>
     </q-card>
   </q-page>
 </template>

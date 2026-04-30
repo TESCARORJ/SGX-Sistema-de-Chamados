@@ -52,7 +52,7 @@ public class TratadorGlobalExcecao {
                 mensagem
         );
 
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ErroApiResposta(
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(new ErroApiResposta(
                 "ERRO_VALIDACAO",
                 mensagem,
                 request.getRequestURI(),

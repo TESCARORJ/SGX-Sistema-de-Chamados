@@ -1,4 +1,6 @@
-﻿export type UsuarioAtual = {
+import { ErroHttpApi, requisitarApiJson } from '@/services/http/clienteHttp';
+
+export type UsuarioAtual = {
   usuarioId: string;
   login: string;
   nome: string;
@@ -11,52 +13,22 @@ const PERFIS_ADMINISTRATIVOS = new Set(['Atendente', 'Supervisor', 'Administrado
 
 let cacheUsuarioAtual: UsuarioAtual | null | undefined;
 
-export function obterCabecalhosAutenticacaoLocal(): HeadersInit {
-  const email = import.meta.env.VITE_AUTH_LOCAL_EMAIL;
-  const senha = import.meta.env.VITE_AUTH_LOCAL_SENHA;
-  if (email && senha) {
-    const token = btoa(`${email}:${senha}`);
-    return {
-      Authorization: `Basic ${token}`
-    };
-  }
-
-  const login = import.meta.env.VITE_AUTH_LOCAL_LOGIN;
-  if (!login) {
-    return {};
-  }
-
-  return {
-    'X-Auth-Login': login,
-    'X-Auth-Nome': import.meta.env.VITE_AUTH_LOCAL_NOME ?? login,
-    'X-Auth-Email': import.meta.env.VITE_AUTH_LOCAL_EMAIL ?? login
-  };
-}
-
 export async function obterUsuarioAtual(forcarAtualizacao = false): Promise<UsuarioAtual | null> {
   if (!forcarAtualizacao && cacheUsuarioAtual !== undefined) {
     return cacheUsuarioAtual;
   }
 
-  const resposta = await fetch('/api/me', {
-    method: 'GET',
-    headers: {
-      ...obterCabecalhosAutenticacaoLocal()
+  try {
+    const usuario = await requisitarApiJson<UsuarioAtual>('/api/me');
+    cacheUsuarioAtual = usuario;
+    return usuario;
+  } catch (ex) {
+    if (ex instanceof ErroHttpApi && ex.status === 401) {
+      cacheUsuarioAtual = null;
+      return null;
     }
-  });
-
-  if (resposta.status === 401) {
-    cacheUsuarioAtual = null;
-    return null;
+    throw ex;
   }
-
-  if (!resposta.ok) {
-    throw new Error(`Falha ao consultar usuario autenticado: ${resposta.status}`);
-  }
-
-  const usuario = (await resposta.json()) as UsuarioAtual;
-  cacheUsuarioAtual = usuario;
-  return usuario;
 }
 
 export function limparCacheUsuarioAtual(): void {

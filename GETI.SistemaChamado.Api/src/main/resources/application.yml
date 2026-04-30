@@ -21,6 +21,8 @@ app:
   ambiente: local
   api:
     expor-endpoints-tecnicos: false
+  cors:
+    origens-permitidas: ${APP_CORS_ORIGENS_PERMITIDAS:}
   admin-local:
     habilitado: ${APP_ADMIN_LOCAL_HABILITADO:false}
     autenticacao-habilitada: ${APP_ADMIN_LOCAL_AUTENTICACAO_HABILITADA:false}

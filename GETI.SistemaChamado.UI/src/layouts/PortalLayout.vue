@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf" class="layout-portal">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar class="q-px-md q-py-sm">
-        <q-toolbar-title>Portal do Solicitante</q-toolbar-title>
+        <q-toolbar-title>Sistema de Chamados CREA-RJ</q-toolbar-title>
         <div v-if="usuario" class="q-mr-md text-caption">
           {{ usuario.nome }} ({{ usuario.perfilAcesso }})
         </div>
@@ -17,7 +17,7 @@
           no-caps
           :label="item.label"
           :to="item.to"
-          :class="{ 'bg-white text-primary': rotaAtual.startsWith(item.to) || (item.to === '/' && rotaAtual === '/') }"
+          :class="{ 'bg-white text-primary': itemAtivo(item.to) }"
         />
       </q-toolbar>
     </q-header>
@@ -39,9 +39,17 @@ const route = useRoute();
 const rotaAtual = computed(() => route.path);
 
 const menuPortal = [
-  { label: 'Meus Chamados', to: '/' },
+  { label: 'Inicio', to: '/portal' },
+  { label: 'Meus Chamados', to: '/portal/chamados' },
   { label: 'Abrir Chamado', to: '/portal/chamados/novo' }
 ];
+
+function itemAtivo(caminho: string): boolean {
+  if (caminho === '/portal') {
+    return rotaAtual.value === '/portal';
+  }
+  return rotaAtual.value.startsWith(caminho);
+}
 
 onMounted(async () => {
   try {

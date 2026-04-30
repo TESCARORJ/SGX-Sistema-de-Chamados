@@ -99,8 +99,10 @@ $env:JAVA_HOME='C:\CREA\Sistema de Chamados\.tools\jdk-21'
 
 ### API
 ```bash
-mvn -pl GETI.SistemaChamado.Api -am spring-boot:run -Dspring-boot.run.profiles=local
+.\mvnw.cmd -pl GETI.SistemaChamado.Api -am spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+No profile `local` (e `local,development`), a API sobe em `http://localhost:18080`.
 
 ### Worker Email
 ```bash
@@ -116,10 +118,13 @@ npm run build
 npm run dev
 ```
 
+Frontend local:
+- URL: `http://localhost:9000`
+- Variavel obrigatoria: `VITE_API_BASE_URL=http://localhost:18080`
+
 Variaveis opcionais do frontend para autenticacao local:
 - `VITE_AUTH_LOCAL_EMAIL`
 - `VITE_AUTH_LOCAL_SENHA`
-- fallback legado por header: `VITE_AUTH_LOCAL_LOGIN`, `VITE_AUTH_LOCAL_NOME`, `VITE_AUTH_LOCAL_EMAIL`
 
 ## Executando no VS Code
 O repositorio e Java/Spring (nao .NET), com configuracao pronta em `.vscode/launch.json` e `.vscode/tasks.json` para rodar a API pelo botao **Run and Debug**.
@@ -152,10 +157,14 @@ $env:SPRING_PROFILES_ACTIVE='local'
 O VS Code executa automaticamente a task `build-api` antes do debug e sobe a API com profile `local`.
 
 ### URL apos subir
-- Saude da API: `http://localhost:8080/api/saude`
-- Actuator: `http://localhost:8080/actuator/health`
+- Saude da API: `http://localhost:18080/api/saude`
+- Actuator: `http://localhost:18080/actuator/health`
+- Base da API local: `http://localhost:18080`
 
-Swagger nao esta configurado neste projeto neste momento.
+Se Swagger/OpenAPI estiver habilitado no ambiente:
+- `http://localhost:18080/swagger-ui.html`
+- `http://localhost:18080/swagger-ui/index.html`
+- `http://localhost:18080/v3/api-docs`
 
 ## Endpoints de verificacao
 - `GET /api/saude`

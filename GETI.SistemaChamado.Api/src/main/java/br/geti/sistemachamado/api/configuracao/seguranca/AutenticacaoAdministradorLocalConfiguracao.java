@@ -21,7 +21,7 @@ public class AutenticacaoAdministradorLocalConfiguracao {
             final UserDetailsService servicoDetalhesAdministradorLocal,
             final PasswordEncoder passwordEncoder
     ) {
-        final DaoAuthenticationProvider provider = DaoAuthenticationProvider.withDefaultsForSpringSecurity(servicoDetalhesAdministradorLocal);
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider(servicoDetalhesAdministradorLocal);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }

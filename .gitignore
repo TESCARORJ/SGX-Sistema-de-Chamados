@@ -1,9 +1,14 @@
-﻿@"
-# Build / dependências
+# Build backend
 target/
 build/
+
+# Build frontend
 dist/
+.quasar/
 node_modules/
+GETI.SistemaChamado.UI/dist/
+GETI.SistemaChamado.UI/.quasar/
+GETI.SistemaChamado.UI/node_modules/
 
 # IDE
 .idea/
@@ -19,7 +24,6 @@ Thumbs.db
 # Ferramentas locais
 .tools/
 *.zip
-*.exe
 *.msi
 *.rar
 *.7z
@@ -30,7 +34,7 @@ Thumbs.db
 *.war
 *.ear
 
-# Ambiente
+# Ambientes locais e sensiveis
 .env
-.env.*
-"@ | Out-File -Encoding utf8 .gitignore
+.env.local
+.env.*.local

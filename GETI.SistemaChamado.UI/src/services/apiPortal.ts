@@ -1,4 +1,4 @@
-import { obterCabecalhosAutenticacaoLocal } from '@/services/sessaoUsuario';
+import { requisitarApiJson } from '@/services/http/clienteHttp';
 
 export type OpcaoCatalogoPortal = {
   id: string;
@@ -77,59 +77,31 @@ export type AberturaChamadoPortalEntrada = {
   servicoId: string;
 };
 
-async function requisicaoJson<TResposta>(url: string, init?: RequestInit): Promise<TResposta> {
-  const resposta = await fetch(url, {
-    ...init,
-    headers: {
-      ...obterCabecalhosAutenticacaoLocal(),
-      ...(init?.headers ?? {})
-    }
-  });
-
-  if (!resposta.ok) {
-    let mensagem = `Falha na requisicao (${resposta.status}).`;
-    try {
-      const erro = (await resposta.json()) as { mensagem?: string };
-      if (erro.mensagem) {
-        mensagem = erro.mensagem;
-      }
-    } catch {
-      // noop
-    }
-    throw new Error(mensagem);
-  }
-
-  return (await resposta.json()) as TResposta;
-}
-
 export function consultarCatalogoAberturaChamado(): Promise<CatalogoAberturaChamadoPortal> {
-  return requisicaoJson<CatalogoAberturaChamadoPortal>('/api/portal/chamados/catalogo-abertura');
+  return requisitarApiJson<CatalogoAberturaChamadoPortal>('/api/portal/chamados/catalogo-abertura');
 }
 
 export function abrirChamadoPortal(entrada: AberturaChamadoPortalEntrada): Promise<ChamadoPortalDetalhe> {
-  return requisicaoJson<ChamadoPortalDetalhe>('/api/portal/chamados', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(entrada)
+  return requisitarApiJson<ChamadoPortalDetalhe>('/api/portal/chamados', {
+    metodo: 'POST',
+    corpo: entrada
   });
 }
 
 export function listarChamadosPortal(): Promise<ChamadoPortalResumo[]> {
-  return requisicaoJson<ChamadoPortalResumo[]>('/api/portal/chamados');
+  return requisitarApiJson<ChamadoPortalResumo[]>('/api/portal/chamados');
 }
 
 export function detalharChamadoPortal(id: string): Promise<ChamadoPortalDetalhe> {
-  return requisicaoJson<ChamadoPortalDetalhe>(`/api/portal/chamados/${id}`);
+  return requisitarApiJson<ChamadoPortalDetalhe>(`/api/portal/chamados/${id}`);
 }
 
 export function anexarArquivoChamadoPortal(id: string, arquivo: File): Promise<AnexoChamadoPortal> {
   const formData = new FormData();
   formData.append('arquivo', arquivo);
 
-  return requisicaoJson<AnexoChamadoPortal>(`/api/portal/chamados/${id}/anexos`, {
-    method: 'POST',
-    body: formData
+  return requisitarApiJson<AnexoChamadoPortal>(`/api/portal/chamados/${id}/anexos`, {
+    metodo: 'POST',
+    corpo: formData
   });
 }
