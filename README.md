@@ -121,6 +121,42 @@ Variaveis opcionais do frontend para autenticacao local:
 - `VITE_AUTH_LOCAL_SENHA`
 - fallback legado por header: `VITE_AUTH_LOCAL_LOGIN`, `VITE_AUTH_LOCAL_NOME`, `VITE_AUTH_LOCAL_EMAIL`
 
+## Executando no VS Code
+O repositorio e Java/Spring (nao .NET), com configuracao pronta em `.vscode/launch.json` e `.vscode/tasks.json` para rodar a API pelo botao **Run and Debug**.
+
+### Restaurar dependencias
+```powershell
+$env:JAVA_HOME="$PWD\.tools\jdk-21"
+& '.\.tools\apache-maven-3.9.9\bin\mvn.cmd' -pl GETI.SistemaChamado.Api -am dependency:resolve
+```
+
+### Compilar
+```powershell
+$env:JAVA_HOME="$PWD\.tools\jdk-21"
+& '.\.tools\apache-maven-3.9.9\bin\mvn.cmd' -pl GETI.SistemaChamado.Api -am clean compile
+```
+
+### Executar via terminal
+```powershell
+$env:JAVA_HOME="$PWD\.tools\jdk-21"
+$env:SPRING_PROFILES_ACTIVE='local'
+& '.\.tools\apache-maven-3.9.9\bin\mvn.cmd' -pl GETI.SistemaChamado.Api -am spring-boot:run
+```
+
+### Executar via botao Run and Debug
+1. Abrir o repositorio no VS Code.
+2. Ir em **Run and Debug**.
+3. Selecionar **API - Spring Boot (GETI.SistemaChamado.Api)**.
+4. Clicar em **Start Debugging (F5)**.
+
+O VS Code executa automaticamente a task `build-api` antes do debug e sobe a API com profile `local`.
+
+### URL apos subir
+- Saude da API: `http://localhost:8080/api/saude`
+- Actuator: `http://localhost:8080/actuator/health`
+
+Swagger nao esta configurado neste projeto neste momento.
+
 ## Endpoints de verificacao
 - `GET /api/saude`
 - `GET /actuator/health`
