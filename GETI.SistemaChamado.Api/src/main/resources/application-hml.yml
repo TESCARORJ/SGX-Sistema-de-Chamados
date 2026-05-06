@@ -1,0 +1,14 @@
+app:
+  ambiente: homologacao
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${APP_SECURITY_OAUTH2_ISSUER_URI}
+
+logging:
+  level:
+    br.geti.sistemachamado: INFO
+
