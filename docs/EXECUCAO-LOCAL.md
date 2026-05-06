@@ -83,3 +83,22 @@ docker compose logs -f api
 docker compose logs -f worker-email
 docker compose down
 ```
+
+## 9. Executando pelo VS Code
+
+1. Abra a pasta raiz onde esta `SGX.SistemaChamado.sln`.
+2. Execute `Terminal > Run Task > dotnet: restore`.
+3. Execute `Terminal > Run Task > ef: database update`.
+4. Em `Run and Debug`, inicie `API - SGX.SistemaChamado.Api`.
+5. Em `Run and Debug`, inicie `Worker - SGX.SistemaChamado.Worker.Email`.
+6. Execute `Terminal > Run Task > npm: dev web` para frontend local.
+7. Para subir os dois processos .NET juntos, use `Run and Debug > API + Worker`.
+8. Para modo local em Development, mantenha `Authentication__ModoLocalHabilitado=true` e use:
+   - `X-Dev-User-Email`
+   - `X-Dev-User-Name`
+   - `X-Dev-User-Role`
+
+Observacoes:
+- Nao configure senha IMAP real em `launch.json`/`tasks.json`.
+- Use variaveis de ambiente ou User Secrets para segredos.
+- Se a aba Run and Debug nao detectar C#, instale `C# Dev Kit` e `C#`.

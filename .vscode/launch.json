@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API - SGX.SistemaChamado.Api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build solution",
+      "program": "${workspaceFolder}/src/SGX.SistemaChamado.Api/bin/Debug/net9.0/SGX.SistemaChamado.Api.dll",
+      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Api",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Authentication__ModoLocalHabilitado": "true",
+        "ASPNETCORE_URLS": "http://localhost:5168",
+        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
+      },
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/swagger/index.html"
+      }
+    },
+    {
+      "name": "Worker - SGX.SistemaChamado.Worker.Email",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build solution",
+      "program": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email/bin/Debug/net9.0/SGX.SistemaChamado.Worker.Email.dll",
+      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Authentication__ModoLocalHabilitado": "true",
+        "EmailWorker__IntervaloSegundos": "30",
+        "EmailWorker__MaxMensagensPorCiclo": "10",
+        "EmailWorker__ImapHost": "",
+        "EmailWorker__Senha": "",
+        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
+      }
+    },
+    {
+      "name": "Web - Abrir Frontend",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src/SGX.SistemaChamado.Web",
+      "preLaunchTask": "npm: dev web"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "API + Worker",
+      "configurations": [
+        "API - SGX.SistemaChamado.Api",
+        "Worker - SGX.SistemaChamado.Worker.Email"
+      ]
+    },
+    {
+      "name": "API + Web",
+      "configurations": [
+        "API - SGX.SistemaChamado.Api",
+        "Web - Abrir Frontend"
+      ]
+    }
+  ]
+}

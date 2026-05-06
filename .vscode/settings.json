@@ -1,0 +1,10 @@
+{
+  "dotnet.defaultSolution": "SGX.SistemaChamado.sln",
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell"
+}
