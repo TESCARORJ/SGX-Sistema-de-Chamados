@@ -1,0 +1,30 @@
+namespace SGX.SistemaChamado.Application.DTOs.Portal;
+
+public sealed class ChamadoResumoResponse
+{
+    public Guid Id { get; init; }
+    public string Codigo { get; init; } = string.Empty;
+    public string Titulo { get; init; } = string.Empty;
+    public string Status { get; init; } = string.Empty;
+    public string Prioridade { get; init; } = string.Empty;
+    public string Categoria { get; init; } = string.Empty;
+    public string? Departamento { get; init; }
+    public DateTime AbertoEm { get; init; }
+    public DateTime? AtualizadoEm { get; init; }
+    public bool SlaVencido { get; init; }
+    public bool SlaProximoVencimento { get; init; }
+    public DateTime? PrazoPrimeiraRespostaEm { get; init; }
+    public DateTime? PrimeiraRespostaEm { get; init; }
+    public DateTime? PrazoResolucaoEm { get; init; }
+    public DateTime? ResolvidoEm { get; init; }
+    public bool EstaPausado { get; init; }
+    public int TotalMinutosPausado { get; init; }
+}
+
+public sealed class ListaChamadosPortalResponse
+{
+    public IReadOnlyCollection<ChamadoResumoResponse> Items { get; init; } = [];
+    public int Total { get; init; }
+    public int Pagina { get; init; }
+    public int TamanhoPagina { get; init; }
+}

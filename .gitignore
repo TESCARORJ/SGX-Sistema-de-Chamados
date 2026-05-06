@@ -1,0 +1,62 @@
+﻿# Build artifacts
+bin/
+obj/
+out/
+artifacts/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Test results
+TestResults/
+coverage/
+*.coverage
+*.trx
+
+# ASP.NET local secrets and certificates
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets.json
+**/*.pfx
+
+# Environment files
+.env
+.env.*
+
+# Node modules
+**/node_modules/
+
+# Frontend build
+**/dist/
+**/.vite/
+storage/anexos/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Temporary
+*.tmp
+*.temp
+~$*

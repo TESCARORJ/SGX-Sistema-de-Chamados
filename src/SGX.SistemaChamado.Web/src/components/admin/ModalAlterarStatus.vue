@@ -1,0 +1,46 @@
+﻿<script setup lang="ts">
+import { ref, watch } from 'vue'
+import type { StatusAdmin } from '../../types/admin'
+
+const props = defineProps<{
+  modelValue: boolean
+  status: StatusAdmin[]
+  loading?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+  (e: 'confirmar', statusId: string): void
+}>()
+
+const statusId = ref<string>('')
+
+watch(() => props.modelValue, (opened) => { if (opened) statusId.value = '' })
+
+function confirmar(): void {
+  if (!statusId.value) return
+  emit('confirmar', statusId.value)
+}
+</script>
+
+<template>
+  <q-dialog :model-value="props.modelValue" @update:model-value="emit('update:modelValue', $event)">
+    <q-card style="min-width: 360px">
+      <q-card-section><div class="text-h6">Alterar status</div></q-card-section>
+      <q-card-section>
+        <q-select
+          v-model="statusId"
+          :options="props.status.map(s => ({ label: s.nome, value: s.id }))"
+          emit-value
+          map-options
+          outlined
+          label="Status"
+        />
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn flat label="Cancelar" @click="emit('update:modelValue', false)" />
+        <q-btn color="primary" label="Salvar" :loading="props.loading" @click="confirmar" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+</template>

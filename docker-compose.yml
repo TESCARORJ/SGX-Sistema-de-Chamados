@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: sgx-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sgx_sistema_chamados}
+      POSTGRES_USER: ${POSTGRES_USER:-user_sgxsc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_local_only}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user_sgxsc} -d ${POSTGRES_DB:-sgx_sistema_chamados}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/SGX.SistemaChamado.Api/Dockerfile
+    container_name: sgx-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-sgx_sistema_chamados};Username=${POSTGRES_USER:-user_sgxsc};Password=${POSTGRES_PASSWORD:-change_me_local_only}
+      Authentication__ModoLocalHabilitado: ${AUTH_MODO_LOCAL_HABILITADO:-true}
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN_0:-http://localhost:8081}
+      Cors__AllowedOrigins__1: ${CORS_ALLOWED_ORIGIN_1:-http://127.0.0.1:8081}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - anexos_storage:/app/storage/anexos
+
+  worker-email:
+    build:
+      context: .
+      dockerfile: src/SGX.SistemaChamado.Worker.Email/Dockerfile
+    container_name: sgx-worker-email
+    environment:
+      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-sgx_sistema_chamados};Username=${POSTGRES_USER:-user_sgxsc};Password=${POSTGRES_PASSWORD:-change_me_local_only}
+      EmailWorker__ImapHost: ${EMAILWORKER_IMAPHOST:-}
+      EmailWorker__ImapPorta: ${EMAILWORKER_IMAPPORTA:-993}
+      EmailWorker__Usuario: ${EMAILWORKER_USUARIO:-}
+      EmailWorker__Senha: ${EMAILWORKER_SENHA:-}
+      EmailWorker__Pasta: ${EMAILWORKER_PASTA:-INBOX}
+      EmailWorker__SslHabilitado: ${EMAILWORKER_SSLHABILITADO:-true}
+      EmailWorker__TlsHabilitado: ${EMAILWORKER_TLSHABILITADO:-false}
+      EmailWorker__IntervaloSegundos: ${EMAILWORKER_INTERVALOSEGUNDOS:-60}
+      EmailWorker__MaxMensagensPorCiclo: ${EMAILWORKER_MAXMENSAGENSPORCICLO:-20}
+      EmailWorker__MarcarComoLidaAoProcessar: ${EMAILWORKER_MARCARCOMOLIDAAOPROCESSAR:-true}
+      EmailWorker__MoverProcessadas: ${EMAILWORKER_MOVERPROCESSADAS:-false}
+      EmailWorker__PastaProcessadas: ${EMAILWORKER_PASTAPROCESSADAS:-Processadas}
+      EmailWorker__MoverComErro: ${EMAILWORKER_MOVERCOMERRO:-false}
+      EmailWorker__PastaErro: ${EMAILWORKER_PASTAERRO:-Erro}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - anexos_storage:/app/storage/anexos
+
+  frontend:
+    build:
+      context: .
+      dockerfile: src/SGX.SistemaChamado.Web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    container_name: sgx-frontend
+    ports:
+      - "${FRONTEND_PORT:-8081}:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  anexos_storage:

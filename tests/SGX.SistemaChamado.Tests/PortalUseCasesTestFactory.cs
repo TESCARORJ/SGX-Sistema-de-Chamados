@@ -1,0 +1,76 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Options;
+using SGX.SistemaChamado.Infrastructure.Persistence;
+using SGX.SistemaChamado.Infrastructure.Repositories;
+
+namespace SGX.SistemaChamado.Tests;
+
+internal static class PortalUseCasesTestFactory
+{
+    public static SGXSistemaChamadoDbContext CriarContexto()
+    {
+        var options = new DbContextOptionsBuilder<SGXSistemaChamadoDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+            .Options;
+
+        var context = new SGXSistemaChamadoDbContext(options);
+        context.Database.EnsureCreated();
+        return context;
+    }
+
+    public static Repository<T> Repo<T>(SGXSistemaChamadoDbContext context) where T : class => new(context);
+
+    public static UnitOfWork Uow(SGXSistemaChamadoDbContext context) => new(context);
+
+    public static IOptions<ArquivosOptions> ArquivosOptionsPadrao =>
+        Options.Create(new ArquivosOptions
+        {
+            DiretorioAnexos = "storage/anexos-testes",
+            TamanhoMaximoBytes = 10 * 1024 * 1024,
+            ContentTypesPermitidos =
+            [
+                "application/pdf",
+                "image/png",
+                "image/jpeg",
+                "text/plain",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/vnd.ms-excel",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ]
+        });
+}
+
+internal sealed class FakeUsuarioContextoAplicacaoService(UsuarioContextoAplicacao usuario) : IUsuarioContextoAplicacaoService
+{
+    public Task<UsuarioContextoAplicacao> ObterAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult(usuario);
+}
+
+internal sealed class FakeArquivoStorageService : IArquivoStorageService
+{
+    public readonly List<ArquivoStorageRequest> Salvos = [];
+
+    public Task<ArquivoStorageResult> SalvarAsync(ArquivoStorageRequest request, CancellationToken cancellationToken = default)
+    {
+        Salvos.Add(request);
+        return Task.FromResult(new ArquivoStorageResult($"storage/anexos-testes/{request.NomeFisico}", request.NomeFisico));
+    }
+
+    public Task RemoverAsync(string caminhoRelativo, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+}
+
+internal sealed class FakeCodigoChamadoService : ICodigoChamadoService
+{
+    private int _sequencial = 1;
+
+    public Task<string> GerarAsync(CancellationToken cancellationToken = default)
+    {
+        var codigo = $"SGX-{DateTime.UtcNow.Year}-{_sequencial:D6}";
+        _sequencial++;
+        return Task.FromResult(codigo);
+    }
+}
