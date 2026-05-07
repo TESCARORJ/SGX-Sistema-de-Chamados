@@ -1,6 +1,6 @@
-﻿<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import FiltrosChamadoAdmin from '../components/admin/FiltrosChamadoAdmin.vue'
 import TabelaChamados from '../components/admin/TabelaChamados.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
@@ -12,6 +12,7 @@ import { adminService } from '../services/adminService'
 import type { AdminContextoResponse, ChamadoAdminResumo, FiltroChamadosAdmin } from '../types/admin'
 
 const router = useRouter()
+const route = useRoute()
 
 const loading = ref(false)
 const erro = ref<string | null>(null)
@@ -30,6 +31,7 @@ const filtrosPadrao: FiltroChamadosAdmin = {
 
 const filtrosAtuais = ref<FiltroChamadosAdmin>({ ...filtrosPadrao })
 const paginaAtual = ref(1)
+const textoBuscaGlobal = ref('')
 
 function podeAssumirComResponsavel(): boolean {
   return contexto.value?.usuario.perfis.includes('Administrador') ?? false
@@ -63,6 +65,43 @@ async function carregarChamados(filtros?: FiltroChamadosAdmin): Promise<void> {
   }
 }
 
+function extrairTextoDaQuery(): string {
+  const valor = route.query.texto ?? route.query.busca
+
+  if (Array.isArray(valor)) {
+    return (valor[0] ?? '').trim()
+  }
+
+  return typeof valor === 'string' ? valor.trim() : ''
+}
+
+async function atualizarQueryTexto(texto: string | undefined): Promise<boolean> {
+  const queryAtual = { ...route.query }
+  const novoTexto = texto?.trim() || undefined
+  const textoAtualRaw = route.query.texto ?? route.query.busca
+  const textoAtual = Array.isArray(textoAtualRaw) ? textoAtualRaw[0] : textoAtualRaw
+  const textoAtualNormalizado = typeof textoAtual === 'string' && textoAtual.trim() ? textoAtual.trim() : undefined
+
+  if (novoTexto === textoAtualNormalizado && !('busca' in route.query)) {
+    return false
+  }
+
+  delete queryAtual.busca
+
+  if (novoTexto) {
+    queryAtual.texto = novoTexto
+  } else {
+    delete queryAtual.texto
+  }
+
+  await router.replace({
+    path: '/admin/chamados',
+    query: queryAtual,
+  })
+
+  return true
+}
+
 async function assumir(id: string): Promise<void> {
   loading.value = true
   erro.value = null
@@ -90,29 +129,63 @@ async function alterarPagina(page: number): Promise<void> {
 
 async function aplicarFiltros(filtros: FiltroChamadosAdmin): Promise<void> {
   sucesso.value = null
-  await carregarChamados({
+
+  const proximoFiltro: FiltroChamadosAdmin = {
     ...filtros,
     pagina: 1,
-  })
+  }
+
+  filtrosAtuais.value = proximoFiltro
+  const mudouQuery = await atualizarQueryTexto(proximoFiltro.texto)
+
+  if (!mudouQuery) {
+    await carregarChamados(proximoFiltro)
+  }
 }
 
 async function limparFiltros(filtros: FiltroChamadosAdmin): Promise<void> {
   sucesso.value = null
-  await carregarChamados({ ...filtros })
+
+  const proximoFiltro = { ...filtros }
+  filtrosAtuais.value = proximoFiltro
+  const mudouQuery = await atualizarQueryTexto(undefined)
+
+  if (!mudouQuery) {
+    await carregarChamados(proximoFiltro)
+  }
 }
 
-onMounted(async () => {
-  loading.value = true
-  erro.value = null
+const mensagemVazio = computed(() => {
+  if (textoBuscaGlobal.value) {
+    return 'Nenhum chamado encontrado para sua busca.'
+  }
 
+  return 'Nao ha chamados para os filtros selecionados.'
+})
+
+onMounted(async () => {
   try {
     await carregarContexto()
-    await carregarChamados()
   } catch (error) {
     erro.value = error instanceof Error ? error.message : 'Falha ao inicializar tela administrativa.'
-    loading.value = false
   }
 })
+
+watch(
+  () => [route.query.texto, route.query.busca],
+  async () => {
+    const texto = extrairTextoDaQuery()
+    textoBuscaGlobal.value = texto
+    sucesso.value = null
+
+    await carregarChamados({
+      ...filtrosAtuais.value,
+      texto: texto || undefined,
+      pagina: 1,
+    })
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -126,7 +199,13 @@ onMounted(async () => {
     </PageHeader>
 
     <AppSectionCard titulo="Filtros da fila" subtitulo="Busque por status, prioridade, categoria, responsavel e SLA.">
-      <FiltrosChamadoAdmin :contexto="contexto" :loading="loading" @filtrar="aplicarFiltros" @limpar="limparFiltros" />
+      <FiltrosChamadoAdmin
+        :contexto="contexto"
+        :texto-inicial="textoBuscaGlobal"
+        :loading="loading"
+        @filtrar="aplicarFiltros"
+        @limpar="limparFiltros"
+      />
     </AppSectionCard>
 
     <ErrorState v-if="erro" :mensagem="erro" @retry="carregarChamados()" />
@@ -143,7 +222,7 @@ onMounted(async () => {
       <EmptyState
         v-if="!chamados.length"
         titulo="Sem chamados para exibir"
-        mensagem="Nao ha chamados para os filtros selecionados."
+        :mensagem="mensagemVazio"
       />
 
       <template v-else>

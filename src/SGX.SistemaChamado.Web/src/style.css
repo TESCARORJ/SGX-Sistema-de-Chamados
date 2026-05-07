@@ -129,9 +129,116 @@ body {
 
 .q-drawer.admin-drawer,
 .q-drawer.admin-drawer .q-drawer__content {
-  background:
-    radial-gradient(circle at 14% 6%, rgba(37, 99, 235, 0.2), transparent 38%),
-    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+  background: #f8fbff !important;
+}
+
+.q-drawer.admin-drawer .admin-drawer__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: #0f172a;
+}
+
+.q-drawer.admin-drawer .admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+  background: #f8fbff !important;
+  color: #0f172a;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav-wrap {
+  flex: 1 1 auto;
+  min-height: 220px;
+  overflow-y: auto;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav {
+  color: #0f172a;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .q-item {
+  color: #0f172a;
+  border-radius: 10px;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .menu-group {
+  color: #0f172a;
+  border-radius: 10px;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .q-item.q-item--clickable:hover,
+.q-drawer.admin-drawer .admin-sidebar__nav .q-expansion-item__container > .q-item.q-item--clickable:hover {
+  background: rgba(11, 94, 215, 0.08);
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .q-item__label,
+.q-drawer.admin-drawer .admin-sidebar__nav .q-expansion-item__container > .q-item .q-item__label {
+  color: #0f172a;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .q-item__section--avatar .q-icon,
+.q-drawer.admin-drawer .admin-sidebar__nav .q-expansion-item__toggle-icon {
+  color: #0b2f66;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .menu-item-active {
+  background: rgba(11, 94, 215, 0.12);
+  color: #0b5ed7;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__nav .menu-item-active .q-icon,
+.q-drawer.admin-drawer .admin-sidebar__nav .menu-item-active .q-item__label {
+  color: #0b5ed7;
+}
+
+.q-drawer.admin-drawer .admin-sidebar__footer {
+  margin-top: auto;
+}
+
+.q-drawer.admin-drawer .drawer-brand__title {
+  color: #0b5ed7;
+}
+
+.q-drawer.admin-drawer .drawer-brand__name {
+  color: #0f172a;
+}
+
+.q-drawer.admin-drawer .drawer-brand__subtitle {
+  color: #64748b;
+}
+
+.q-drawer.admin-drawer .q-separator {
+  background: #dbe4f1;
+}
+
+.q-drawer.admin-drawer.drawer-exit-btn,
+.q-drawer.admin-drawer .drawer-exit-btn {
+  min-height: 40px;
+  border-radius: 10px;
+  background: transparent !important;
+  color: #dc2626 !important;
+  border: 1px solid #dc2626 !important;
+}
+
+.q-drawer.admin-drawer .drawer-exit-btn:hover {
+  background: rgba(220, 38, 38, 0.08) !important;
+}
+
+.q-drawer.admin-drawer .drawer-emulacao-btn {
+  min-height: 40px;
+  border-radius: 10px;
+  background: #1f63d1 !important;
+  border: 1px solid #1a55b2;
+  color: #ffffff !important;
+}
+
+.q-drawer.admin-drawer .drawer-emulacao-btn .q-icon,
+.q-drawer.admin-drawer .drawer-emulacao-btn .q-btn__content {
+  color: #ffffff !important;
 }
 
 @media (max-width: 1280px) {

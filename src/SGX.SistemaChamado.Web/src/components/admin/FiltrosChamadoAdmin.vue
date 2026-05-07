@@ -1,9 +1,10 @@
-﻿<script setup lang="ts">
-import { reactive } from 'vue'
+<script setup lang="ts">
+import { reactive, watch } from 'vue'
 import type { AdminContextoResponse, FiltroChamadosAdmin } from '../../types/admin'
 
 const props = defineProps<{
   contexto: AdminContextoResponse | null
+  textoInicial?: string
   loading?: boolean
 }>()
 
@@ -19,6 +20,14 @@ const filtros = reactive<FiltroChamadosAdmin>({
   direcaoOrdenacao: 'desc',
 })
 
+watch(
+  () => props.textoInicial,
+  (valor) => {
+    const texto = (valor ?? '').trim()
+    filtros.texto = texto ? texto : undefined
+  },
+  { immediate: true }
+)
 function aplicar(): void {
   filtros.pagina = 1
   emit('filtrar', { ...filtros })
@@ -173,3 +182,4 @@ function limpar(): void {
     </div>
   </q-form>
 </template>
+

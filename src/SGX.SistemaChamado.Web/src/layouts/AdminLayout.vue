@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
@@ -108,11 +108,29 @@ function notificarEmBreve(): void {
 }
 
 function acionarBuscaGlobal(): void {
-  if (!buscaGlobal.value.trim()) {
+  const texto = buscaGlobal.value.trim()
+  const possuiBuscaAtual = Boolean(route.query.texto ?? route.query.busca)
+
+  if (!texto && route.path !== '/admin/chamados' && !possuiBuscaAtual) {
     return
   }
 
-  router.push('/admin/chamados')
+  const query = texto ? { texto } : {}
+
+  router.push({
+    path: '/admin/chamados',
+    query,
+  })
+}
+
+function extrairTextoBuscaQuery(): string {
+  const valor = route.query.texto ?? route.query.busca
+
+  if (Array.isArray(valor)) {
+    return (valor[0] ?? '').trim()
+  }
+
+  return typeof valor === 'string' ? valor.trim() : ''
 }
 
 async function logout(): Promise<void> {
@@ -150,6 +168,18 @@ function navegarPara(path: string): void {
     drawerOpen.value = false
   }
 }
+
+watch(
+  () => [route.path, route.query.texto, route.query.busca],
+  () => {
+    if (!route.path.startsWith('/admin')) {
+      return
+    }
+
+    buscaGlobal.value = extrairTextoBuscaQuery()
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -218,104 +248,109 @@ function navegarPara(path: string): void {
       :breakpoint="1024"
       :behavior="$q.screen.lt.md ? 'mobile' : 'desktop'"
       class="admin-drawer"
+      content-class="admin-drawer__content"
     >
-      <div class="q-pa-md drawer-brand">
-        <q-avatar size="42px" color="white" text-color="primary" icon="support_agent" />
-        <div>
-          <div class="drawer-brand__title">SGX</div>
-          <div class="drawer-brand__name">Sistema de Chamados</div>
-          <div class="text-caption drawer-brand__subtitle">Painel administrativo</div>
+      <div class="admin-sidebar">
+        <div class="q-pa-md drawer-brand">
+          <q-avatar size="42px" color="secondary" text-color="white" icon="support_agent" />
+          <div>
+            <div class="drawer-brand__title">SGX</div>
+            <div class="drawer-brand__name">Sistema de Chamados</div>
+            <div class="text-caption drawer-brand__subtitle">Painel administrativo</div>
+          </div>
         </div>
-      </div>
 
-      <q-separator dark />
+        <q-separator />
 
-      <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm">
-        <q-btn
-          color="primary"
-          unelevated
-          icon="visibility"
-          :label="drawerMini ? '' : 'Visualizar como Solicitante'"
-          class="full-width drawer-emulacao-btn"
-          :loading="emulacaoCarregando"
-          @click="visualizarComoSolicitante"
-        >
-          <q-tooltip>Simula a experiencia do Solicitante em ambiente local.</q-tooltip>
-        </q-btn>
-      </div>
-
-      <q-separator dark />
-
-      <q-list padding>
-        <template v-for="item in menu" :key="item.label">
-          <q-item
-            v-if="item.to"
-            clickable
-            :active="rotaAtiva(item.to)"
-            active-class="menu-item-active"
-            @click="navegarPara(item.to)"
+        <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm">
+          <q-btn
+            color="primary"
+            unelevated
+            icon="visibility"
+            :label="drawerMini ? '' : 'Visualizar como Solicitante'"
+            class="full-width drawer-emulacao-btn"
+            :loading="emulacaoCarregando"
+            @click="visualizarComoSolicitante"
           >
-            <q-item-section avatar>
-              <q-icon :name="item.icon" />
-            </q-item-section>
-            <q-item-section>{{ item.label }}</q-item-section>
-            <q-tooltip v-if="drawerMini">{{ item.label }}</q-tooltip>
-          </q-item>
+            <q-tooltip>Simula a experiencia do Solicitante em ambiente local.</q-tooltip>
+          </q-btn>
+        </div>
 
-          <q-expansion-item
-            v-else
-            dense-toggle
-            expand-separator
-            :icon="item.icon"
-            :label="item.label"
-            :default-opened="grupoAberto(item.children)"
-            header-class="menu-group"
-            :disable="drawerMini"
-          >
-            <q-list dense>
+        <q-separator />
+
+        <div class="admin-sidebar__nav-wrap">
+          <q-list class="admin-sidebar__nav" padding>
+            <template v-for="item in menu" :key="item.label">
               <q-item
-                v-for="child in item.children"
-                :key="child.label"
+                v-if="item.to"
                 clickable
-                inset-level="0.5"
-                :active="Boolean(child.to && rotaAtiva(child.to))"
+                :active="rotaAtiva(item.to)"
                 active-class="menu-item-active"
-                @click="child.to && navegarPara(child.to)"
+                @click="navegarPara(item.to)"
               >
                 <q-item-section avatar>
-                  <q-icon :name="child.icon" size="18px" />
+                  <q-icon :name="item.icon" />
                 </q-item-section>
-                <q-item-section>{{ child.label }}</q-item-section>
+                <q-item-section>{{ item.label }}</q-item-section>
+                <q-tooltip v-if="drawerMini">{{ item.label }}</q-tooltip>
               </q-item>
-            </q-list>
-          </q-expansion-item>
-        </template>
-      </q-list>
 
-      <q-separator dark />
+              <q-expansion-item
+                v-else
+                dense-toggle
+                expand-separator
+                :icon="item.icon"
+                :label="item.label"
+                :default-opened="true"
+                header-class="menu-group"
+                :disable="drawerMini"
+              >
+                <q-list dense>
+                  <q-item
+                    v-for="child in item.children"
+                    :key="child.label"
+                    clickable
+                    inset-level="0.5"
+                    :active="Boolean(child.to && rotaAtiva(child.to))"
+                    active-class="menu-item-active"
+                    @click="child.to && navegarPara(child.to)"
+                  >
+                    <q-item-section avatar>
+                      <q-icon :name="child.icon" size="18px" />
+                    </q-item-section>
+                    <q-item-section>{{ child.label }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-expansion-item>
+            </template>
+          </q-list>
+        </div>
 
-      <div class="q-pa-md column q-gutter-sm">
-        <q-btn
-          flat
-          class="text-white"
-          :icon="drawerMini ? 'chevron_right' : 'chevron_left'"
-          :label="drawerMini ? '' : 'Recolher menu'"
-          :disable="$q.screen.lt.md"
-          @click="drawerMini = !drawerMini"
-        >
-          <q-tooltip>{{ drawerMini ? 'Expandir menu' : 'Recolher menu' }}</q-tooltip>
-        </q-btn>
+        <q-separator />
 
-        <q-btn
-          color="negative"
-          unelevated
-          icon="logout"
-          :label="drawerMini ? '' : 'Sair'"
-          class="full-width drawer-exit-btn"
-          @click="logout"
-        >
-          <q-tooltip>Sair</q-tooltip>
-        </q-btn>
+        <div class="q-pa-md column q-gutter-sm admin-sidebar__footer">
+          <q-btn
+            flat
+            class="text-grey-8"
+            :icon="drawerMini ? 'chevron_right' : 'chevron_left'"
+            :label="drawerMini ? '' : 'Recolher menu'"
+            :disable="$q.screen.lt.md"
+            @click="drawerMini = !drawerMini"
+          >
+            <q-tooltip>{{ drawerMini ? 'Expandir menu' : 'Recolher menu' }}</q-tooltip>
+          </q-btn>
+
+          <q-btn
+            color="negative"
+            unelevated
+            icon="logout"
+            :label="drawerMini ? '' : 'Sair'"
+            class="full-width drawer-exit-btn"
+            @click="logout"
+          >
+            <q-tooltip>Sair</q-tooltip>
+          </q-btn>
+        </div>
       </div>
     </q-drawer>
 
@@ -371,17 +406,13 @@ function navegarPara(path: string): void {
 }
 
 .admin-drawer {
-  background:
-    radial-gradient(circle at 14% 6%, rgba(37, 99, 235, 0.2), transparent 38%),
-    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
-  color: rgba(255, 255, 255, 0.88);
+  background: #f8fbff !important;
+  color: #0f172a;
 }
 
 :deep(.admin-drawer .q-drawer__content) {
-  background:
-    radial-gradient(circle at 14% 6%, rgba(37, 99, 235, 0.2), transparent 38%),
-    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
-  color: rgba(255, 255, 255, 0.88) !important;
+  background: #f8fbff !important;
+  color: #0f172a !important;
 }
 
 .drawer-brand {
@@ -391,74 +422,92 @@ function navegarPara(path: string): void {
   align-items: center;
 }
 
+.admin-sidebar {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar__nav-wrap {
+  flex: 1 1 auto;
+  min-height: 220px;
+  overflow-y: auto;
+  padding: 8px 10px;
+}
+
+.admin-sidebar__nav {
+  padding: 0 !important;
+}
+
 .drawer-brand__title {
   font-size: 1.05rem;
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #eff6ff;
+  color: #0b5ed7;
 }
 
 .drawer-brand__name {
   font-size: 0.94rem;
   line-height: 1.2;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  display: block;
 }
 
 .drawer-brand__subtitle {
-  color: rgba(255, 255, 255, 0.66);
+  color: #64748b;
 }
 
 :deep(.menu-item-active) {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32);
+  background: rgba(11, 94, 215, 0.12);
+  color: #0b5ed7;
+  border-radius: 10px;
+  box-shadow: none;
 }
 
 :deep(.menu-group) {
-  border-radius: 12px;
-  color: rgba(255, 255, 255, 0.88);
+  border-radius: 10px;
+  color: #0f172a;
 }
 
 :deep(.q-item) {
-  color: rgba(255, 255, 255, 0.88);
-  border-radius: 12px;
+  color: #0f172a;
+  border-radius: 10px;
 }
 
 :deep(.q-item.q-item--clickable:hover),
 :deep(.q-expansion-item__container > .q-item.q-item--clickable:hover) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(11, 94, 215, 0.08);
 }
 
 :deep(.q-item__section--avatar .q-icon),
 :deep(.q-expansion-item__toggle-icon) {
-  color: rgba(255, 255, 255, 0.78);
+  color: #0b2f66;
 }
 
 :deep(.menu-item-active .q-icon) {
-  color: #ffffff;
+  color: #0b5ed7;
 }
 
 :deep(.q-expansion-item__container > .q-item .q-item__label) {
-  color: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
 }
 
 :deep(.q-expansion-item__container > .q-item .q-item__label--caption) {
-  color: rgba(255, 255, 255, 0.66);
+  color: #64748b;
 }
 
 :deep(.q-item__label) {
-  color: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
 }
 
 :deep(.q-separator) {
-  background: rgba(148, 163, 184, 0.28);
+  background: #dbe4f1;
 }
 
 :deep(.q-drawer--left.q-drawer--bordered) {
-  border-right: 1px solid rgba(148, 163, 184, 0.24);
+  border-right: 1px solid #dbe4f1;
 }
 
 :deep(.q-expansion-item__container .q-item) {
@@ -466,26 +515,27 @@ function navegarPara(path: string): void {
 }
 
 .drawer-emulacao-btn {
-  background: rgba(37, 99, 235, 0.2);
-  color: rgba(255, 255, 255, 0.94) !important;
-  border: 1px solid rgba(96, 165, 250, 0.46);
-  min-height: 42px;
+  background: #1f63d1;
+  color: #ffffff !important;
+  border: 1px solid #1a55b2;
+  min-height: 40px;
+  border-radius: 10px;
 }
 
 .drawer-emulacao-btn :deep(.q-icon) {
-  color: rgba(255, 255, 255, 0.9);
+  color: #ffffff;
 }
 
 .drawer-exit-btn {
-  background: #dc2626;
-  color: #ffffff !important;
-  border: 1px solid rgba(248, 113, 113, 0.38);
+  background: transparent;
+  color: #dc2626 !important;
+  border: 1px solid #dc2626;
   border-radius: 10px;
-  min-height: 42px;
+  min-height: 40px;
 }
 
 .drawer-exit-btn:hover {
-  background: #b91c1c !important;
+  background: rgba(220, 38, 38, 0.08) !important;
 }
 
 @media (max-width: 1430px) {
