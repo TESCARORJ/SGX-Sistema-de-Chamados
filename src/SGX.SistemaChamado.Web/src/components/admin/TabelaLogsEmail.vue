@@ -1,4 +1,5 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
+import { useQuasar } from 'quasar'
 import type { LogIntegracaoEmailResumoResponse } from '../../types/integracaoEmail'
 import StatusProcessamentoEmailBadge from './StatusProcessamentoEmailBadge.vue'
 
@@ -15,13 +16,15 @@ const emit = defineEmits<{
   verDetalhe: [id: string]
 }>()
 
+const $q = useQuasar()
+
 const columns = [
-  { name: 'dataRecebimento', label: 'Recebido em', field: 'dataRecebimento', align: 'left' as const },
+  { name: 'dataRecebimento', label: 'Data recebimento', field: 'dataRecebimento', align: 'left' as const },
   { name: 'remetente', label: 'Remetente', field: 'remetente', align: 'left' as const },
   { name: 'assunto', label: 'Assunto', field: 'assunto', align: 'left' as const },
   { name: 'status', label: 'Status', field: 'statusProcessamento', align: 'left' as const },
-  { name: 'chamado', label: 'Chamado', field: 'chamadoCodigo', align: 'left' as const },
-  { name: 'erro', label: 'Erro resumido', field: 'erroResumido', align: 'left' as const },
+  { name: 'chamado', label: 'Chamado vinculado', field: 'chamadoCodigo', align: 'left' as const },
+  { name: 'erro', label: 'Erro', field: 'erroResumido', align: 'left' as const },
   { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' as const },
 ]
 
@@ -39,6 +42,7 @@ function formatarData(valor: string | null): string {
     :rows="props.rows"
     :columns="columns"
     :loading="props.loading"
+    :grid="$q.screen.lt.md"
     :pagination="{ page: props.pagina, rowsPerPage: props.tamanhoPagina, rowsNumber: props.total }"
     @update:pagination="(p) => emit('alterarPagina', p.page)"
   >
@@ -57,19 +61,15 @@ function formatarData(valor: string | null): string {
     </template>
 
     <template #body-cell-erro="slotProps">
-      <q-td :props="slotProps">{{ slotProps.row.erroResumido ?? '-' }}</q-td>
+      <q-td :props="slotProps">
+        <span class="text-caption">{{ slotProps.row.erroResumido ?? '-' }}</span>
+      </q-td>
     </template>
 
     <template #body-cell-acoes="slotProps">
       <q-td :props="slotProps">
         <q-btn flat color="primary" label="Ver detalhe" @click="emit('verDetalhe', slotProps.row.id)" />
       </q-td>
-    </template>
-
-    <template #no-data>
-      <div class="full-width text-center q-pa-lg text-grey-7">
-        Nenhum log encontrado para os filtros aplicados.
-      </div>
     </template>
   </q-table>
 </template>

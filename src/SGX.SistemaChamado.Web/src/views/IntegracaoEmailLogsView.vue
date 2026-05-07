@@ -1,9 +1,13 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import ErrorState from '../components/ui/ErrorState.vue'
+import LoadingState from '../components/ui/LoadingState.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
 import DetalheLogEmail from '../components/admin/DetalheLogEmail.vue'
 import FiltrosLogsEmail from '../components/admin/FiltrosLogsEmail.vue'
 import TabelaLogsEmail from '../components/admin/TabelaLogsEmail.vue'
-import PageHeader from '../components/ui/PageHeader.vue'
 import { integracoesEmailService } from '../services/integracoesEmailService'
 import type {
   FiltroLogsEmailRequest,
@@ -62,7 +66,9 @@ async function abrirDetalhe(id: string): Promise<void> {
   }
 }
 
-onMounted(carregarLogs)
+onMounted(() => {
+  void carregarLogs()
+})
 </script>
 
 <template>
@@ -72,27 +78,37 @@ onMounted(carregarLogs)
       subtitulo="Acompanhe processamento, correlacao e falhas tecnicas da caixa de entrada"
     />
 
-    <FiltrosLogsEmail :loading="loading" @filtrar="aplicarFiltros" />
+    <AppSectionCard titulo="Filtros de logs" subtitulo="Defina periodo, status, remetente e busca textual">
+      <FiltrosLogsEmail :loading="loading" @filtrar="aplicarFiltros" />
+    </AppSectionCard>
 
-    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+    <LoadingState v-if="loading && !lista.items.length" mensagem="Carregando logs de integracao..." />
 
-    <q-card flat bordered class="sgx-card">
-      <q-card-section>
-        <TabelaLogsEmail
-          :rows="lista.items"
-          :total="lista.total"
-          :pagina="lista.pagina"
-          :tamanho-pagina="lista.tamanhoPagina"
-          :loading="loading"
-          @alterar-pagina="alterarPagina"
-          @ver-detalhe="abrirDetalhe"
-        />
-      </q-card-section>
-    </q-card>
+    <ErrorState
+      v-else-if="erro && !lista.items.length"
+      titulo="Falha ao carregar logs"
+      :mensagem="erro"
+      @retry="carregarLogs"
+    />
 
-    <q-banner v-if="!loading && !lista.items.length" rounded class="bg-blue-1 text-primary">
-      Nenhum log de integracao encontrado para os filtros aplicados.
-    </q-banner>
+    <EmptyState
+      v-else-if="!lista.items.length"
+      titulo="Nenhum log encontrado"
+      mensagem="Nao existem logs para os filtros atuais."
+      icon="mail_lock"
+    />
+
+    <AppSectionCard v-else titulo="Resultado dos logs" subtitulo="Lista paginada de processamento de e-mails">
+      <TabelaLogsEmail
+        :rows="lista.items"
+        :total="lista.total"
+        :pagina="lista.pagina"
+        :tamanho-pagina="lista.tamanhoPagina"
+        :loading="loading"
+        @alterar-pagina="alterarPagina"
+        @ver-detalhe="abrirDetalhe"
+      />
+    </AppSectionCard>
 
     <DetalheLogEmail v-model="modalDetalheAberto" :detalhe="detalheSelecionado" :loading="loadingDetalhe" />
   </q-page>

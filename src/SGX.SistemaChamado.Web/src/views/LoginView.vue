@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref } from 'vue'
+﻿<script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 
@@ -18,6 +18,8 @@ const localAuthEnabled =
   !import.meta.env.PROD &&
   (import.meta.env.DEV || import.meta.env.VITE_AUTH_MODO_LOCAL === 'true')
 
+const mensagemErro = computed(() => erroLocal.value || authStore.erro)
+
 async function entrarComMicrosoft(): Promise<void> {
   erroLocal.value = null
 
@@ -25,27 +27,28 @@ async function entrarComMicrosoft(): Promise<void> {
     await authStore.loginMicrosoft()
     await router.replace(authStore.rotaInicial)
   } catch (error) {
-    erroLocal.value = error instanceof Error ? error.message : 'Falha no login Microsoft.'
+    erroLocal.value = error instanceof Error ? error.message : 'Nao foi possivel concluir o login Microsoft.'
   }
 }
 
 async function entrarModoLocal(): Promise<void> {
   erroLocal.value = null
+
   const emailInformado = emailLocal.value.trim().toLowerCase()
   const senhaInformada = senhaLocal.value
 
   if (!emailInformado) {
-    erroLocal.value = 'Informe o e-mail para login local.'
+    erroLocal.value = 'Informe o e-mail para continuar no modo local.'
     return
   }
 
   if (!senhaInformada) {
-    erroLocal.value = 'Informe a senha para login local.'
+    erroLocal.value = 'Informe a senha local de desenvolvimento.'
     return
   }
 
   if (emailInformado !== adminLocalEmail) {
-    erroLocal.value = 'Para modo local Development use o e-mail admin@sgxdigital.com.'
+    erroLocal.value = 'Use o e-mail admin@sgxdigital.com para login local Development.'
     return
   }
 
@@ -63,9 +66,10 @@ async function entrarModoLocal(): Promise<void> {
 
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha no modo local.'
-    if (message.includes('Failed to fetch')) {
-      erroLocal.value = 'API indisponivel. Verifique se a API esta rodando em http://localhost:5168.'
+    const message = error instanceof Error ? error.message : 'Falha ao autenticar no modo local.'
+
+    if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+      erroLocal.value = 'API indisponivel. Verifique se a API esta ativa em http://localhost:5168.'
       return
     }
 
@@ -75,13 +79,13 @@ async function entrarModoLocal(): Promise<void> {
 </script>
 
 <template>
-  <q-page class="row items-center justify-center sgx-page">
-    <q-card class="sgx-card login-card" flat bordered>
-      <q-card-section class="text-center">
-        <div class="text-h5 text-weight-bold">SGX Sistema de Chamados</div>
-        <div class="text-body2 text-grey-8 q-mt-xs">
-          Entre com sua conta corporativa para acessar o sistema.
-        </div>
+  <q-page class="row items-center justify-center q-pa-md">
+    <q-card flat bordered class="sgx-card login-card">
+      <q-card-section class="text-center q-pb-sm">
+        <q-icon name="support_agent" color="primary" size="42px" />
+        <div class="text-h5 text-weight-bold q-mt-sm">SGX Sistema de Chamados</div>
+        <div class="text-subtitle2 text-grey-8 q-mt-xs">Atendimento interno, rastreável e organizado.</div>
+        <div class="text-body2 text-grey-7 q-mt-sm">Entre com sua conta corporativa para acessar o sistema.</div>
       </q-card-section>
 
       <q-card-section>
@@ -96,58 +100,56 @@ async function entrarModoLocal(): Promise<void> {
         />
       </q-card-section>
 
-      <template v-if="localAuthEnabled">
-        <q-card-section class="q-pb-none">
-          <div class="row items-center no-wrap">
-            <q-separator class="col" inset />
-            <div class="q-px-sm text-caption text-grey-7">ou</div>
-            <q-separator class="col" inset />
-          </div>
-        </q-card-section>
+      <q-card-section v-if="localAuthEnabled" class="q-pt-none">
+        <div class="row items-center no-wrap q-mb-md">
+          <q-separator class="col" inset />
+          <div class="q-px-sm text-caption text-grey-7">ou</div>
+          <q-separator class="col" inset />
+        </div>
 
-        <q-card-section>
-          <div class="text-subtitle1 text-weight-medium">Login administrativo local</div>
-          <div class="text-body2 text-grey-8 q-mt-xs">Uso exclusivo para desenvolvimento local.</div>
+        <div class="text-subtitle1 text-weight-medium">Login administrativo local</div>
+        <div class="text-body2 text-grey-8 q-mt-xs">Uso exclusivo para desenvolvimento local.</div>
 
-          <q-banner rounded class="bg-orange-1 text-warning q-mt-md">
-            Login administrativo local disponivel somente em Development.
-          </q-banner>
+        <q-banner rounded class="bg-orange-1 text-warning q-mt-md">
+          Este bloco nao aparece em Production e serve apenas para ambiente de desenvolvimento.
+        </q-banner>
 
-          <q-form class="q-gutter-md q-mt-md" @submit.prevent="entrarModoLocal">
-            <q-input
-              v-model="emailLocal"
-              outlined
-              type="email"
-              autocomplete="username"
-              label="E-mail"
-              placeholder="admin@sgxdigital.com"
-            />
+        <q-form class="q-gutter-md q-mt-md" @submit.prevent="entrarModoLocal">
+          <q-input
+            v-model="emailLocal"
+            outlined
+            type="email"
+            autocomplete="username"
+            label="E-mail"
+            placeholder="admin@sgxdigital.com"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe o e-mail']"
+          />
 
-            <q-input
-              v-model="senhaLocal"
-              outlined
-              type="password"
-              autocomplete="current-password"
-              label="Senha"
-              placeholder="Admin@123456"
-            />
+          <q-input
+            v-model="senhaLocal"
+            outlined
+            type="password"
+            autocomplete="current-password"
+            label="Senha"
+            placeholder="Admin@123456"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe a senha']"
+          />
 
-            <q-btn
-              type="submit"
-              color="secondary"
-              unelevated
-              icon="admin_panel_settings"
-              class="full-width"
-              :loading="authStore.carregando"
-              label="Entrar como administrador local"
-            />
-          </q-form>
-        </q-card-section>
-      </template>
+          <q-btn
+            type="submit"
+            color="secondary"
+            unelevated
+            icon="admin_panel_settings"
+            class="full-width"
+            :loading="authStore.carregando"
+            label="Entrar como administrador local"
+          />
+        </q-form>
+      </q-card-section>
 
-      <q-card-section v-if="erroLocal || authStore.erro">
+      <q-card-section v-if="mensagemErro" class="q-pt-none">
         <q-banner rounded class="bg-red-1 text-negative">
-          {{ erroLocal || authStore.erro }}
+          {{ mensagemErro }}
         </q-banner>
       </q-card-section>
     </q-card>
@@ -156,6 +158,7 @@ async function entrarModoLocal(): Promise<void> {
 
 <style scoped>
 .login-card {
-  width: min(520px, 100%);
+  width: min(560px, 100%);
 }
 </style>
+

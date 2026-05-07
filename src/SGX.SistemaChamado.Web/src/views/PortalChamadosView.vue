@@ -1,29 +1,75 @@
 ﻿<script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import type { QTableColumn } from 'quasar'
+import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import CardChamado from '../components/portal/CardChamado.vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import ErrorState from '../components/ui/ErrorState.vue'
+import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
+import SlaBadge from '../components/ui/SlaBadge.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { portalService } from '../services/portalService'
-import type { CategoriaPortal, ChamadoResumoPortal, PrioridadePortal, StatusPortal } from '../types/portal'
+import type { CategoriaPortal, ChamadoResumoPortal, FiltroChamadosPortal, PrioridadePortal, StatusPortal } from '../types/portal'
 
+const $q = useQuasar()
 const router = useRouter()
 
 const loading = ref(false)
 const erro = ref<string | null>(null)
+
 const chamados = ref<ChamadoResumoPortal[]>([])
 const total = ref(0)
+
 const categorias = ref<CategoriaPortal[]>([])
 const prioridades = ref<PrioridadePortal[]>([])
 const status = ref<StatusPortal[]>([])
 
 const filtros = reactive({
+  texto: '',
   statusId: '',
   prioridadeId: '',
   categoriaId: '',
-  texto: '',
 })
 
-async function carregarContexto() {
+const columns: QTableColumn<ChamadoResumoPortal>[] = [
+  { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left', sortable: true },
+  { name: 'titulo', label: 'Titulo', field: 'titulo', align: 'left', sortable: true },
+  { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true },
+  { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
+  { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
+  { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left', sortable: true },
+  { name: 'abertoEm', label: 'Aberto em', field: 'abertoEm', align: 'left', sortable: true },
+  { name: 'atualizadoEm', label: 'Atualizado em', field: 'atualizadoEm', align: 'left', sortable: true },
+  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' },
+]
+
+const opcoesStatus = computed(() => status.value.map((item) => ({ label: item.nome, value: item.id })))
+const opcoesPrioridade = computed(() => prioridades.value.map((item) => ({ label: item.nome, value: item.id })))
+const opcoesCategoria = computed(() => categorias.value.map((item) => ({ label: item.nome, value: item.id })))
+
+function formatarData(data: string | null): string {
+  if (!data) {
+    return '-'
+  }
+
+  return new Date(data).toLocaleString('pt-BR')
+}
+
+function montarFiltroRequest(): FiltroChamadosPortal {
+  return {
+    texto: filtros.texto || undefined,
+    statusId: filtros.statusId || undefined,
+    prioridadeId: filtros.prioridadeId || undefined,
+    categoriaId: filtros.categoriaId || undefined,
+    pagina: 1,
+    tamanhoPagina: 100,
+  }
+}
+
+async function carregarContexto(): Promise<void> {
   const contexto = await portalService.obterPortalContexto()
   categorias.value = contexto.categorias
   prioridades.value = contexto.prioridades
@@ -33,120 +79,208 @@ async function carregarContexto() {
 async function carregarChamados(): Promise<void> {
   loading.value = true
   erro.value = null
-  try {
-    const response = await portalService.listarMeusChamados({
-      statusId: filtros.statusId || undefined,
-      prioridadeId: filtros.prioridadeId || undefined,
-      categoriaId: filtros.categoriaId || undefined,
-      texto: filtros.texto || undefined,
-      pagina: 1,
-      tamanhoPagina: 50,
-    })
 
+  try {
+    const response = await portalService.listarMeusChamados(montarFiltroRequest())
     chamados.value = response.items
     total.value = response.total
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao listar chamados.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao listar chamados do solicitante.'
   } finally {
     loading.value = false
   }
 }
 
-function limpar(): void {
+async function aplicarFiltros(): Promise<void> {
+  await carregarChamados()
+}
+
+async function limparFiltros(): Promise<void> {
+  filtros.texto = ''
   filtros.statusId = ''
   filtros.prioridadeId = ''
   filtros.categoriaId = ''
-  filtros.texto = ''
-  carregarChamados()
+  await carregarChamados()
 }
 
 onMounted(async () => {
-  await carregarContexto()
-  await carregarChamados()
+  loading.value = true
+  erro.value = null
+
+  try {
+    await carregarContexto()
+    await carregarChamados()
+  } catch (error) {
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar filtros do portal.'
+    loading.value = false
+  }
 })
 </script>
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Meus chamados" subtitulo="Consulte e acompanhe suas solicitacoes">
+    <PageHeader titulo="Meus chamados" subtitulo="Filtre e acompanhe os chamados abertos pelo seu usuario.">
       <template #actions>
-        <q-btn color="secondary" icon="add" label="Novo chamado" @click="router.push('/portal/chamados/novo')" />
+        <q-btn color="secondary" icon="add" label="Abrir novo chamado" @click="router.push('/portal/chamados/novo')" />
       </template>
     </PageHeader>
 
-    <q-card flat bordered class="sgx-card">
-      <q-card-section class="row q-col-gutter-sm">
+    <AppSectionCard titulo="Filtros" subtitulo="Use os filtros para localizar chamados especificos.">
+      <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
+        <div class="col-12 col-md-3">
+          <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Codigo, titulo ou descricao" />
+        </div>
+
         <div class="col-12 col-md-3">
           <q-select
             v-model="filtros.statusId"
-            :options="status.map((s) => ({ label: s.nome, value: s.id }))"
-            option-label="label"
-            option-value="value"
+            outlined
+            clearable
             emit-value
             map-options
-            clearable
-            outlined
             label="Status"
+            :options="opcoesStatus"
           />
         </div>
+
         <div class="col-12 col-md-3">
           <q-select
             v-model="filtros.prioridadeId"
-            :options="prioridades.map((p) => ({ label: p.nome, value: p.id }))"
-            option-label="label"
-            option-value="value"
+            outlined
+            clearable
             emit-value
             map-options
-            clearable
-            outlined
             label="Prioridade"
+            :options="opcoesPrioridade"
           />
         </div>
+
         <div class="col-12 col-md-3">
           <q-select
             v-model="filtros.categoriaId"
-            :options="categorias.map((c) => ({ label: c.nome, value: c.id }))"
-            option-label="label"
-            option-value="value"
+            outlined
+            clearable
             emit-value
             map-options
-            clearable
-            outlined
             label="Categoria"
+            :options="opcoesCategoria"
           />
         </div>
-        <div class="col-12 col-md-3">
-          <q-input v-model="filtros.texto" outlined label="Buscar" />
+
+        <div class="col-12 row justify-end q-gutter-sm">
+          <q-btn flat color="primary" icon="cleaning_services" label="Limpar" :disable="loading" @click="limparFiltros" />
+          <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
         </div>
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn flat label="Limpar" @click="limpar" />
-        <q-btn color="primary" label="Filtrar" :loading="loading" @click="carregarChamados" />
-      </q-card-actions>
-    </q-card>
+      </q-form>
+    </AppSectionCard>
 
-    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+    <ErrorState v-if="erro" :mensagem="erro" @retry="carregarChamados" />
 
-    <div v-if="loading" class="row justify-center q-py-xl">
-      <q-spinner color="primary" size="2.2rem" />
-    </div>
+    <LoadingState v-else-if="loading" inline mensagem="Carregando chamados..." />
 
-    <q-card v-else flat bordered class="sgx-card">
-      <q-card-section class="text-caption text-grey-7">Total: {{ total }}</q-card-section>
-      <q-separator />
-      <q-card-section class="column q-gutter-sm">
-        <CardChamado
-          v-for="item in chamados"
-          :key="item.id"
-          :chamado="item"
-          class="cursor-pointer"
-          @click="router.push(`/portal/chamados/${item.id}`)"
-        />
+    <AppSectionCard v-else titulo="Resultado da consulta" :subtitulo="`Total de chamados: ${total}`">
+      <EmptyState
+        v-if="!chamados.length"
+        titulo="Nenhum chamado encontrado"
+        mensagem="Nao ha registros para os filtros selecionados."
+      >
+        <template #actions>
+          <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />
+        </template>
+      </EmptyState>
 
-        <q-banner v-if="!chamados.length" rounded class="bg-blue-1 text-primary">
-          Nenhum chamado encontrado para os filtros informados.
-        </q-banner>
-      </q-card-section>
-    </q-card>
+      <q-table
+        v-else
+        flat
+        :rows="chamados"
+        :columns="columns"
+        row-key="id"
+        :pagination="{ rowsPerPage: 15 }"
+        :grid="$q.screen.lt.md"
+        :rows-per-page-options="[10, 15, 25, 50]"
+      >
+        <template #body-cell-status="slotProps">
+          <q-td :props="slotProps">
+            <StatusBadge :texto="slotProps.row.status" />
+          </q-td>
+        </template>
+
+        <template #body-cell-prioridade="slotProps">
+          <q-td :props="slotProps">
+            <PrioridadeBadge :texto="slotProps.row.prioridade" />
+          </q-td>
+        </template>
+
+        <template #body-cell-sla="slotProps">
+          <q-td :props="slotProps">
+            <SlaBadge
+              :vencido="slotProps.row.slaVencido"
+              :proximo="slotProps.row.slaProximoVencimento"
+              :pausado="slotProps.row.estaPausado"
+            />
+          </q-td>
+        </template>
+
+        <template #body-cell-abertoEm="slotProps">
+          <q-td :props="slotProps">{{ formatarData(slotProps.row.abertoEm) }}</q-td>
+        </template>
+
+        <template #body-cell-atualizadoEm="slotProps">
+          <q-td :props="slotProps">{{ formatarData(slotProps.row.atualizadoEm) }}</q-td>
+        </template>
+
+        <template #body-cell-acoes="slotProps">
+          <q-td :props="slotProps" class="text-right">
+            <q-btn
+              flat
+              dense
+              color="primary"
+              icon="visibility"
+              label="Ver detalhe"
+              @click="router.push(`/portal/chamados/${slotProps.row.id}`)"
+            />
+          </q-td>
+        </template>
+
+        <template #item="slotProps">
+          <div class="col-12 q-mb-sm">
+            <q-card flat bordered class="sgx-card">
+              <q-card-section class="row items-start justify-between q-col-gutter-sm">
+                <div class="col">
+                  <div class="text-caption text-grey-7">{{ slotProps.row.codigo }}</div>
+                  <div class="text-subtitle1 text-weight-medium">{{ slotProps.row.titulo }}</div>
+                  <div class="text-caption text-grey-7 q-mt-xs">{{ slotProps.row.categoria }}</div>
+                  <div class="text-caption text-grey-7 q-mt-xs">Aberto em: {{ formatarData(slotProps.row.abertoEm) }}</div>
+                </div>
+
+                <div class="col-auto column items-end q-gutter-xs">
+                  <StatusBadge :texto="slotProps.row.status" />
+                  <PrioridadeBadge :texto="slotProps.row.prioridade" />
+                </div>
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-actions align="between" class="q-pa-sm">
+                <SlaBadge
+                  :vencido="slotProps.row.slaVencido"
+                  :proximo="slotProps.row.slaProximoVencimento"
+                  :pausado="slotProps.row.estaPausado"
+                />
+
+                <q-btn
+                  flat
+                  dense
+                  color="primary"
+                  icon="visibility"
+                  label="Ver detalhe"
+                  @click="router.push(`/portal/chamados/${slotProps.row.id}`)"
+                />
+              </q-card-actions>
+            </q-card>
+          </div>
+        </template>
+      </q-table>
+    </AppSectionCard>
   </q-page>
 </template>

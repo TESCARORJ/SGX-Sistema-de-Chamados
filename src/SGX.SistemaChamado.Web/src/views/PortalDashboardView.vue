@@ -2,6 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import CardChamado from '../components/portal/CardChamado.vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import ErrorState from '../components/ui/ErrorState.vue'
+import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { portalService } from '../services/portalService'
 import type { ChamadoResumoPortal } from '../types/portal'
@@ -11,22 +16,28 @@ const loading = ref(false)
 const erro = ref<string | null>(null)
 const chamados = ref<ChamadoResumoPortal[]>([])
 
-const total = computed(() => chamados.value.length)
-const abertos = computed(() => chamados.value.filter((x) => x.status.toLowerCase().includes('aberto')).length)
-const emAtendimento = computed(() => chamados.value.filter((x) => x.status.toLowerCase().includes('atendimento')).length)
-const aguardando = computed(() => chamados.value.filter((x) => x.status.toLowerCase().includes('aguardando')).length)
-const finalizados = computed(() =>
-  chamados.value.filter((x) => ['resolvido', 'encerrado'].some((s) => x.status.toLowerCase().includes(s))).length
+const chamadosAbertos = computed(() => chamados.value.filter((item) => item.status.toLowerCase().includes('aberto')).length)
+const chamadosEmAtendimento = computed(() =>
+  chamados.value.filter((item) => item.status.toLowerCase().includes('atendimento')).length
 )
+const chamadosAguardandoSolicitante = computed(() =>
+  chamados.value.filter((item) => item.status.toLowerCase().includes('aguardando')).length
+)
+const chamadosResolvidosEncerrados = computed(() =>
+  chamados.value.filter((item) => ['resolvido', 'encerrado'].some((status) => item.status.toLowerCase().includes(status))).length
+)
+
+const ultimosChamados = computed(() => chamados.value.slice(0, 6))
 
 async function carregar(): Promise<void> {
   loading.value = true
   erro.value = null
+
   try {
-    const response = await portalService.listarMeusChamados({ pagina: 1, tamanhoPagina: 5 })
+    const response = await portalService.listarMeusChamados({ pagina: 1, tamanhoPagina: 30 })
     chamados.value = response.items
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dashboard.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar o portal do solicitante.'
   } finally {
     loading.value = false
   }
@@ -37,75 +48,68 @@ onMounted(carregar)
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader
-      titulo="Dashboard do solicitante"
-      subtitulo="Resumo dos seus chamados mais recentes"
-    >
+    <PageHeader titulo="Meu portal" subtitulo="Acompanhe seus chamados e solicitacoes.">
       <template #actions>
         <div class="row q-gutter-sm">
-          <q-btn color="secondary" label="Abrir chamado" icon="add" @click="router.push('/portal/chamados/novo')" />
-          <q-btn flat color="primary" label="Ver todos" @click="router.push('/portal/chamados')" />
+          <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />
+          <q-btn flat color="primary" icon="list_alt" label="Meus chamados" @click="router.push('/portal/chamados')" />
         </div>
       </template>
     </PageHeader>
 
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered class="sgx-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Total</div>
-            <div class="text-h5 text-weight-bold">{{ total }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <MetricCard titulo="Chamados abertos" :valor="chamadosAbertos" icon="drafts" color="primary" />
       </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered class="sgx-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Abertos</div>
-            <div class="text-h5 text-weight-bold">{{ abertos }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <MetricCard titulo="Em atendimento" :valor="chamadosEmAtendimento" icon="support_agent" color="warning" />
       </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered class="sgx-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Em atendimento</div>
-            <div class="text-h5 text-weight-bold">{{ emAtendimento }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <MetricCard
+          titulo="Aguardando solicitante"
+          :valor="chamadosAguardandoSolicitante"
+          icon="hourglass_top"
+          color="deep-orange"
+        />
       </div>
-      <div class="col-12 col-sm-6 col-md-3">
-        <q-card flat bordered class="sgx-card">
-          <q-card-section>
-            <div class="text-caption text-grey-7">Finalizados</div>
-            <div class="text-h5 text-weight-bold">{{ finalizados }}</div>
-          </q-card-section>
-        </q-card>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <MetricCard
+          titulo="Resolvidos/encerrados"
+          :valor="chamadosResolvidosEncerrados"
+          icon="task_alt"
+          color="positive"
+        />
       </div>
     </div>
 
-    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+    <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
 
-    <div v-if="loading" class="row justify-center q-py-xl">
-      <q-spinner color="primary" size="2.2rem" />
-    </div>
+    <LoadingState v-else-if="loading" inline mensagem="Carregando informacoes do seu portal..." />
 
-    <q-card v-else flat bordered class="sgx-card">
-      <q-card-section class="text-subtitle1 text-weight-medium">Ultimos chamados</q-card-section>
-      <q-separator />
-      <q-card-section class="column q-gutter-sm">
+    <AppSectionCard
+      v-else
+      titulo="Ultimos chamados"
+      subtitulo="Historico recente para acompanhar o andamento das solicitacoes"
+    >
+      <div class="column q-gutter-sm">
         <CardChamado
-          v-for="item in chamados"
+          v-for="item in ultimosChamados"
           :key="item.id"
           :chamado="item"
-          @click="router.push(`/portal/chamados/${item.id}`)"
           class="cursor-pointer"
+          @click="router.push(`/portal/chamados/${item.id}`)"
         />
 
-        <q-banner v-if="!chamados.length" rounded class="bg-blue-1 text-primary">
-          Nenhum chamado encontrado.
-        </q-banner>
-      </q-card-section>
-    </q-card>
+        <EmptyState
+          v-if="!ultimosChamados.length"
+          titulo="Sem chamados recentes"
+          mensagem="Quando houver novos chamados, eles aparecerao aqui para acompanhamento rapido."
+        >
+          <template #actions>
+            <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />
+          </template>
+        </EmptyState>
+      </div>
+    </AppSectionCard>
   </q-page>
 </template>

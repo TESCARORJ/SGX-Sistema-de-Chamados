@@ -1,14 +1,16 @@
-﻿<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/authStore'
 import FormCadastro from '../../components/admin/cadastros/FormCadastro.vue'
-import ConfirmacaoInativacao from '../../components/admin/cadastros/ConfirmacaoInativacao.vue'
+import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
+import ErrorState from '../../components/ui/ErrorState.vue'
+import LoadingState from '../../components/ui/LoadingState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
-import { usuariosAdminService } from '../../services/usuariosAdminService'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
-import type { PerfilAcessoResumoResponse, DepartamentoResumoResponse } from '../../types/adminCadastros'
+import { usuariosAdminService } from '../../services/usuariosAdminService'
+import { useAuthStore } from '../../stores/authStore'
+import type { DepartamentoResumoResponse, PerfilAcessoResumoResponse } from '../../types/adminCadastros'
 
 type Entidade = 'usuarios' | 'perfis' | 'departamentos' | 'categorias' | 'prioridades' | 'status' | 'parametros'
 
@@ -23,6 +25,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(false)
+const carregamentoConcluido = ref(false)
 const erro = ref<string | null>(null)
 const sucesso = ref<string | null>(null)
 const confirmarInativacao = ref(false)
@@ -86,7 +89,54 @@ const opcoesTipoPerfil = [
   { label: 'Solicitante', value: 3 },
 ]
 
+const regraObrigatoria = (valor: unknown): true | string => {
+  if (typeof valor === 'number') {
+    return Number.isFinite(valor) ? true : 'Campo obrigatorio.'
+  }
+
+  if (Array.isArray(valor)) {
+    return valor.length > 0 ? true : 'Campo obrigatorio.'
+  }
+
+  return String(valor ?? '').trim().length > 0 ? true : 'Campo obrigatorio.'
+}
+
+const regraEmail = (valor: string): true | string => {
+  if (!valor?.trim()) {
+    return 'Campo obrigatorio.'
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail valido.'
+}
+
+const regraNumeroNaoNegativo = (valor: number): true | string =>
+  Number(valor) >= 0 ? true : 'Informe um valor maior ou igual a zero.'
+
+function resetarFormulario(): void {
+  form.nome = ''
+  form.email = ''
+  form.login = ''
+  form.situacao = 1
+  form.departamentoId = null
+  form.perfilIds = []
+  form.sigla = ''
+  form.descricao = ''
+  form.nivel = 1
+  form.prazoPrimeiraRespostaHoras = 0
+  form.prazoResolucaoHoras = 0
+  form.codigo = 1
+  form.ehStatusFinal = false
+  form.pausaSla = false
+  form.chave = ''
+  form.valor = ''
+  form.sensivel = false
+  form.tipoPerfil = 2
+}
+
 async function carregarAuxiliares(): Promise<void> {
+  perfis.value = []
+  departamentos.value = []
+
   if (props.entidade === 'usuarios') {
     const [perfisResponse, departamentosResponse] = await Promise.all([
       cadastrosAdminService.listarPerfis({ ativo: true, tamanhoPagina: 100 }),
@@ -109,6 +159,8 @@ function mapSituacaoTextoParaNumero(situacao: string): number {
 }
 
 async function carregarDetalhe(): Promise<void> {
+  resetarFormulario()
+
   if (isNovo.value) {
     registroAtivo.value = true
     return
@@ -179,6 +231,22 @@ async function carregarDetalhe(): Promise<void> {
       registroAtivo.value = parametro.ativo
       break
     }
+  }
+}
+
+async function carregarTela(): Promise<void> {
+  loading.value = true
+  erro.value = null
+  sucesso.value = null
+
+  try {
+    await carregarAuxiliares()
+    await carregarDetalhe()
+  } catch (error) {
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dados.'
+  } finally {
+    loading.value = false
+    carregamentoConcluido.value = true
   }
 }
 
@@ -331,6 +399,7 @@ async function salvar(): Promise<void> {
 async function inativar(): Promise<void> {
   loading.value = true
   erro.value = null
+
   try {
     switch (props.entidade) {
       case 'usuarios':
@@ -369,6 +438,7 @@ async function inativar(): Promise<void> {
 async function reativar(): Promise<void> {
   loading.value = true
   erro.value = null
+
   try {
     switch (props.entidade) {
       case 'usuarios':
@@ -404,17 +474,18 @@ async function reativar(): Promise<void> {
   }
 }
 
-onMounted(async () => {
-  loading.value = true
-  try {
-    await carregarAuxiliares()
-    await carregarDetalhe()
-  } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dados.'
-  } finally {
-    loading.value = false
-  }
+onMounted(() => {
+  void carregarTela()
 })
+
+watch(
+  () => route.params.id,
+  (novoId, antigoId) => {
+    if (novoId !== antigoId) {
+      void carregarTela()
+    }
+  }
+)
 </script>
 
 <template>
@@ -431,247 +502,330 @@ onMounted(async () => {
             text-color="white"
             :label="registroAtivo ? 'Ativo' : 'Inativo'"
           />
-        <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
-        <q-btn
-          v-if="isAdmin && !isNovo && registroAtivo"
-          color="negative"
-          outline
-          icon="block"
-          label="Inativar"
-          :disable="loading"
-          @click="confirmarInativacao = true"
-        />
-        <q-btn
-          v-if="isAdmin && !isNovo && !registroAtivo"
-          color="positive"
-          outline
-          icon="check_circle"
-          label="Reativar"
-          :disable="loading"
-          @click="confirmarReativacao = true"
-        />
+          <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
+          <q-btn
+            v-if="isAdmin && !isNovo && registroAtivo"
+            color="negative"
+            outline
+            icon="block"
+            label="Inativar"
+            :disable="loading"
+            @click="confirmarInativacao = true"
+          />
+          <q-btn
+            v-if="isAdmin && !isNovo && !registroAtivo"
+            color="positive"
+            outline
+            icon="check_circle"
+            label="Reativar"
+            :disable="loading"
+            @click="confirmarReativacao = true"
+          />
         </div>
       </template>
     </PageHeader>
 
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
-    <q-banner v-if="sucesso" class="bg-green-1 text-positive">{{ sucesso }}</q-banner>
+    <LoadingState v-if="loading && !carregamentoConcluido" mensagem="Carregando dados do cadastro..." />
 
-    <FormCadastro
-      :titulo="isNovo ? `${titulo} - Novo` : `${titulo} - Detalhe`"
-      :loading="loading"
-      :somente-leitura="somenteLeitura"
-      @cancelar="() => router.push(listPath)"
-      @salvar="salvar"
-    >
-      <div class="row q-col-gutter-md">
-        <template v-if="entidade === 'usuarios'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.email" outlined dense label="E-mail" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.login" outlined dense label="Login" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.situacao"
-              outlined
-              dense
-              emit-value
-              map-options
-              :disable="somenteLeitura || isNovo"
-              :options="opcoesSituacao"
-              label="Situacao"
-            />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.departamentoId"
-              outlined
-              dense
-              emit-value
-              map-options
-              clearable
-              :disable="somenteLeitura"
-              :options="departamentos.map((item) => ({ label: `${item.sigla} - ${item.nome}`, value: item.id }))"
-              label="Departamento"
-            />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.perfilIds"
-              outlined
-              dense
-              emit-value
-              map-options
-              multiple
-              :disable="somenteLeitura"
-              :options="perfis.map((item) => ({ label: item.nome, value: item.id }))"
-              label="Perfis"
-            />
-          </div>
-        </template>
+    <ErrorState
+      v-else-if="erro && !carregamentoConcluido"
+      titulo="Nao foi possivel carregar o cadastro"
+      :mensagem="erro"
+      @retry="carregarTela"
+    />
 
-        <template v-if="entidade === 'perfis'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.tipoPerfil"
-              outlined
-              dense
-              emit-value
-              map-options
-              :disable="somenteLeitura"
-              :options="opcoesTipoPerfil"
-              label="Tipo de Perfil"
-            />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
+    <template v-else>
+      <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
+      <q-banner v-if="sucesso" class="bg-green-1 text-positive">{{ sucesso }}</q-banner>
 
-        <template v-if="entidade === 'departamentos'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-input v-model="form.sigla" outlined dense label="Sigla" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
+      <FormCadastro
+        :titulo="isNovo ? `${titulo} - Novo` : `${titulo} - Detalhe`"
+        :loading="loading"
+        :somente-leitura="somenteLeitura"
+        @cancelar="() => router.push(listPath)"
+        @salvar="salvar"
+      >
+        <div class="row q-col-gutter-md">
+          <template v-if="entidade === 'usuarios'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.email" outlined dense label="E-mail" :readonly="somenteLeitura" :rules="[regraEmail]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.login" outlined dense label="Login" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.situacao"
+                outlined
+                dense
+                emit-value
+                map-options
+                :disable="somenteLeitura || isNovo"
+                :options="opcoesSituacao"
+                label="Situacao"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.departamentoId"
+                outlined
+                dense
+                emit-value
+                map-options
+                clearable
+                :disable="somenteLeitura"
+                :options="departamentos.map((item) => ({ label: `${item.sigla} - ${item.nome}`, value: item.id }))"
+                label="Departamento"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.perfilIds"
+                outlined
+                dense
+                emit-value
+                map-options
+                multiple
+                :disable="somenteLeitura"
+                :options="perfis.map((item) => ({ label: item.nome, value: item.id }))"
+                label="Perfis"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
 
-        <template v-if="entidade === 'categorias'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.departamentoId"
-              outlined
-              dense
-              emit-value
-              map-options
-              clearable
-              :disable="somenteLeitura"
-              :options="departamentos.map((item) => ({ label: `${item.sigla} - ${item.nome}`, value: item.id }))"
-              label="Departamento"
-            />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
+          <template v-if="entidade === 'perfis'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.tipoPerfil"
+                outlined
+                dense
+                emit-value
+                map-options
+                :disable="somenteLeitura"
+                :options="opcoesTipoPerfil"
+                label="Tipo de Perfil"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
 
-        <template v-if="entidade === 'prioridades'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-select
-              v-model="form.nivel"
-              outlined
-              dense
-              emit-value
-              map-options
-              :disable="somenteLeitura"
-              :options="opcoesNivel"
-              label="Nivel"
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-input v-model.number="form.prazoPrimeiraRespostaHoras" outlined dense type="number" label="Prazo 1a resposta (h)" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-input v-model.number="form.prazoResolucaoHoras" outlined dense type="number" label="Prazo resolucao (h)" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
+          <template v-if="entidade === 'departamentos'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-input v-model="form.sigla" outlined dense label="Sigla" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
 
-        <template v-if="entidade === 'status'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-select
-              v-model="form.codigo"
-              outlined
-              dense
-              emit-value
-              map-options
-              :disable="somenteLeitura"
-              :options="opcoesCodigoStatus"
-              label="Codigo"
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-toggle v-model="form.ehStatusFinal" :disable="somenteLeitura" label="Status final" />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-toggle v-model="form.pausaSla" :disable="somenteLeitura" label="Pausa SLA" />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
+          <template v-if="entidade === 'categorias'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.departamentoId"
+                outlined
+                dense
+                emit-value
+                map-options
+                clearable
+                :disable="somenteLeitura"
+                :options="departamentos.map((item) => ({ label: `${item.sigla} - ${item.nome}`, value: item.id }))"
+                label="Departamento"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
 
-        <template v-if="entidade === 'parametros'">
-          <div class="col-12 col-md-6">
-            <q-input v-model="form.chave" outlined dense label="Chave" :readonly="somenteLeitura" />
-          </div>
-          <div class="col-12 col-md-6">
-            <q-input
-              v-model="form.valor"
-              outlined
-              dense
-              :type="form.sensivel ? 'password' : 'text'"
-              :label="form.sensivel ? 'Valor (mascarado)' : 'Valor'"
-              :readonly="somenteLeitura"
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensivel" />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-badge
-              :color="form.sensivel ? 'warning' : 'grey-6'"
-              text-color="white"
-              :label="form.sensivel ? 'Parametro sensivel' : 'Nao sensivel'"
-            />
-          </div>
-          <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
-          </div>
-        </template>
-      </div>
-    </FormCadastro>
+          <template v-if="entidade === 'prioridades'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-select
+                v-model="form.nivel"
+                outlined
+                dense
+                emit-value
+                map-options
+                :disable="somenteLeitura"
+                :options="opcoesNivel"
+                label="Nivel"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-input
+                v-model.number="form.prazoPrimeiraRespostaHoras"
+                outlined
+                dense
+                type="number"
+                label="Prazo 1a resposta (h)"
+                :readonly="somenteLeitura"
+                :rules="[regraNumeroNaoNegativo]"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-input
+                v-model.number="form.prazoResolucaoHoras"
+                outlined
+                dense
+                type="number"
+                label="Prazo resolucao (h)"
+                :readonly="somenteLeitura"
+                :rules="[regraNumeroNaoNegativo]"
+              />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
 
-    <ConfirmacaoInativacao
+          <template v-if="entidade === 'status'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.codigo"
+                outlined
+                dense
+                emit-value
+                map-options
+                :disable="somenteLeitura"
+                :options="opcoesCodigoStatus"
+                label="Codigo"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-toggle v-model="form.ehStatusFinal" :disable="somenteLeitura" label="Status final" />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-toggle v-model="form.pausaSla" :disable="somenteLeitura" label="Pausa SLA" />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
+
+          <template v-if="entidade === 'parametros'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.chave" outlined dense label="Chave" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input
+                v-model="form.valor"
+                outlined
+                dense
+                :type="form.sensivel ? 'password' : 'text'"
+                :label="form.sensivel ? 'Valor (mascarado)' : 'Valor'"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensivel" />
+            </div>
+            <div class="col-12 col-md-3">
+              <q-badge
+                :color="form.sensivel ? 'warning' : 'grey-6'"
+                text-color="white"
+                :label="form.sensivel ? 'Parametro sensivel' : 'Nao sensivel'"
+              />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="Descricao"
+                :readonly="somenteLeitura"
+                :rules="[regraObrigatoria]"
+              />
+            </div>
+          </template>
+        </div>
+      </FormCadastro>
+    </template>
+
+    <ConfirmDialog
       v-model="confirmarInativacao"
       titulo="Confirmar inativacao"
       mensagem="Deseja realmente inativar este cadastro?"
-      acao-label="Inativar"
+      color="negative"
+      confirmar-label="Inativar"
       :loading="loading"
-      @confirmar="inativar"
+      @confirm="inativar"
     />
 
-    <ConfirmacaoInativacao
+    <ConfirmDialog
       v-model="confirmarReativacao"
       titulo="Confirmar reativacao"
       mensagem="Deseja realmente reativar este cadastro?"
-      acao-label="Reativar"
+      color="positive"
+      confirmar-label="Reativar"
       :loading="loading"
-      @confirmar="reativar"
+      @confirm="reativar"
     />
   </q-page>
 </template>
-

@@ -19,7 +19,7 @@ function fechar(): void {
 
 <template>
   <q-dialog :model-value="modelValue" persistent @update:model-value="(value) => emit('update:modelValue', value)">
-    <q-card style="min-width: 360px">
+    <q-card class="confirmacao-card">
       <q-card-section>
         <div class="text-h6">{{ titulo }}</div>
       </q-card-section>
@@ -35,3 +35,9 @@ function fechar(): void {
     </q-card>
   </q-dialog>
 </template>
+
+<style scoped>
+.confirmacao-card {
+  width: min(420px, 92vw);
+}
+</style>

@@ -126,6 +126,28 @@ Comportamento:
 - A autenticacao tecnica do backend continua via headers `X-Dev-*`.
 - Em producao, o fluxo oficial e Microsoft Entra ID.
 
+## 7.1 Emular perfil de Solicitante
+
+Disponivel apenas em `Development`/modo local.
+
+Como usar:
+- Acesse `http://localhost:5173/login`.
+- Entre como `admin@sgxdigital.com` (senha local: `Admin@123456`).
+- Entre em `/admin`.
+- Clique em `Visualizar como Solicitante`.
+- O frontend troca temporariamente os headers `X-Dev-*` para:
+  - `X-Dev-User-Email: solicitante.demo@sgxdigital.com`
+  - `X-Dev-User-Name: Solicitante Demo`
+  - `X-Dev-User-Role: Solicitante`
+- O sistema redireciona para `/portal` e exibe o aviso de emulacao.
+- Para retornar, clique em `Voltar para Administrador`.
+
+Regras:
+- O botao nao aparece em `Production`.
+- A emulacao nao remove autorizacao do backend.
+- O contexto anterior e guardado em memoria/sessao para restauracao.
+- Logout limpa qualquer contexto de emulacao.
+
 ## 8. Validacoes recomendadas
 
 - `GET /api/me`
@@ -163,16 +185,19 @@ docker compose down
 1. Abra a pasta raiz onde esta `SGX.SistemaChamado.sln`.
 2. Execute `Terminal > Run Task > dotnet: restore`.
 3. Execute `Terminal > Run Task > ef: database update`.
-4. Em `Run and Debug`, inicie `API - SGX.SistemaChamado.Api`.
-5. Em `Run and Debug`, inicie `Worker - SGX.SistemaChamado.Worker.Email`.
-6. Execute `Terminal > Run Task > npm: dev web` para frontend local.
-7. Para subir os dois processos .NET juntos, use `Run and Debug > API + Worker`.
-8. Para modo local em Development, mantenha `Authentication__ModoLocalHabilitado=true` e use:
+4. Para iniciar API + Web juntos sem abrir navegador automaticamente, execute:
+   - `Terminal > Run Task > app: run api + web`
+5. Abra manualmente `http://localhost:5173/login`.
+6. O navegador nao sera aberto automaticamente pelo VS Code.
+7. Em `Run and Debug`, inicie `API - SGX.SistemaChamado.Api` quando precisar debugar apenas a API.
+8. Em `Run and Debug`, inicie `Worker - SGX.SistemaChamado.Worker.Email` quando precisar debugar apenas o Worker.
+9. Para subir os dois processos .NET juntos em debug, use `Run and Debug > API + Worker`.
+10. Para subir API + Worker + Web com task unica, use `Terminal > Run Task > app: run full local`.
+11. Para modo local em Development, mantenha `Authentication__ModoLocalHabilitado=true` e use:
    - `X-Dev-User-Email`
    - `X-Dev-User-Name`
    - `X-Dev-User-Role`
-9. Caso a API ja esteja rodando em outra sessao, finalize o processo da porta `5168` antes de iniciar novo debug.
-10. Abra manualmente `http://localhost:5173/login` no navegador de sua preferencia.
+12. Caso a API ja esteja rodando em outra sessao, finalize o processo da porta `5168` antes de iniciar novo debug.
 
 Observacoes:
 - Nao configure senha IMAP real em `launch.json`/`tasks.json`.

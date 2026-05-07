@@ -15,10 +15,10 @@ const tamanhos = [10, 20, 50, 100]
 </script>
 
 <template>
-  <div class="row items-center justify-between q-gutter-sm">
-    <div class="text-caption text-grey-8">Total: {{ total }}</div>
+  <div class="paginacao-tabela row items-center justify-between q-gutter-sm">
+    <div class="text-caption text-grey-8 paginacao-tabela__total">Total: {{ total }}</div>
 
-    <div class="row items-center q-gutter-sm">
+    <div class="row items-center q-gutter-sm paginacao-tabela__controles">
       <q-select
         :model-value="tamanhoPagina"
         dense
@@ -26,8 +26,8 @@ const tamanhos = [10, 20, 50, 100]
         emit-value
         map-options
         :disable="loading"
-        :options="tamanhos.map((item) => ({ label: `${item} / página`, value: item }))"
-        label="Página"
+        :options="tamanhos.map((item) => ({ label: `${item} / pagina`, value: item }))"
+        label="Pagina"
         @update:model-value="(value) => emit('update:tamanhoPagina', Number(value))"
       />
 
@@ -43,3 +43,22 @@ const tamanhos = [10, 20, 50, 100]
     </div>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 768px) {
+  .paginacao-tabela {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .paginacao-tabela__controles {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .paginacao-tabela__controles :deep(.q-field),
+  .paginacao-tabela__controles :deep(.q-pagination) {
+    max-width: 100%;
+  }
+}
+</style>

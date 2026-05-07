@@ -17,6 +17,17 @@
       }
     },
     {
+      "name": "Web - SGX.SistemaChamado.Web",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm.cmd run dev",
+      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Web",
+      "env": {
+        "VITE_API_BASE_URL": "http://localhost:5168",
+        "VITE_AUTH_MODO_LOCAL": "true"
+      }
+    },
+    {
       "name": "Worker - SGX.SistemaChamado.Worker.Email",
       "type": "coreclr",
       "request": "launch",
@@ -42,6 +53,13 @@
       "configurations": [
         "API - SGX.SistemaChamado.Api",
         "Worker - SGX.SistemaChamado.Worker.Email"
+      ]
+    },
+    {
+      "name": "API + Web",
+      "configurations": [
+        "API - SGX.SistemaChamado.Api",
+        "Web - SGX.SistemaChamado.Web"
       ]
     }
   ]

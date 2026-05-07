@@ -33,6 +33,6 @@ const options: { label: string; value: OptionValue }[] = [
     map-options
     :disable="loading"
     :options="options"
-    label="Situação"
+    label="Situacao"
   />
 </template>

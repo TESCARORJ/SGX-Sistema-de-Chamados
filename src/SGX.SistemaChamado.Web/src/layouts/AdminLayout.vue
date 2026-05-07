@@ -16,7 +16,8 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 
-const drawerOpen = ref(true)
+const drawerOpen = ref(!$q.screen.lt.md)
+const emulacaoCarregando = ref(false)
 
 const menu: MenuItem[] = [
   { label: 'Dashboard', icon: 'space_dashboard', to: '/admin' },
@@ -47,6 +48,9 @@ const menu: MenuItem[] = [
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Usuario')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
+const emulacaoDisponivel = computed(
+  () => authStore.podeEmularSolicitante && !authStore.emulandoPerfil
+)
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
   if (!nome) return 'U'
@@ -77,6 +81,27 @@ function grupoAberto(children: MenuItem[] | undefined): boolean {
 async function logout(): Promise<void> {
   await authStore.logout()
   await router.replace('/login')
+}
+
+async function visualizarComoSolicitante(): Promise<void> {
+  if (!emulacaoDisponivel.value || emulacaoCarregando.value) {
+    return
+  }
+
+  emulacaoCarregando.value = true
+
+  try {
+    await authStore.iniciarEmulacaoSolicitante()
+    await router.replace('/portal')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Falha ao iniciar emulacao de Solicitante.'
+    $q.notify({
+      type: 'negative',
+      message,
+    })
+  } finally {
+    emulacaoCarregando.value = false
+  }
 }
 
 function navegarPara(path: string): void {
@@ -117,6 +142,20 @@ function navegarPara(path: string): void {
           <div class="text-weight-medium">{{ usuarioNome }}</div>
           <div class="text-caption text-grey-7">{{ usuarioEmail }}</div>
         </div>
+      </div>
+
+      <div v-if="emulacaoDisponivel" class="q-px-md q-pb-md">
+        <q-btn
+          color="secondary"
+          outline
+          icon="visibility"
+          label="Visualizar como Solicitante"
+          class="full-width"
+          :loading="emulacaoCarregando"
+          @click="visualizarComoSolicitante"
+        >
+          <q-tooltip>Simula a experiencia do Solicitante em ambiente local.</q-tooltip>
+        </q-btn>
       </div>
 
       <q-separator />

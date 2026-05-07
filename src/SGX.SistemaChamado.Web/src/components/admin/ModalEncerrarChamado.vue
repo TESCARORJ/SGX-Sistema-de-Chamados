@@ -29,7 +29,7 @@ function confirmar(): void {
 
 <template>
   <q-dialog :model-value="props.modelValue" @update:model-value="emit('update:modelValue', $event)">
-    <q-card style="min-width: 420px">
+    <q-card class="modal-card">
       <q-card-section><div class="text-h6">Encerrar chamado</div></q-card-section>
       <q-card-section class="column q-gutter-sm">
         <q-input v-model="solucao" type="textarea" outlined label="Solucao/comentario final" autogrow />
@@ -42,3 +42,9 @@ function confirmar(): void {
     </q-card>
   </q-dialog>
 </template>
+
+<style scoped>
+.modal-card {
+  width: min(520px, 92vw);
+}
+</style>

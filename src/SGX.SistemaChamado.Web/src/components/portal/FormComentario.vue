@@ -1,5 +1,14 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { ref } from 'vue'
+
+const props = withDefaults(
+  defineProps<{
+    loading?: boolean
+  }>(),
+  {
+    loading: false,
+  }
+)
 
 const emit = defineEmits<{
   submit: [mensagem: string]
@@ -7,9 +16,9 @@ const emit = defineEmits<{
 
 const mensagem = ref('')
 
-function enviar() {
+function enviar(): void {
   const texto = mensagem.value.trim()
-  if (!texto) {
+  if (!texto || props.loading) {
     return
   }
 
@@ -19,10 +28,28 @@ function enviar() {
 </script>
 
 <template>
-  <div class="column q-gutter-sm">
-    <q-input v-model="mensagem" type="textarea" outlined autogrow label="Novo comentário" />
-    <div>
-      <q-btn color="primary" label="Adicionar comentário" @click="enviar" />
+  <q-form class="column q-gutter-sm" @submit.prevent="enviar">
+    <q-input
+      v-model="mensagem"
+      type="textarea"
+      outlined
+      autogrow
+      maxlength="2000"
+      counter
+      label="Novo comentario"
+      :disable="props.loading"
+      :rules="[(v) => !!String(v || '').trim() || 'Informe um comentario']"
+    />
+
+    <div class="row justify-end">
+      <q-btn
+        type="submit"
+        color="primary"
+        icon="send"
+        label="Adicionar comentario"
+        :loading="props.loading"
+        :disable="props.loading"
+      />
     </div>
-  </div>
+  </q-form>
 </template>

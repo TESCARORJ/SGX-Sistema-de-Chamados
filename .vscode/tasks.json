@@ -46,7 +46,7 @@
     {
       "label": "dotnet: run api",
       "type": "shell",
-      "command": "dotnet run --project src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj",
+      "command": "dotnet run --no-launch-profile --project src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj",
       "isBackground": true,
       "options": {
         "cwd": "${workspaceFolder}",
@@ -186,9 +186,24 @@
     },
     {
       "label": "app: run api + web",
+      "group": "build",
       "dependsOrder": "parallel",
       "dependsOn": [
         "dotnet: run api",
+        "npm: dev web"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "app: run full local",
+      "group": "build",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "dotnet: run api",
+        "dotnet: run worker-email",
         "npm: dev web"
       ],
       "presentation": {

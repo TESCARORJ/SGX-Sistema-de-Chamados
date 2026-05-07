@@ -1,17 +1,27 @@
 ﻿<script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import type { QForm } from 'quasar'
 import { useRouter } from 'vue-router'
+import UploadAnexo from '../components/portal/UploadAnexo.vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import ErrorState from '../components/ui/ErrorState.vue'
+import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { portalService } from '../services/portalService'
 import type { CategoriaPortal, DepartamentoPortal, PrioridadePortal } from '../types/portal'
 
 const router = useRouter()
-const loading = ref(false)
+const formRef = ref<QForm | null>(null)
+
+const carregandoContexto = ref(false)
+const salvando = ref(false)
 const erro = ref<string | null>(null)
 
 const departamentos = ref<DepartamentoPortal[]>([])
 const categorias = ref<CategoriaPortal[]>([])
 const prioridades = ref<PrioridadePortal[]>([])
+
+const anexosPendentes = ref<File[]>([])
 
 const form = reactive({
   titulo: '',
@@ -21,18 +31,52 @@ const form = reactive({
   prioridadeId: '',
 })
 
-async function carregarContexto() {
-  const contexto = await portalService.obterPortalContexto()
-  departamentos.value = contexto.departamentos
-  categorias.value = contexto.categorias
-  prioridades.value = contexto.prioridades
+const opcoesDepartamento = computed(() =>
+  departamentos.value.map((item) => ({
+    label: `${item.sigla} - ${item.nome}`,
+    value: item.id,
+  }))
+)
+
+const opcoesCategoria = computed(() => categorias.value.map((item) => ({ label: item.nome, value: item.id })))
+const opcoesPrioridade = computed(() => prioridades.value.map((item) => ({ label: item.nome, value: item.id })))
+
+async function carregarContexto(): Promise<void> {
+  carregandoContexto.value = true
+  erro.value = null
+
+  try {
+    const contexto = await portalService.obterPortalContexto()
+    departamentos.value = contexto.departamentos
+    categorias.value = contexto.categorias
+    prioridades.value = contexto.prioridades
+  } catch (error) {
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dados do formulario.'
+  } finally {
+    carregandoContexto.value = false
+  }
 }
 
-async function salvar() {
-  loading.value = true
+function adicionarAnexos(arquivos: File[]): void {
+  anexosPendentes.value = [...anexosPendentes.value, ...arquivos]
+}
+
+function removerAnexo(indice: number): void {
+  anexosPendentes.value = anexosPendentes.value.filter((_, idx) => idx !== indice)
+}
+
+async function salvar(): Promise<void> {
   erro.value = null
+
+  const formValido = await formRef.value?.validate()
+  if (!formValido) {
+    return
+  }
+
+  salvando.value = true
+
   try {
-    const response = await portalService.abrirChamado({
+    const chamado = await portalService.abrirChamado({
       titulo: form.titulo,
       descricao: form.descricao,
       departamentoId: form.departamentoId || undefined,
@@ -40,12 +84,20 @@ async function salvar() {
       prioridadeId: form.prioridadeId,
     })
 
-    await router.replace(`/portal/chamados/${response.id}`)
+    for (const arquivo of anexosPendentes.value) {
+      await portalService.anexarArquivo(chamado.id, arquivo)
+    }
+
+    await router.replace(`/portal/chamados/${chamado.id}`)
   } catch (error) {
     erro.value = error instanceof Error ? error.message : 'Falha ao abrir chamado.'
   } finally {
-    loading.value = false
+    salvando.value = false
   }
+}
+
+function cancelar(): void {
+  router.push('/portal/chamados')
 }
 
 onMounted(carregarContexto)
@@ -53,67 +105,114 @@ onMounted(carregarContexto)
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Novo chamado" subtitulo="Descreva a solicitacao e selecione os dados de classificacao">
+    <PageHeader titulo="Novo chamado" subtitulo="Registre a solicitacao com todos os detalhes necessarios.">
       <template #actions>
-        <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="router.push('/portal/chamados')" />
+        <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="cancelar" />
       </template>
     </PageHeader>
 
-    <q-card flat bordered class="sgx-card">
-      <q-form @submit.prevent="salvar">
-        <q-card-section class="column q-gutter-md">
-          <q-input v-model="form.titulo" outlined label="Titulo" maxlength="180" :rules="[(v) => !!v || 'Informe o titulo']" />
+    <ErrorState v-if="erro && !carregandoContexto" :mensagem="erro" @retry="carregarContexto" />
+
+    <LoadingState v-else-if="carregandoContexto" inline mensagem="Carregando opcoes do formulario..." />
+
+    <q-form v-else ref="formRef" class="column q-gutter-md" @submit.prevent="salvar">
+      <AppSectionCard titulo="Dados do chamado" subtitulo="Os campos com * sao obrigatorios.">
+        <div class="column q-gutter-md">
+          <q-input
+            v-model="form.titulo"
+            outlined
+            maxlength="180"
+            counter
+            label="Titulo *"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe o titulo do chamado']"
+          />
+
           <q-input
             v-model="form.descricao"
             outlined
             type="textarea"
             autogrow
-            label="Descricao"
             maxlength="4000"
-            :rules="[(v) => !!v || 'Informe a descricao']"
+            counter
+            label="Descricao *"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe a descricao do chamado']"
           />
-          <q-select
-            v-model="form.departamentoId"
-            :options="departamentos.map((d) => ({ label: `${d.sigla} - ${d.nome}`, value: d.id }))"
-            option-label="label"
-            option-value="value"
-            emit-value
-            map-options
-            clearable
-            outlined
-            label="Departamento"
-          />
-          <q-select
-            v-model="form.categoriaId"
-            :options="categorias.map((c) => ({ label: c.nome, value: c.id }))"
-            option-label="label"
-            option-value="value"
-            emit-value
-            map-options
-            outlined
-            label="Categoria"
-            :rules="[(v) => !!v || 'Selecione uma categoria']"
-          />
-          <q-select
-            v-model="form.prioridadeId"
-            :options="prioridades.map((p) => ({ label: p.nome, value: p.id }))"
-            option-label="label"
-            option-value="value"
-            emit-value
-            map-options
-            outlined
-            label="Prioridade"
-            :rules="[(v) => !!v || 'Selecione uma prioridade']"
-          />
-        </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" @click="router.push('/portal/chamados')" />
-          <q-btn type="submit" color="secondary" :loading="loading" label="Criar chamado" />
-        </q-card-actions>
-      </q-form>
-    </q-card>
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-md-4">
+              <q-select
+                v-model="form.departamentoId"
+                outlined
+                clearable
+                emit-value
+                map-options
+                label="Departamento"
+                :options="opcoesDepartamento"
+              />
+            </div>
 
-    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+            <div class="col-12 col-md-4">
+              <q-select
+                v-model="form.categoriaId"
+                outlined
+                emit-value
+                map-options
+                label="Categoria *"
+                :options="opcoesCategoria"
+                :rules="[(v) => !!v || 'Selecione uma categoria']"
+              />
+            </div>
+
+            <div class="col-12 col-md-4">
+              <q-select
+                v-model="form.prioridadeId"
+                outlined
+                emit-value
+                map-options
+                label="Prioridade *"
+                :options="opcoesPrioridade"
+                :rules="[(v) => !!v || 'Selecione uma prioridade']"
+              />
+            </div>
+          </div>
+        </div>
+      </AppSectionCard>
+
+      <AppSectionCard titulo="Anexos" subtitulo="Opcional: adicione arquivos de apoio para acelerar o atendimento.">
+        <div class="column q-gutter-md">
+          <UploadAnexo titulo="Selecionar anexo" :loading="salvando" @upload="adicionarAnexos" />
+
+          <q-banner v-if="!anexosPendentes.length" rounded class="bg-blue-1 text-primary">
+            Nenhum anexo adicionado.
+          </q-banner>
+
+          <q-list v-else bordered separator>
+            <q-item v-for="(arquivo, indice) in anexosPendentes" :key="`${arquivo.name}-${indice}`">
+              <q-item-section>
+                <q-item-label>{{ arquivo.name }}</q-item-label>
+                <q-item-label caption>{{ (arquivo.size / 1024).toFixed(1) }} KB</q-item-label>
+              </q-item-section>
+
+              <q-item-section side>
+                <q-btn
+                  flat
+                  round
+                  dense
+                  icon="delete"
+                  color="negative"
+                  :disable="salvando"
+                  @click="removerAnexo(indice)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </AppSectionCard>
+
+      <div class="row justify-end q-gutter-sm">
+        <q-btn flat color="primary" label="Cancelar" :disable="salvando" @click="cancelar" />
+        <q-btn type="submit" color="secondary" icon="save" label="Salvar chamado" :loading="salvando" />
+      </div>
+    </q-form>
   </q-page>
 </template>

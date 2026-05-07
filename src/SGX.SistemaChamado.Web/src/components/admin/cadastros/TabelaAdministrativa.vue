@@ -1,13 +1,19 @@
 <script setup lang="ts">
+import { useQuasar } from 'quasar'
 import type { QTableColumn } from 'quasar'
 
-defineProps<{
+withDefaults(defineProps<{
   title: string
   rows: unknown[]
   columns: QTableColumn[]
   loading?: boolean
   rowKey?: string
-}>()
+  gridOnMobile?: boolean
+}>(), {
+  gridOnMobile: true,
+})
+
+const $q = useQuasar()
 </script>
 
 <template>
@@ -19,8 +25,10 @@ defineProps<{
     :columns="columns"
     :row-key="rowKey || 'id'"
     :loading="loading"
+    :grid="Boolean(gridOnMobile && $q.screen.lt.md)"
     wrap-cells
     :rows-per-page-options="[0]"
+    hide-bottom
   >
     <template #body-cell-ativo="slotProps">
       <q-td :props="slotProps">
@@ -46,7 +54,7 @@ defineProps<{
 
     <template #no-data>
       <div class="full-width text-center q-pa-lg text-grey-7">
-        Nenhum registro encontrado para os filtros informados.
+        Nenhum registro encontrado.
       </div>
     </template>
   </q-table>

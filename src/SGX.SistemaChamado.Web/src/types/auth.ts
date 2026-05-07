@@ -1,5 +1,6 @@
 export type PerfilUsuario = 'Administrador' | 'Atendente' | 'Solicitante'
 export type PermissaoUsuario = string
+export type PerfilEmulado = 'Solicitante'
 
 export interface UsuarioAutenticado {
   id: string
@@ -15,6 +16,12 @@ export interface UsuarioAutenticado {
 
 export interface MeResponse extends UsuarioAutenticado {}
 
+export interface UsuarioOriginalEmulacao {
+  email: string
+  nome: string
+  perfil: PerfilUsuario
+}
+
 export interface AuthState {
   inicializado: boolean
   carregando: boolean
@@ -26,4 +33,7 @@ export interface AuthState {
   localDevEmail: string
   localDevNome: string
   localDevPerfil: PerfilUsuario
+  emulandoPerfil: boolean
+  usuarioOriginal: UsuarioOriginalEmulacao | null
+  perfilEmulado: PerfilEmulado | null
 }

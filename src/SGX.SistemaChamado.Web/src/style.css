@@ -18,25 +18,15 @@ html,
 body,
 #app {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
   color: var(--sgx-color-text);
   background: var(--sgx-color-surface-muted);
-  font-family: 'Segoe UI', 'Noto Sans', Arial, sans-serif;
   line-height: 1.45;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  margin: 0;
 }
 
 .sgx-page {

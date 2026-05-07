@@ -1,8 +1,8 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { reactive } from 'vue'
 import type { FiltroLogsEmailRequest, StatusProcessamentoEmail } from '../../types/integracaoEmail'
 
-const props = defineProps<{
+defineProps<{
   loading?: boolean
 }>()
 
@@ -15,7 +15,12 @@ const form = reactive<FiltroLogsEmailRequest>({
   tamanhoPagina: 20,
 })
 
-const statusOptions: StatusProcessamentoEmail[] = ['Pendente', 'Processado', 'IgnoradoDuplicado', 'Erro']
+const statusOptions: { label: string; value: StatusProcessamentoEmail }[] = [
+  { label: 'Pendente', value: 'Pendente' },
+  { label: 'Processado', value: 'Processado' },
+  { label: 'Ignorado duplicado', value: 'IgnoradoDuplicado' },
+  { label: 'Erro', value: 'Erro' },
+]
 
 function aplicarFiltros(): void {
   emit('filtrar', { ...form, pagina: 1 })
@@ -35,8 +40,8 @@ function limparFiltros(): void {
 </script>
 
 <template>
-  <q-card flat bordered>
-    <q-card-section class="row q-col-gutter-md items-end">
+  <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
+    <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-2">
         <q-input v-model="form.dataInicio" label="Data inicio" type="date" dense outlined />
       </div>
@@ -44,24 +49,44 @@ function limparFiltros(): void {
         <q-input v-model="form.dataFim" label="Data fim" type="date" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
-        <q-select v-model="form.status" :options="statusOptions" label="Status" clearable dense outlined />
+        <q-select
+          v-model="form.status"
+          :options="statusOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Status"
+          clearable
+          dense
+          outlined
+        />
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <q-input v-model="form.remetente" label="Remetente" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-3">
-        <q-input v-model="form.chamadoId" label="Chamado (GUID)" dense outlined />
+        <q-input v-model="form.chamadoId" label="Chamado (ID)" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-4">
         <q-input v-model="form.texto" label="Busca livre" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
-        <q-input v-model.number="form.tamanhoPagina" label="Tamanho pagina" type="number" min="1" max="200" dense outlined />
+        <q-input
+          v-model.number="form.tamanhoPagina"
+          label="Tamanho da pagina"
+          type="number"
+          min="1"
+          max="200"
+          dense
+          outlined
+        />
       </div>
-      <div class="col-12 col-md-6 row justify-end q-gutter-sm">
-        <q-btn color="primary" label="Filtrar" :loading="props.loading" @click="aplicarFiltros" />
-        <q-btn flat color="primary" label="Limpar" :disable="props.loading" @click="limparFiltros" />
-      </div>
-    </q-card-section>
-  </q-card>
+    </div>
+
+    <div class="row justify-end q-gutter-sm">
+      <q-btn type="submit" color="primary" label="Filtrar" :loading="loading" />
+      <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
+    </div>
+  </q-form>
 </template>
