@@ -18,6 +18,9 @@ const adminLocalDevPerfil: PerfilUsuario = 'Administrador'
 const solicitanteDemoEmail = 'solicitante.demo@sgxdigital.com'
 const solicitanteDemoNome = 'Solicitante Demo'
 const solicitanteDemoPerfil: PerfilEmulado = 'Solicitante'
+const atendenteDemoEmail = 'atendente.demo@sgxdigital.com'
+const atendenteDemoNome = 'Atendente Demo'
+const atendenteDemoPerfil: PerfilEmulado = 'Atendente'
 const emulacaoSessionKey = 'sgx.auth.emulacao'
 
 interface EmulacaoSessionPayload {
@@ -37,8 +40,8 @@ function perfilParaRota(perfis: PerfilUsuario[]): '/admin' | '/portal' | '/acess
   return '/acesso-negado'
 }
 
-function ehPerfilAdministrativo(perfil: PerfilUsuario): boolean {
-  return perfil === 'Administrador' || perfil === 'Atendente'
+function ehAdministrador(perfil: PerfilUsuario): boolean {
+  return perfil === 'Administrador'
 }
 
 function obterPerfilAdministrativo(perfis: PerfilUsuario[], fallback: PerfilUsuario): PerfilUsuario {
@@ -91,6 +94,29 @@ function limparEmulacaoSessionStorage(): void {
   window.sessionStorage.removeItem(emulacaoSessionKey)
 }
 
+function obterDadosPerfilEmulado(perfil: PerfilEmulado): {
+  email: string
+  nome: string
+  perfil: PerfilUsuario
+  descricao: string
+} {
+  if (perfil === 'Atendente') {
+    return {
+      email: atendenteDemoEmail,
+      nome: atendenteDemoNome,
+      perfil: atendenteDemoPerfil,
+      descricao: 'Atendente',
+    }
+  }
+
+  return {
+    email: solicitanteDemoEmail,
+    nome: solicitanteDemoNome,
+    perfil: solicitanteDemoPerfil,
+    descricao: 'Solicitante',
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     inicializado: false,
@@ -118,7 +144,15 @@ export const useAuthStore = defineStore('auth', {
       }
 
       const perfis = state.usuario?.perfis ?? []
-      return perfis.some((perfil) => ehPerfilAdministrativo(perfil))
+      return perfis.some((perfil) => ehAdministrador(perfil))
+    },
+    podeEmularAtendente(state): boolean {
+      if (!state.modoLocal || import.meta.env.PROD) {
+        return false
+      }
+
+      const perfis = state.usuario?.perfis ?? []
+      return perfis.some((perfil) => ehAdministrador(perfil))
     },
   },
 
@@ -261,7 +295,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async iniciarEmulacaoSolicitante(): Promise<void> {
+    async iniciarEmulacaoPerfil(perfil: PerfilEmulado): Promise<void> {
       if (import.meta.env.PROD || !this.modoLocal) {
         throw new Error('A emulacao de perfil esta disponivel apenas em Development local.')
       }
@@ -271,45 +305,87 @@ export const useAuthStore = defineStore('auth', {
       }
 
       const perfis = this.usuario.perfis ?? []
-      if (!perfis.some((perfil) => ehPerfilAdministrativo(perfil))) {
-        throw new Error('Apenas Administrador ou Atendente podem emular Solicitante.')
+      const usuarioOriginalPersistido = this.obterUsuarioOriginalPersistido()
+      const administradorAtual = perfis.some((perfilAtual) => ehAdministrador(perfilAtual))
+      const administradorOriginal = usuarioOriginalPersistido?.perfil === 'Administrador'
+
+      if (!administradorAtual && !administradorOriginal) {
+        throw new Error('Apenas Administrador pode iniciar emulacao de perfis.')
       }
 
-      if (this.emulandoPerfil && this.perfilEmulado === solicitanteDemoPerfil) {
+      if (this.emulandoPerfil && this.perfilEmulado === perfil) {
         return
       }
 
-      const contextoAntesDaEmulacao: UsuarioOriginalEmulacao = {
-        email: this.localDevEmail || this.usuario.email,
-        nome: this.localDevNome || this.usuario.nome,
-        perfil: obterPerfilAdministrativo(perfis, this.localDevPerfil),
+      const dadosPerfilEmulado = obterDadosPerfilEmulado(perfil)
+      const perfilAnteriorEmulacao = this.perfilEmulado
+      const emulacaoAnteriorAtiva = this.emulandoPerfil
+      const usuarioOriginalAnterior = this.usuarioOriginal ?? usuarioOriginalPersistido
+      const contextoAnterior: UsuarioOriginalEmulacao = {
+        email: this.localDevEmail,
+        nome: this.localDevNome,
+        perfil: this.localDevPerfil,
       }
 
-      this.usuarioOriginal = contextoAntesDaEmulacao
-      this.perfilEmulado = solicitanteDemoPerfil
+      let contextoOriginal: UsuarioOriginalEmulacao
+      if (emulacaoAnteriorAtiva) {
+        if (!usuarioOriginalPersistido) {
+          throw new Error('Contexto original da emulacao nao encontrado.')
+        }
+
+        contextoOriginal = usuarioOriginalPersistido
+      } else {
+        contextoOriginal = {
+          email: this.localDevEmail || this.usuario.email,
+          nome: this.localDevNome || this.usuario.nome,
+          perfil: obterPerfilAdministrativo(perfis, this.localDevPerfil),
+        }
+      }
+
+      this.usuarioOriginal = contextoOriginal
+      this.perfilEmulado = perfil
       this.emulandoPerfil = true
       salvarEmulacaoSessionStorage({
-        usuarioOriginal: contextoAntesDaEmulacao,
-        perfilEmulado: solicitanteDemoPerfil,
+        usuarioOriginal: contextoOriginal,
+        perfilEmulado: perfil,
       })
 
-      this.localDevEmail = solicitanteDemoEmail
-      this.localDevNome = solicitanteDemoNome
-      this.localDevPerfil = solicitanteDemoPerfil
+      this.localDevEmail = dadosPerfilEmulado.email
+      this.localDevNome = dadosPerfilEmulado.nome
+      this.localDevPerfil = dadosPerfilEmulado.perfil
       this.aplicarHeadersModoLocal()
 
       try {
         await this.carregarMe()
       } catch (error) {
-        this.localDevEmail = contextoAntesDaEmulacao.email
-        this.localDevNome = contextoAntesDaEmulacao.nome
-        this.localDevPerfil = contextoAntesDaEmulacao.perfil
+        this.localDevEmail = contextoAnterior.email
+        this.localDevNome = contextoAnterior.nome
+        this.localDevPerfil = contextoAnterior.perfil
         this.aplicarHeadersModoLocal()
-        this.limparEmulacao()
+
+        if (emulacaoAnteriorAtiva && usuarioOriginalAnterior && perfilAnteriorEmulacao) {
+          this.usuarioOriginal = usuarioOriginalAnterior
+          this.emulandoPerfil = true
+          this.perfilEmulado = perfilAnteriorEmulacao
+          salvarEmulacaoSessionStorage({
+            usuarioOriginal: usuarioOriginalAnterior,
+            perfilEmulado: perfilAnteriorEmulacao,
+          })
+        } else {
+          this.limparEmulacao()
+        }
 
         const mensagem = error instanceof Error ? error.message : 'Falha ao sincronizar usuario emulado.'
-        throw new Error(`Nao foi possivel iniciar a emulacao de Solicitante. ${mensagem}`)
+        throw new Error(`Nao foi possivel iniciar a emulacao de ${dadosPerfilEmulado.descricao}. ${mensagem}`)
       }
+    },
+
+    async iniciarEmulacaoSolicitante(): Promise<void> {
+      await this.iniciarEmulacaoPerfil('Solicitante')
+    },
+
+    async iniciarEmulacaoAtendente(): Promise<void> {
+      await this.iniciarEmulacaoPerfil('Atendente')
     },
 
     async encerrarEmulacao(): Promise<void> {
@@ -317,6 +393,7 @@ export const useAuthStore = defineStore('auth', {
         return
       }
 
+      const perfilEmuladoAtual = this.perfilEmulado
       const usuarioOriginal = this.obterUsuarioOriginalPersistido()
       if (!usuarioOriginal) {
         this.reset()
@@ -344,11 +421,16 @@ export const useAuthStore = defineStore('auth', {
         this.aplicarHeadersModoLocal()
         this.usuarioOriginal = usuarioOriginal
         this.emulandoPerfil = true
-        this.perfilEmulado = solicitanteDemoPerfil
-        salvarEmulacaoSessionStorage({
-          usuarioOriginal,
-          perfilEmulado: solicitanteDemoPerfil,
-        })
+        this.perfilEmulado = perfilEmuladoAtual
+
+        if (perfilEmuladoAtual) {
+          salvarEmulacaoSessionStorage({
+            usuarioOriginal,
+            perfilEmulado: perfilEmuladoAtual,
+          })
+        } else {
+          limparEmulacaoSessionStorage()
+        }
 
         const mensagem = error instanceof Error ? error.message : 'Falha ao restaurar usuario administrativo.'
         throw new Error(`Nao foi possivel encerrar a emulacao. ${mensagem}`)

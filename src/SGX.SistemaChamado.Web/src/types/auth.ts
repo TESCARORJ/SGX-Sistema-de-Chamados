@@ -1,6 +1,6 @@
 export type PerfilUsuario = 'Administrador' | 'Atendente' | 'Solicitante'
 export type PermissaoUsuario = string
-export type PerfilEmulado = 'Solicitante'
+export type PerfilEmulado = 'Solicitante' | 'Atendente'
 
 export interface UsuarioAutenticado {
   id: string

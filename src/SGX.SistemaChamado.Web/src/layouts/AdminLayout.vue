@@ -9,6 +9,7 @@ type MenuItem = {
   icon: string
   to?: string
   children?: MenuItem[]
+  adminOnly?: boolean
 }
 
 const $q = useQuasar()
@@ -18,7 +19,9 @@ const authStore = useAuthStore()
 
 const drawerOpen = ref(!$q.screen.lt.md)
 const drawerMini = ref(false)
-const emulacaoCarregando = ref(false)
+const emulacaoSolicitanteCarregando = ref(false)
+const emulacaoAtendenteCarregando = ref(false)
+const retornoEmulacaoCarregando = ref(false)
 const buscaGlobal = ref('')
 
 const menu: MenuItem[] = [
@@ -39,6 +42,7 @@ const menu: MenuItem[] = [
   {
     label: 'Configuracoes',
     icon: 'settings',
+    adminOnly: true,
     children: [{ label: 'Parametros do Sistema', icon: 'tune', to: '/admin/configuracoes/parametros' }],
   },
   {
@@ -50,8 +54,32 @@ const menu: MenuItem[] = [
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
+const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const emulacaoDisponivel = computed(
-  () => authStore.podeEmularSolicitante && !authStore.emulandoPerfil
+  () => authStore.podeEmularSolicitante && authStore.podeEmularAtendente && !authStore.emulandoPerfil
+)
+const emulandoAtendente = computed(
+  () => authStore.emulandoPerfil && authStore.perfilEmulado === 'Atendente'
+)
+const menuVisivel = computed<MenuItem[]>(() =>
+  menu
+    .filter((item) => usuarioEhAdministrador.value || !item.adminOnly)
+    .map((item) => {
+      if (!item.children?.length) {
+        return item
+      }
+
+      const filhos = item.children.filter((child) => usuarioEhAdministrador.value || !child.adminOnly)
+      if (!filhos.length && !item.to) {
+        return null
+      }
+
+      return {
+        ...item,
+        children: filhos,
+      }
+    })
+    .filter((item): item is MenuItem => Boolean(item))
 )
 const contadorNotificacoes = computed(() => (authStore.usuario ? 3 : 0))
 const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
@@ -139,11 +167,11 @@ async function logout(): Promise<void> {
 }
 
 async function visualizarComoSolicitante(): Promise<void> {
-  if (!emulacaoDisponivel.value || emulacaoCarregando.value) {
+  if (!emulacaoDisponivel.value || emulacaoSolicitanteCarregando.value || emulacaoAtendenteCarregando.value) {
     return
   }
 
-  emulacaoCarregando.value = true
+  emulacaoSolicitanteCarregando.value = true
 
   try {
     await authStore.iniciarEmulacaoSolicitante()
@@ -155,7 +183,53 @@ async function visualizarComoSolicitante(): Promise<void> {
       message,
     })
   } finally {
-    emulacaoCarregando.value = false
+    emulacaoSolicitanteCarregando.value = false
+  }
+}
+
+async function visualizarComoAtendente(): Promise<void> {
+  if (!emulacaoDisponivel.value || emulacaoAtendenteCarregando.value || emulacaoSolicitanteCarregando.value) {
+    return
+  }
+
+  emulacaoAtendenteCarregando.value = true
+
+  try {
+    await authStore.iniciarEmulacaoAtendente()
+    await router.replace('/admin/chamados')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Falha ao iniciar emulacao de Atendente.'
+    $q.notify({
+      type: 'negative',
+      message,
+    })
+  } finally {
+    emulacaoAtendenteCarregando.value = false
+  }
+}
+
+async function voltarParaAdministrador(): Promise<void> {
+  if (!emulandoAtendente.value || retornoEmulacaoCarregando.value) {
+    return
+  }
+
+  retornoEmulacaoCarregando.value = true
+
+  try {
+    await authStore.encerrarEmulacao()
+    await router.replace('/admin')
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Falha ao restaurar perfil administrativo.'
+    $q.notify({
+      type: 'negative',
+      message,
+    })
+
+    if (message.includes('Contexto original da emulacao nao encontrado')) {
+      await router.replace('/login')
+    }
+  } finally {
+    retornoEmulacaoCarregando.value = false
   }
 }
 
@@ -262,17 +336,29 @@ watch(
 
         <q-separator />
 
-        <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm">
+        <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm emulacao-acoes">
           <q-btn
             color="primary"
             unelevated
             icon="visibility"
             :label="drawerMini ? '' : 'Visualizar como Solicitante'"
             class="full-width drawer-emulacao-btn"
-            :loading="emulacaoCarregando"
+            :loading="emulacaoSolicitanteCarregando"
             @click="visualizarComoSolicitante"
           >
             <q-tooltip>Simula a experiencia do Solicitante em ambiente local.</q-tooltip>
+          </q-btn>
+
+          <q-btn
+            color="primary"
+            unelevated
+            icon="support_agent"
+            :label="drawerMini ? '' : 'Visualizar como Atendente'"
+            class="full-width drawer-emulacao-btn"
+            :loading="emulacaoAtendenteCarregando"
+            @click="visualizarComoAtendente"
+          >
+            <q-tooltip>Simula a experiencia do Atendente em ambiente local.</q-tooltip>
           </q-btn>
         </div>
 
@@ -280,7 +366,7 @@ watch(
 
         <div class="admin-sidebar__nav-wrap">
           <q-list class="admin-sidebar__nav" padding>
-            <template v-for="item in menu" :key="item.label">
+            <template v-for="item in menuVisivel" :key="item.label">
               <q-item
                 v-if="item.to"
                 clickable
@@ -355,6 +441,28 @@ watch(
     </q-drawer>
 
     <q-page-container>
+      <div v-if="emulandoAtendente" class="q-pa-sm q-pa-md">
+        <q-banner rounded class="bg-amber-2 text-dark emulacao-banner">
+          <template #avatar>
+            <q-icon name="badge" />
+          </template>
+
+          <div class="text-weight-medium">Visualizando como Atendente Demo</div>
+          <div class="text-caption">Voce esta visualizando como Atendente Demo.</div>
+
+          <template #action>
+            <q-btn
+              color="primary"
+              flat
+              icon="undo"
+              label="Voltar para Administrador"
+              :loading="retornoEmulacaoCarregando"
+              @click="voltarParaAdministrador"
+            />
+          </template>
+        </q-banner>
+      </div>
+
       <router-view />
     </q-page-container>
   </q-layout>
@@ -522,8 +630,17 @@ watch(
   border-radius: 10px;
 }
 
+.emulacao-acoes {
+  display: grid;
+  gap: 8px;
+}
+
 .drawer-emulacao-btn :deep(.q-icon) {
   color: #ffffff;
+}
+
+.emulacao-banner {
+  border: 1px solid rgba(146, 64, 14, 0.18);
 }
 
 .drawer-exit-btn {

@@ -126,7 +126,7 @@ Comportamento:
 - A autenticacao tecnica do backend continua via headers `X-Dev-*`.
 - Em producao, o fluxo oficial e Microsoft Entra ID.
 
-## 7.1 Emular perfil de Solicitante
+## 7.1 Emulacao de perfis em Development
 
 Disponivel apenas em `Development`/modo local.
 
@@ -134,19 +134,35 @@ Como usar:
 - Acesse `http://localhost:5173/login`.
 - Entre como `admin@sgxdigital.com` (senha local: `Admin@123456`).
 - Entre em `/admin`.
-- Clique em `Visualizar como Solicitante`.
-- O frontend troca temporariamente os headers `X-Dev-*` para:
+- Clique em `Visualizar como Solicitante` para testar o portal.
+- Clique em `Visualizar como Atendente` para testar a fila administrativa.
+
+Dados de emulacao:
+- `solicitante.demo@sgxdigital.com` / `Solicitante Demo` / `Solicitante`
+- `atendente.demo@sgxdigital.com` / `Atendente Demo` / `Atendente`
+
+Headers `X-Dev-*`:
+- Solicitante:
   - `X-Dev-User-Email: solicitante.demo@sgxdigital.com`
   - `X-Dev-User-Name: Solicitante Demo`
   - `X-Dev-User-Role: Solicitante`
-- O sistema redireciona para `/portal` e exibe o aviso de emulacao.
-- Para retornar, clique em `Voltar para Administrador`.
+- Atendente:
+  - `X-Dev-User-Email: atendente.demo@sgxdigital.com`
+  - `X-Dev-User-Name: Atendente Demo`
+  - `X-Dev-User-Role: Atendente`
+
+Comportamento:
+- `Visualizar como Solicitante` redireciona para `/portal` e exibe aviso de emulacao.
+- `Visualizar como Atendente` redireciona para `/admin/chamados` e exibe aviso de emulacao no layout administrativo.
+- Para retornar, use `Voltar para Administrador`.
 
 Regras:
 - O botao nao aparece em `Production`.
+- O botao aparece apenas para perfil `Administrador` no modo local.
 - A emulacao nao remove autorizacao do backend.
 - O contexto anterior e guardado em memoria/sessao para restauracao.
 - Logout limpa qualquer contexto de emulacao.
+- Recurso exclusivo para testes locais de UX/permissoes.
 
 ## 8. Validacoes recomendadas
 
