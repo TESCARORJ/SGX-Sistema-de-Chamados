@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -17,7 +17,9 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const drawerOpen = ref(!$q.screen.lt.md)
+const drawerMini = ref(false)
 const emulacaoCarregando = ref(false)
+const buscaGlobal = ref('')
 
 const menu: MenuItem[] = [
   { label: 'Dashboard', icon: 'space_dashboard', to: '/admin' },
@@ -46,14 +48,25 @@ const menu: MenuItem[] = [
   },
 ]
 
-const usuarioNome = computed(() => authStore.usuario?.nome || 'Usuario')
+const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
 const emulacaoDisponivel = computed(
   () => authStore.podeEmularSolicitante && !authStore.emulandoPerfil
 )
+const contadorNotificacoes = computed(() => (authStore.usuario ? 3 : 0))
+const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
+const tituloPagina = computed(() => {
+  if (route.path === '/admin') return 'Dashboard'
+  if (route.path === '/admin/chamados') return 'Fila de Chamados'
+  if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
+  if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
+  if (route.path.startsWith('/admin/configuracoes')) return 'Configuracoes'
+  if (route.path.startsWith('/admin/integracoes')) return 'Integracoes'
+  return 'Area Administrativa'
+})
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
-  if (!nome) return 'U'
+  if (!nome) return 'AS'
   return nome
     .split(' ')
     .filter(Boolean)
@@ -76,6 +89,30 @@ function grupoAberto(children: MenuItem[] | undefined): boolean {
   }
 
   return children.some((item) => item.to && rotaAtiva(item.to))
+}
+
+function alternarMenu(): void {
+  if ($q.screen.lt.md) {
+    drawerOpen.value = !drawerOpen.value
+    return
+  }
+
+  drawerMini.value = !drawerMini.value
+}
+
+function notificarEmBreve(): void {
+  $q.notify({
+    type: 'info',
+    message: 'Painel de notificacoes em preparacao.',
+  })
+}
+
+function acionarBuscaGlobal(): void {
+  if (!buscaGlobal.value.trim()) {
+    return
+  }
+
+  router.push('/admin/chamados')
 }
 
 async function logout(): Promise<void> {
@@ -117,13 +154,56 @@ function navegarPara(path: string): void {
 
 <template>
   <q-layout view="lHh Lpr lFf" class="admin-layout">
-    <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="drawerOpen = !drawerOpen" />
-        <q-toolbar-title class="text-weight-semibold">SGX Sistema de Chamados</q-toolbar-title>
+    <q-header elevated class="admin-header text-dark">
+      <q-toolbar class="q-px-md q-py-sm header-toolbar">
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="alternarMenu" />
 
-        <q-chip color="white" text-color="primary" icon="admin_panel_settings" square>
-          Area administrativa
+        <div class="q-ml-sm header-title">
+          <div class="text-overline text-grey-7">SGX Sistema de Chamados</div>
+          <q-toolbar-title class="text-subtitle1 text-weight-bold">
+            {{ tituloPagina }}
+          </q-toolbar-title>
+        </div>
+
+        <q-space />
+
+        <q-input
+          v-model="buscaGlobal"
+          class="header-search gt-sm"
+          dense
+          outlined
+          placeholder="Buscar chamados, solicitantes, categorias..."
+          @keyup.enter="acionarBuscaGlobal"
+        >
+          <template #prepend>
+            <q-icon name="search" />
+          </template>
+          <template #append>
+            <q-btn flat round dense icon="arrow_forward" @click="acionarBuscaGlobal" />
+          </template>
+        </q-input>
+
+        <q-btn flat round dense icon="notifications" class="q-ml-sm" @click="notificarEmBreve">
+          <q-badge
+            v-if="contadorNotificacoes > 0"
+            color="negative"
+            rounded
+            floating
+            :label="contadorNotificacoes"
+          />
+          <q-tooltip>Notificacoes</q-tooltip>
+        </q-btn>
+
+        <q-chip square class="q-ml-sm user-chip">
+          <q-avatar color="primary" text-color="white">{{ iniciaisUsuario }}</q-avatar>
+          <div class="column">
+            <div class="text-caption text-weight-medium ellipsis user-chip__name">{{ usuarioNome }}</div>
+            <div class="row items-center q-gutter-xs">
+              <span class="status-dot" />
+              <span class="text-caption text-grey-7">{{ statusUsuario }}</span>
+            </div>
+          </div>
+          <q-tooltip>{{ usuarioEmail }}</q-tooltip>
         </q-chip>
       </q-toolbar>
     </q-header>
@@ -132,25 +212,31 @@ function navegarPara(path: string): void {
       v-model="drawerOpen"
       show-if-above
       bordered
-      :width="290"
+      :mini="drawerMini && !$q.screen.lt.md"
+      :mini-width="78"
+      :width="296"
       :breakpoint="1024"
+      :behavior="$q.screen.lt.md ? 'mobile' : 'desktop'"
       class="admin-drawer"
     >
-      <div class="q-pa-md drawer-user">
-        <q-avatar size="44px" color="primary" text-color="white">{{ iniciaisUsuario }}</q-avatar>
+      <div class="q-pa-md drawer-brand">
+        <q-avatar size="42px" color="white" text-color="primary" icon="support_agent" />
         <div>
-          <div class="text-weight-medium">{{ usuarioNome }}</div>
-          <div class="text-caption text-grey-7">{{ usuarioEmail }}</div>
+          <div class="drawer-brand__title">SGX</div>
+          <div class="drawer-brand__name">Sistema de Chamados</div>
+          <div class="text-caption drawer-brand__subtitle">Painel administrativo</div>
         </div>
       </div>
 
-      <div v-if="emulacaoDisponivel" class="q-px-md q-pb-md">
+      <q-separator dark />
+
+      <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm">
         <q-btn
-          color="secondary"
-          outline
+          color="primary"
+          unelevated
           icon="visibility"
-          label="Visualizar como Solicitante"
-          class="full-width"
+          :label="drawerMini ? '' : 'Visualizar como Solicitante'"
+          class="full-width drawer-emulacao-btn"
           :loading="emulacaoCarregando"
           @click="visualizarComoSolicitante"
         >
@@ -158,7 +244,7 @@ function navegarPara(path: string): void {
         </q-btn>
       </div>
 
-      <q-separator />
+      <q-separator dark />
 
       <q-list padding>
         <template v-for="item in menu" :key="item.label">
@@ -173,6 +259,7 @@ function navegarPara(path: string): void {
               <q-icon :name="item.icon" />
             </q-item-section>
             <q-item-section>{{ item.label }}</q-item-section>
+            <q-tooltip v-if="drawerMini">{{ item.label }}</q-tooltip>
           </q-item>
 
           <q-expansion-item
@@ -183,6 +270,7 @@ function navegarPara(path: string): void {
             :label="item.label"
             :default-opened="grupoAberto(item.children)"
             header-class="menu-group"
+            :disable="drawerMini"
           >
             <q-list dense>
               <q-item
@@ -204,17 +292,30 @@ function navegarPara(path: string): void {
         </template>
       </q-list>
 
-      <q-separator />
+      <q-separator dark />
 
-      <div class="q-pa-md">
+      <div class="q-pa-md column q-gutter-sm">
+        <q-btn
+          flat
+          class="text-white"
+          :icon="drawerMini ? 'chevron_right' : 'chevron_left'"
+          :label="drawerMini ? '' : 'Recolher menu'"
+          :disable="$q.screen.lt.md"
+          @click="drawerMini = !drawerMini"
+        >
+          <q-tooltip>{{ drawerMini ? 'Expandir menu' : 'Recolher menu' }}</q-tooltip>
+        </q-btn>
+
         <q-btn
           color="negative"
-          outline
+          unelevated
           icon="logout"
-          label="Sair"
-          class="full-width"
+          :label="drawerMini ? '' : 'Sair'"
+          class="full-width drawer-exit-btn"
           @click="logout"
-        />
+        >
+          <q-tooltip>Sair</q-tooltip>
+        </q-btn>
       </div>
     </q-drawer>
 
@@ -226,29 +327,194 @@ function navegarPara(path: string): void {
 
 <style scoped>
 .admin-layout {
-  background:
-    radial-gradient(circle at 0% 0%, rgba(14, 116, 144, 0.08), transparent 36%),
-    linear-gradient(180deg, #f3f6fb 0%, #ecf1f7 100%);
+  background: linear-gradient(180deg, var(--sgx-page-bg) 0%, #eaf0f9 100%);
+}
+
+.admin-header {
+  background: #fdfefe;
+  border-bottom: 1px solid #dde4f0;
+}
+
+.header-toolbar {
+  min-width: 0;
+}
+
+.header-title {
+  min-width: 0;
+}
+
+.header-title :deep(.q-toolbar__title) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search {
+  width: clamp(220px, 28vw, 430px);
+}
+
+.user-chip {
+  background: #f1f5f9;
+  max-width: 260px;
+  min-width: 0;
+}
+
+.user-chip__name {
+  max-width: 140px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
 }
 
 .admin-drawer {
-  background: #fbfdff;
+  background:
+    radial-gradient(circle at 14% 6%, rgba(37, 99, 235, 0.2), transparent 38%),
+    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+  color: rgba(255, 255, 255, 0.88);
 }
 
-.drawer-user {
+:deep(.admin-drawer .q-drawer__content) {
+  background:
+    radial-gradient(circle at 14% 6%, rgba(37, 99, 235, 0.2), transparent 38%),
+    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.drawer-brand {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 12px;
   align-items: center;
 }
 
+.drawer-brand__title {
+  font-size: 1.05rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #eff6ff;
+}
+
+.drawer-brand__name {
+  font-size: 0.94rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.drawer-brand__subtitle {
+  color: rgba(255, 255, 255, 0.66);
+}
+
 :deep(.menu-item-active) {
-  background: rgba(15, 118, 110, 0.12);
-  color: #0f766e;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32);
 }
 
 :deep(.menu-group) {
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(.q-item) {
+  color: rgba(255, 255, 255, 0.88);
+  border-radius: 12px;
+}
+
+:deep(.q-item.q-item--clickable:hover),
+:deep(.q-expansion-item__container > .q-item.q-item--clickable:hover) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:deep(.q-item__section--avatar .q-icon),
+:deep(.q-expansion-item__toggle-icon) {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+:deep(.menu-item-active .q-icon) {
+  color: #ffffff;
+}
+
+:deep(.q-expansion-item__container > .q-item .q-item__label) {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(.q-expansion-item__container > .q-item .q-item__label--caption) {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+:deep(.q-item__label) {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+:deep(.q-separator) {
+  background: rgba(148, 163, 184, 0.28);
+}
+
+:deep(.q-drawer--left.q-drawer--bordered) {
+  border-right: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+:deep(.q-expansion-item__container .q-item) {
+  min-height: 44px;
+}
+
+.drawer-emulacao-btn {
+  background: rgba(37, 99, 235, 0.2);
+  color: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(96, 165, 250, 0.46);
+  min-height: 42px;
+}
+
+.drawer-emulacao-btn :deep(.q-icon) {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.drawer-exit-btn {
+  background: #dc2626;
+  color: #ffffff !important;
+  border: 1px solid rgba(248, 113, 113, 0.38);
   border-radius: 10px;
+  min-height: 42px;
+}
+
+.drawer-exit-btn:hover {
+  background: #b91c1c !important;
+}
+
+@media (max-width: 1430px) {
+  .user-chip {
+    max-width: 215px;
+  }
+
+  .user-chip__name {
+    max-width: 106px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .user-chip {
+    max-width: 180px;
+  }
+
+  .user-chip__name {
+    max-width: 90px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-title :deep(.text-overline) {
+    display: none;
+  }
+
+  .user-chip {
+    padding-right: 6px;
+  }
 }
 </style>

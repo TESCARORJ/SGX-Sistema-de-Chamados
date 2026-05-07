@@ -9,8 +9,8 @@ defineProps<{
   <q-card flat bordered class="sgx-card app-section-card">
     <q-card-section class="app-section-card__header row items-start justify-between q-col-gutter-md">
       <div class="col app-section-card__content">
-        <div class="text-subtitle1 text-weight-medium">{{ titulo }}</div>
-        <div v-if="subtitulo" class="text-caption text-grey-7 q-mt-xs">{{ subtitulo }}</div>
+        <div class="text-subtitle1 text-weight-bold">{{ titulo }}</div>
+        <div v-if="subtitulo" class="text-caption sgx-muted q-mt-xs">{{ subtitulo }}</div>
       </div>
       <div class="col-auto app-section-card__actions">
         <slot name="actions" />
@@ -19,7 +19,7 @@ defineProps<{
 
     <q-separator />
 
-    <q-card-section>
+    <q-card-section class="app-section-card__body">
       <slot />
     </q-card-section>
   </q-card>
@@ -30,9 +30,19 @@ defineProps<{
   height: 100%;
 }
 
+.app-section-card__header {
+  padding: 18px 20px 14px;
+}
+
+.app-section-card__body {
+  padding: 18px 20px 20px;
+}
+
 .app-section-card__actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 768px) {
@@ -44,6 +54,7 @@ defineProps<{
   .app-section-card__actions {
     width: 100%;
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .app-section-card__actions :deep(.q-btn),

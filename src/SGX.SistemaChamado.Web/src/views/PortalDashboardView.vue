@@ -59,17 +59,17 @@ onMounted(carregar)
 
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-lg-3">
-        <MetricCard titulo="Chamados abertos" :valor="chamadosAbertos" icon="drafts" color="primary" />
+        <MetricCard titulo="Chamados abertos" :valor="chamadosAbertos" icon="drafts" tone="primary" />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
-        <MetricCard titulo="Em atendimento" :valor="chamadosEmAtendimento" icon="support_agent" color="warning" />
+        <MetricCard titulo="Em atendimento" :valor="chamadosEmAtendimento" icon="support_agent" tone="info" />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
         <MetricCard
           titulo="Aguardando solicitante"
           :valor="chamadosAguardandoSolicitante"
           icon="hourglass_top"
-          color="deep-orange"
+          tone="warning"
         />
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
@@ -77,7 +77,7 @@ onMounted(carregar)
           titulo="Resolvidos/encerrados"
           :valor="chamadosResolvidosEncerrados"
           icon="task_alt"
-          color="positive"
+          tone="positive"
         />
       </div>
     </div>

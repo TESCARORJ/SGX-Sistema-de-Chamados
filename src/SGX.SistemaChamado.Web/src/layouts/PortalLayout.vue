@@ -89,15 +89,13 @@ async function voltarParaAdministrador(): Promise<void> {
 
 <template>
   <q-layout view="lHh Lpr lFf" class="portal-layout">
-    <q-header elevated class="bg-secondary text-white">
-      <q-toolbar>
+    <q-header elevated class="portal-header text-dark">
+      <q-toolbar class="q-px-md q-py-sm">
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="drawerOpen = !drawerOpen" />
 
-        <q-toolbar-title class="text-weight-semibold">SGX Sistema de Chamados</q-toolbar-title>
+        <q-toolbar-title class="text-weight-bold">SGX Sistema de Chamados</q-toolbar-title>
 
-        <q-chip color="white" text-color="secondary" icon="person" square>
-          Portal do solicitante
-        </q-chip>
+        <q-chip color="blue-1" text-color="primary" icon="person" square>Portal do solicitante</q-chip>
       </q-toolbar>
     </q-header>
 
@@ -107,6 +105,7 @@ async function voltarParaAdministrador(): Promise<void> {
       bordered
       :width="290"
       :breakpoint="1024"
+      :behavior="$q.screen.lt.md ? 'mobile' : 'desktop'"
       class="portal-drawer"
     >
       <div class="q-pa-md drawer-user">
@@ -176,12 +175,17 @@ async function voltarParaAdministrador(): Promise<void> {
 <style scoped>
 .portal-layout {
   background:
-    radial-gradient(circle at 100% 0%, rgba(249, 115, 22, 0.1), transparent 42%),
-    linear-gradient(180deg, #f8fafc 0%, #f2f7ff 100%);
+    radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.12), transparent 42%),
+    linear-gradient(180deg, #f7faff 0%, #edf3fb 100%);
+}
+
+.portal-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--sgx-border);
 }
 
 .portal-drawer {
-  background: #fffefc;
+  background: #f8fbff;
 }
 
 .drawer-user {
@@ -192,8 +196,8 @@ async function voltarParaAdministrador(): Promise<void> {
 }
 
 :deep(.menu-item-active) {
-  background: rgba(249, 115, 22, 0.14);
-  color: #c2410c;
+  background: rgba(11, 94, 215, 0.12);
+  color: #0b5ed7;
   border-radius: 10px;
 }
 

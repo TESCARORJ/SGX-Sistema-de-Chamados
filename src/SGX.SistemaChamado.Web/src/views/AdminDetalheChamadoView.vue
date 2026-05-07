@@ -366,6 +366,68 @@ onMounted(carregar)
         </div>
       </AppSectionCard>
 
+      <div class="detalhe-top-grid">
+        <AppSectionCard titulo="SLA em destaque" subtitulo="Indicadores operacionais de prazo e risco.">
+          <q-list separator>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Status atual</q-item-label>
+                <q-item-label>
+                  <SlaBadge :vencido="detalhe.sla?.estaVencido" :proximo="slaProximo" :pausado="detalhe.sla?.estaPausado" />
+                </q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Prazo primeira resposta</q-item-label>
+                <q-item-label>{{ formatarData(detalhe.sla?.prazoPrimeiraRespostaEm ?? null) }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Prazo resolucao</q-item-label>
+                <q-item-label>{{ formatarData(detalhe.sla?.prazoResolucaoEm ?? null) }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Total pausado</q-item-label>
+                <q-item-label>{{ detalhe.sla?.totalMinutosPausado ?? 0 }} min</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
+
+        <AppSectionCard titulo="Solicitante e contato" subtitulo="Dados de origem para retorno e acompanhamento.">
+          <q-list separator>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Nome</q-item-label>
+                <q-item-label>{{ detalhe.solicitante.nome }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>E-mail</q-item-label>
+                <q-item-label>{{ detalhe.solicitante.email }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Origem</q-item-label>
+                <q-item-label>{{ detalhe.origem }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Abertura</q-item-label>
+                <q-item-label>{{ formatarData(detalhe.abertoEm) }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
+      </div>
+
       <AppSectionCard titulo="Acoes administrativas" subtitulo="Assumir, atribuir e atualizar ciclo do chamado.">
         <PainelAtendimento
           :chamado="detalhe"
@@ -478,5 +540,17 @@ onMounted(carregar)
 <style scoped>
 .comment-dialog-card {
   width: min(560px, 92vw);
+}
+
+.detalhe-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .detalhe-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

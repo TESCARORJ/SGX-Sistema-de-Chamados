@@ -19,7 +19,14 @@ function fmtDate(value: string): string {
       mensagem="Nenhum comentario administrativo foi registrado ate o momento."
     />
 
-    <q-card v-for="comentario in comentarios" :key="comentario.id" flat bordered>
+    <q-card
+      v-for="comentario in comentarios"
+      :key="comentario.id"
+      flat
+      bordered
+      class="sgx-card"
+      :class="{ 'comentario-interno': comentario.interno }"
+    >
       <q-card-section>
         <div class="row items-center justify-between">
           <strong>{{ comentario.usuario }}</strong>
@@ -31,3 +38,10 @@ function fmtDate(value: string): string {
     </q-card>
   </div>
 </template>
+
+<style scoped>
+.comentario-interno {
+  border-left: 3px solid #f59e0b;
+  background: #fff9eb;
+}
+</style>

@@ -191,14 +191,30 @@ onMounted(async () => {
 
       <q-table
         v-else
+        class="sgx-table"
         flat
+        bordered
         :rows="chamados"
         :columns="columns"
         row-key="id"
         :pagination="{ rowsPerPage: 15 }"
         :grid="$q.screen.lt.md"
         :rows-per-page-options="[10, 15, 25, 50]"
+        separator="horizontal"
       >
+        <template #body-cell-codigo="slotProps">
+          <q-td :props="slotProps">
+            <q-btn
+              flat
+              dense
+              color="primary"
+              class="q-pa-none text-weight-bold"
+              :label="slotProps.row.codigo"
+              @click="router.push(`/portal/chamados/${slotProps.row.id}`)"
+            />
+          </q-td>
+        </template>
+
         <template #body-cell-status="slotProps">
           <q-td :props="slotProps">
             <StatusBadge :texto="slotProps.row.status" />
@@ -284,3 +300,13 @@ onMounted(async () => {
     </AppSectionCard>
   </q-page>
 </template>
+
+<style scoped>
+:deep(.sgx-table .q-table__middle) {
+  overflow-x: auto;
+}
+
+:deep(.sgx-table tbody tr:hover) {
+  background: rgba(11, 94, 215, 0.04);
+}
+</style>

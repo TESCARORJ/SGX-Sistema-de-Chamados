@@ -51,7 +51,9 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
 
 <template>
   <q-table
+    class="sgx-table"
     flat
+    bordered
     :rows="props.rows"
     :columns="columns"
     row-key="id"
@@ -59,7 +61,21 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
     hide-pagination
     hide-bottom
     :grid="$q.screen.lt.md"
+    separator="horizontal"
   >
+    <template #body-cell-codigo="slotProps">
+      <q-td :props="slotProps">
+        <q-btn
+          flat
+          dense
+          color="primary"
+          class="q-pa-none text-weight-bold"
+          :label="slotProps.row.codigo"
+          @click="emit('detalhar', slotProps.row.id)"
+        />
+      </q-td>
+    </template>
+
     <template #body-cell-status="slotProps">
       <q-td :props="slotProps">
         <StatusBadge :texto="slotProps.row.status" />
@@ -149,3 +165,13 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
     </template>
   </q-table>
 </template>
+
+<style scoped>
+:deep(.sgx-table .q-table__middle) {
+  overflow-x: auto;
+}
+
+:deep(.sgx-table tbody tr:hover) {
+  background: rgba(11, 94, 215, 0.04);
+}
+</style>

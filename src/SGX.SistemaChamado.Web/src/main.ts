@@ -19,10 +19,10 @@ createApp(App)
     },
     config: {
       brand: {
-        primary: '#0f766e',
-        secondary: '#f97316',
-        accent: '#0369a1',
-        dark: '#0f172a',
+        primary: '#0b5ed7',
+        secondary: '#062f66',
+        accent: '#0284c7',
+        dark: '#031b38',
       },
       notify: {
         position: 'top-right',

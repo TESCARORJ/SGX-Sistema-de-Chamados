@@ -74,7 +74,7 @@ onMounted(() => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
-      titulo="Integracoes de e-mail"
+      titulo="Integracao de E-mail"
       subtitulo="Acompanhe processamento, correlacao e falhas tecnicas da caixa de entrada"
     />
 

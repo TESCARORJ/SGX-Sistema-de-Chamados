@@ -79,10 +79,12 @@ async function entrarModoLocal(): Promise<void> {
 </script>
 
 <template>
-  <q-page class="row items-center justify-center q-pa-md">
+  <q-page class="login-page row items-center justify-center q-pa-md">
     <q-card flat bordered class="sgx-card login-card">
       <q-card-section class="text-center q-pb-sm">
-        <q-icon name="support_agent" color="primary" size="42px" />
+        <q-chip color="blue-1" text-color="primary" icon="verified_user" class="login-brand-chip">
+          SGX
+        </q-chip>
         <div class="text-h5 text-weight-bold q-mt-sm">SGX Sistema de Chamados</div>
         <div class="text-subtitle2 text-grey-8 q-mt-xs">Atendimento interno, rastreável e organizado.</div>
         <div class="text-body2 text-grey-7 q-mt-sm">Entre com sua conta corporativa para acessar o sistema.</div>
@@ -94,6 +96,7 @@ async function entrarModoLocal(): Promise<void> {
           unelevated
           icon="login"
           class="full-width"
+          size="md"
           label="Entrar com Microsoft"
           :loading="authStore.carregando"
           @click="entrarComMicrosoft"
@@ -157,8 +160,21 @@ async function entrarModoLocal(): Promise<void> {
 </template>
 
 <style scoped>
+.login-page {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(11, 94, 215, 0.16), transparent 40%),
+    radial-gradient(circle at 100% 100%, rgba(2, 132, 199, 0.14), transparent 38%),
+    linear-gradient(135deg, #f3f7fd 0%, #edf3fb 100%);
+}
+
 .login-card {
   width: min(560px, 100%);
+  border-radius: 18px;
+}
+
+.login-brand-chip {
+  border: 1px solid rgba(11, 94, 215, 0.25);
+  font-weight: 700;
 }
 </style>
 

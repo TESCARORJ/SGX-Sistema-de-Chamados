@@ -117,7 +117,7 @@ onMounted(async () => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Fila administrativa" subtitulo="Visualize, priorize e assuma chamados da operacao.">
+    <PageHeader titulo="Fila de Chamados" subtitulo="Visualize, priorize e assuma chamados da operacao.">
       <template #actions>
         <q-chip color="primary" text-color="white" icon="confirmation_number" square>
           Total: {{ total }}
