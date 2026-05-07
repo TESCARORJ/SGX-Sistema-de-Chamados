@@ -1,5 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed } from 'vue'
+import PrioridadeBadge from '../ui/PrioridadeBadge.vue'
+import SlaBadge from '../ui/SlaBadge.vue'
+import StatusBadge from '../ui/StatusBadge.vue'
 import type { ChamadoAdminResumo } from '../../types/admin'
 
 const props = defineProps<{
@@ -51,6 +54,7 @@ function linhaClasse(row: ChamadoAdminResumo): string {
     :columns="columns"
     :loading="props.loading"
     hide-pagination
+    wrap-cells
   >
     <template #body="slotProps">
       <q-tr :props="slotProps" :class="linhaClasse(slotProps.row)">
@@ -59,17 +63,18 @@ function linhaClasse(row: ChamadoAdminResumo): string {
         <q-td key="solicitante" :props="slotProps">{{ slotProps.row.solicitanteNome }}</q-td>
         <q-td key="responsavel" :props="slotProps">{{ slotProps.row.responsavelNome || '-' }}</q-td>
         <q-td key="status" :props="slotProps">
-          <q-badge :color="slotProps.row.status.toLowerCase().includes('encerrado') ? 'positive' : 'primary'">{{ slotProps.row.status }}</q-badge>
+          <StatusBadge :texto="slotProps.row.status" />
         </q-td>
         <q-td key="prioridade" :props="slotProps">
-          <q-badge :color="slotProps.row.prioridade.toLowerCase().includes('critica') ? 'negative' : 'secondary'">{{ slotProps.row.prioridade }}</q-badge>
+          <PrioridadeBadge :texto="slotProps.row.prioridade" />
         </q-td>
         <q-td key="sla" :props="slotProps">
-          <div class="column">
-            <q-badge v-if="slotProps.row.slaVencido" color="negative" outline>SLA vencido</q-badge>
-            <q-badge v-else-if="slotProps.row.slaProximoVencimento" color="warning" outline>Proximo do vencimento</q-badge>
-            <q-badge v-else-if="slotProps.row.estaPausado" color="grey-7" outline>SLA pausado</q-badge>
-            <q-badge v-else color="positive" outline>Dentro do prazo</q-badge>
+          <div class="column q-gutter-xs">
+            <SlaBadge
+              :vencido="slotProps.row.slaVencido"
+              :proximo="slotProps.row.slaProximoVencimento"
+              :pausado="slotProps.row.estaPausado"
+            />
             <small class="text-grey-7">Prazo: {{ fmtPrazo(slotProps.row.prazoResolucaoEm) }}</small>
           </div>
         </q-td>

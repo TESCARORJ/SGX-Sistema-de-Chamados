@@ -1,5 +1,0 @@
-app:
-  ambiente: homologacao
-  worker:
-    email:
-      modo-local-habilitado: false

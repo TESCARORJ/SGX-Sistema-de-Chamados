@@ -1,13 +1,15 @@
 ﻿<script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import FormComentario from '../components/portal/FormComentario.vue'
+import TimelineHistorico from '../components/portal/TimelineHistorico.vue'
+import UploadAnexo from '../components/portal/UploadAnexo.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
+import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
+import SlaBadge from '../components/ui/SlaBadge.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { portalService } from '../services/portalService'
 import type { ChamadoDetalhePortal } from '../types/portal'
-import FormComentario from '../components/portal/FormComentario.vue'
-import UploadAnexo from '../components/portal/UploadAnexo.vue'
-import TimelineHistorico from '../components/portal/TimelineHistorico.vue'
-import StatusBadge from '../components/portal/StatusBadge.vue'
-import PrioridadeBadge from '../components/portal/PrioridadeBadge.vue'
 
 const route = useRoute()
 const loading = ref(false)
@@ -17,7 +19,7 @@ const detalhe = ref<ChamadoDetalhePortal | null>(null)
 function estaProximoVencimento(): boolean {
   if (!detalhe.value?.sla) return false
   if (detalhe.value.sla.estaVencido || detalhe.value.sla.estaPausado || detalhe.value.sla.resolvidoEm) return false
-  return new Date(detalhe.value.sla.prazoResolucaoEm).getTime() <= Date.now() + (4 * 60 * 60 * 1000)
+  return new Date(detalhe.value.sla.prazoResolucaoEm).getTime() <= Date.now() + 4 * 60 * 60 * 1000
 }
 
 async function carregar() {
@@ -57,48 +59,58 @@ onMounted(carregar)
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <q-spinner v-if="loading" color="primary" size="2rem" />
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader
+      :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.titulo}` : 'Detalhe do chamado'"
+      subtitulo="Acompanhe andamento, comentarios, anexos e historico"
+    >
+      <template #actions>
+        <div v-if="detalhe" class="row q-gutter-xs">
+          <StatusBadge :texto="detalhe.status" />
+          <PrioridadeBadge :texto="detalhe.prioridade" />
+        </div>
+      </template>
+    </PageHeader>
+
+    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+
+    <div v-if="loading" class="row justify-center q-py-xl">
+      <q-spinner color="primary" size="2.2rem" />
+    </div>
 
     <template v-if="detalhe && !loading">
-      <q-card flat bordered>
-        <q-card-section class="row items-start justify-between">
-          <div>
-            <div class="text-caption text-grey-7">{{ detalhe.codigo }}</div>
-            <div class="text-h6">{{ detalhe.titulo }}</div>
-            <div class="text-body2 q-mt-sm">{{ detalhe.descricao }}</div>
-            <div class="text-caption text-grey-8 q-mt-sm">
-              {{ detalhe.categoria }} • {{ detalhe.departamento || 'Sem departamento' }}
-            </div>
-          </div>
-          <div class="column items-end q-gutter-xs">
-            <StatusBadge :status="detalhe.status" />
-            <PrioridadeBadge :prioridade="detalhe.prioridade" />
+      <q-card flat bordered class="sgx-card">
+        <q-card-section>
+          <div class="text-body1">{{ detalhe.descricao }}</div>
+          <div class="text-caption text-grey-7 q-mt-sm">
+            {{ detalhe.categoria }} | {{ detalhe.departamento || 'Sem departamento' }}
           </div>
         </q-card-section>
         <q-separator />
-        <q-card-section class="column q-gutter-xs">
-          <q-badge v-if="detalhe.sla?.estaVencido" color="negative" outline>SLA vencido</q-badge>
-          <q-badge v-else-if="estaProximoVencimento()" color="warning" outline>Prazo proximo do vencimento</q-badge>
-          <q-badge v-else-if="detalhe.sla?.estaPausado" color="grey-7" outline>SLA pausado</q-badge>
-          <q-badge v-else color="positive" outline>Dentro do prazo</q-badge>
-          <div class="text-caption text-grey-8">
+        <q-card-section>
+          <SlaBadge
+            :vencido="detalhe.sla?.estaVencido"
+            :proximo="estaProximoVencimento()"
+            :pausado="detalhe.sla?.estaPausado"
+          />
+          <div class="text-caption text-grey-8 q-mt-sm">
             Prazo previsto: {{ detalhe.sla ? new Date(detalhe.sla.prazoResolucaoEm).toLocaleString('pt-BR') : '-' }}
           </div>
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered>
-        <q-card-section>
-          <div class="text-subtitle1">Comentarios</div>
-        </q-card-section>
+      <q-card flat bordered class="sgx-card">
+        <q-card-section class="text-subtitle1 text-weight-medium">Comentarios</q-card-section>
         <q-separator />
         <q-card-section class="column q-gutter-sm">
-          <q-banner v-if="!detalhe.comentarios.length" class="bg-blue-1 text-primary">Nenhum comentario ainda.</q-banner>
+          <q-banner v-if="!detalhe.comentarios.length" rounded class="bg-blue-1 text-primary">
+            Nenhum comentario ainda.
+          </q-banner>
           <q-card v-for="comentario in detalhe.comentarios" :key="comentario.id" flat bordered>
             <q-card-section>
-              <div class="text-caption text-grey-7">{{ comentario.usuario }} • {{ new Date(comentario.criadoEm).toLocaleString() }}</div>
+              <div class="text-caption text-grey-7">
+                {{ comentario.usuario }} | {{ new Date(comentario.criadoEm).toLocaleString('pt-BR') }}
+              </div>
               <div class="text-body2">{{ comentario.mensagem }}</div>
             </q-card-section>
           </q-card>
@@ -106,18 +118,20 @@ onMounted(carregar)
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered>
-        <q-card-section>
-          <div class="text-subtitle1">Anexos</div>
-        </q-card-section>
+      <q-card flat bordered class="sgx-card">
+        <q-card-section class="text-subtitle1 text-weight-medium">Anexos</q-card-section>
         <q-separator />
         <q-card-section class="column q-gutter-sm">
-          <q-banner v-if="!detalhe.anexos.length" class="bg-blue-1 text-primary">Nenhum anexo enviado.</q-banner>
+          <q-banner v-if="!detalhe.anexos.length" rounded class="bg-blue-1 text-primary">
+            Nenhum anexo enviado.
+          </q-banner>
           <q-list bordered separator>
             <q-item v-for="anexo in detalhe.anexos" :key="anexo.id">
               <q-item-section>
                 <q-item-label>{{ anexo.nomeArquivo }}</q-item-label>
-                <q-item-label caption>{{ anexo.usuario }} • {{ (anexo.tamanhoBytes / 1024).toFixed(1) }} KB</q-item-label>
+                <q-item-label caption>
+                  {{ anexo.usuario }} | {{ (anexo.tamanhoBytes / 1024).toFixed(1) }} KB
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -125,15 +139,13 @@ onMounted(carregar)
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered>
-        <q-card-section>
-          <div class="text-subtitle1">Historico</div>
-        </q-card-section>
+      <q-card flat bordered class="sgx-card">
+        <q-card-section class="text-subtitle1 text-weight-medium">Historico</q-card-section>
         <q-separator />
         <q-card-section>
           <TimelineHistorico :itens="detalhe.historico" />
         </q-card-section>
       </q-card>
     </template>
-  </div>
+  </q-page>
 </template>

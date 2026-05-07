@@ -1,4 +1,4 @@
 $ErrorActionPreference = "Stop"
 Set-Location "$PSScriptRoot\.."
-mvn -pl GETI.SistemaChamado.Worker.Email spring-boot:run
+dotnet run --project src/SGX.SistemaChamado.Worker.Email/SGX.SistemaChamado.Worker.Email.csproj
 

@@ -53,8 +53,7 @@
         "env": {
           "ASPNETCORE_ENVIRONMENT": "Development",
           "Authentication__ModoLocalHabilitado": "true",
-          "ASPNETCORE_URLS": "http://localhost:5168",
-          "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
+          "ASPNETCORE_URLS": "http://localhost:5168"
         }
       },
       "problemMatcher": [
@@ -92,8 +91,7 @@
           "EmailWorker__ImapHost": "",
           "EmailWorker__Senha": "",
           "EmailWorker__IntervaloSegundos": "30",
-          "EmailWorker__MaxMensagensPorCiclo": "10",
-          "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
+          "EmailWorker__MaxMensagensPorCiclo": "10"
         }
       },
       "problemMatcher": [

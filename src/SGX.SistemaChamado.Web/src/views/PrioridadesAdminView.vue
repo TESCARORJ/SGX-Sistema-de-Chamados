@@ -1,13 +1,13 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { QTableColumn } from 'quasar'
 import CadastroListaBaseView from './admin-cadastros/CadastroListaBaseView.vue'
 
 const colunas: QTableColumn[] = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left', sortable: true },
-  { name: 'nivel', label: 'Nível', field: 'nivel', align: 'left', sortable: true },
-  { name: 'prazoResolucaoHoras', label: 'Prazo Resolução (h)', field: 'prazoResolucaoHoras', align: 'left', sortable: true },
+  { name: 'nivel', label: 'Nivel', field: 'nivel', align: 'left', sortable: true },
+  { name: 'prazoResolucaoHoras', label: 'Prazo Resolucao (h)', field: 'prazoResolucaoHoras', align: 'left', sortable: true },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center', sortable: true },
-  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'Acoes', field: 'acoes', align: 'right' },
 ]
 </script>
 
@@ -19,3 +19,4 @@ const colunas: QTableColumn[] = [
     :colunas="colunas"
   />
 </template>
+

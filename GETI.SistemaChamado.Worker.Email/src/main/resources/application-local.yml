@@ -1,7 +1,0 @@
-app:
-  ambiente: local
-  worker:
-    email:
-      modo-local-habilitado: true
-      intervalo-processamento-ms: 15000
-      diretorio-arquivos-eml: data/worker-email/eml

@@ -1,9 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/authStore'
 import FormCadastro from '../../components/admin/cadastros/FormCadastro.vue'
 import ConfirmacaoInativacao from '../../components/admin/cadastros/ConfirmacaoInativacao.vue'
+import PageHeader from '../../components/ui/PageHeader.vue'
 import { usuariosAdminService } from '../../services/usuariosAdminService'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
@@ -65,9 +66,9 @@ const opcoesSituacao = [
 
 const opcoesNivel = [
   { label: 'Baixa', value: 1 },
-  { label: 'Média', value: 2 },
+  { label: 'Media', value: 2 },
   { label: 'Alta', value: 3 },
-  { label: 'Crítica', value: 4 },
+  { label: 'Critica', value: 4 },
 ]
 
 const opcoesCodigoStatus = [
@@ -417,10 +418,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <div class="row items-center justify-between">
-      <h1 class="text-h6 q-my-none">{{ titulo }}</h1>
-      <div class="q-gutter-sm">
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader
+      :titulo="titulo"
+      :subtitulo="isNovo ? 'Criacao de novo cadastro' : 'Detalhe e manutencao de cadastro'"
+    >
+      <template #actions>
+        <div class="row q-gutter-sm items-center">
+          <q-badge
+            v-if="!isNovo"
+            :color="registroAtivo ? 'positive' : 'grey-7'"
+            text-color="white"
+            :label="registroAtivo ? 'Ativo' : 'Inativo'"
+          />
         <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
         <q-btn
           v-if="isAdmin && !isNovo && registroAtivo"
@@ -440,8 +450,9 @@ onMounted(async () => {
           :disable="loading"
           @click="confirmarReativacao = true"
         />
-      </div>
-    </div>
+        </div>
+      </template>
+    </PageHeader>
 
     <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
     <q-banner v-if="sucesso" class="bg-green-1 text-positive">{{ sucesso }}</q-banner>
@@ -473,7 +484,7 @@ onMounted(async () => {
               map-options
               :disable="somenteLeitura || isNovo"
               :options="opcoesSituacao"
-              label="Situação"
+              label="Situacao"
             />
           </div>
           <div class="col-12 col-md-6">
@@ -521,7 +532,7 @@ onMounted(async () => {
             />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
 
@@ -533,7 +544,7 @@ onMounted(async () => {
             <q-input v-model="form.sigla" outlined dense label="Sigla" :readonly="somenteLeitura" />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
 
@@ -555,7 +566,7 @@ onMounted(async () => {
             />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
 
@@ -572,17 +583,17 @@ onMounted(async () => {
               map-options
               :disable="somenteLeitura"
               :options="opcoesNivel"
-              label="Nível"
+              label="Nivel"
             />
           </div>
           <div class="col-12 col-md-3">
-            <q-input v-model.number="form.prazoPrimeiraRespostaHoras" outlined dense type="number" label="Prazo 1ª resposta (h)" :readonly="somenteLeitura" />
+            <q-input v-model.number="form.prazoPrimeiraRespostaHoras" outlined dense type="number" label="Prazo 1a resposta (h)" :readonly="somenteLeitura" />
           </div>
           <div class="col-12 col-md-3">
-            <q-input v-model.number="form.prazoResolucaoHoras" outlined dense type="number" label="Prazo resolução (h)" :readonly="somenteLeitura" />
+            <q-input v-model.number="form.prazoResolucaoHoras" outlined dense type="number" label="Prazo resolucao (h)" :readonly="somenteLeitura" />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
 
@@ -599,7 +610,7 @@ onMounted(async () => {
               map-options
               :disable="somenteLeitura"
               :options="opcoesCodigoStatus"
-              label="Código"
+              label="Codigo"
             />
           </div>
           <div class="col-12 col-md-3">
@@ -609,7 +620,7 @@ onMounted(async () => {
             <q-toggle v-model="form.pausaSla" :disable="somenteLeitura" label="Pausa SLA" />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
 
@@ -618,13 +629,27 @@ onMounted(async () => {
             <q-input v-model="form.chave" outlined dense label="Chave" :readonly="somenteLeitura" />
           </div>
           <div class="col-12 col-md-6">
-            <q-input v-model="form.valor" outlined dense label="Valor" :readonly="somenteLeitura" />
+            <q-input
+              v-model="form.valor"
+              outlined
+              dense
+              :type="form.sensivel ? 'password' : 'text'"
+              :label="form.sensivel ? 'Valor (mascarado)' : 'Valor'"
+              :readonly="somenteLeitura"
+            />
           </div>
           <div class="col-12 col-md-3">
-            <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensível" />
+            <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensivel" />
+          </div>
+          <div class="col-12 col-md-3">
+            <q-badge
+              :color="form.sensivel ? 'warning' : 'grey-6'"
+              text-color="white"
+              :label="form.sensivel ? 'Parametro sensivel' : 'Nao sensivel'"
+            />
           </div>
           <div class="col-12">
-            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descrição" :readonly="somenteLeitura" />
+            <q-input v-model="form.descricao" outlined dense type="textarea" label="Descricao" :readonly="somenteLeitura" />
           </div>
         </template>
       </div>
@@ -632,7 +657,7 @@ onMounted(async () => {
 
     <ConfirmacaoInativacao
       v-model="confirmarInativacao"
-      titulo="Confirmar inativação"
+      titulo="Confirmar inativacao"
       mensagem="Deseja realmente inativar este cadastro?"
       acao-label="Inativar"
       :loading="loading"
@@ -641,11 +666,12 @@ onMounted(async () => {
 
     <ConfirmacaoInativacao
       v-model="confirmarReativacao"
-      titulo="Confirmar reativação"
+      titulo="Confirmar reativacao"
       mensagem="Deseja realmente reativar este cadastro?"
       acao-label="Reativar"
       :loading="loading"
       @confirmar="reativar"
     />
-  </div>
+  </q-page>
 </template>
+

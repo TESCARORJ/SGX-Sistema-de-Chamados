@@ -60,19 +60,61 @@ public sealed class DevelopmentSeedService(
         var nome = string.IsNullOrWhiteSpace(authOptions.Value.AdminLocalNome)
             ? "Administrador Local"
             : authOptions.Value.AdminLocalNome.Trim();
-        var login = email.Contains('@', StringComparison.Ordinal)
+        var login = email;
+        var loginLegado = email.Contains('@', StringComparison.Ordinal)
             ? email[..email.IndexOf('@')]
             : email;
 
         var usuario = await dbContext.Usuarios
             .Include(x => x.UsuarioPerfis)
             .ThenInclude(x => x.PerfilAcesso)
-            .FirstOrDefaultAsync(x => x.Email == email || x.Login == login, cancellationToken);
+            .FirstOrDefaultAsync(
+                x => x.Email == email || x.Login == login || x.Login == loginLegado,
+                cancellationToken);
 
         if (usuario is null)
         {
             usuario = new Usuario(nome, email, login, "seed.development", departamento.Id);
             await dbContext.Usuarios.AddAsync(usuario, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        else
+        {
+            var atualizouDadosBasicos = false;
+
+            if (!string.Equals(usuario.Nome, nome, StringComparison.Ordinal))
+            {
+                usuario.DefinirNome(nome);
+                atualizouDadosBasicos = true;
+            }
+
+            if (!string.Equals(usuario.Email, email, StringComparison.OrdinalIgnoreCase))
+            {
+                usuario.DefinirEmail(email);
+                atualizouDadosBasicos = true;
+            }
+
+            if (!string.Equals(usuario.Login, login, StringComparison.OrdinalIgnoreCase))
+            {
+                usuario.DefinirLogin(login);
+                atualizouDadosBasicos = true;
+            }
+
+            if (atualizouDadosBasicos)
+            {
+                usuario.AtualizarAuditoria("seed.development");
+            }
+
+            if (!usuario.Ativo)
+            {
+                usuario.Ativar("seed.development");
+            }
+
+            if (usuario.Situacao != SituacaoUsuario.Ativo)
+            {
+                usuario.AlterarSituacao(SituacaoUsuario.Ativo, "seed.development");
+            }
+
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

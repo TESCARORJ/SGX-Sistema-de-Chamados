@@ -3,7 +3,12 @@ import { authService } from '../services/authService'
 import { httpClient, setHttpAuthToken, setHttpLocalDevHeaders } from '../services/httpClient'
 import type { AuthState, MeResponse, PerfilUsuario } from '../types/auth'
 
-const modoLocalHabilitado = import.meta.env.DEV && import.meta.env.VITE_AUTH_MODO_LOCAL === 'true'
+const modoLocalHabilitado =
+  !import.meta.env.PROD &&
+  (import.meta.env.DEV || import.meta.env.VITE_AUTH_MODO_LOCAL === 'true')
+const adminLocalDevEmail = 'admin@sgxdigital.com'
+const adminLocalDevNome = 'Administrador SGX'
+const adminLocalDevPerfil: PerfilUsuario = 'Administrador'
 
 function perfilParaRota(perfis: PerfilUsuario[]): '/admin' | '/portal' | '/acesso-negado' {
   if (perfis.includes('Administrador') || perfis.includes('Atendente')) {
@@ -26,9 +31,9 @@ export const useAuthStore = defineStore('auth', {
     usuario: null,
     erro: null,
     modoLocal: modoLocalHabilitado,
-    localDevEmail: 'admin.local@sgx.local',
-    localDevNome: 'Administrador Local',
-    localDevPerfil: 'Administrador',
+    localDevEmail: adminLocalDevEmail,
+    localDevNome: adminLocalDevNome,
+    localDevPerfil: adminLocalDevPerfil,
   }),
 
   getters: {
@@ -114,9 +119,9 @@ export const useAuthStore = defineStore('auth', {
         throw new Error('Modo local de autenticacao esta desabilitado.')
       }
 
-      this.localDevEmail = payload?.email?.trim() || this.localDevEmail
-      this.localDevNome = payload?.nome?.trim() || this.localDevNome
-      this.localDevPerfil = payload?.perfil || this.localDevPerfil
+      this.localDevEmail = payload?.email?.trim() || adminLocalDevEmail
+      this.localDevNome = payload?.nome?.trim() || adminLocalDevNome
+      this.localDevPerfil = payload?.perfil || adminLocalDevPerfil
 
       setHttpAuthToken(null)
       setHttpLocalDevHeaders({

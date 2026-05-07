@@ -1,8 +1,9 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import DetalheLogEmail from '../components/admin/DetalheLogEmail.vue'
 import FiltrosLogsEmail from '../components/admin/FiltrosLogsEmail.vue'
 import TabelaLogsEmail from '../components/admin/TabelaLogsEmail.vue'
-import DetalheLogEmail from '../components/admin/DetalheLogEmail.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
 import { integracoesEmailService } from '../services/integracoesEmailService'
 import type {
   FiltroLogsEmailRequest,
@@ -32,7 +33,7 @@ async function carregarLogs(): Promise<void> {
   try {
     lista.value = await integracoesEmailService.listarLogs(filtros.value)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar logs de integração.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar logs de integracao.'
   } finally {
     loading.value = false
   }
@@ -65,29 +66,34 @@ onMounted(carregarLogs)
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <div class="row items-center justify-between">
-      <h1 class="text-h6 q-my-none">Integrações de e-mail</h1>
-    </div>
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader
+      titulo="Integracoes de e-mail"
+      subtitulo="Acompanhe processamento, correlacao e falhas tecnicas da caixa de entrada"
+    />
 
     <FiltrosLogsEmail :loading="loading" @filtrar="aplicarFiltros" />
 
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
+    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
 
-    <TabelaLogsEmail
-      :rows="lista.items"
-      :total="lista.total"
-      :pagina="lista.pagina"
-      :tamanho-pagina="lista.tamanhoPagina"
-      :loading="loading"
-      @alterar-pagina="alterarPagina"
-      @ver-detalhe="abrirDetalhe"
-    />
+    <q-card flat bordered class="sgx-card">
+      <q-card-section>
+        <TabelaLogsEmail
+          :rows="lista.items"
+          :total="lista.total"
+          :pagina="lista.pagina"
+          :tamanho-pagina="lista.tamanhoPagina"
+          :loading="loading"
+          @alterar-pagina="alterarPagina"
+          @ver-detalhe="abrirDetalhe"
+        />
+      </q-card-section>
+    </q-card>
 
-    <q-banner v-if="!loading && !lista.items.length" class="bg-blue-1 text-primary">
-      Nenhum log de integração encontrado para os filtros aplicados.
+    <q-banner v-if="!loading && !lista.items.length" rounded class="bg-blue-1 text-primary">
+      Nenhum log de integracao encontrado para os filtros aplicados.
     </q-banner>
 
     <DetalheLogEmail v-model="modalDetalheAberto" :detalhe="detalheSelecionado" :loading="loadingDetalhe" />
-  </div>
+  </q-page>
 </template>

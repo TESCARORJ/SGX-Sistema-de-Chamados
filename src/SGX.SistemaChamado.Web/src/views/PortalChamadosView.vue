@@ -1,7 +1,8 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import CardChamado from '../components/portal/CardChamado.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
 import { portalService } from '../services/portalService'
 import type { CategoriaPortal, ChamadoResumoPortal, PrioridadePortal, StatusPortal } from '../types/portal'
 
@@ -51,6 +52,14 @@ async function carregarChamados(): Promise<void> {
   }
 }
 
+function limpar(): void {
+  filtros.statusId = ''
+  filtros.prioridadeId = ''
+  filtros.categoriaId = ''
+  filtros.texto = ''
+  carregarChamados()
+}
+
 onMounted(async () => {
   await carregarContexto()
   await carregarChamados()
@@ -58,40 +67,86 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <div class="row items-center justify-between">
-      <h1 class="text-h6 q-my-none">Meus chamados</h1>
-      <q-btn color="secondary" label="Novo chamado" @click="router.push('/portal/chamados/novo')" />
-    </div>
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader titulo="Meus chamados" subtitulo="Consulte e acompanhe suas solicitacoes">
+      <template #actions>
+        <q-btn color="secondary" icon="add" label="Novo chamado" @click="router.push('/portal/chamados/novo')" />
+      </template>
+    </PageHeader>
 
-    <q-card flat bordered>
+    <q-card flat bordered class="sgx-card">
       <q-card-section class="row q-col-gutter-sm">
         <div class="col-12 col-md-3">
-          <q-select v-model="filtros.statusId" :options="status.map(s => ({ label: s.nome, value: s.id }))" option-label="label" option-value="value" emit-value map-options clearable outlined label="Status" />
+          <q-select
+            v-model="filtros.statusId"
+            :options="status.map((s) => ({ label: s.nome, value: s.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            clearable
+            outlined
+            label="Status"
+          />
         </div>
         <div class="col-12 col-md-3">
-          <q-select v-model="filtros.prioridadeId" :options="prioridades.map(p => ({ label: p.nome, value: p.id }))" option-label="label" option-value="value" emit-value map-options clearable outlined label="Prioridade" />
+          <q-select
+            v-model="filtros.prioridadeId"
+            :options="prioridades.map((p) => ({ label: p.nome, value: p.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            clearable
+            outlined
+            label="Prioridade"
+          />
         </div>
         <div class="col-12 col-md-3">
-          <q-select v-model="filtros.categoriaId" :options="categorias.map(c => ({ label: c.nome, value: c.id }))" option-label="label" option-value="value" emit-value map-options clearable outlined label="Categoria" />
+          <q-select
+            v-model="filtros.categoriaId"
+            :options="categorias.map((c) => ({ label: c.nome, value: c.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            clearable
+            outlined
+            label="Categoria"
+          />
         </div>
         <div class="col-12 col-md-3">
           <q-input v-model="filtros.texto" outlined label="Buscar" />
         </div>
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn flat label="Limpar" @click="filtros.statusId='';filtros.prioridadeId='';filtros.categoriaId='';filtros.texto='';carregarChamados()" />
-        <q-btn color="primary" label="Filtrar" @click="carregarChamados" />
+        <q-btn flat label="Limpar" @click="limpar" />
+        <q-btn color="primary" label="Filtrar" :loading="loading" @click="carregarChamados" />
       </q-card-actions>
     </q-card>
 
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
-    <q-spinner v-if="loading" color="primary" size="2rem" />
+    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
 
-    <div v-else class="column q-gutter-sm">
-      <div class="text-caption text-grey-8">Total: {{ total }}</div>
-      <CardChamado v-for="item in chamados" :key="item.id" :chamado="item" class="cursor-pointer" @click="router.push(`/portal/chamados/${item.id}`)" />
-      <q-banner v-if="!chamados.length" class="bg-blue-1 text-primary">Nenhum chamado encontrado para os filtros informados.</q-banner>
+    <div v-if="loading" class="row justify-center q-py-xl">
+      <q-spinner color="primary" size="2.2rem" />
     </div>
-  </div>
+
+    <q-card v-else flat bordered class="sgx-card">
+      <q-card-section class="text-caption text-grey-7">Total: {{ total }}</q-card-section>
+      <q-separator />
+      <q-card-section class="column q-gutter-sm">
+        <CardChamado
+          v-for="item in chamados"
+          :key="item.id"
+          :chamado="item"
+          class="cursor-pointer"
+          @click="router.push(`/portal/chamados/${item.id}`)"
+        />
+
+        <q-banner v-if="!chamados.length" rounded class="bg-blue-1 text-primary">
+          Nenhum chamado encontrado para os filtros informados.
+        </q-banner>
+      </q-card-section>
+    </q-card>
+  </q-page>
 </template>

@@ -1,13 +1,65 @@
 ﻿:root {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  --sgx-color-primary: #0f766e;
+  --sgx-color-secondary: #f97316;
+  --sgx-color-accent: #0369a1;
+  --sgx-color-surface: #ffffff;
+  --sgx-color-surface-muted: #f8fafc;
+  --sgx-color-border: #dbe5ef;
+  --sgx-color-text: #1e293b;
+  --sgx-radius-card: 14px;
+  --sgx-shadow-card: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+}
+
 body {
   margin: 0;
+  color: var(--sgx-color-text);
+  background: var(--sgx-color-surface-muted);
+  font-family: 'Segoe UI', 'Noto Sans', Arial, sans-serif;
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+.sgx-page {
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .sgx-page {
+    padding: 14px;
+  }
+}
+
+.sgx-card {
+  border-radius: var(--sgx-radius-card);
+  box-shadow: var(--sgx-shadow-card);
+}
+
+.sgx-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sgx-section-subtitle {
+  color: #64748b;
+  font-size: 0.92rem;
 }

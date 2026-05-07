@@ -1,11 +1,13 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+﻿import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import type { PerfilUsuario } from '../types/auth'
 
-const LoginView = () => import('../views/LoginView.vue')
-const AcessoNegadoView = () => import('../views/AcessoNegadoView.vue')
+const AuthLayout = () => import('../layouts/AuthLayout.vue')
 const PortalLayout = () => import('../layouts/PortalLayout.vue')
 const AdminLayout = () => import('../layouts/AdminLayout.vue')
+
+const LoginView = () => import('../views/LoginView.vue')
+const AcessoNegadoView = () => import('../views/AcessoNegadoView.vue')
 
 const PortalDashboardView = () => import('../views/PortalDashboardView.vue')
 const PortalChamadosView = () => import('../views/PortalChamadosView.vue')
@@ -46,14 +48,20 @@ const routes: RouteRecordRaw[] = [
     redirect: '/login',
   },
   {
-    path: '/login',
-    name: 'login',
-    component: LoginView,
-  },
-  {
-    path: '/acesso-negado',
-    name: 'acesso-negado',
-    component: AcessoNegadoView,
+    path: '/',
+    component: AuthLayout,
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: LoginView,
+      },
+      {
+        path: 'acesso-negado',
+        name: 'acesso-negado',
+        component: AcessoNegadoView,
+      },
+    ],
   },
   {
     path: '/portal',

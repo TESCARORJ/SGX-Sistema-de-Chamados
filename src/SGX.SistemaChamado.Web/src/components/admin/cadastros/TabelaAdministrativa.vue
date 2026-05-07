@@ -30,6 +30,14 @@ defineProps<{
       </q-td>
     </template>
 
+    <template #body-cell-sensivel="slotProps">
+      <q-td :props="slotProps">
+        <q-badge :color="slotProps.row.sensivel ? 'warning' : 'grey-6'" text-color="white">
+          {{ slotProps.row.sensivel ? 'Sensivel' : 'Nao sensivel' }}
+        </q-badge>
+      </q-td>
+    </template>
+
     <template #body-cell-acoes="slotProps">
       <q-td :props="slotProps" class="q-gutter-xs">
         <slot name="acoes" :row="slotProps.row" />

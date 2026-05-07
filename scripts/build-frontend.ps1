@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-Set-Location "$PSScriptRoot\..\GETI.SistemaChamado.UI"
-npm install
-npm run build
+Set-Location "$PSScriptRoot\..\src\SGX.SistemaChamado.Web"
+npm.cmd install
+npm.cmd run build
 

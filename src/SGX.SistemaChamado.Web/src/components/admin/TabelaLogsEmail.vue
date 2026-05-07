@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { LogIntegracaoEmailResumoResponse } from '../../types/integracaoEmail'
 import StatusProcessamentoEmailBadge from './StatusProcessamentoEmailBadge.vue'
 
@@ -22,7 +22,7 @@ const columns = [
   { name: 'status', label: 'Status', field: 'statusProcessamento', align: 'left' as const },
   { name: 'chamado', label: 'Chamado', field: 'chamadoCodigo', align: 'left' as const },
   { name: 'erro', label: 'Erro resumido', field: 'erroResumido', align: 'left' as const },
-  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' as const },
+  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' as const },
 ]
 
 function formatarData(valor: string | null): string {
@@ -64,6 +64,12 @@ function formatarData(valor: string | null): string {
       <q-td :props="slotProps">
         <q-btn flat color="primary" label="Ver detalhe" @click="emit('verDetalhe', slotProps.row.id)" />
       </q-td>
+    </template>
+
+    <template #no-data>
+      <div class="full-width text-center q-pa-lg text-grey-7">
+        Nenhum log encontrado para os filtros aplicados.
+      </div>
     </template>
   </q-table>
 </template>

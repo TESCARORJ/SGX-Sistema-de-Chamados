@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5085'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5168'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
@@ -29,7 +29,7 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
     headers.Authorization = `Bearer ${bearerToken}`
   }
 
-  if (devHeaders) {
+  if (!import.meta.env.PROD && devHeaders) {
     Object.assign(headers, devHeaders)
   }
 
@@ -66,7 +66,7 @@ export function setHttpAuthToken(token: string | null): void {
 }
 
 export function setHttpLocalDevHeaders(headers: Record<string, string> | null): void {
-  devHeaders = headers
+  devHeaders = import.meta.env.PROD ? null : headers
 }
 
 export const httpClient = {

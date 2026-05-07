@@ -13,13 +13,7 @@
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "Authentication__ModoLocalHabilitado": "true",
-        "ASPNETCORE_URLS": "http://localhost:5168",
-        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
-      },
-      "serverReadyAction": {
-        "action": "openExternally",
-        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
-        "uriFormat": "%s/swagger/index.html"
+        "ASPNETCORE_URLS": "http://localhost:5168"
       }
     },
     {
@@ -38,17 +32,8 @@
         "EmailWorker__IntervaloSegundos": "30",
         "EmailWorker__MaxMensagensPorCiclo": "10",
         "EmailWorker__ImapHost": "",
-        "EmailWorker__Senha": "",
-        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=CHANGE_IN_LOCAL_SECRET"
+        "EmailWorker__Senha": ""
       }
-    },
-    {
-      "name": "Web - Abrir Frontend",
-      "type": "pwa-chrome",
-      "request": "launch",
-      "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/src/SGX.SistemaChamado.Web",
-      "preLaunchTask": "npm: dev web"
     }
   ],
   "compounds": [
@@ -57,13 +42,6 @@
       "configurations": [
         "API - SGX.SistemaChamado.Api",
         "Worker - SGX.SistemaChamado.Worker.Email"
-      ]
-    },
-    {
-      "name": "API + Web",
-      "configurations": [
-        "API - SGX.SistemaChamado.Api",
-        "Web - Abrir Frontend"
       ]
     }
   ]

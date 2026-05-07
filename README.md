@@ -54,7 +54,25 @@ docs/
 Antes de subir API/Worker, configure a conexao local por variavel de ambiente (ou User Secrets), por exemplo:
 
 ```powershell
-$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=<SENHA_LOCAL>"
+$env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=sgx_sistema_chamados;Username=user_sgxsc;Password=1qaz@2wsx"
+```
+
+Para validar o banco local:
+
+```bash
+psql -U user_sgxsc -d sgx_sistema_chamados -h localhost
+```
+
+Se precisar redefinir apenas a senha local de desenvolvimento:
+
+```sql
+ALTER USER user_sgxsc WITH PASSWORD '1qaz@2wsx';
+```
+
+Se o banco local nao existir:
+
+```sql
+CREATE DATABASE sgx_sistema_chamados OWNER user_sgxsc;
 ```
 
 1. Restore/build/test:
@@ -77,19 +95,38 @@ dotnet tool run dotnet-ef database update --project src/SGX.SistemaChamado.Infra
 dotnet run --project src/SGX.SistemaChamado.Api
 ```
 
-4. Worker:
+4. Se aparecer erro de porta em uso (`http://localhost:5168`), finalize a instancia anterior:
+
+```bash
+netstat -ano | findstr :5168
+taskkill /PID <PID> /F
+```
+
+Evite subir duas instancias da API ao mesmo tempo (por exemplo `dotnet run` + `Run and Debug` no VS Code).
+
+5. Worker:
 
 ```bash
 dotnet run --project src/SGX.SistemaChamado.Worker.Email
 ```
 
-5. Frontend:
+6. Frontend:
 
 ```bash
 cd src/SGX.SistemaChamado.Web
 npm install
 npm run build
 npm run dev
+```
+
+Abra manualmente no navegador ja utilizado:
+- `http://localhost:5173/login`
+
+Para desenvolvimento local com autenticacao tecnica:
+
+```powershell
+$env:VITE_API_BASE_URL="http://localhost:5168"
+$env:VITE_AUTH_MODO_LOCAL="true"
 ```
 
 Guia detalhado: `docs/EXECUCAO-LOCAL.md`.
@@ -158,6 +195,39 @@ Arquivos:
 
 - Em producao/homologacao: usar Azure AD configurado.
 - Em Development: suporte a modo local por headers `X-Dev-*`.
+- Usuario administrativo local de desenvolvimento: `admin@sgxdigital.com` (nome: `Administrador SGX`).
+- O modo local usa headers e nao senha local persistida na base.
+
+### Login administrativo local em Development
+
+Pre-requisitos:
+- `ASPNETCORE_ENVIRONMENT=Development`
+- `Authentication__ModoLocalHabilitado=true`
+- `VITE_AUTH_MODO_LOCAL=true`
+
+Acesso:
+- URL: `http://localhost:5173/login`
+- E-mail: `admin@sgxdigital.com`
+- Senha (trava visual local): `Admin@123456`
+
+Observacoes:
+- Disponivel somente em Development/modo local.
+- Em producao, o fluxo oficial permanece Microsoft Entra ID.
+- A senha local acima nao e enviada para autenticacao de backend e nao deve ser usada fora de desenvolvimento.
+
+### Frontend local
+
+Passos:
+1. `cd src/SGX.SistemaChamado.Web`
+2. `npm run dev`
+3. Abrir manualmente `http://localhost:5173/login`
+
+Login local Development:
+- E-mail: `admin@sgxdigital.com`
+- Senha: `Admin@123456`
+
+Observacao:
+- O VS Code nao deve abrir navegador automaticamente. O acesso deve ser manual na URL local.
 
 Detalhes: `docs/CONFIGURACAO-AZURE-AD.md`.
 

@@ -1,6 +1,7 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PageHeader from '../components/ui/PageHeader.vue'
 import { portalService } from '../services/portalService'
 import type { CategoriaPortal, DepartamentoPortal, PrioridadePortal } from '../types/portal'
 
@@ -51,26 +52,68 @@ onMounted(carregarContexto)
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <div class="row items-center justify-between">
-      <h1 class="text-h6 q-my-none">Novo chamado</h1>
-      <q-btn flat color="primary" label="Voltar" @click="router.push('/portal/chamados')" />
-    </div>
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader titulo="Novo chamado" subtitulo="Descreva a solicitacao e selecione os dados de classificacao">
+      <template #actions>
+        <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="router.push('/portal/chamados')" />
+      </template>
+    </PageHeader>
 
-    <q-card flat bordered>
-      <q-card-section class="column q-gutter-md">
-        <q-input v-model="form.titulo" outlined label="Título" maxlength="180" />
-        <q-input v-model="form.descricao" outlined type="textarea" autogrow label="Descrição" maxlength="4000" />
-        <q-select v-model="form.departamentoId" :options="departamentos.map(d => ({ label: `${d.sigla} - ${d.nome}`, value: d.id }))" option-label="label" option-value="value" emit-value map-options clearable outlined label="Departamento" />
-        <q-select v-model="form.categoriaId" :options="categorias.map(c => ({ label: c.nome, value: c.id }))" option-label="label" option-value="value" emit-value map-options outlined label="Categoria" />
-        <q-select v-model="form.prioridadeId" :options="prioridades.map(p => ({ label: p.nome, value: p.id }))" option-label="label" option-value="value" emit-value map-options outlined label="Prioridade" />
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn flat label="Cancelar" @click="router.push('/portal/chamados')" />
-        <q-btn color="secondary" :loading="loading" label="Criar chamado" @click="salvar" />
-      </q-card-actions>
+    <q-card flat bordered class="sgx-card">
+      <q-form @submit.prevent="salvar">
+        <q-card-section class="column q-gutter-md">
+          <q-input v-model="form.titulo" outlined label="Titulo" maxlength="180" :rules="[(v) => !!v || 'Informe o titulo']" />
+          <q-input
+            v-model="form.descricao"
+            outlined
+            type="textarea"
+            autogrow
+            label="Descricao"
+            maxlength="4000"
+            :rules="[(v) => !!v || 'Informe a descricao']"
+          />
+          <q-select
+            v-model="form.departamentoId"
+            :options="departamentos.map((d) => ({ label: `${d.sigla} - ${d.nome}`, value: d.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            clearable
+            outlined
+            label="Departamento"
+          />
+          <q-select
+            v-model="form.categoriaId"
+            :options="categorias.map((c) => ({ label: c.nome, value: c.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            outlined
+            label="Categoria"
+            :rules="[(v) => !!v || 'Selecione uma categoria']"
+          />
+          <q-select
+            v-model="form.prioridadeId"
+            :options="prioridades.map((p) => ({ label: p.nome, value: p.id }))"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            outlined
+            label="Prioridade"
+            :rules="[(v) => !!v || 'Selecione uma prioridade']"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" @click="router.push('/portal/chamados')" />
+          <q-btn type="submit" color="secondary" :loading="loading" label="Criar chamado" />
+        </q-card-actions>
+      </q-form>
     </q-card>
 
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
-  </div>
+    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+  </q-page>
 </template>

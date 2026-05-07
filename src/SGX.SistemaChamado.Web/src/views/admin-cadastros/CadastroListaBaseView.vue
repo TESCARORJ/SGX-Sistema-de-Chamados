@@ -1,15 +1,16 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { QTableColumn } from 'quasar'
-import { useAuthStore } from '../../stores/authStore'
 import CampoAtivoInativo from '../../components/admin/cadastros/CampoAtivoInativo.vue'
 import CampoBuscaCadastro from '../../components/admin/cadastros/CampoBuscaCadastro.vue'
 import PaginacaoTabela from '../../components/admin/cadastros/PaginacaoTabela.vue'
 import TabelaAdministrativa from '../../components/admin/cadastros/TabelaAdministrativa.vue'
-import { usuariosAdminService } from '../../services/usuariosAdminService'
+import PageHeader from '../../components/ui/PageHeader.vue'
+import { useAuthStore } from '../../stores/authStore'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
+import { usuariosAdminService } from '../../services/usuariosAdminService'
 import type { FiltroCadastroRequest, PagedResultResponse } from '../../types/adminCadastros'
 
 type Entidade = 'usuarios' | 'perfis' | 'departamentos' | 'categorias' | 'prioridades' | 'status' | 'parametros'
@@ -89,48 +90,56 @@ onMounted(carregar)
 </script>
 
 <template>
-  <div class="column q-gutter-md">
-    <div class="row items-center justify-between">
-      <h1 class="text-h6 q-my-none">{{ titulo }}</h1>
-      <q-btn
-        v-if="isAdmin"
-        color="primary"
-        icon="add"
-        label="Novo"
-        :disable="loading"
-        @click="novo"
-      />
-    </div>
-
-    <div class="row q-col-gutter-sm">
-      <div class="col-12 col-md-7">
-        <CampoBuscaCadastro v-model="texto" :loading="loading" />
-      </div>
-      <div class="col-12 col-md-5">
-        <CampoAtivoInativo v-model="filtroAtivo" :loading="loading" />
-      </div>
-    </div>
-
-    <div class="row q-gutter-sm">
-      <q-btn color="primary" icon="search" label="Filtrar" :loading="loading" @click="() => { pagina = 1; carregar() }" />
-      <q-btn flat label="Limpar" :disable="loading" @click="() => { texto = ''; filtroAtivo = 'ativos'; pagina = 1; carregar() }" />
-    </div>
-
-    <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
-
-    <TabelaAdministrativa :title="titulo" :rows="rows" :columns="colunas" :loading="loading">
-      <template #acoes="{ row }">
-        <q-btn flat dense icon="visibility" label="Detalhar" @click="abrirDetalhe(row.id)" />
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader :titulo="titulo" subtitulo="Lista administrativa com filtros, status e paginacao">
+      <template #actions>
+        <q-btn
+          v-if="isAdmin"
+          color="primary"
+          icon="add"
+          label="Novo"
+          :disable="loading"
+          @click="novo"
+        />
       </template>
-    </TabelaAdministrativa>
+    </PageHeader>
 
-    <PaginacaoTabela
-      :pagina="pagina"
-      :tamanho-pagina="tamanhoPagina"
-      :total="total"
-      :loading="loading"
-      @update:pagina="(value) => { pagina = value; carregar() }"
-      @update:tamanho-pagina="(value) => { tamanhoPagina = value; pagina = 1; carregar() }"
-    />
-  </div>
+    <q-card flat bordered class="sgx-card">
+      <q-card-section class="row q-col-gutter-sm">
+        <div class="col-12 col-md-7">
+          <CampoBuscaCadastro v-model="texto" :loading="loading" />
+        </div>
+        <div class="col-12 col-md-5">
+          <CampoAtivoInativo v-model="filtroAtivo" :loading="loading" />
+        </div>
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn color="primary" icon="search" label="Filtrar" :loading="loading" @click="() => { pagina = 1; carregar() }" />
+        <q-btn flat label="Limpar" :disable="loading" @click="() => { texto = ''; filtroAtivo = 'ativos'; pagina = 1; carregar() }" />
+      </q-card-actions>
+    </q-card>
+
+    <q-banner v-if="erro" rounded class="bg-red-1 text-negative">{{ erro }}</q-banner>
+
+    <q-card flat bordered class="sgx-card">
+      <q-card-section>
+        <TabelaAdministrativa :title="titulo" :rows="rows" :columns="colunas" :loading="loading">
+          <template #acoes="{ row }">
+            <q-btn flat dense icon="visibility" label="Detalhar" @click="abrirDetalhe(row.id)" />
+          </template>
+        </TabelaAdministrativa>
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <PaginacaoTabela
+          :pagina="pagina"
+          :tamanho-pagina="tamanhoPagina"
+          :total="total"
+          :loading="loading"
+          @update:pagina="(value) => { pagina = value; carregar() }"
+          @update:tamanho-pagina="(value) => { tamanhoPagina = value; pagina = 1; carregar() }"
+        />
+      </q-card-section>
+    </q-card>
+  </q-page>
 </template>

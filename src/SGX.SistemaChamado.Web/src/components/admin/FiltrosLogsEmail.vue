@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { reactive } from 'vue'
 import type { FiltroLogsEmailRequest, StatusProcessamentoEmail } from '../../types/integracaoEmail'
 
@@ -38,7 +38,7 @@ function limparFiltros(): void {
   <q-card flat bordered>
     <q-card-section class="row q-col-gutter-md items-end">
       <div class="col-12 col-sm-6 col-md-2">
-        <q-input v-model="form.dataInicio" label="Data início" type="date" dense outlined />
+        <q-input v-model="form.dataInicio" label="Data inicio" type="date" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
         <q-input v-model="form.dataFim" label="Data fim" type="date" dense outlined />
@@ -56,7 +56,7 @@ function limparFiltros(): void {
         <q-input v-model="form.texto" label="Busca livre" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
-        <q-input v-model.number="form.tamanhoPagina" label="Tamanho página" type="number" min="1" max="200" dense outlined />
+        <q-input v-model.number="form.tamanhoPagina" label="Tamanho pagina" type="number" min="1" max="200" dense outlined />
       </div>
       <div class="col-12 col-md-6 row justify-end q-gutter-sm">
         <q-btn color="primary" label="Filtrar" :loading="props.loading" @click="aplicarFiltros" />

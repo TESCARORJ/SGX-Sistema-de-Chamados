@@ -1,6 +1,6 @@
-<script setup lang="ts">
-import type { LogIntegracaoEmailDetalheResponse } from '../../types/integracaoEmail'
+﻿<script setup lang="ts">
 import StatusProcessamentoEmailBadge from './StatusProcessamentoEmailBadge.vue'
+import type { LogIntegracaoEmailDetalheResponse } from '../../types/integracaoEmail'
 
 const props = defineProps<{
   modelValue: boolean
@@ -24,14 +24,14 @@ function formatarData(valor: string | null): string {
 
 <template>
   <q-dialog :model-value="props.modelValue" @update:model-value="(v) => emit('update:modelValue', v)">
-    <q-card style="min-width: 65vw; max-width: 90vw;">
+    <q-card class="sgx-card" style="min-width: 65vw; max-width: 90vw;">
       <q-card-section class="row items-center justify-between">
-        <div class="text-h6">Detalhe do log de integração</div>
+        <div class="text-h6">Detalhe do log de integracao</div>
         <q-btn flat icon="close" round @click="fechar" />
       </q-card-section>
 
       <q-separator />
-      <q-card-section v-if="props.loading">
+      <q-card-section v-if="props.loading" class="row justify-center q-py-lg">
         <q-spinner color="primary" size="2rem" />
       </q-card-section>
 
@@ -46,7 +46,21 @@ function formatarData(valor: string | null): string {
         <div><strong>Data processamento:</strong> {{ formatarData(props.detalhe.dataProcessamento) }}</div>
         <div><strong>Tentativas:</strong> {{ props.detalhe.tentativas }}</div>
         <div><strong>Criado por:</strong> {{ props.detalhe.criadoPor }}</div>
-        <div class="text-negative"><strong>Erro técnico:</strong> {{ props.detalhe.erro ?? '-' }}</div>
+
+        <q-expansion-item
+          dense
+          dense-toggle
+          expand-separator
+          icon="error"
+          label="Erro tecnico"
+          header-class="text-negative"
+        >
+          <q-card flat bordered>
+            <q-card-section class="text-negative text-body2">
+              {{ props.detalhe.erro ?? 'Sem erro tecnico registrado.' }}
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
       </q-card-section>
     </q-card>
   </q-dialog>
