@@ -59,10 +59,10 @@ async function carregar(): Promise<void> {
   try {
     detalhe.value = await portalService.obterChamado(id)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao carregar chamado.'
+    const message = error instanceof Error ? error.message : 'Não foi possível carregar o detalhe do chamado.'
 
     if (message.includes('403')) {
-      erro.value = 'Voce nao possui permissao para visualizar este chamado.'
+      erro.value = 'Você não possui permissão para visualizar este chamado.'
     } else {
       erro.value = message
     }
@@ -83,7 +83,7 @@ async function comentar(mensagem: string): Promise<void> {
     await portalService.comentarChamado(detalhe.value.id, { mensagem })
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao enviar comentario.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     enviandoComentario.value = false
   }
@@ -104,7 +104,7 @@ async function anexar(arquivos: File[]): Promise<void> {
 
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao anexar arquivo.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     enviandoAnexo.value = false
   }
@@ -117,7 +117,7 @@ onMounted(carregar)
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
       :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.titulo}` : 'Detalhe do chamado'"
-      subtitulo="Acompanhe status, comentarios, anexos e historico do atendimento"
+      subtitulo="Acompanhe status, comentários, anexos e histórico do atendimento"
     >
       <template #actions>
         <div class="row q-gutter-sm">
@@ -133,11 +133,11 @@ onMounted(carregar)
     <LoadingState v-else-if="loading" inline mensagem="Carregando detalhes do chamado..." />
 
     <template v-else-if="detalhe">
-      <AppSectionCard titulo="Resumo do chamado" subtitulo="Informacoes principais da solicitacao.">
+      <AppSectionCard titulo="Resumo do chamado" subtitulo="Informações principais da solicitação.">
         <q-list separator>
           <q-item>
             <q-item-section>
-              <q-item-label caption>Codigo</q-item-label>
+              <q-item-label caption>Código</q-item-label>
               <q-item-label>{{ detalhe.codigo }}</q-item-label>
             </q-item-section>
             <q-item-section>
@@ -146,7 +146,7 @@ onMounted(carregar)
             </q-item-section>
             <q-item-section>
               <q-item-label caption>Departamento</q-item-label>
-              <q-item-label>{{ detalhe.departamento || 'Nao informado' }}</q-item-label>
+              <q-item-label>{{ detalhe.departamento || 'Não informado' }}</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -156,8 +156,8 @@ onMounted(carregar)
               <q-item-label>{{ detalhe.solicitante }}</q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label caption>Responsavel</q-item-label>
-              <q-item-label>{{ detalhe.responsavel || 'Nao atribuido' }}</q-item-label>
+              <q-item-label caption>Responsável</q-item-label>
+              <q-item-label>{{ detalhe.responsavel || 'Não atribuído' }}</q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label caption>Aberto em</q-item-label>
@@ -167,7 +167,7 @@ onMounted(carregar)
 
           <q-item>
             <q-item-section>
-              <q-item-label caption>Descricao</q-item-label>
+              <q-item-label caption>Descrição</q-item-label>
               <q-item-label class="text-body2">{{ detalhe.descricao }}</q-item-label>
             </q-item-section>
           </q-item>
@@ -181,19 +181,19 @@ onMounted(carregar)
           />
 
           <q-chip dense square color="grey-3" text-color="grey-9" icon="schedule">
-            Prazo resolucao: {{ detalhe.sla ? formatarData(detalhe.sla.prazoResolucaoEm) : '-' }}
+            Prazo resolução: {{ detalhe.sla ? formatarData(detalhe.sla.prazoResolucaoEm) : '-' }}
           </q-chip>
         </div>
       </AppSectionCard>
 
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-7">
-          <AppSectionCard titulo="Comentarios" subtitulo="Historico de comunicacao do chamado.">
+          <AppSectionCard titulo="Comentários" subtitulo="Histórico de comunicação do chamado.">
             <div class="column q-gutter-sm">
               <EmptyState
                 v-if="!comentariosVisiveis.length"
-                titulo="Sem comentarios"
-                mensagem="Nao ha comentarios visiveis neste chamado ate o momento."
+                titulo="Sem comentários"
+                mensagem="Nenhum comentário encontrado."
               />
 
               <q-card v-for="comentario in comentariosVisiveis" :key="comentario.id" flat bordered class="sgx-card">
@@ -234,15 +234,15 @@ onMounted(carregar)
         </div>
       </div>
 
-      <AppSectionCard titulo="Historico" subtitulo="Linha do tempo das atualizacoes do chamado.">
+      <AppSectionCard titulo="Histórico" subtitulo="Linha do tempo das atualizações do chamado.">
         <TimelineHistorico :itens="detalhe.historico" />
       </AppSectionCard>
     </template>
 
     <EmptyState
       v-else
-      titulo="Chamado nao encontrado"
-      mensagem="Nao foi possivel localizar o chamado informado ou voce nao possui acesso."
+      titulo="Chamado não encontrado"
+      mensagem="Não foi possível localizar o chamado informado ou você não possui acesso."
     />
   </q-page>
 </template>

@@ -13,13 +13,13 @@ const colunas: QTableColumn[] = [
     field: (row) => row.perfis?.map((perfil: { nome: string }) => perfil.nome).join(', ') || '-',
     align: 'left',
   },
-  { name: 'situacao', label: 'Situacao', field: 'situacao', align: 'left', sortable: true },
+  { name: 'situacao', label: 'Situação', field: 'situacao', align: 'left', sortable: true },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center', sortable: true },
-  { name: 'acoes', label: 'Acoes', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
 ]
 </script>
 
 <template>
-  <CadastroListaBaseView titulo="Cadastros - Usuarios" entidade="usuarios" detalhe-path-base="/admin/cadastros/usuarios" :colunas="colunas" />
+  <CadastroListaBaseView titulo="Cadastros - Usuários" entidade="usuarios" detalhe-path-base="/admin/cadastros/usuarios" :colunas="colunas" />
 </template>
 

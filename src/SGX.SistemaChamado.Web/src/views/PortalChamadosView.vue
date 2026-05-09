@@ -35,15 +35,15 @@ const filtros = reactive({
 })
 
 const columns: QTableColumn<ChamadoResumoPortal>[] = [
-  { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left', sortable: true },
-  { name: 'titulo', label: 'Titulo', field: 'titulo', align: 'left', sortable: true },
+  { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', sortable: true },
+  { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true },
   { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
   { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
   { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left', sortable: true },
   { name: 'abertoEm', label: 'Aberto em', field: 'abertoEm', align: 'left', sortable: true },
   { name: 'atualizadoEm', label: 'Atualizado em', field: 'atualizadoEm', align: 'left', sortable: true },
-  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' },
+  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' },
 ]
 
 const opcoesStatus = computed(() => status.value.map((item) => ({ label: item.nome, value: item.id })))
@@ -85,7 +85,7 @@ async function carregarChamados(): Promise<void> {
     chamados.value = response.items
     total.value = response.total
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao listar chamados do solicitante.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os chamados.'
   } finally {
     loading.value = false
   }
@@ -111,7 +111,7 @@ onMounted(async () => {
     await carregarContexto()
     await carregarChamados()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar filtros do portal.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
     loading.value = false
   }
 })
@@ -119,16 +119,16 @@ onMounted(async () => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Meus chamados" subtitulo="Filtre e acompanhe os chamados abertos pelo seu usuario.">
+    <PageHeader titulo="Meus chamados" subtitulo="Filtre e acompanhe os chamados abertos pelo seu usuário.">
       <template #actions>
         <q-btn color="secondary" icon="add" label="Abrir novo chamado" @click="router.push('/portal/chamados/novo')" />
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros" subtitulo="Use os filtros para localizar chamados especificos.">
+    <AppSectionCard titulo="Filtros" subtitulo="Use os filtros para localizar chamados específicos.">
       <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
         <div class="col-12 col-md-3">
-          <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Codigo, titulo ou descricao" />
+          <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
         </div>
 
         <div class="col-12 col-md-3">
@@ -182,7 +182,7 @@ onMounted(async () => {
       <EmptyState
         v-if="!chamados.length"
         titulo="Nenhum chamado encontrado"
-        mensagem="Nao ha registros para os filtros selecionados."
+        mensagem="Nenhum resultado corresponde aos filtros aplicados."
       >
         <template #actions>
           <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />

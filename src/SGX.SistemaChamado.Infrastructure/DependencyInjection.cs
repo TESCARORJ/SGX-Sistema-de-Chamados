@@ -83,6 +83,10 @@ public static class DependencyInjection
         services.AddScoped<IAlterarPerfisUsuarioUseCase, AlterarPerfisUsuarioUseCase>();
         services.AddScoped<IListarPerfisAcessoUseCase, ListarPerfisAcessoUseCase>();
         services.AddScoped<IObterPerfilAcessoUseCase, ObterPerfilAcessoUseCase>();
+        services.AddScoped<IListarPermissoesSistemaUseCase, ListarPermissoesSistemaUseCase>();
+        services.AddScoped<IObterPermissoesPerfilUseCase, ObterPermissoesPerfilUseCase>();
+        services.AddScoped<IAtualizarPermissoesPerfilUseCase, AtualizarPermissoesPerfilUseCase>();
+        services.AddScoped<IObterPermissoesUsuarioAtualUseCase, ObterPermissoesUsuarioAtualUseCase>();
         services.AddScoped<ICriarPerfilAcessoUseCase, CriarPerfilAcessoUseCase>();
         services.AddScoped<IAtualizarPerfilAcessoUseCase, AtualizarPerfilAcessoUseCase>();
         services.AddScoped<IInativarPerfilAcessoUseCase, InativarPerfilAcessoUseCase>();
@@ -117,6 +121,35 @@ public static class DependencyInjection
         services.AddScoped<IAtualizarParametroSistemaUseCase, AtualizarParametroSistemaUseCase>();
         services.AddScoped<IInativarParametroSistemaUseCase, InativarParametroSistemaUseCase>();
         services.AddScoped<IReativarParametroSistemaUseCase, ReativarParametroSistemaUseCase>();
+        services.AddScoped<IListarRoadmapItsmUseCase, ListarRoadmapItsmUseCase>();
+        services.AddScoped<IObterRoadmapItsmItemUseCase, ObterRoadmapItsmItemUseCase>();
+        services.AddScoped<ICriarRoadmapItsmItemUseCase, CriarRoadmapItsmItemUseCase>();
+        services.AddScoped<IAtualizarRoadmapItsmItemUseCase, AtualizarRoadmapItsmItemUseCase>();
+        services.AddScoped<IAtualizarStatusRoadmapItsmUseCase, AtualizarStatusRoadmapItsmUseCase>();
+        services.AddScoped<IInativarRoadmapItsmItemUseCase, InativarRoadmapItsmItemUseCase>();
+        services.AddScoped<IReativarRoadmapItsmItemUseCase, ReativarRoadmapItsmItemUseCase>();
+        services.AddScoped<IListarRoadmapImplementacoesFuturasUseCase, ListarRoadmapImplementacoesFuturasUseCase>();
+        services.AddScoped<IListarRoadmapImplementacoesPorItemUseCase, ListarRoadmapImplementacoesPorItemUseCase>();
+        services.AddScoped<IObterRoadmapImplementacaoFuturaUseCase, ObterRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<ICriarRoadmapImplementacaoFuturaUseCase, CriarRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<IAtualizarRoadmapImplementacaoFuturaUseCase, AtualizarRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<IConcluirRoadmapImplementacaoFuturaUseCase, ConcluirRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<IInativarRoadmapImplementacaoFuturaUseCase, InativarRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<IReativarRoadmapImplementacaoFuturaUseCase, ReativarRoadmapImplementacaoFuturaUseCase>();
+        services.AddScoped<IListarRoadmapCategoriasUseCase, ListarRoadmapCategoriasUseCase>();
+        services.AddScoped<IObterRoadmapCategoriaUseCase, ObterRoadmapCategoriaUseCase>();
+        services.AddScoped<ICriarRoadmapCategoriaUseCase, CriarRoadmapCategoriaUseCase>();
+        services.AddScoped<IAtualizarRoadmapCategoriaUseCase, AtualizarRoadmapCategoriaUseCase>();
+        services.AddScoped<IInativarRoadmapCategoriaUseCase, InativarRoadmapCategoriaUseCase>();
+        services.AddScoped<IReativarRoadmapCategoriaUseCase, ReativarRoadmapCategoriaUseCase>();
+        services.AddScoped<IListarRoadmapChecklistPorItemUseCase, ListarRoadmapChecklistPorItemUseCase>();
+        services.AddScoped<ICriarRoadmapChecklistItemUseCase, CriarRoadmapChecklistItemUseCase>();
+        services.AddScoped<IAtualizarRoadmapChecklistItemUseCase, AtualizarRoadmapChecklistItemUseCase>();
+        services.AddScoped<IConcluirRoadmapChecklistItemUseCase, ConcluirRoadmapChecklistItemUseCase>();
+        services.AddScoped<IReabrirRoadmapChecklistItemUseCase, ReabrirRoadmapChecklistItemUseCase>();
+        services.AddScoped<IInativarRoadmapChecklistItemUseCase, InativarRoadmapChecklistItemUseCase>();
+        services.AddScoped<IExcluirRoadmapChecklistItemUseCase, ExcluirRoadmapChecklistItemUseCase>();
+        services.AddScoped<IReativarRoadmapChecklistItemUseCase, ReativarRoadmapChecklistItemUseCase>();
 
         return services;
     }

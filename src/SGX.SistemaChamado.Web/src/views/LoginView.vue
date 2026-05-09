@@ -27,7 +27,7 @@ async function entrarComMicrosoft(): Promise<void> {
     await authStore.loginMicrosoft()
     await router.replace(authStore.rotaInicial)
   } catch (error) {
-    erroLocal.value = error instanceof Error ? error.message : 'Nao foi possivel concluir o login Microsoft.'
+    erroLocal.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   }
 }
 
@@ -48,12 +48,12 @@ async function entrarModoLocal(): Promise<void> {
   }
 
   if (emailInformado !== adminLocalEmail) {
-    erroLocal.value = 'Use o e-mail admin@sgxdigital.com para login local Development.'
+    erroLocal.value = 'Use o e-mail admin@sgxdigital.com para login local em Development.'
     return
   }
 
   if (senhaInformada !== adminLocalSenha) {
-    erroLocal.value = 'Senha local invalida.'
+    erroLocal.value = 'Senha local inválida.'
     return
   }
 
@@ -66,10 +66,10 @@ async function entrarModoLocal(): Promise<void> {
 
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao autenticar no modo local.'
+    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
 
     if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
-      erroLocal.value = 'API indisponivel. Verifique se a API esta ativa em http://localhost:5168.'
+      erroLocal.value = 'API indisponível. Verifique se a API está ativa em http://localhost:5168.'
       return
     }
 
@@ -97,7 +97,7 @@ async function entrarModoLocal(): Promise<void> {
           icon="login"
           class="full-width"
           size="md"
-          label="Entrar com Microsoft"
+          label="Entrar com Microsoft Entra ID"
           :loading="authStore.carregando"
           @click="entrarComMicrosoft"
         />
@@ -114,7 +114,7 @@ async function entrarModoLocal(): Promise<void> {
         <div class="text-body2 text-grey-8 q-mt-xs">Uso exclusivo para desenvolvimento local.</div>
 
         <q-banner rounded class="bg-orange-1 text-warning q-mt-md">
-          Este bloco nao aparece em Production e serve apenas para ambiente de desenvolvimento.
+          Este bloco não aparece em Production e serve apenas para ambiente de desenvolvimento.
         </q-banner>
 
         <q-form class="q-gutter-md q-mt-md" @submit.prevent="entrarModoLocal">

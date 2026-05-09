@@ -32,7 +32,7 @@ function irParaDestino(): void {
         <q-icon name="gpp_bad" color="negative" size="52px" />
         <div class="text-h5 text-weight-bold text-negative q-mt-sm">Acesso negado</div>
         <div class="text-body2 text-grey-8 q-mt-sm">
-          Seu usuario esta autenticado, mas nao possui permissao para acessar esta area do sistema.
+          Seu usuário está autenticado, mas não possui permissão para acessar esta área do sistema.
         </div>
       </q-card-section>
 

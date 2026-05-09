@@ -45,7 +45,7 @@ async function ensureInitialized(): Promise<void> {
 function ensureAzureConfigured(): void {
   if (!clientId || !tenantId) {
     throw new Error(
-      'Azure AD nao configurado no frontend. Defina VITE_AZURE_CLIENT_ID e VITE_AZURE_TENANT_ID.'
+      'Azure AD não configurado no frontend. Defina VITE_AZURE_CLIENT_ID e VITE_AZURE_TENANT_ID.'
     )
   }
 }

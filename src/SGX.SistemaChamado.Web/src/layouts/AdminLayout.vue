@@ -3,6 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import NotificationsMenu from '../components/ui/NotificationsMenu.vue'
+import { permissoes } from '../constants/permissoes'
 
 type MenuItem = {
   label: string
@@ -10,6 +12,7 @@ type MenuItem = {
   to?: string
   children?: MenuItem[]
   adminOnly?: boolean
+  requiredAnyPermissions?: string[]
 }
 
 const $q = useQuasar()
@@ -25,51 +28,144 @@ const retornoEmulacaoCarregando = ref(false)
 const buscaGlobal = ref('')
 
 const menu: MenuItem[] = [
-  { label: 'Dashboard', icon: 'space_dashboard', to: '/admin' },
-  { label: 'Chamados', icon: 'support_agent', to: '/admin/chamados' },
+  {
+    label: 'Dashboard',
+    icon: 'space_dashboard',
+    to: '/admin',
+    requiredAnyPermissions: [permissoes.dashboardVisualizar],
+  },
+  {
+    label: 'Chamados',
+    icon: 'support_agent',
+    to: '/admin/chamados',
+    requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
+  },
+  {
+    label: 'Notificações',
+    icon: 'notifications_active',
+    to: '/admin/notificacoes',
+    requiredAnyPermissions: [permissoes.notificacoesVisualizar],
+  },
   {
     label: 'Cadastros',
     icon: 'dataset',
+    requiredAnyPermissions: [
+      permissoes.cadastrosVisualizar,
+      permissoes.usuariosVisualizar,
+      permissoes.usuariosGerenciar,
+      permissoes.perfisVisualizar,
+      permissoes.perfisGerenciar,
+    ],
     children: [
-      { label: 'Usuarios', icon: 'group', to: '/admin/cadastros/usuarios' },
-      { label: 'Perfis', icon: 'badge', to: '/admin/cadastros/perfis' },
-      { label: 'Departamentos', icon: 'apartment', to: '/admin/cadastros/departamentos' },
-      { label: 'Categorias', icon: 'category', to: '/admin/cadastros/categorias' },
-      { label: 'Prioridades', icon: 'priority_high', to: '/admin/cadastros/prioridades' },
-      { label: 'Status', icon: 'flag', to: '/admin/cadastros/status' },
+      {
+        label: 'Usuários',
+        icon: 'group',
+        to: '/admin/cadastros/usuarios',
+        requiredAnyPermissions: [permissoes.usuariosVisualizar, permissoes.usuariosGerenciar],
+      },
+      {
+        label: 'Perfis',
+        icon: 'badge',
+        to: '/admin/cadastros/perfis',
+        requiredAnyPermissions: [permissoes.perfisVisualizar, permissoes.perfisGerenciar],
+      },
+      {
+        label: 'Departamentos',
+        icon: 'apartment',
+        to: '/admin/cadastros/departamentos',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
+        label: 'Categorias',
+        icon: 'category',
+        to: '/admin/cadastros/categorias',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
+        label: 'Prioridades',
+        icon: 'priority_high',
+        to: '/admin/cadastros/prioridades',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
+        label: 'Status',
+        icon: 'flag',
+        to: '/admin/cadastros/status',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
     ],
   },
   {
-    label: 'Configuracoes',
+    label: 'Configurações',
     icon: 'settings',
-    adminOnly: true,
-    children: [{ label: 'Parametros do Sistema', icon: 'tune', to: '/admin/configuracoes/parametros' }],
+    requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
+    children: [
+      {
+        label: 'Parâmetros do Sistema',
+        icon: 'tune',
+        to: '/admin/configuracoes/parametros',
+        requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
+      },
+    ],
   },
   {
-    label: 'Integracoes',
+    label: 'Integrações',
     icon: 'hub',
-    children: [{ label: 'E-mail', icon: 'mail', to: '/admin/integracoes/email' }],
+    requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
+    children: [
+      {
+        label: 'E-mail',
+        icon: 'mail',
+        to: '/admin/integracoes/email',
+        requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
+      },
+    ],
+  },
+  {
+    label: 'Roadmap ITSM',
+    icon: 'insights',
+    to: '/admin/roadmap-itsm',
+    requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
   },
 ]
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
+const quantidadePermissoes = computed(() => authStore.usuario?.permissoes?.length ?? 0)
+const fallbackAdminSemPermissoes = computed(() => usuarioEhAdministrador.value && quantidadePermissoes.value === 0)
 const emulacaoDisponivel = computed(
   () => authStore.podeEmularSolicitante && authStore.podeEmularAtendente && !authStore.emulandoPerfil
 )
 const emulandoAtendente = computed(
   () => authStore.emulandoPerfil && authStore.perfilEmulado === 'Atendente'
 )
+
+function podeExibirItemMenu(item: MenuItem): boolean {
+  if (item.adminOnly && !usuarioEhAdministrador.value) {
+    return false
+  }
+
+  if (!item.requiredAnyPermissions?.length) {
+    return true
+  }
+
+  if (fallbackAdminSemPermissoes.value) {
+    return true
+  }
+
+  return authStore.possuiAlgumaPermissao(item.requiredAnyPermissions)
+}
+
 const menuVisivel = computed<MenuItem[]>(() =>
   menu
-    .filter((item) => usuarioEhAdministrador.value || !item.adminOnly)
+    .filter((item) => podeExibirItemMenu(item))
     .map((item) => {
       if (!item.children?.length) {
         return item
       }
 
-      const filhos = item.children.filter((child) => usuarioEhAdministrador.value || !child.adminOnly)
+      const filhos = item.children.filter((child) => podeExibirItemMenu(child))
       if (!filhos.length && !item.to) {
         return null
       }
@@ -81,16 +177,20 @@ const menuVisivel = computed<MenuItem[]>(() =>
     })
     .filter((item): item is MenuItem => Boolean(item))
 )
-const contadorNotificacoes = computed(() => (authStore.usuario ? 3 : 0))
+const podeVisualizarNotificacoes = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.notificacoesVisualizar)
+)
 const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
+  if (route.path === '/admin/notificacoes') return 'Central de NotificaÃ§Ãµes'
   if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
-  if (route.path.startsWith('/admin/configuracoes')) return 'Configuracoes'
-  if (route.path.startsWith('/admin/integracoes')) return 'Integracoes'
-  return 'Area Administrativa'
+  if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃ§Ãµes'
+  if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃ§Ãµes'
+  if (route.path.startsWith('/admin/roadmap-itsm')) return 'Roadmap ITSM'
+  return 'Ãrea Administrativa'
 })
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
@@ -126,13 +226,6 @@ function alternarMenu(): void {
   }
 
   drawerMini.value = !drawerMini.value
-}
-
-function notificarEmBreve(): void {
-  $q.notify({
-    type: 'info',
-    message: 'Painel de notificacoes em preparacao.',
-  })
 }
 
 function acionarBuscaGlobal(): void {
@@ -177,7 +270,7 @@ async function visualizarComoSolicitante(): Promise<void> {
     await authStore.iniciarEmulacaoSolicitante()
     await router.replace('/portal')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao iniciar emulacao de Solicitante.'
+    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
     $q.notify({
       type: 'negative',
       message,
@@ -198,7 +291,7 @@ async function visualizarComoAtendente(): Promise<void> {
     await authStore.iniciarEmulacaoAtendente()
     await router.replace('/admin/chamados')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao iniciar emulacao de Atendente.'
+    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
     $q.notify({
       type: 'negative',
       message,
@@ -219,13 +312,16 @@ async function voltarParaAdministrador(): Promise<void> {
     await authStore.encerrarEmulacao()
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao restaurar perfil administrativo.'
+    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
     $q.notify({
       type: 'negative',
       message,
     })
 
-    if (message.includes('Contexto original da emulacao nao encontrado')) {
+    if (
+      message.includes('Contexto original da emulacao nao encontrado') ||
+      message.includes('Contexto original da emulaÃ§Ã£o nÃ£o encontrado')
+    ) {
       await router.replace('/login')
     }
   } finally {
@@ -287,16 +383,7 @@ watch(
           </template>
         </q-input>
 
-        <q-btn flat round dense icon="notifications" class="q-ml-sm" @click="notificarEmBreve">
-          <q-badge
-            v-if="contadorNotificacoes > 0"
-            color="negative"
-            rounded
-            floating
-            :label="contadorNotificacoes"
-          />
-          <q-tooltip>Notificacoes</q-tooltip>
-        </q-btn>
+        <NotificationsMenu v-if="podeVisualizarNotificacoes" />
 
         <q-chip square class="q-ml-sm user-chip">
           <q-avatar color="primary" text-color="white">{{ iniciaisUsuario }}</q-avatar>
@@ -346,7 +433,7 @@ watch(
             :loading="emulacaoSolicitanteCarregando"
             @click="visualizarComoSolicitante"
           >
-            <q-tooltip>Simula a experiencia do Solicitante em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiÃªncia do Solicitante em ambiente local.</q-tooltip>
           </q-btn>
 
           <q-btn
@@ -358,7 +445,7 @@ watch(
             :loading="emulacaoAtendenteCarregando"
             @click="visualizarComoAtendente"
           >
-            <q-tooltip>Simula a experiencia do Atendente em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiÃªncia do Atendente em ambiente local.</q-tooltip>
           </q-btn>
         </div>
 
@@ -448,7 +535,7 @@ watch(
           </template>
 
           <div class="text-weight-medium">Visualizando como Atendente Demo</div>
-          <div class="text-caption">Voce esta visualizando como Atendente Demo.</div>
+          <div class="text-caption">VocÃª estÃ¡ visualizando como Atendente Demo.</div>
 
           <template #action>
             <q-btn
@@ -685,3 +772,4 @@ watch(
   }
 }
 </style>
+

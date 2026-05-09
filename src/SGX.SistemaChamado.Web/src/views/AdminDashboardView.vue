@@ -54,7 +54,7 @@ const produtividadeColumns: QTableColumn<ProdutividadeAtendente>[] = [
   { name: 'atendidos', label: 'Total atendidos', field: 'totalAtendidos', align: 'right', sortable: true },
   { name: 'encerrados', label: 'Total encerrados', field: 'totalEncerrados', align: 'right', sortable: true },
   { name: 'vencidos', label: 'Total vencidos', field: 'totalVencidos', align: 'right', sortable: true },
-  { name: 'media', label: 'Media de resolucao', field: 'mediaHorasResolucao', align: 'right', sortable: true },
+  { name: 'media', label: 'Média de resolução', field: 'mediaHorasResolucao', align: 'right', sortable: true },
 ]
 
 const cardsObrigatorios = computed(() => {
@@ -67,13 +67,13 @@ const cardsObrigatorios = computed(() => {
       chave: 'abertos',
       titulo: 'Chamados Abertos',
       valor: dashboard.value.totalAbertos,
-      subtitulo: `${dashboard.value.totalSemResponsavel} sem responsavel`,
+      subtitulo: `${dashboard.value.totalSemResponsavel} sem responsável`,
       icon: 'drafts',
       color: 'primary',
     },
     {
       chave: 'atendimento',
-      titulo: 'Em Atendimento',
+      titulo: 'Em atendimento',
       valor: dashboard.value.totalEmAtendimento,
       subtitulo: 'Atendimento ativo',
       icon: 'support_agent',
@@ -81,7 +81,7 @@ const cardsObrigatorios = computed(() => {
     },
     {
       chave: 'aguardando',
-      titulo: 'Aguardando Solicitante',
+      titulo: 'Aguardando solicitante',
       valor: dashboard.value.totalAguardandoSolicitante,
       subtitulo: 'Aguardando retorno',
       icon: 'hourglass_top',
@@ -89,15 +89,15 @@ const cardsObrigatorios = computed(() => {
     },
     {
       chave: 'sla-vencido',
-      titulo: 'SLA Vencido',
+      titulo: 'SLA vencido',
       valor: dashboard.value.totalVencidos,
-      subtitulo: 'Prioridade de atuacao',
+      subtitulo: 'Prioridade de atuação',
       icon: 'warning',
       color: 'negative',
     },
     {
       chave: 'sla-proximo',
-      titulo: 'Proximos do Vencimento',
+      titulo: 'Próximos do vencimento',
       valor: dashboard.value.totalProximosDoVencimento,
       subtitulo: 'Risco de ruptura',
       icon: 'schedule',
@@ -105,7 +105,7 @@ const cardsObrigatorios = computed(() => {
     },
     {
       chave: 'resolvidos-periodo',
-      titulo: 'Resolvidos no Periodo',
+      titulo: 'Resolvidos no período',
       valor: dashboard.value.totalResolvidosPeriodo,
       subtitulo: 'Volume entregue',
       icon: 'task_alt',
@@ -172,7 +172,7 @@ async function carregarDashboard(): Promise<void> {
     dashboard.value = await dashboardAdminService.obterDashboard(filtrosDashboard.value)
   } catch (error) {
     erroDashboard.value =
-      error instanceof Error ? error.message : 'Falha ao carregar dashboard administrativo.'
+      error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     loadingDashboard.value = false
   }
@@ -195,7 +195,7 @@ async function carregarFilaChamados(): Promise<void> {
     filaChamados.value = response.items
     totalFila.value = response.total
   } catch (error) {
-    erroFila.value = error instanceof Error ? error.message : 'Falha ao carregar fila de chamados.'
+    erroFila.value = error instanceof Error ? error.message : 'Não foi possível carregar os chamados.'
   } finally {
     loadingFila.value = false
   }
@@ -212,7 +212,7 @@ async function carregarResumoEmail(): Promise<void> {
     })
     logsEmail.value = response.items
   } catch (error) {
-    erroEmail.value = error instanceof Error ? error.message : 'Falha ao carregar integracao de e-mail.'
+    erroEmail.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     loadingEmail.value = false
   }
@@ -255,7 +255,7 @@ async function assumirChamado(id: string): Promise<void> {
     sucessoFila.value = 'Chamado assumido com sucesso.'
     await Promise.all([carregarFilaChamados(), carregarDashboard()])
   } catch (error) {
-    erroFila.value = error instanceof Error ? error.message : 'Falha ao assumir chamado.'
+    erroFila.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     processandoAssumir.value = false
   }
@@ -268,7 +268,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Dashboard" subtitulo="Visao geral da operacao de atendimento.">
+    <PageHeader titulo="Dashboard" subtitulo="Visão geral da operação de atendimento.">
       <template #actions>
         <div class="row q-gutter-sm items-center">
           <q-btn
@@ -288,7 +288,7 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros do dashboard" subtitulo="Periodo, departamento, categoria e responsavel.">
+    <AppSectionCard titulo="Filtros do dashboard" subtitulo="Período, departamento, categoria e responsável.">
       <FiltrosDashboardAdmin :contexto="contexto" :loading="loadingDashboard" @filtrar="aplicarFiltrosDashboard" />
     </AppSectionCard>
 
@@ -325,7 +325,7 @@ onMounted(() => {
 
       <div class="dashboard-triple-grid">
         <div>
-          <AppSectionCard titulo="Chamados por Status" class="full-height">
+          <AppSectionCard titulo="Chamados por status" class="full-height">
             <q-list separator>
               <q-item v-for="item in dashboard.chamadosPorStatus" :key="item.status">
                 <q-item-section>
@@ -345,7 +345,7 @@ onMounted(() => {
         </div>
 
         <div>
-          <AppSectionCard titulo="Chamados por Prioridade" class="full-height">
+          <AppSectionCard titulo="Chamados por prioridade" class="full-height">
             <q-list separator>
               <q-item v-for="item in dashboard.chamadosPorPrioridade" :key="item.prioridade">
                 <q-item-section>
@@ -365,7 +365,7 @@ onMounted(() => {
         </div>
 
         <div>
-          <AppSectionCard titulo="Chamados por Categoria" class="full-height">
+          <AppSectionCard titulo="Chamados por categoria" class="full-height">
             <q-list separator>
               <q-item v-for="item in dashboard.chamadosPorCategoria" :key="item.categoria">
                 <q-item-section>
@@ -410,7 +410,7 @@ onMounted(() => {
                 <q-item-section side>{{ dashboard.indicadoresSla.totalVencidos }}</q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>Proximos do vencimento</q-item-section>
+                <q-item-section>Próximos do vencimento</q-item-section>
                 <q-item-section side>{{ dashboard.indicadoresSla.totalProximosDoVencimento }}</q-item-section>
               </q-item>
               <q-item>
@@ -418,11 +418,11 @@ onMounted(() => {
                 <q-item-section side>{{ dashboard.indicadoresSla.percentualCumprimento }}%</q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>Media de resolucao</q-item-section>
+                <q-item-section>Média de resolução</q-item-section>
                 <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasResolucao) }}</q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>Media de primeira resposta</q-item-section>
+                <q-item-section>Média de primeira resposta</q-item-section>
                 <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasPrimeiraResposta) }}</q-item-section>
               </q-item>
             </q-list>
@@ -430,7 +430,7 @@ onMounted(() => {
         </div>
 
         <div>
-          <AppSectionCard titulo="Produtividade por Atendente" class="full-height">
+          <AppSectionCard titulo="Produtividade por atendente" class="full-height">
             <q-table
               class="produtividade-table"
               flat
@@ -449,7 +449,7 @@ onMounted(() => {
 
       <AppSectionCard
         titulo="Fila de Chamados"
-        subtitulo="Atendimentos mais recentes para triagem e distribuicao da operacao."
+        subtitulo="Atendimentos mais recentes para triagem e distribuição da operação."
       >
         <template #actions>
           <q-btn flat color="primary" icon="open_in_new" label="Ver todas" @click="router.push('/admin/chamados')" />
@@ -462,7 +462,7 @@ onMounted(() => {
               outlined
               dense
               label="Buscar na fila"
-              placeholder="Codigo, titulo ou descricao"
+              placeholder="Código, título ou descrição"
             />
           </div>
           <div class="col-12 col-md-4">
@@ -498,7 +498,7 @@ onMounted(() => {
         <EmptyState
           v-else-if="!filaChamados.length"
           titulo="Fila sem chamados"
-          mensagem="Nao ha chamados para os filtros aplicados neste momento."
+          mensagem="Nenhum resultado corresponde aos filtros aplicados."
         />
 
         <template v-else>
@@ -527,8 +527,8 @@ onMounted(() => {
       <div class="dashboard-bottom-grid">
         <div>
           <AppSectionCard
-            titulo="Integracao de E-mail"
-            subtitulo="Ultimos processamentos para monitorar ingestao automatica."
+            titulo="Integração de e-mail"
+            subtitulo="Últimos processamentos para monitorar ingestão automática."
           >
             <template #actions>
               <q-btn
@@ -545,13 +545,13 @@ onMounted(() => {
             <LoadingState
               v-else-if="loadingEmail"
               inline
-              mensagem="Carregando resumo da integracao de e-mail..."
+              mensagem="Carregando resumo da integração de e-mail..."
             />
 
             <EmptyState
               v-else-if="!logsEmail.length"
               titulo="Sem logs recentes"
-              mensagem="Nenhum processamento de e-mail foi encontrado no periodo atual."
+              mensagem="Nenhum log de e-mail encontrado."
               icon="mail_lock"
             />
 
@@ -577,7 +577,7 @@ onMounted(() => {
         </div>
 
         <div>
-          <AppSectionCard titulo="Resumo operacional" subtitulo="Navegacao rapida para o time administrativo.">
+          <AppSectionCard titulo="Resumo operacional" subtitulo="Navegação rápida para o time administrativo.">
             <div class="column q-gutter-sm">
               <q-btn
                 unelevated
@@ -610,8 +610,8 @@ onMounted(() => {
 
       <EmptyState
         v-if="semDadosDashboard"
-        titulo="Sem indicadores no periodo"
-        mensagem="Nao foram encontrados dados para os filtros aplicados."
+        titulo="Sem indicadores no período"
+        mensagem="Nenhum resultado corresponde aos filtros aplicados."
         icon="analytics"
       />
     </template>

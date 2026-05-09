@@ -1,15 +1,15 @@
-# SGX.SistemaChamado
+﻿# SGX.SistemaChamado
 
 Sistema institucional de abertura, atendimento e acompanhamento de chamados com:
 
 - API .NET 9
-- Worker de integracao IMAP
+- Worker de integração IMAP
 - Frontend Vue 3 + Quasar
 - PostgreSQL
 
 ## Visao geral
 
-O SGX.SistemaChamado separa autenticacao e autorizacao:
+O SGX.SistemaChamado separa autenticação e autorização:
 
 - Microsoft Entra ID (Azure AD) autentica identidade
 - SGX.SistemaChamado autoriza por perfis internos (`Administrador`, `Atendente`, `Solicitante`)
@@ -19,7 +19,7 @@ Fluxos principais:
 - Portal do solicitante (`/portal`)
 - Area administrativa (`/admin`)
 - Dashboard e indicadores de SLA
-- Integracao de e-mail IMAP com abertura/correlacao de chamados
+- integração de e-mail IMAP com abertura/correlacao de chamados
 
 ## Arquitetura
 
@@ -69,7 +69,7 @@ Se precisar redefinir apenas a senha local de desenvolvimento:
 ALTER USER user_sgxsc WITH PASSWORD '1qaz@2wsx';
 ```
 
-Se o banco local nao existir:
+Se o banco local não existir:
 
 ```sql
 CREATE DATABASE sgx_sistema_chamados OWNER user_sgxsc;
@@ -102,7 +102,7 @@ netstat -ano | findstr :5168
 taskkill /PID <PID> /F
 ```
 
-Evite subir duas instancias da API ao mesmo tempo (por exemplo `dotnet run` + `Run and Debug` no VS Code).
+Evite subir duas instâncias da API ao mesmo tempo (por exemplo `dotnet run` + `Run and Debug` no VS Code).
 
 5. Worker:
 
@@ -122,7 +122,7 @@ npm run dev
 Abra manualmente no navegador ja utilizado:
 - `http://localhost:5173/login`
 
-Para desenvolvimento local com autenticacao tecnica:
+Para desenvolvimento local com autenticação tecnica:
 
 ```powershell
 $env:VITE_API_BASE_URL="http://localhost:5168"
@@ -149,7 +149,7 @@ Arquivos:
 - `src/SGX.SistemaChamado.Worker.Email/Dockerfile`
 - `src/SGX.SistemaChamado.Web/Dockerfile`
 
-## Variaveis de ambiente principais
+## variáveis de ambiente principais
 
 ### Backend/API
 
@@ -191,12 +191,12 @@ Arquivos:
 - `VITE_AUTH_MODO_LOCAL`
 - `VITE_AZURE_API_SCOPE`
 
-## Autenticacao Azure AD e modo local
+## autenticação Azure AD e modo local
 
-- Em producao/homologacao: usar Azure AD configurado.
+- Em produção/homologacao: usar Azure AD configurado.
 - Em Development: suporte a modo local por headers `X-Dev-*`.
-- Usuario administrativo local de desenvolvimento: `admin@sgxdigital.com` (nome: `Administrador SGX`).
-- O modo local usa headers e nao senha local persistida na base.
+- usuário administrativo local de desenvolvimento: `admin@sgxdigital.com` (nome: `Administrador SGX`).
+- O modo local usa headers e não senha local persistida na base.
 
 ### Login administrativo local em Development
 
@@ -212,8 +212,8 @@ Acesso:
 
 Observacoes:
 - Disponivel somente em Development/modo local.
-- Em producao, o fluxo oficial permanece Microsoft Entra ID.
-- A senha local acima nao e enviada para autenticacao de backend e nao deve ser usada fora de desenvolvimento.
+- Em produção, o fluxo oficial permanece Microsoft Entra ID.
+- A senha local acima não e enviada para autenticação de backend e não deve ser usada fora de desenvolvimento.
 
 ### Frontend local
 
@@ -227,7 +227,7 @@ Login local Development:
 - Senha: `Admin@123456`
 
 Observacao:
-- O VS Code nao deve abrir navegador automaticamente. O acesso deve ser manual na URL local.
+- O VS Code não deve abrir navegador automaticamente. O acesso deve ser manual na URL local.
 
 Detalhes: `docs/CONFIGURACAO-AZURE-AD.md`.
 
@@ -239,10 +239,10 @@ Comportamento:
 - Abertura de chamado para e-mail novo
 - Correlacao por codigo do chamado no assunto e headers (`In-Reply-To`, `References`)
 - Deduplicacao por `MessageId` e `Fingerprint`
-- Persistencia de logs tecnicos de integracao
+- Persistencia de logs técnicos de integração
 - Reuso do `IArquivoStorageService` para anexos validos
 
-Se IMAP nao estiver configurado em Development, o Worker inicia e registra warning sem crash.
+Se IMAP não estiver configurado em Development, o Worker inicia e registra warning sem crash.
 
 ## Endpoints de health checks
 
@@ -251,14 +251,22 @@ Se IMAP nao estiver configurado em Development, o Worker inicia e registra warni
 - `GET /health/ready`
 - `GET /api/saude`
 
+## Roadmap e seguranca
+
+O roadmap do projeto e a documentacao de perfis/permissoes estao disponiveis na pasta `docs`.
+
+- `docs/ROADMAP.md`
+- `docs/SEGURANCA-PERFIS-PERMISSOES.md`
+- `docs/ROADMAP-ITSM.md`
+
 ## Seguranca
 
 - Swagger habilitado por padrao apenas em Development.
-- Em ambiente nao-Development, Swagger so abre com `Swagger__EnableInNonDevelopment=true`.
-- CORS sem `AllowAnyOrigin` em producao: configurar `Cors__AllowedOrigins__*`.
+- Em ambiente não-Development, Swagger so abre com `Swagger__EnableInNonDevelopment=true`.
+- CORS sem `AllowAnyOrigin` em produção: configurar `Cors__AllowedOrigins__*`.
 - HSTS habilitado fora de Development.
-- Nunca versionar segredo real (Azure, IMAP, banco de producao).
-- Nao registrar senha IMAP em log.
+- Nunca versionar segredo real (Azure, IMAP, banco de produção).
+- não registrar senha IMAP em log.
 
 ## Testes
 
@@ -269,8 +277,8 @@ dotnet test SGX.SistemaChamado.sln
 Cobertura atual inclui:
 
 - testes de dominio/aplicacao
-- testes de autorizacao/politicas
-- testes de integracao HTTP com `WebApplicationFactory`
+- testes de autorização/politicas
+- testes de integração HTTP com `WebApplicationFactory`
 
 ## Documentacao detalhada
 
@@ -279,4 +287,12 @@ Cobertura atual inclui:
 - `docs/BANCO-DE-DADOS.md`
 - `docs/EXECUCAO-LOCAL.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
+- `docs/ROADMAP.md`
+- `docs/ROADMAP-ITSM.md`
+- `docs/SEGURANCA-PERFIS-PERMISSOES.md`
 - `docs/PUBLICACAO.md`
+
+
+
+
+

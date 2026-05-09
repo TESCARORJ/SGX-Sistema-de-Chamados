@@ -1,11 +1,11 @@
-# Banco de Dados (PostgreSQL)
+﻿# Banco de Dados (PostgreSQL)
 
 ## Ambiente local
 
 - Host: `localhost`
 - Porta: `5432`
 - Database: `sgx_sistema_chamados`
-- Usuario: `user_sgxsc`
+- usuário: `user_sgxsc`
 
 Use preferencialmente:
 
@@ -13,8 +13,8 @@ Use preferencialmente:
 
 ## Secrets
 
-- Nao versionar senha real em `appsettings.json` de producao.
-- Em producao, usar secret manager/cofre/variaveis de ambiente.
+- não versionar senha real em `appsettings.json` de produção.
+- Em produção, usar secret manager/cofre/variáveis de ambiente.
 
 ## Migrations
 
@@ -45,14 +45,14 @@ dotnet tool run dotnet-ef migrations add NomeMigration --project src/SGX.Sistema
 - `SlaControles`
 - `SlaConfiguracoes`
 - `LogsIntegracaoEmail`
-- `Usuarios`, `PerfisAcesso`, `UsuariosPerfisAcesso`
+- `usuários`, `PerfisAcesso`, `UsuariosPerfisAcesso`
 - `CategoriasChamado`, `PrioridadesChamado`, `StatusChamado`, `Departamentos`
 
 ## Estrategia de exclusao
 
 - Cadastros administrativos usam inativacao (`Ativo=false`), evitando exclusao fisica.
 
-## Logs de integracao de e-mail
+## Logs de integração de e-mail
 
 - Persistidos em `LogsIntegracaoEmail`.
 - Indexacao para filtros por status/data/chamado.
@@ -60,11 +60,15 @@ dotnet tool run dotnet-ef migrations add NomeMigration --project src/SGX.Sistema
 
 ## SLA
 
-- `SlaControle` registra prazos, pausas, primeira resposta e resolucao.
+- `SlaControle` registra prazos, pausas, primeira resposta e resolução.
 - Regras de calculo ficam na camada de aplicacao.
 
 ## Backup e restauracao (orientativo)
 
 - Backup logico: `pg_dump`.
 - Restore: `pg_restore`/`psql` conforme formato.
-- Em homologacao/producao, manter rotina automatizada e testes de restore.
+- Em homologacao/produção, manter rotina automatizada e testes de restore.
+
+
+
+

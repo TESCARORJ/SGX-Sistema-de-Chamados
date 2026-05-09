@@ -1,8 +1,8 @@
-# Configuracao Azure AD / Microsoft Entra ID
+﻿# configuração Azure AD / Microsoft Entra ID
 
 ## Principio
 
-- Azure AD autentica usuario.
+- Azure AD autentica usuário.
 - SGX.SistemaChamado autoriza com perfis internos no banco.
 
 ## App Registration (SPA + API)
@@ -21,7 +21,7 @@
 - `Instance` (`https://login.microsoftonline.com/`)
 - `Redirect URI` da SPA (`VITE_AZURE_REDIRECT_URI`)
 
-## Variaveis backend
+## variáveis backend
 
 - `AzureAd__Instance`
 - `AzureAd__TenantId`
@@ -29,7 +29,7 @@
 - `AzureAd__Audience`
 - `AzureAd__Issuer`
 
-## Variaveis frontend
+## variáveis frontend
 
 - `VITE_AZURE_CLIENT_ID`
 - `VITE_AZURE_TENANT_ID`
@@ -39,16 +39,20 @@
 
 ## Escopos
 
-- O frontend deve solicitar escopo compatível com a API.
+- O frontend deve solicitar escopo compatÃ­vel com a API.
 - A API valida issuer e audience configurados.
 
 ## Development local
 
-- Com `Authentication__ModoLocalHabilitado=true` em `Development`, o sistema permite autenticacao local por headers `X-Dev-*`.
-- Esse modo nao deve ser usado em homologacao/producao.
+- Com `Authentication__ModoLocalHabilitado=true` em `Development`, o sistema permite autenticação local por headers `X-Dev-*`.
+- Esse modo não deve ser usado em homologacao/produção.
 
 ## Pontos de atencao
 
-- Nao versionar `ClientSecret` em repositorio.
-- Nao expor valores sensiveis em logs.
+- não versionar `ClientSecret` em repositório.
+- não expor valores sensiveis em logs.
 - Testar fluxo real de login apenas com App Registration valido.
+
+
+
+

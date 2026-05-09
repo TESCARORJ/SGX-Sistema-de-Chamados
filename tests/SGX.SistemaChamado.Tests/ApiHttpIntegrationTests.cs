@@ -1,5 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using SGX.SistemaChamado.Infrastructure.Persistence.Seed;
 
 namespace SGX.SistemaChamado.Tests;
 
@@ -21,6 +23,24 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         var response = await client.GetAsync("/api/me");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task MeRetornaPermissoesEfetivas()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.me@empresa.com", "Atendente Teste", "Atendente");
+
+        _ = await client.GetAsync("/api/me");
+        var response = await client.GetAsync("/api/me");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(payload);
+        Assert.True(json.RootElement.TryGetProperty("permissoes", out var permissoes));
+        Assert.Equal(JsonValueKind.Array, permissoes.ValueKind);
+        Assert.Contains(permissoes.EnumerateArray().Select(x => x.GetString()), x => x == "Chamados.Assumir");
     }
 
     [Fact]
@@ -101,6 +121,56 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         var response = await client.GetAsync("/api/admin/integracoes/email/logs");
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminCadastrosPermissoesListaComSucessoParaAtendente()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.permissoes@empresa.com", "Atendente", "Atendente");
+
+        var response = await client.GetAsync("/api/admin/cadastros/permissoes");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminCadastrosPermissoesPerfilRetornaComSucesso()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.perfil@empresa.com", "Atendente", "Atendente");
+
+        var response = await client.GetAsync($"/api/admin/cadastros/perfis/{SeedData.PerfilAtendenteId}/permissoes");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AtendenteNaoAtualizaPermissoesDePerfil()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.put.permissao@empresa.com", "Atendente", "Atendente");
+
+        var response = await client.PutAsJsonAsync($"/api/admin/cadastros/perfis/{SeedData.PerfilAtendenteId}/permissoes", new
+        {
+            codigosPermissoes = new[] { "Chamados.Visualizar", "Chamados.Assumir" }
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdministradorAtualizaPermissoesDePerfil()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.put.permissao@empresa.com", "Administrador", "Administrador");
+
+        var response = await client.PutAsJsonAsync($"/api/admin/cadastros/perfis/{SeedData.PerfilAtendenteId}/permissoes", new
+        {
+            codigosPermissoes = new[] { "Chamados.Visualizar", "Chamados.Assumir", "Dashboard.Visualizar" }
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]

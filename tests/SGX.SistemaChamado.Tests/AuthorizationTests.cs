@@ -99,6 +99,52 @@ public sealed class AuthorizationTests
         Assert.False(context.HasSucceeded);
     }
 
+    [Fact]
+    public async Task PolicyDePermissaoLiberaUsuarioComCodigo()
+    {
+        var service = new StubUsuarioAtualService(new UsuarioAutenticadoContexto(
+            Guid.NewGuid(),
+            "Atendente",
+            "atendente@empresa.com",
+            "atendente",
+            "Ativo",
+            null,
+            "AzureAd",
+            [PerfisInternos.Atendente],
+            [PermissoesConstants.ChamadosAssumir]));
+
+        var handler = new PermissionAuthorizationHandler(service);
+        var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
+        var context = CriarContexto(requirement);
+
+        await handler.HandleAsync(context);
+
+        Assert.True(context.HasSucceeded);
+    }
+
+    [Fact]
+    public async Task PolicyDePermissaoNaoLiberaSemCodigo()
+    {
+        var service = new StubUsuarioAtualService(new UsuarioAutenticadoContexto(
+            Guid.NewGuid(),
+            "Atendente",
+            "atendente@empresa.com",
+            "atendente",
+            "Ativo",
+            null,
+            "AzureAd",
+            [PerfisInternos.Atendente],
+            [PermissoesConstants.ChamadosAtribuir]));
+
+        var handler = new PermissionAuthorizationHandler(service);
+        var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
+        var context = CriarContexto(requirement);
+
+        await handler.HandleAsync(context);
+
+        Assert.False(context.HasSucceeded);
+    }
+
     private static AuthorizationHandlerContext CriarContexto(IAuthorizationRequirement requirement)
     {
         var user = new ClaimsPrincipal(new ClaimsIdentity(

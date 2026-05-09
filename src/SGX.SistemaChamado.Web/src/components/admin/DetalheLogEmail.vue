@@ -35,7 +35,7 @@ function formatarData(valor: string | null): string {
   >
     <q-card class="sgx-card" style="width: min(960px, 96vw); max-width: 96vw;">
       <q-card-section class="row items-center justify-between">
-        <div class="text-h6">Detalhe do log de integracao</div>
+        <div class="text-h6">Detalhe do log de integração</div>
         <q-btn flat icon="close" round @click="fechar" />
       </q-card-section>
 
@@ -102,20 +102,20 @@ function formatarData(valor: string | null): string {
           dense-toggle
           expand-separator
           icon="error"
-          label="Erro tecnico"
+          label="Erro técnico"
           header-class="text-negative"
           class="q-mt-md"
         >
           <q-card flat bordered>
             <q-card-section class="text-negative text-body2">
-              {{ props.detalhe.erro ?? 'Sem erro tecnico registrado.' }}
+              {{ props.detalhe.erro ?? 'Sem erro técnico registrado.' }}
             </q-card-section>
           </q-card>
         </q-expansion-item>
       </q-card-section>
 
       <q-card-section v-else>
-        <EmptyState titulo="Detalhe indisponivel" mensagem="Nao foi possivel carregar os dados do log selecionado." icon="report" />
+        <EmptyState titulo="Detalhe indisponível" mensagem="Não foi possível carregar os dados." icon="report" />
       </q-card-section>
     </q-card>
   </q-dialog>

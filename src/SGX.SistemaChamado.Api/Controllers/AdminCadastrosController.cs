@@ -20,6 +20,9 @@ public sealed class AdminCadastrosController(
     IAlterarPerfisUsuarioUseCase alterarPerfisUsuarioUseCase,
     IListarPerfisAcessoUseCase listarPerfisUseCase,
     IObterPerfilAcessoUseCase obterPerfilUseCase,
+    IListarPermissoesSistemaUseCase listarPermissoesSistemaUseCase,
+    IObterPermissoesPerfilUseCase obterPermissoesPerfilUseCase,
+    IAtualizarPermissoesPerfilUseCase atualizarPermissoesPerfilUseCase,
     ICriarPerfilAcessoUseCase criarPerfilUseCase,
     IAtualizarPerfilAcessoUseCase atualizarPerfilUseCase,
     IInativarPerfilAcessoUseCase inativarPerfilUseCase,
@@ -54,6 +57,7 @@ public sealed class AdminCadastrosController(
     IValidator<AlterarPerfisUsuarioRequest> alterarPerfisValidator,
     IValidator<CriarPerfilAcessoRequest> criarPerfilValidator,
     IValidator<AtualizarPerfilAcessoRequest> atualizarPerfilValidator,
+    IValidator<AtualizarPermissoesPerfilRequest> atualizarPermissoesPerfilValidator,
     IValidator<CriarDepartamentoRequest> criarDepartamentoValidator,
     IValidator<AtualizarDepartamentoRequest> atualizarDepartamentoValidator,
     IValidator<CriarCategoriaChamadoRequest> criarCategoriaValidator,
@@ -81,6 +85,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("usuarios")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosGerenciar)]
     public async Task<IActionResult> CriarUsuario([FromBody] CriarUsuarioAdminRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarUsuarioValidator, request, cancellationToken);
@@ -94,6 +99,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("usuarios/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosGerenciar)]
     public async Task<IActionResult> AtualizarUsuario(Guid id, [FromBody] AtualizarUsuarioAdminRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarUsuarioValidator, request, cancellationToken);
@@ -107,6 +113,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("usuarios/{id:guid}/perfis")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosAlterarPerfis)]
     public async Task<IActionResult> AlterarPerfisUsuario(Guid id, [FromBody] AlterarPerfisUsuarioRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(alterarPerfisValidator, request, cancellationToken);
@@ -120,11 +127,13 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("usuarios/{id:guid}/inativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosGerenciar)]
     public Task<IActionResult> InativarUsuario(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarUsuarioUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("usuarios/{id:guid}/reativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosGerenciar)]
     public Task<IActionResult> ReativarUsuario(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarUsuarioUseCase.ExecutarAsync(id, cancellationToken));
 
@@ -144,8 +153,34 @@ public sealed class AdminCadastrosController(
     public Task<IActionResult> ObterPerfil(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => obterPerfilUseCase.ExecutarAsync(id, cancellationToken));
 
+    [HttpGet("permissoes")]
+    public Task<IActionResult> ListarPermissoes(CancellationToken cancellationToken)
+        => ExecutarAsync(() => listarPermissoesSistemaUseCase.ExecutarAsync(cancellationToken));
+
+    [HttpGet("perfis/{id:guid}/permissoes")]
+    public Task<IActionResult> ObterPermissoesPerfil(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => obterPermissoesPerfilUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPut("perfis/{id:guid}/permissoes")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.PerfisAlterarPermissoes)]
+    public async Task<IActionResult> AtualizarPermissoesPerfil(
+        Guid id,
+        [FromBody] AtualizarPermissoesPerfilRequest request,
+        CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(atualizarPermissoesPerfilValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => atualizarPermissoesPerfilUseCase.ExecutarAsync(id, request, cancellationToken));
+    }
+
     [HttpPost("perfis")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.PerfisGerenciar)]
     public async Task<IActionResult> CriarPerfil([FromBody] CriarPerfilAcessoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarPerfilValidator, request, cancellationToken);
@@ -159,6 +194,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("perfis/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.PerfisGerenciar)]
     public async Task<IActionResult> AtualizarPerfil(Guid id, [FromBody] AtualizarPerfilAcessoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarPerfilValidator, request, cancellationToken);
@@ -172,11 +208,13 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("perfis/{id:guid}/inativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.PerfisGerenciar)]
     public Task<IActionResult> InativarPerfil(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarPerfilUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("perfis/{id:guid}/reativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.PerfisGerenciar)]
     public Task<IActionResult> ReativarPerfil(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarPerfilUseCase.ExecutarAsync(id, cancellationToken));
 

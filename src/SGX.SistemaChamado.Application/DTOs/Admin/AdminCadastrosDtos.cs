@@ -25,6 +25,27 @@ public sealed record AlterarSituacaoCadastroResponse(Guid Id, bool Ativo, string
 
 public sealed record PerfilAcessoResumoResponse(Guid Id, string Nome, int TipoPerfil, string TipoPerfilDescricao, bool Ativo);
 public sealed record PerfilAcessoDetalheResponse(Guid Id, string Nome, int TipoPerfil, string TipoPerfilDescricao, string? Descricao, bool Ativo);
+public sealed record PermissaoSistemaResponse(
+    Guid Id,
+    string Codigo,
+    string Nome,
+    string? Descricao,
+    string Modulo,
+    string Acao,
+    bool Ativo);
+
+public sealed record PerfilPermissoesResponse(
+    Guid PerfilId,
+    string Nome,
+    int TipoPerfil,
+    IReadOnlyCollection<PermissaoSistemaResponse> PermissoesDisponiveis,
+    IReadOnlyCollection<PermissaoSistemaResponse> PermissoesVinculadas);
+
+public sealed class AtualizarPermissoesPerfilRequest
+{
+    public IReadOnlyCollection<string> CodigosPermissoes { get; init; } = [];
+}
+
 public sealed class CriarPerfilAcessoRequest
 {
     public string Nome { get; init; } = string.Empty;

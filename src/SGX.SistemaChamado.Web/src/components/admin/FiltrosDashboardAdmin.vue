@@ -43,11 +43,11 @@ function limpar(): void {
 <template>
   <q-form class="row q-col-gutter-sm" @submit.prevent="emitirFiltros">
     <div class="col-12 col-sm-6 col-md-2">
-      <q-input v-model="state.dataInicio" outlined type="date" label="Periodo inicio" :disable="props.loading" />
+      <q-input v-model="state.dataInicio" outlined type="date" label="Período inicial" :disable="props.loading" />
     </div>
 
     <div class="col-12 col-sm-6 col-md-2">
-      <q-input v-model="state.dataFim" outlined type="date" label="Periodo fim" :disable="props.loading" />
+      <q-input v-model="state.dataFim" outlined type="date" label="Período final" :disable="props.loading" />
     </div>
 
     <div class="col-12 col-md-3">
@@ -85,7 +85,7 @@ function limpar(): void {
         map-options
         :disable="props.loading"
         :options="props.contexto?.atendentes.map((a) => ({ label: a.nome, value: a.id })) ?? []"
-        label="Responsavel"
+        label="Responsável"
       />
     </div>
 

@@ -34,7 +34,7 @@ function confirmar(): void {
   <q-dialog :model-value="props.modelValue" @update:model-value="emit('update:modelValue', $event)">
     <q-card class="modal-card">
       <q-card-section>
-        <div class="text-h6">Atribuir responsavel</div>
+        <div class="text-h6">Atribuir responsável</div>
       </q-card-section>
       <q-card-section>
         <q-select
@@ -43,7 +43,7 @@ function confirmar(): void {
           emit-value
           map-options
           outlined
-          label="Responsavel"
+          label="Responsável"
         />
       </q-card-section>
       <q-card-actions align="right">

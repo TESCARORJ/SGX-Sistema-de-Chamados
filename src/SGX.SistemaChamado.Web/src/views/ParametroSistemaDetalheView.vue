@@ -3,6 +3,6 @@ import CadastroDetalheBaseView from './admin-cadastros/CadastroDetalheBaseView.v
 </script>
 
 <template>
-  <CadastroDetalheBaseView titulo="Parametro do Sistema" entidade="parametros" list-path="/admin/configuracoes/parametros" />
+  <CadastroDetalheBaseView titulo="Parâmetro do Sistema" entidade="parametros" list-path="/admin/configuracoes/parametros" />
 </template>
 

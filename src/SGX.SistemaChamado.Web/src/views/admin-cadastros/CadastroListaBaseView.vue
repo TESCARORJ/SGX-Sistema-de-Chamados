@@ -11,6 +11,7 @@ import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
+import { permissoes } from '../../constants/permissoes'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
 import { usuariosAdminService } from '../../services/usuariosAdminService'
@@ -41,6 +42,30 @@ const rows = ref<unknown[]>([])
 const isAdmin = computed(() => authStore.usuario?.perfis.includes('Administrador') ?? false)
 const temRegistros = computed(() => rows.value.length > 0)
 const filtrosAplicados = computed(() => Boolean(texto.value.trim()) || filtroAtivo.value !== 'ativos')
+const podeCriar = computed(() => {
+  switch (props.entidade) {
+    case 'usuarios':
+      return authStore.possuiPermissao(permissoes.usuariosGerenciar)
+    case 'perfis':
+      return authStore.possuiPermissao(permissoes.perfisGerenciar)
+    case 'parametros':
+      return authStore.possuiPermissao(permissoes.parametrosGerenciar)
+    default:
+      return isAdmin.value
+  }
+})
+const podeDetalhar = computed(() => {
+  switch (props.entidade) {
+    case 'usuarios':
+      return authStore.possuiAlgumaPermissao([permissoes.usuariosVisualizar, permissoes.usuariosGerenciar])
+    case 'perfis':
+      return authStore.possuiAlgumaPermissao([permissoes.perfisVisualizar, permissoes.perfisGerenciar])
+    case 'parametros':
+      return authStore.possuiAlgumaPermissao([permissoes.parametrosVisualizar, permissoes.parametrosGerenciar])
+    default:
+      return true
+  }
+})
 
 function montarFiltro(): FiltroCadastroRequest {
   return {
@@ -79,7 +104,7 @@ async function carregar(): Promise<void> {
     rows.value = response.items
     total.value = response.total
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar cadastro.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     loading.value = false
   }
@@ -128,10 +153,10 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader :titulo="titulo" subtitulo="Lista administrativa com filtros, status e paginacao">
+    <PageHeader :titulo="titulo" subtitulo="Lista administrativa com filtros, status e paginação">
       <template #actions>
         <q-btn
-          v-if="isAdmin"
+          v-if="podeCriar"
           color="primary"
           icon="add"
           label="Novo"
@@ -141,7 +166,7 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros" subtitulo="Refine os resultados por busca textual e situacao">
+    <AppSectionCard titulo="Filtros" subtitulo="Refine os resultados por busca textual e situação">
       <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-7">
@@ -165,9 +190,13 @@ onMounted(() => {
 
     <LoadingState v-if="loading && !temRegistros" mensagem="Carregando lista administrativa..." />
 
+    <q-banner v-else-if="!podeDetalhar" rounded class="bg-orange-1 text-orange-10">
+      Você não possui permissão para visualizar esta listagem.
+    </q-banner>
+
     <ErrorState
       v-else-if="erro && !temRegistros"
-      titulo="Nao foi possivel carregar a listagem"
+      titulo="Não foi possível carregar a listagem"
       :mensagem="erro"
       @retry="carregar"
     />
@@ -175,7 +204,7 @@ onMounted(() => {
     <EmptyState
       v-else-if="!temRegistros"
       titulo="Nenhum registro encontrado"
-      mensagem="Nao existem dados para os filtros informados."
+      mensagem="Nenhum resultado corresponde aos filtros aplicados."
       icon="search_off"
     >
       <template #actions>
@@ -193,7 +222,7 @@ onMounted(() => {
     <AppSectionCard v-else :titulo="titulo" subtitulo="Resultados da listagem administrativa">
       <TabelaAdministrativa :title="titulo" :rows="rows" :columns="colunas" :loading="loading">
         <template #acoes="{ row }">
-          <q-btn flat dense icon="visibility" label="Detalhar" @click="abrirDetalhe(row)" />
+          <q-btn v-if="podeDetalhar" flat dense icon="visibility" label="Detalhar" @click="abrirDetalhe(row)" />
         </template>
       </TabelaAdministrativa>
 

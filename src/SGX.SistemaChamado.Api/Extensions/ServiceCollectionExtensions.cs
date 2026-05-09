@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -102,6 +103,8 @@ public static class ServiceCollectionExtensions
             });
 
         services.AddScoped<IAuthorizationHandler, PerfilRequirementHandler>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddAuthorization(options =>
         {
             options.AddPolicy(Policies.Administrador, policy => policy.Requirements.Add(

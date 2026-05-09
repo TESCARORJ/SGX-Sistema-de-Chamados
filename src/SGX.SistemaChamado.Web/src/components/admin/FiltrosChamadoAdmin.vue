@@ -56,7 +56,7 @@ function limpar(): void {
 <template>
   <q-form class="row q-col-gutter-sm" @submit.prevent="aplicar">
     <div class="col-12 col-md-3">
-      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Codigo, titulo ou descricao" />
+      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
     </div>
 
     <div class="col-12 col-md-3">
@@ -115,7 +115,7 @@ function limpar(): void {
         map-options
         clearable
         outlined
-        label="Responsavel"
+        label="Responsável"
       />
     </div>
 
@@ -124,11 +124,11 @@ function limpar(): void {
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataInicio" type="date" outlined label="Periodo inicio" />
+      <q-input v-model="filtros.dataInicio" type="date" outlined label="Período inicial" />
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataFim" type="date" outlined label="Periodo fim" />
+      <q-input v-model="filtros.dataFim" type="date" outlined label="Período final" />
     </div>
 
     <div class="col-12 col-md-2">
@@ -150,10 +150,10 @@ function limpar(): void {
       <q-select
         v-model="filtros.ordenarPor"
         :options="[
-          { label: 'Atualizacao', value: 'atualizadoEm' },
+          { label: 'Atualização', value: 'atualizadoEm' },
           { label: 'Abertura', value: 'abertoEm' },
-          { label: 'Codigo', value: 'codigo' },
-          { label: 'Titulo', value: 'titulo' },
+          { label: 'Código', value: 'codigo' },
+          { label: 'Título', value: 'titulo' },
         ]"
         emit-value
         map-options
@@ -172,7 +172,7 @@ function limpar(): void {
         emit-value
         map-options
         outlined
-        label="Direcao"
+        label="Direção"
       />
     </div>
 

@@ -84,6 +84,7 @@ public sealed class AdminChamadosController(
     }
 
     [HttpPost("chamados/{id:guid}/assumir")]
+    [Authorize(Policy = PermissionPolicies.ChamadosAssumir)]
     public async Task<IActionResult> AssumirChamado(Guid id, CancellationToken cancellationToken)
     {
         try
@@ -106,6 +107,7 @@ public sealed class AdminChamadosController(
     }
 
     [HttpPost("chamados/{id:guid}/atribuir")]
+    [Authorize(Policy = PermissionPolicies.ChamadosAtribuir)]
     public async Task<IActionResult> AtribuirChamado(Guid id, [FromBody] AtribuirChamadoRequest request, CancellationToken cancellationToken)
     {
         var validation = await atribuirValidator.ValidateAsync(request, cancellationToken);
@@ -246,6 +248,7 @@ public sealed class AdminChamadosController(
     }
 
     [HttpPost("chamados/{id:guid}/encerrar")]
+    [Authorize(Policy = PermissionPolicies.ChamadosEncerrar)]
     public async Task<IActionResult> Encerrar(Guid id, [FromBody] EncerrarChamadoRequest request, CancellationToken cancellationToken)
     {
         var validation = await encerrarValidator.ValidateAsync(request, cancellationToken);

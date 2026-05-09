@@ -19,12 +19,15 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
+import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
+import { useAuthStore } from '../stores/authStore'
 import type { AdminContextoResponse, ChamadoAdminDetalhe } from '../types/admin'
 
 const $q = useQuasar()
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const chamadoId = route.params.id as string
 
@@ -48,8 +51,25 @@ const comentarioMensagem = ref('')
 const comentarioInterno = ref(false)
 
 const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
+const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
+const fallbackAdminSemPermissoes = computed(
+  () => usuarioEhAdministrador.value && (authStore.usuario?.permissoes?.length ?? 0) === 0
+)
+const podeAssumirPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAssumir)
+)
+const podeAtribuirPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAtribuir)
+)
+const podeEncerrarPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosEncerrar)
+)
 
 const podeAssumir = computed(() => {
+  if (!podeAssumirPermissao.value) {
+    return false
+  }
+
   if (!detalhe.value) return false
   return isAdministrador.value || !detalhe.value.responsavel
 })
@@ -112,7 +132,7 @@ async function carregar(): Promise<void> {
     contexto.value = ctx
     detalhe.value = det
   } catch (error) {
-    registrarErro(error, 'Falha ao carregar detalhe administrativo.')
+    registrarErro(error, 'Não foi possível carregar o detalhe do chamado.')
   } finally {
     loading.value = false
   }
@@ -128,6 +148,10 @@ async function recarregarDetalhe(): Promise<void> {
 
 async function assumir(): Promise<void> {
   if (!detalhe.value) return
+  if (!podeAssumirPermissao.value) {
+    registrarErro(new Error('Você não possui permissão para assumir chamados.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
@@ -136,7 +160,7 @@ async function assumir(): Promise<void> {
     detalhe.value = await adminService.assumirChamado(detalhe.value.id)
     registrarSucesso('Chamado assumido com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao assumir chamado.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -144,6 +168,10 @@ async function assumir(): Promise<void> {
 
 async function atribuir(responsavelId: string): Promise<void> {
   if (!detalhe.value) return
+  if (!podeAtribuirPermissao.value) {
+    registrarErro(new Error('Você não possui permissão para atribuir chamados.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
@@ -151,9 +179,9 @@ async function atribuir(responsavelId: string): Promise<void> {
   try {
     detalhe.value = await adminService.atribuirChamado(detalhe.value.id, { responsavelId })
     showAtribuir.value = false
-    registrarSucesso('Responsavel atualizado com sucesso.')
+    registrarSucesso('Informações salvas com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao atribuir chamado.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -170,7 +198,7 @@ async function alterarStatus(statusId: string): Promise<void> {
     showStatus.value = false
     registrarSucesso('Status alterado com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao alterar status.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -187,7 +215,7 @@ async function alterarPrioridade(prioridadeId: string): Promise<void> {
     showPrioridade.value = false
     registrarSucesso('Prioridade alterada com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao alterar prioridade.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -204,7 +232,7 @@ async function alterarCategoria(categoriaId: string): Promise<void> {
     showCategoria.value = false
     registrarSucesso('Categoria alterada com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao alterar categoria.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -227,9 +255,9 @@ async function comentar(): Promise<void> {
     showComentar.value = false
 
     await recarregarDetalhe()
-    registrarSucesso('Comentario registrado com sucesso.')
+    registrarSucesso('Comentário enviado com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao comentar chamado.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -237,6 +265,10 @@ async function comentar(): Promise<void> {
 
 async function encerrar(payload: { solucao: string; comentarioInterno: boolean }): Promise<void> {
   if (!detalhe.value) return
+  if (!podeEncerrarPermissao.value) {
+    registrarErro(new Error('Você não possui permissão para encerrar chamados.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
@@ -246,7 +278,7 @@ async function encerrar(payload: { solucao: string; comentarioInterno: boolean }
     showEncerrar.value = false
     registrarSucesso('Chamado encerrado com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao encerrar chamado.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -263,7 +295,7 @@ async function reabrir(mensagem: string): Promise<void> {
     showReabrir.value = false
     registrarSucesso('Chamado reaberto com sucesso.')
   } catch (error) {
-    registrarErro(error, 'Falha ao reabrir chamado.')
+    registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
     processing.value = false
   }
@@ -276,7 +308,7 @@ onMounted(carregar)
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
       :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.titulo}` : 'Detalhe administrativo do chamado'"
-      subtitulo="Gerencie atendimento, atualize status e acompanhe historico completo."
+      subtitulo="Gerencie atendimento, atualize status e acompanhe histórico completo."
     >
       <template #actions>
         <div class="row q-gutter-xs">
@@ -291,14 +323,14 @@ onMounted(carregar)
 
     <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
 
-    <LoadingState v-else-if="loading" inline mensagem="Carregando detalhe administrativo..." />
+    <LoadingState v-else-if="loading" inline mensagem="Carregando detalhe do chamado..." />
 
     <template v-else-if="detalhe">
       <AppSectionCard titulo="Resumo do chamado" subtitulo="Dados principais para triagem e acompanhamento.">
         <q-list separator>
           <q-item>
             <q-item-section>
-              <q-item-label caption>Codigo</q-item-label>
+              <q-item-label caption>Código</q-item-label>
               <q-item-label>{{ detalhe.codigo }}</q-item-label>
             </q-item-section>
             <q-item-section>
@@ -321,8 +353,8 @@ onMounted(carregar)
               <q-item-label>{{ detalhe.solicitante.nome }} ({{ detalhe.solicitante.email }})</q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label caption>Responsavel</q-item-label>
-              <q-item-label>{{ detalhe.responsavel?.nome || 'Nao atribuido' }}</q-item-label>
+              <q-item-label caption>Responsável</q-item-label>
+              <q-item-label>{{ detalhe.responsavel?.nome || 'Não atribuído' }}</q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label caption>Aberto em</q-item-label>
@@ -344,7 +376,7 @@ onMounted(carregar)
               <q-item-label>{{ formatarData(detalhe.sla?.prazoPrimeiraRespostaEm ?? null) }}</q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label caption>Prazo resolucao</q-item-label>
+              <q-item-label caption>Prazo resolução</q-item-label>
               <q-item-label>{{ formatarData(detalhe.sla?.prazoResolucaoEm ?? null) }}</q-item-label>
             </q-item-section>
             <q-item-section>
@@ -355,7 +387,7 @@ onMounted(carregar)
 
           <q-item>
             <q-item-section>
-              <q-item-label caption>Descricao</q-item-label>
+              <q-item-label caption>Descrição</q-item-label>
               <q-item-label class="text-body2">{{ detalhe.descricao }}</q-item-label>
             </q-item-section>
           </q-item>
@@ -385,7 +417,7 @@ onMounted(carregar)
             </q-item>
             <q-item>
               <q-item-section>
-                <q-item-label caption>Prazo resolucao</q-item-label>
+                <q-item-label caption>Prazo resolução</q-item-label>
                 <q-item-label>{{ formatarData(detalhe.sla?.prazoResolucaoEm ?? null) }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -428,13 +460,13 @@ onMounted(carregar)
         </AppSectionCard>
       </div>
 
-      <AppSectionCard titulo="Acoes administrativas" subtitulo="Assumir, atribuir e atualizar ciclo do chamado.">
+      <AppSectionCard titulo="Ações administrativas" subtitulo="Assumir, atribuir e atualizar ciclo do chamado.">
         <PainelAtendimento
           :chamado="detalhe"
           :loading="processing"
           :can-assumir="podeAssumir"
-          :can-atribuir="isAdministrador"
-          :can-encerrar="!chamadoEncerrado"
+          :can-atribuir="podeAtribuirPermissao"
+          :can-encerrar="podeEncerrarPermissao && !chamadoEncerrado"
           :can-reabrir="chamadoReabrivel"
           @assumir="assumir"
           @atribuir="showAtribuir = true"
@@ -449,13 +481,13 @@ onMounted(carregar)
 
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-6">
-          <AppSectionCard titulo="Comentarios" subtitulo="Comentarios publicos e internos da equipe.">
+          <AppSectionCard titulo="Comentários" subtitulo="Comentários públicos e internos da equipe.">
             <ComentariosAdministrativos :comentarios="detalhe.comentarios" />
           </AppSectionCard>
         </div>
 
         <div class="col-12 col-lg-6">
-          <AppSectionCard titulo="Historico" subtitulo="Linha do tempo de alteracoes administrativas.">
+          <AppSectionCard titulo="Histórico" subtitulo="Linha do tempo de alterações administrativas.">
             <TimelineAdministrativa :historico="detalhe.historico" />
           </AppSectionCard>
         </div>
@@ -479,8 +511,8 @@ onMounted(carregar)
 
     <EmptyState
       v-else
-      titulo="Chamado nao encontrado"
-      mensagem="Nao foi possivel carregar o chamado solicitado ou ele nao esta disponivel."
+      titulo="Chamado não encontrado"
+      mensagem="Não foi possível carregar o chamado solicitado ou ele não está disponível."
     />
 
     <ModalAtribuirResponsavel
@@ -513,7 +545,7 @@ onMounted(carregar)
     <q-dialog v-model="showComentar">
       <q-card class="sgx-card comment-dialog-card">
         <q-card-section>
-          <div class="text-h6">Novo comentario administrativo</div>
+          <div class="text-h6">Novo comentário administrativo</div>
         </q-card-section>
 
         <q-card-section class="column q-gutter-sm">
@@ -525,12 +557,12 @@ onMounted(carregar)
             label="Mensagem"
             :rules="[(v) => !!String(v || '').trim() || 'Informe a mensagem']"
           />
-          <q-toggle v-model="comentarioInterno" label="Comentario interno" />
+          <q-toggle v-model="comentarioInterno" label="Comentário interno" />
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Cancelar" v-close-popup />
-          <q-btn color="primary" label="Enviar comentario" :loading="processing" @click="comentar" />
+          <q-btn color="primary" label="Enviar comentário" :loading="processing" @click="comentar" />
         </q-card-actions>
       </q-card>
     </q-dialog>

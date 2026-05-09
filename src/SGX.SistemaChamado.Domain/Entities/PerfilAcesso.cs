@@ -1,5 +1,6 @@
 ﻿using SGX.SistemaChamado.Domain.Abstractions;
 using SGX.SistemaChamado.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGX.SistemaChamado.Domain.Entities;
 
@@ -10,6 +11,10 @@ public sealed class PerfilAcesso : AuditableEntity
     public string? Descricao { get; private set; }
 
     public ICollection<UsuarioPerfilAcesso> UsuarioPerfis { get; private set; } = [];
+    public ICollection<PerfilAcessoPermissao> PerfilPermissoes { get; private set; } = [];
+
+    [NotMapped]
+    public IReadOnlyCollection<PermissaoSistema> Permissoes => PerfilPermissoes.Select(x => x.PermissaoSistema).ToArray();
 
     private PerfilAcesso()
     {

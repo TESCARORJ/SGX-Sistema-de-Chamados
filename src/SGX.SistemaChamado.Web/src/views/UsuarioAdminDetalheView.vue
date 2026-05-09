@@ -3,7 +3,7 @@ import CadastroDetalheBaseView from './admin-cadastros/CadastroDetalheBaseView.v
 </script>
 
 <template>
-  <CadastroDetalheBaseView titulo="Usuario" entidade="usuarios" list-path="/admin/cadastros/usuarios" />
+  <CadastroDetalheBaseView titulo="Usuário" entidade="usuarios" list-path="/admin/cadastros/usuarios" />
 </template>
 
 

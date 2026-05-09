@@ -25,7 +25,7 @@ const columns = [
   { name: 'status', label: 'Status', field: 'statusProcessamento', align: 'left' as const },
   { name: 'chamado', label: 'Chamado vinculado', field: 'chamadoCodigo', align: 'left' as const },
   { name: 'erro', label: 'Erro', field: 'erroResumido', align: 'left' as const },
-  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' as const },
+  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' as const },
 ]
 
 function formatarData(valor: string | null): string {

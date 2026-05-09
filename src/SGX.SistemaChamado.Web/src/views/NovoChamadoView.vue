@@ -51,7 +51,7 @@ async function carregarContexto(): Promise<void> {
     categorias.value = contexto.categorias
     prioridades.value = contexto.prioridades
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dados do formulario.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     carregandoContexto.value = false
   }
@@ -90,7 +90,7 @@ async function salvar(): Promise<void> {
 
     await router.replace(`/portal/chamados/${chamado.id}`)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao abrir chamado.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível salvar as informações.'
   } finally {
     salvando.value = false
   }
@@ -105,7 +105,7 @@ onMounted(carregarContexto)
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Novo chamado" subtitulo="Registre a solicitacao com todos os detalhes necessarios.">
+    <PageHeader titulo="Novo chamado" subtitulo="Registre a solicitação com todos os detalhes necessários.">
       <template #actions>
         <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="cancelar" />
       </template>
@@ -113,18 +113,18 @@ onMounted(carregarContexto)
 
     <ErrorState v-if="erro && !carregandoContexto" :mensagem="erro" @retry="carregarContexto" />
 
-    <LoadingState v-else-if="carregandoContexto" inline mensagem="Carregando opcoes do formulario..." />
+    <LoadingState v-else-if="carregandoContexto" inline mensagem="Carregando opções do formulário..." />
 
     <q-form v-else ref="formRef" class="column q-gutter-md" @submit.prevent="salvar">
-      <AppSectionCard titulo="Dados do chamado" subtitulo="Os campos com * sao obrigatorios.">
+      <AppSectionCard titulo="Dados do chamado" subtitulo="Os campos com * são obrigatórios.">
         <div class="column q-gutter-md">
           <q-input
             v-model="form.titulo"
             outlined
             maxlength="180"
             counter
-            label="Titulo *"
-            :rules="[(v) => !!String(v || '').trim() || 'Informe o titulo do chamado']"
+            label="Título *"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe o título do chamado']"
           />
 
           <q-input
@@ -134,8 +134,8 @@ onMounted(carregarContexto)
             autogrow
             maxlength="4000"
             counter
-            label="Descricao *"
-            :rules="[(v) => !!String(v || '').trim() || 'Informe a descricao do chamado']"
+            label="Descrição *"
+            :rules="[(v) => !!String(v || '').trim() || 'Informe a descrição do chamado']"
           />
 
           <div class="row q-col-gutter-sm">

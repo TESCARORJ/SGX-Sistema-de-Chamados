@@ -37,7 +37,7 @@ async function carregar(): Promise<void> {
     const response = await portalService.listarMeusChamados({ pagina: 1, tamanhoPagina: 30 })
     chamados.value = response.items
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar o portal do solicitante.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     loading.value = false
   }
@@ -48,7 +48,7 @@ onMounted(carregar)
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Meu portal" subtitulo="Acompanhe seus chamados e solicitacoes.">
+    <PageHeader titulo="Meu portal" subtitulo="Acompanhe seus chamados e solicitações.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />
@@ -84,12 +84,12 @@ onMounted(carregar)
 
     <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
 
-    <LoadingState v-else-if="loading" inline mensagem="Carregando informacoes do seu portal..." />
+    <LoadingState v-else-if="loading" inline mensagem="Carregando informações do seu portal..." />
 
     <AppSectionCard
       v-else
-      titulo="Ultimos chamados"
-      subtitulo="Historico recente para acompanhar o andamento das solicitacoes"
+      titulo="Últimos chamados"
+      subtitulo="Histórico recente para acompanhar o andamento das solicitações"
     >
       <div class="column q-gutter-sm">
         <CardChamado
@@ -103,7 +103,7 @@ onMounted(carregar)
         <EmptyState
           v-if="!ultimosChamados.length"
           titulo="Sem chamados recentes"
-          mensagem="Quando houver novos chamados, eles aparecerao aqui para acompanhamento rapido."
+          mensagem="Quando houver novos chamados, eles aparecerão aqui para acompanhamento rápido."
         >
           <template #actions>
             <q-btn color="secondary" icon="add" label="Abrir chamado" @click="router.push('/portal/chamados/novo')" />

@@ -1,0 +1,30 @@
+﻿export const permissoes = {
+  dashboardVisualizar: 'Dashboard.Visualizar',
+  chamadosVisualizar: 'Chamados.Visualizar',
+  chamadosVisualizarTodos: 'Chamados.VisualizarTodos',
+  chamadosAssumir: 'Chamados.Assumir',
+  chamadosAtribuir: 'Chamados.Atribuir',
+  chamadosEncerrar: 'Chamados.Encerrar',
+  usuariosVisualizar: 'Usuarios.Visualizar',
+  usuariosGerenciar: 'Usuarios.Gerenciar',
+  usuariosAlterarPerfis: 'Usuarios.AlterarPerfis',
+  perfisVisualizar: 'Perfis.Visualizar',
+  perfisGerenciar: 'Perfis.Gerenciar',
+  perfisAlterarPermissoes: 'Perfis.AlterarPermissoes',
+  parametrosVisualizar: 'Parametros.Visualizar',
+  parametrosGerenciar: 'Parametros.Gerenciar',
+  integracoesEmailVisualizar: 'IntegracoesEmail.Visualizar',
+  notificacoesVisualizar: 'Notificacoes.Visualizar',
+  notificacoesGerenciar: 'Notificacoes.Gerenciar',
+  cadastrosVisualizar: 'Cadastros.Visualizar',
+  roadmapVisualizar: 'Roadmap.Visualizar',
+  roadmapGerenciar: 'Roadmap.Gerenciar',
+  roadmapImplementacoesVisualizar: 'RoadmapImplementacoes.Visualizar',
+  roadmapImplementacoesGerenciar: 'RoadmapImplementacoes.Gerenciar',
+} as const
+
+export const permissoesCriticas = [
+  permissoes.usuariosGerenciar,
+  permissoes.perfisGerenciar,
+  permissoes.perfisAlterarPermissoes,
+] as const

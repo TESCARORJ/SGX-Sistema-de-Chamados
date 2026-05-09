@@ -32,8 +32,8 @@ function confirmar(): void {
     <q-card class="modal-card">
       <q-card-section><div class="text-h6">Encerrar chamado</div></q-card-section>
       <q-card-section class="column q-gutter-sm">
-        <q-input v-model="solucao" type="textarea" outlined label="Solucao/comentario final" autogrow />
-        <q-toggle v-model="comentarioInterno" label="Comentario interno" />
+        <q-input v-model="solucao" type="textarea" outlined label="Solução/comentário final" autogrow />
+        <q-toggle v-model="comentarioInterno" label="Comentário interno" />
       </q-card-section>
       <q-card-actions align="right">
         <q-btn flat label="Cancelar" @click="emit('update:modelValue', false)" />

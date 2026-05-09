@@ -44,6 +44,6 @@ function iconePorTipo(tipoDescricao: string): string {
   </q-timeline>
 
   <q-banner v-else rounded class="bg-blue-1 text-primary">
-    Nenhum evento de historico encontrado para este chamado.
+    Nenhum evento de histórico encontrado para este chamado.
   </q-banner>
 </template>

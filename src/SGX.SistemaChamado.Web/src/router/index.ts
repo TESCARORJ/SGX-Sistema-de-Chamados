@@ -16,6 +16,7 @@ const DetalheChamadoView = () => import('../views/DetalheChamadoView.vue')
 
 const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
+const AdminNotificacoesView = () => import('../views/AdminNotificacoesView.vue')
 const AdminDetalheChamadoView = () => import('../views/AdminDetalheChamadoView.vue')
 const UsuariosAdminView = () => import('../views/UsuariosAdminView.vue')
 const UsuarioAdminDetalheView = () => import('../views/UsuarioAdminDetalheView.vue')
@@ -32,6 +33,7 @@ const StatusDetalheView = () => import('../views/StatusDetalheView.vue')
 const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
 const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetalheView.vue')
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
+const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -110,6 +112,11 @@ const routes: RouteRecordRaw[] = [
         path: 'chamados',
         name: 'admin-chamados',
         component: AdminChamadosView,
+      },
+      {
+        path: 'notificacoes',
+        name: 'admin-notificacoes',
+        component: AdminNotificacoesView,
       },
       {
         path: 'chamados/:id',
@@ -198,6 +205,15 @@ const routes: RouteRecordRaw[] = [
         path: 'integracoes/email',
         name: 'admin-integracoes-email',
         component: IntegracaoEmailLogsView,
+      },
+      {
+        path: 'roadmap-itsm',
+        name: 'admin-roadmap-itsm',
+        component: RoadmapItsmView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
       },
     ],
   },

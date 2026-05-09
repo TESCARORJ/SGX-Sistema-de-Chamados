@@ -99,8 +99,64 @@ public sealed class UsuarioAtualServiceTests
 
         Assert.Contains(PerfisInternos.Administrador, resultado.Perfis);
         Assert.Contains(PerfisInternos.Atendente, resultado.Perfis);
-        Assert.Contains(PermissoesInternas.AdminAcessar, resultado.Permissoes);
-        Assert.Contains(PermissoesInternas.ChamadosAtender, resultado.Permissoes);
+        Assert.Contains("Usuarios.Gerenciar", resultado.Permissoes);
+        Assert.Contains("Chamados.Assumir", resultado.Permissoes);
+    }
+
+    [Fact]
+    public async Task DeveRetornarPermissoesSemDuplicidade()
+    {
+        using var context = CriarContexto();
+        await context.Database.EnsureCreatedAsync();
+
+        var perfilAdmin = await context.PerfisAcesso.FirstAsync(x => x.TipoPerfil == TipoPerfil.Administrador);
+        var perfilAtendente = await context.PerfisAcesso.FirstAsync(x => x.TipoPerfil == TipoPerfil.Atendente);
+        var usuario = new Usuario("User Multi Perfil", "multi@empresa.com", "multi", "teste");
+        context.Usuarios.Add(usuario);
+        await context.SaveChangesAsync();
+
+        context.UsuariosPerfisAcesso.Add(new UsuarioPerfilAcesso(usuario.Id, perfilAdmin.Id, "teste"));
+        context.UsuariosPerfisAcesso.Add(new UsuarioPerfilAcesso(usuario.Id, perfilAtendente.Id, "teste"));
+        await context.SaveChangesAsync();
+
+        var service = CriarService(context, "multi@empresa.com", "User Multi Perfil");
+        var resultado = await service.ObterAsync();
+
+        var duplicadas = resultado.Permissoes
+            .GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .Where(x => x.Count() > 1)
+            .ToArray();
+
+        Assert.Empty(duplicadas);
+    }
+
+    [Fact]
+    public async Task DeveIgnorarPerfilEPermissaoInativosNoRetorno()
+    {
+        using var context = CriarContexto();
+        await context.Database.EnsureCreatedAsync();
+
+        var perfilAdmin = await context.PerfisAcesso.FirstAsync(x => x.TipoPerfil == TipoPerfil.Administrador);
+        var perfilAtendente = await context.PerfisAcesso.FirstAsync(x => x.TipoPerfil == TipoPerfil.Atendente);
+        var permissaoVisualizarTodos = await context.PermissoesSistema.FirstAsync(x => x.Codigo == "Chamados.VisualizarTodos");
+
+        perfilAtendente.Desativar("teste");
+        permissaoVisualizarTodos.Desativar("teste");
+        await context.SaveChangesAsync();
+
+        var usuario = new Usuario("Usuario Filtro", "filtro@empresa.com", "filtro", "teste");
+        context.Usuarios.Add(usuario);
+        await context.SaveChangesAsync();
+
+        context.UsuariosPerfisAcesso.Add(new UsuarioPerfilAcesso(usuario.Id, perfilAdmin.Id, "teste"));
+        context.UsuariosPerfisAcesso.Add(new UsuarioPerfilAcesso(usuario.Id, perfilAtendente.Id, "teste"));
+        await context.SaveChangesAsync();
+
+        var service = CriarService(context, "filtro@empresa.com", "Usuario Filtro");
+        var resultado = await service.ObterAsync();
+
+        Assert.DoesNotContain("Atendente", resultado.Perfis);
+        Assert.DoesNotContain("Chamados.VisualizarTodos", resultado.Permissoes);
     }
 
     private static UsuarioAtualService CriarService(

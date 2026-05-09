@@ -41,7 +41,7 @@ const $q = useQuasar()
     <template #body-cell-sensivel="slotProps">
       <q-td :props="slotProps">
         <q-badge :color="slotProps.row.sensivel ? 'warning' : 'grey-6'" text-color="white">
-          {{ slotProps.row.sensivel ? 'Sensivel' : 'Nao sensivel' }}
+          {{ slotProps.row.sensivel ? 'Sensível' : 'Não sensível' }}
         </q-badge>
       </q-td>
     </template>

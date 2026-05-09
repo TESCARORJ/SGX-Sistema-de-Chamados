@@ -34,7 +34,7 @@ function formatarData(data: string | null): string {
 
         <div class="row q-col-gutter-md q-mt-sm text-caption text-grey-8">
           <div class="col-auto">Categoria: {{ props.chamado.categoria }}</div>
-          <div class="col-auto">Departamento: {{ props.chamado.departamento || 'Nao informado' }}</div>
+          <div class="col-auto">Departamento: {{ props.chamado.departamento || 'Não informado' }}</div>
         </div>
 
         <div class="row q-col-gutter-md q-mt-xs text-caption text-grey-7">

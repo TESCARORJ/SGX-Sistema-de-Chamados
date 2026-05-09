@@ -34,6 +34,28 @@ export interface PerfilAcessoDetalheResponse extends PerfilAcessoResumoResponse 
   descricao: string | null
 }
 
+export interface PermissaoSistema {
+  id: string
+  codigo: string
+  nome: string
+  descricao: string | null
+  modulo: string
+  acao: string
+  ativo: boolean
+}
+
+export interface PerfilPermissoes {
+  perfilId: string
+  nome: string
+  tipoPerfil: number
+  permissoesDisponiveis: PermissaoSistema[]
+  permissoesVinculadas: PermissaoSistema[]
+}
+
+export interface AtualizarPermissoesPerfilRequest {
+  codigosPermissoes: string[]
+}
+
 export interface CriarPerfilAcessoRequest {
   nome: string
   tipoPerfil: number

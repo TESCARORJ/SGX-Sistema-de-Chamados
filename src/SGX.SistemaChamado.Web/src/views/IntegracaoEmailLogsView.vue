@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
@@ -8,13 +8,16 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import DetalheLogEmail from '../components/admin/DetalheLogEmail.vue'
 import FiltrosLogsEmail from '../components/admin/FiltrosLogsEmail.vue'
 import TabelaLogsEmail from '../components/admin/TabelaLogsEmail.vue'
+import { permissoes } from '../constants/permissoes'
 import { integracoesEmailService } from '../services/integracoesEmailService'
+import { useAuthStore } from '../stores/authStore'
 import type {
   FiltroLogsEmailRequest,
   ListaLogsIntegracaoEmailResponse,
   LogIntegracaoEmailDetalheResponse,
 } from '../types/integracaoEmail'
 
+const authStore = useAuthStore()
 const loading = ref(false)
 const loadingDetalhe = ref(false)
 const erro = ref<string | null>(null)
@@ -30,6 +33,13 @@ const lista = ref<ListaLogsIntegracaoEmailResponse>({
 })
 const modalDetalheAberto = ref(false)
 const detalheSelecionado = ref<LogIntegracaoEmailDetalheResponse | null>(null)
+const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
+const fallbackAdminSemPermissoes = computed(
+  () => usuarioEhAdministrador.value && (authStore.usuario?.permissoes?.length ?? 0) === 0
+)
+const podeVisualizarLogsEmail = computed(
+  () => fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.integracoesEmailVisualizar)
+)
 
 async function carregarLogs(): Promise<void> {
   loading.value = true
@@ -37,7 +47,7 @@ async function carregarLogs(): Promise<void> {
   try {
     lista.value = await integracoesEmailService.listarLogs(filtros.value)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar logs de integracao.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar os dados.'
   } finally {
     loading.value = false
   }
@@ -60,56 +70,65 @@ async function abrirDetalhe(id: string): Promise<void> {
   try {
     detalheSelecionado.value = await integracoesEmailService.obterLog(id)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar detalhe do log.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar os dados.'
   } finally {
     loadingDetalhe.value = false
   }
 }
 
 onMounted(() => {
-  void carregarLogs()
+  if (podeVisualizarLogsEmail.value) {
+    void carregarLogs()
+  }
 })
 </script>
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
-      titulo="Integracao de E-mail"
-      subtitulo="Acompanhe processamento, correlacao e falhas tecnicas da caixa de entrada"
+      titulo="IntegraÃ§Ã£o de e-mail"
+      subtitulo="Acompanhe processamento, correlaÃ§Ã£o e eventos tÃ©cnicos da caixa de entrada"
     />
 
-    <AppSectionCard titulo="Filtros de logs" subtitulo="Defina periodo, status, remetente e busca textual">
-      <FiltrosLogsEmail :loading="loading" @filtrar="aplicarFiltros" />
-    </AppSectionCard>
+    <q-banner v-if="!podeVisualizarLogsEmail" rounded class="bg-orange-1 text-orange-10">
+      Você não possui permissão para visualizar os logs de integração de e-mail.
+    </q-banner>
 
-    <LoadingState v-if="loading && !lista.items.length" mensagem="Carregando logs de integracao..." />
+    <template v-else>
+      <AppSectionCard titulo="Filtros de logs" subtitulo="Defina período, status, remetente e busca textual">
+        <FiltrosLogsEmail :loading="loading" @filtrar="aplicarFiltros" />
+      </AppSectionCard>
 
-    <ErrorState
-      v-else-if="erro && !lista.items.length"
-      titulo="Falha ao carregar logs"
-      :mensagem="erro"
-      @retry="carregarLogs"
-    />
+      <LoadingState v-if="loading && !lista.items.length" mensagem="Carregando logs de e-mail..." />
 
-    <EmptyState
-      v-else-if="!lista.items.length"
-      titulo="Nenhum log encontrado"
-      mensagem="Nao existem logs para os filtros atuais."
-      icon="mail_lock"
-    />
-
-    <AppSectionCard v-else titulo="Resultado dos logs" subtitulo="Lista paginada de processamento de e-mails">
-      <TabelaLogsEmail
-        :rows="lista.items"
-        :total="lista.total"
-        :pagina="lista.pagina"
-        :tamanho-pagina="lista.tamanhoPagina"
-        :loading="loading"
-        @alterar-pagina="alterarPagina"
-        @ver-detalhe="abrirDetalhe"
+      <ErrorState
+        v-else-if="erro && !lista.items.length"
+        titulo="Não foi possível carregar os dados."
+        :mensagem="erro"
+        @retry="carregarLogs"
       />
-    </AppSectionCard>
 
-    <DetalheLogEmail v-model="modalDetalheAberto" :detalhe="detalheSelecionado" :loading="loadingDetalhe" />
+      <EmptyState
+        v-else-if="!lista.items.length"
+        titulo="Nenhum log de e-mail encontrado."
+        mensagem="Nenhum resultado corresponde aos filtros aplicados."
+        icon="mail_lock"
+      />
+
+      <AppSectionCard v-else titulo="Resultado dos logs" subtitulo="Lista paginada de processamento de e-mails">
+        <TabelaLogsEmail
+          :rows="lista.items"
+          :total="lista.total"
+          :pagina="lista.pagina"
+          :tamanho-pagina="lista.tamanhoPagina"
+          :loading="loading"
+          @alterar-pagina="alterarPagina"
+          @ver-detalhe="abrirDetalhe"
+        />
+      </AppSectionCard>
+
+      <DetalheLogEmail v-model="modalDetalheAberto" :detalhe="detalheSelecionado" :loading="loadingDetalhe" />
+    </template>
   </q-page>
 </template>
+

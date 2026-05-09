@@ -1,16 +1,24 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import FormCadastro from '../../components/admin/cadastros/FormCadastro.vue'
 import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
+import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
+import { permissoes, permissoesCriticas } from '../../constants/permissoes'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
 import { usuariosAdminService } from '../../services/usuariosAdminService'
 import { useAuthStore } from '../../stores/authStore'
-import type { DepartamentoResumoResponse, PerfilAcessoResumoResponse } from '../../types/adminCadastros'
+import type {
+  DepartamentoResumoResponse,
+  PerfilAcessoResumoResponse,
+  PerfilPermissoes,
+  PermissaoSistema,
+} from '../../types/adminCadastros'
 
 type Entidade = 'usuarios' | 'perfis' | 'departamentos' | 'categorias' | 'prioridades' | 'status' | 'parametros'
 
@@ -23,6 +31,7 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const $q = useQuasar()
 
 const loading = ref(false)
 const carregamentoConcluido = ref(false)
@@ -31,6 +40,12 @@ const sucesso = ref<string | null>(null)
 const confirmarInativacao = ref(false)
 const confirmarReativacao = ref(false)
 const registroAtivo = ref(true)
+const loadingPermissoesPerfil = ref(false)
+const salvandoPermissoesPerfil = ref(false)
+const erroPermissoesPerfil = ref<string | null>(null)
+const sucessoPermissoesPerfil = ref<string | null>(null)
+const perfilPermissoes = ref<PerfilPermissoes | null>(null)
+const codigosPermissoesSelecionadas = ref<string[]>([])
 
 const perfis = ref<PerfilAcessoResumoResponse[]>([])
 const departamentos = ref<DepartamentoResumoResponse[]>([])
@@ -38,7 +53,56 @@ const departamentos = ref<DepartamentoResumoResponse[]>([])
 const idParam = computed(() => String(route.params.id ?? 'novo'))
 const isNovo = computed(() => idParam.value === 'novo')
 const isAdmin = computed(() => authStore.usuario?.perfis.includes('Administrador') ?? false)
-const somenteLeitura = computed(() => !isAdmin.value)
+const podeGerenciarRegistro = computed(() => {
+  switch (props.entidade) {
+    case 'usuarios':
+      return authStore.possuiPermissao(permissoes.usuariosGerenciar)
+    case 'perfis':
+      return authStore.possuiPermissao(permissoes.perfisGerenciar)
+    case 'parametros':
+      return authStore.possuiPermissao(permissoes.parametrosGerenciar)
+    default:
+      return isAdmin.value
+  }
+})
+const somenteLeitura = computed(() => !podeGerenciarRegistro.value)
+const podeEditarPerfisDoUsuario = computed(() => authStore.possuiPermissao(permissoes.usuariosAlterarPerfis))
+const podeMostrarMatrizPermissoes = computed(() => props.entidade === 'perfis' && !isNovo.value)
+const podeVisualizarPermissoesPerfil = computed(() =>
+  authStore.possuiAlgumaPermissao([
+    permissoes.perfisVisualizar,
+    permissoes.perfisGerenciar,
+    permissoes.perfisAlterarPermissoes,
+  ])
+)
+const podeEditarPermissoesPerfil = computed(
+  () => isAdmin.value && authStore.possuiPermissao(permissoes.perfisAlterarPermissoes)
+)
+const totalPermissoesSelecionadas = computed(() => codigosPermissoesSelecionadas.value.length)
+const permissoesVinculadasSet = computed(
+  () => new Set(perfilPermissoes.value?.permissoesVinculadas.map((item) => item.codigo) ?? [])
+)
+const modulosPermissoes = computed(() => {
+  const disponiveis = perfilPermissoes.value?.permissoesDisponiveis ?? []
+  const grupos = new Map<string, PermissaoSistema[]>()
+
+  for (const permissao of disponiveis) {
+    const chaveModulo = permissao.modulo || 'Outros'
+    if (!grupos.has(chaveModulo)) {
+      grupos.set(chaveModulo, [])
+    }
+
+    grupos.get(chaveModulo)!.push(permissao)
+  }
+
+  return Array.from(grupos.entries())
+    .map(([modulo, permissoes]) => ({
+      modulo,
+      moduloLabel: mapModuloLabel(modulo),
+      permissoes: [...permissoes].sort((a, b) => a.codigo.localeCompare(b.codigo)),
+    }))
+    .sort((a, b) => a.moduloLabel.localeCompare(b.moduloLabel))
+})
 
 const form = reactive({
   nome: '',
@@ -69,9 +133,9 @@ const opcoesSituacao = [
 
 const opcoesNivel = [
   { label: 'Baixa', value: 1 },
-  { label: 'Media', value: 2 },
+  { label: 'Média', value: 2 },
   { label: 'Alta', value: 3 },
-  { label: 'Critica', value: 4 },
+  { label: 'Crítica', value: 4 },
 ]
 
 const opcoesCodigoStatus = [
@@ -91,26 +155,46 @@ const opcoesTipoPerfil = [
 
 const regraObrigatoria = (valor: unknown): true | string => {
   if (typeof valor === 'number') {
-    return Number.isFinite(valor) ? true : 'Campo obrigatorio.'
+    return Number.isFinite(valor) ? true : 'Campo obrigatório.'
   }
 
   if (Array.isArray(valor)) {
-    return valor.length > 0 ? true : 'Campo obrigatorio.'
+    return valor.length > 0 ? true : 'Campo obrigatório.'
   }
 
-  return String(valor ?? '').trim().length > 0 ? true : 'Campo obrigatorio.'
+  return String(valor ?? '').trim().length > 0 ? true : 'Campo obrigatório.'
 }
 
 const regraEmail = (valor: string): true | string => {
   if (!valor?.trim()) {
-    return 'Campo obrigatorio.'
+    return 'Campo obrigatório.'
   }
 
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail valido.'
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail válido.'
 }
 
 const regraNumeroNaoNegativo = (valor: number): true | string =>
   Number(valor) >= 0 ? true : 'Informe um valor maior ou igual a zero.'
+
+function mapModuloLabel(modulo: string): string {
+  const mapa: Record<string, string> = {
+    Dashboard: 'Dashboard',
+    Chamados: 'Chamados',
+    Cadastros: 'Cadastros',
+    Usuarios: 'Usuários',
+    Perfis: 'Perfis',
+    Parametros: 'Parâmetros',
+    IntegracoesEmail: 'Integrações',
+    Notificacoes: 'Notificações',
+    Indicadores: 'Indicadores',
+  }
+
+  return mapa[modulo] ?? modulo
+}
+
+function permissaoEhCritica(codigo: string): boolean {
+  return permissoesCriticas.some((item) => item.toLowerCase() === codigo.toLowerCase())
+}
 
 function resetarFormulario(): void {
   form.nome = ''
@@ -234,6 +318,64 @@ async function carregarDetalhe(): Promise<void> {
   }
 }
 
+async function carregarPermissoesPerfil(): Promise<void> {
+  if (!podeMostrarMatrizPermissoes.value || !podeVisualizarPermissoesPerfil.value) {
+    perfilPermissoes.value = null
+    codigosPermissoesSelecionadas.value = []
+    erroPermissoesPerfil.value = null
+    sucessoPermissoesPerfil.value = null
+    return
+  }
+
+  loadingPermissoesPerfil.value = true
+  erroPermissoesPerfil.value = null
+
+  try {
+    const response = await cadastrosAdminService.obterPermissoesPerfil(idParam.value)
+    perfilPermissoes.value = response
+    codigosPermissoesSelecionadas.value = response.permissoesVinculadas.map((item) => item.codigo)
+  } catch (error) {
+    erroPermissoesPerfil.value =
+      error instanceof Error ? error.message : 'Não foi possível carregar as permissões do perfil.'
+  } finally {
+    loadingPermissoesPerfil.value = false
+  }
+}
+
+async function salvarPermissoesPerfil(): Promise<void> {
+  if (!podeMostrarMatrizPermissoes.value || !podeEditarPermissoesPerfil.value) {
+    return
+  }
+
+  salvandoPermissoesPerfil.value = true
+  erroPermissoesPerfil.value = null
+  sucessoPermissoesPerfil.value = null
+
+  try {
+    const payload = {
+      codigosPermissoes: [...new Set(codigosPermissoesSelecionadas.value)],
+    }
+
+    const response = await cadastrosAdminService.atualizarPermissoesPerfil(idParam.value, payload)
+    perfilPermissoes.value = response
+    codigosPermissoesSelecionadas.value = response.permissoesVinculadas.map((item) => item.codigo)
+    sucessoPermissoesPerfil.value = 'Permissões atualizadas com sucesso.'
+    $q.notify({
+      type: 'positive',
+      message: 'Permissões do perfil salvas com sucesso.',
+    })
+  } catch (error) {
+    erroPermissoesPerfil.value =
+      error instanceof Error ? error.message : 'Não foi possível salvar as permissões do perfil.'
+    $q.notify({
+      type: 'negative',
+      message: erroPermissoesPerfil.value,
+    })
+  } finally {
+    salvandoPermissoesPerfil.value = false
+  }
+}
+
 async function carregarTela(): Promise<void> {
   loading.value = true
   erro.value = null
@@ -242,8 +384,9 @@ async function carregarTela(): Promise<void> {
   try {
     await carregarAuxiliares()
     await carregarDetalhe()
+    await carregarPermissoesPerfil()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar dados.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   } finally {
     loading.value = false
     carregamentoConcluido.value = true
@@ -275,7 +418,10 @@ async function salvar(): Promise<void> {
             departamentoId: form.departamentoId,
             situacao: form.situacao,
           })
-          await usuariosAdminService.alterarPerfis(idParam.value, { perfilIds: form.perfilIds })
+
+          if (podeEditarPerfisDoUsuario.value) {
+            await usuariosAdminService.alterarPerfis(idParam.value, { perfilIds: form.perfilIds })
+          }
         }
         break
       }
@@ -390,7 +536,7 @@ async function salvar(): Promise<void> {
     sucesso.value = 'Registro salvo com sucesso.'
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao salvar cadastro.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível salvar as informações.'
   } finally {
     loading.value = false
   }
@@ -429,7 +575,7 @@ async function inativar(): Promise<void> {
     confirmarInativacao.value = false
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao inativar.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     loading.value = false
   }
@@ -468,7 +614,7 @@ async function reativar(): Promise<void> {
     confirmarReativacao.value = false
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao reativar.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     loading.value = false
   }
@@ -492,7 +638,7 @@ watch(
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
       :titulo="titulo"
-      :subtitulo="isNovo ? 'Criacao de novo cadastro' : 'Detalhe e manutencao de cadastro'"
+      :subtitulo="isNovo ? 'Criação de novo cadastro' : 'Detalhe e manutenção de cadastro'"
     >
       <template #actions>
         <div class="row q-gutter-sm items-center">
@@ -504,7 +650,7 @@ watch(
           />
           <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
           <q-btn
-            v-if="isAdmin && !isNovo && registroAtivo"
+            v-if="podeGerenciarRegistro && !isNovo && registroAtivo"
             color="negative"
             outline
             icon="block"
@@ -513,7 +659,7 @@ watch(
             @click="confirmarInativacao = true"
           />
           <q-btn
-            v-if="isAdmin && !isNovo && !registroAtivo"
+            v-if="podeGerenciarRegistro && !isNovo && !registroAtivo"
             color="positive"
             outline
             icon="check_circle"
@@ -529,7 +675,7 @@ watch(
 
     <ErrorState
       v-else-if="erro && !carregamentoConcluido"
-      titulo="Nao foi possivel carregar o cadastro"
+      titulo="Não foi possível carregar o cadastro"
       :mensagem="erro"
       @retry="carregarTela"
     />
@@ -565,7 +711,7 @@ watch(
                 map-options
                 :disable="somenteLeitura || isNovo"
                 :options="opcoesSituacao"
-                label="Situacao"
+                label="Situação"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -590,7 +736,7 @@ watch(
                 emit-value
                 map-options
                 multiple
-                :disable="somenteLeitura"
+                :disable="somenteLeitura || !podeEditarPerfisDoUsuario"
                 :options="perfis.map((item) => ({ label: item.nome, value: item.id }))"
                 label="Perfis"
                 :rules="[regraObrigatoria]"
@@ -621,7 +767,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -641,7 +787,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -672,7 +818,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -692,7 +838,7 @@ watch(
                 map-options
                 :disable="somenteLeitura"
                 :options="opcoesNivel"
-                label="Nivel"
+                label="Nível"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -713,7 +859,7 @@ watch(
                 outlined
                 dense
                 type="number"
-                label="Prazo resolucao (h)"
+                label="Prazo resolução (h)"
                 :readonly="somenteLeitura"
                 :rules="[regraNumeroNaoNegativo]"
               />
@@ -724,7 +870,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -744,7 +890,7 @@ watch(
                 map-options
                 :disable="somenteLeitura"
                 :options="opcoesCodigoStatus"
-                label="Codigo"
+                label="Código"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -760,7 +906,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -783,13 +929,13 @@ watch(
               />
             </div>
             <div class="col-12 col-md-3">
-              <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensivel" />
+              <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensível" />
             </div>
             <div class="col-12 col-md-3">
               <q-badge
                 :color="form.sensivel ? 'warning' : 'grey-6'"
                 text-color="white"
-                :label="form.sensivel ? 'Parametro sensivel' : 'Nao sensivel'"
+                :label="form.sensivel ? 'Parâmetro sensível' : 'Não sensível'"
               />
             </div>
             <div class="col-12">
@@ -798,7 +944,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descricao"
+                label="Descrição"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -806,11 +952,126 @@ watch(
           </template>
         </div>
       </FormCadastro>
+
+      <q-card
+        v-if="podeMostrarMatrizPermissoes"
+        flat
+        bordered
+        class="sgx-card q-pa-md q-mt-md"
+      >
+        <div class="text-h6">Permissões do perfil</div>
+        <div class="text-caption text-grey-7 q-mb-md">
+          Defina quais módulos e ações este perfil pode acessar no SGX Sistema de Chamados.
+        </div>
+
+        <q-banner rounded class="bg-orange-1 text-orange-10 q-mb-md">
+          Permissões críticas alteram recursos administrativos do sistema. Revise antes de salvar.
+        </q-banner>
+
+        <q-banner
+          v-if="!podeEditarPermissoesPerfil"
+          rounded
+          class="bg-blue-1 text-blue-10 q-mb-md"
+        >
+          Somente administradores com permissão adequada podem alterar permissões de perfil.
+        </q-banner>
+
+        <LoadingState
+          v-if="loadingPermissoesPerfil"
+          inline
+          mensagem="Carregando permissões do perfil..."
+        />
+
+        <ErrorState
+          v-else-if="erroPermissoesPerfil"
+          titulo="Não foi possível carregar permissões"
+          :mensagem="erroPermissoesPerfil"
+          @retry="carregarPermissoesPerfil"
+        />
+
+        <EmptyState
+          v-else-if="!podeVisualizarPermissoesPerfil"
+          titulo="Sem permissão de visualização"
+          mensagem="Você não possui permissão para consultar a matriz deste perfil."
+          icon="lock"
+        />
+
+        <EmptyState
+          v-else-if="!modulosPermissoes.length"
+          titulo="Nenhuma permissão disponível"
+          mensagem="Não há permissões cadastradas para exibição."
+          icon="shield"
+        />
+
+        <template v-else>
+          <q-expansion-item
+            v-for="modulo in modulosPermissoes"
+            :key="modulo.modulo"
+            switch-toggle-side
+            expand-separator
+            default-opened
+            :label="modulo.moduloLabel"
+            icon="shield"
+            class="q-mb-sm"
+          >
+            <div class="column q-gutter-sm q-px-md q-pb-md">
+              <q-checkbox
+                v-for="permissao in modulo.permissoes"
+                :key="permissao.codigo"
+                v-model="codigosPermissoesSelecionadas"
+                :val="permissao.codigo"
+                :disable="!podeEditarPermissoesPerfil || salvandoPermissoesPerfil"
+              >
+                <div class="column">
+                  <div class="row items-center q-gutter-sm">
+                    <span class="text-body2 text-weight-medium">{{ permissao.nome || permissao.codigo }}</span>
+                    <q-badge
+                      v-if="permissaoEhCritica(permissao.codigo)"
+                      color="negative"
+                      text-color="white"
+                      label="Crítica"
+                    />
+                    <q-badge
+                      v-else-if="permissoesVinculadasSet.has(permissao.codigo)"
+                      color="positive"
+                      text-color="white"
+                      label="Vinculada"
+                    />
+                  </div>
+                  <span class="text-caption text-grey-7">{{ permissao.codigo }}</span>
+                  <span v-if="permissao.descricao" class="text-caption text-grey-8">{{ permissao.descricao }}</span>
+                </div>
+              </q-checkbox>
+            </div>
+          </q-expansion-item>
+
+          <q-separator class="q-my-md" />
+
+          <div class="row items-center justify-between q-gutter-sm">
+            <div class="text-caption text-grey-8">
+              Total selecionado: {{ totalPermissoesSelecionadas }}
+            </div>
+
+            <q-btn
+              v-if="podeEditarPermissoesPerfil"
+              color="primary"
+              icon="save"
+              label="Salvar permissões"
+              :loading="salvandoPermissoesPerfil"
+              @click="salvarPermissoesPerfil"
+            />
+          </div>
+
+          <q-banner v-if="sucessoPermissoesPerfil" rounded class="bg-green-1 text-positive q-mt-md">
+            {{ sucessoPermissoesPerfil }}
+          </q-banner>
+        </template>
+      </q-card>
     </template>
 
     <ConfirmDialog
       v-model="confirmarInativacao"
-      titulo="Confirmar inativacao"
+      titulo="Confirmar inativação"
       mensagem="Deseja realmente inativar este cadastro?"
       color="negative"
       confirmar-label="Inativar"
@@ -820,7 +1081,7 @@ watch(
 
     <ConfirmDialog
       v-model="confirmarReativacao"
-      titulo="Confirmar reativacao"
+      titulo="Confirmar reativação"
       mensagem="Deseja realmente reativar este cadastro?"
       color="positive"
       confirmar-label="Reativar"

@@ -47,6 +47,26 @@ public interface IObterPerfilAcessoUseCase
     Task<PerfilAcessoDetalheResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
+public interface IListarPermissoesSistemaUseCase
+{
+    Task<IReadOnlyCollection<PermissaoSistemaResponse>> ExecutarAsync(CancellationToken cancellationToken = default);
+}
+
+public interface IObterPermissoesPerfilUseCase
+{
+    Task<PerfilPermissoesResponse> ExecutarAsync(Guid perfilId, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarPermissoesPerfilUseCase
+{
+    Task<PerfilPermissoesResponse> ExecutarAsync(Guid perfilId, AtualizarPermissoesPerfilRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IObterPermissoesUsuarioAtualUseCase
+{
+    Task<IReadOnlyCollection<string>> ExecutarAsync(CancellationToken cancellationToken = default);
+}
+
 public interface ICriarPerfilAcessoUseCase
 {
     Task<PerfilAcessoDetalheResponse> ExecutarAsync(CriarPerfilAcessoRequest request, CancellationToken cancellationToken = default);

@@ -1,8 +1,8 @@
-# Publicacao
+﻿# Publicacao
 
-## Variaveis de producao
+## variáveis de produção
 
-Configurar via cofre/secrets manager/variaveis de ambiente:
+Configurar via cofre/secrets manager/variáveis de ambiente:
 
 - `ConnectionStrings__DefaultConnection`
 - `AzureAd__Instance`
@@ -62,11 +62,15 @@ Arquivos:
 
 ## Seguranca
 
-- nao versionar segredos reais
-- nao logar senha IMAP/token
+- não versionar segredos reais
+- não logar senha IMAP/token
 - restringir Swagger fora de Development (`Swagger__EnableInNonDevelopment`)
-- revisar politicas de autorizacao em `/api/admin/*`
+- revisar politicas de autorização em `/api/admin/*`
 
 ## Status de vulnerabilidade MailKit
 
 - warning `NU1902 / GHSA-9j88-vvj5-vhgr` foi mitigado nesta sprint com atualizacao para `MailKit 4.16.0`.
+
+
+
+

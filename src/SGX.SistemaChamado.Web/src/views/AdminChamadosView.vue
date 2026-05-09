@@ -8,11 +8,14 @@ import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
+import { useAuthStore } from '../stores/authStore'
 import type { AdminContextoResponse, ChamadoAdminResumo, FiltroChamadosAdmin } from '../types/admin'
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore()
 
 const loading = ref(false)
 const erro = ref<string | null>(null)
@@ -32,9 +35,16 @@ const filtrosPadrao: FiltroChamadosAdmin = {
 const filtrosAtuais = ref<FiltroChamadosAdmin>({ ...filtrosPadrao })
 const paginaAtual = ref(1)
 const textoBuscaGlobal = ref('')
+const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
+const fallbackAdminSemPermissoes = computed(
+  () => usuarioEhAdministrador.value && (authStore.usuario?.permissoes?.length ?? 0) === 0
+)
+const podeAssumirChamado = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAssumir)
+)
 
 function podeAssumirComResponsavel(): boolean {
-  return contexto.value?.usuario.perfis.includes('Administrador') ?? false
+  return (contexto.value?.usuario.perfis.includes('Administrador') ?? false) && podeAssumirChamado.value
 }
 
 async function carregarContexto(): Promise<void> {
@@ -59,7 +69,7 @@ async function carregarChamados(filtros?: FiltroChamadosAdmin): Promise<void> {
     total.value = response.total
     paginaAtual.value = filtrosAtuais.value.pagina ?? 1
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar fila administrativa.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os chamados.'
   } finally {
     loading.value = false
   }
@@ -103,6 +113,11 @@ async function atualizarQueryTexto(texto: string | undefined): Promise<boolean> 
 }
 
 async function assumir(id: string): Promise<void> {
+  if (!podeAssumirChamado.value) {
+    erro.value = 'Você não possui permissão para assumir chamados.'
+    return
+  }
+
   loading.value = true
   erro.value = null
   sucesso.value = null
@@ -112,7 +127,7 @@ async function assumir(id: string): Promise<void> {
     sucesso.value = 'Chamado assumido com sucesso.'
     await carregarChamados()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao assumir chamado.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
   } finally {
     loading.value = false
   }
@@ -160,14 +175,14 @@ const mensagemVazio = computed(() => {
     return 'Nenhum chamado encontrado para sua busca.'
   }
 
-  return 'Nao ha chamados para os filtros selecionados.'
+  return 'Nenhum resultado corresponde aos filtros aplicados.'
 })
 
 onMounted(async () => {
   try {
     await carregarContexto()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao inicializar tela administrativa.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
   }
 })
 
@@ -190,7 +205,7 @@ watch(
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Fila de Chamados" subtitulo="Visualize, priorize e assuma chamados da operacao.">
+    <PageHeader titulo="Fila de Chamados" subtitulo="Visualize, priorize e assuma chamados da operação.">
       <template #actions>
         <q-chip color="primary" text-color="white" icon="confirmation_number" square>
           Total: {{ total }}
@@ -198,7 +213,7 @@ watch(
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros da fila" subtitulo="Busque por status, prioridade, categoria, responsavel e SLA.">
+    <AppSectionCard titulo="Filtros da fila" subtitulo="Busque por status, prioridade, categoria, responsável e SLA.">
       <FiltrosChamadoAdmin
         :contexto="contexto"
         :texto-inicial="textoBuscaGlobal"
@@ -229,6 +244,7 @@ watch(
         <TabelaChamados
           :rows="chamados"
           :loading="loading"
+          :can-assumir="podeAssumirChamado"
           :can-force-assume="podeAssumirComResponsavel()"
           @detalhar="(id) => router.push(`/admin/chamados/${id}`)"
           @assumir="assumir"

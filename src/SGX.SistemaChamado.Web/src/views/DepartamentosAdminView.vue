@@ -5,9 +5,9 @@ import CadastroListaBaseView from './admin-cadastros/CadastroListaBaseView.vue'
 const colunas: QTableColumn[] = [
   { name: 'sigla', label: 'Sigla', field: 'sigla', align: 'left', sortable: true },
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left', sortable: true },
-  { name: 'descricao', label: 'Descricao', field: (row) => row.descricao || '-', align: 'left' },
+  { name: 'descricao', label: 'Descrição', field: (row) => row.descricao || '-', align: 'left' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center', sortable: true },
-  { name: 'acoes', label: 'Acoes', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
 ]
 </script>
 

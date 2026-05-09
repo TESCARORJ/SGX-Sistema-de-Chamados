@@ -117,6 +117,14 @@ function obterDadosPerfilEmulado(perfil: PerfilEmulado): {
   }
 }
 
+function normalizarUsuarioAutenticado(usuario: MeResponse): MeResponse {
+  return {
+    ...usuario,
+    perfis: Array.isArray(usuario.perfis) ? usuario.perfis : [],
+    permissoes: Array.isArray(usuario.permissoes) ? usuario.permissoes : [],
+  }
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     inicializado: false,
@@ -154,6 +162,47 @@ export const useAuthStore = defineStore('auth', {
       const perfis = state.usuario?.perfis ?? []
       return perfis.some((perfil) => ehAdministrador(perfil))
     },
+    possuiPermissao:
+      (state) =>
+      (codigo: string): boolean => {
+        const codigoNormalizado = codigo?.trim()
+        if (!codigoNormalizado) {
+          return false
+        }
+
+        const permissoes = state.usuario?.permissoes ?? []
+        return permissoes.some((permissao) => permissao?.toLowerCase() === codigoNormalizado.toLowerCase())
+      },
+    possuiAlgumaPermissao:
+      (state) =>
+      (codigos: string[]): boolean => {
+        const permissoes = state.usuario?.permissoes ?? []
+        const permissoesNormalizadas = new Set(
+          permissoes
+            .filter((permissao): permissao is string => typeof permissao === 'string')
+            .map((permissao) => permissao.toLowerCase())
+        )
+
+        return codigos.some((codigo) => {
+          const codigoNormalizado = codigo?.trim().toLowerCase()
+          return Boolean(codigoNormalizado) && permissoesNormalizadas.has(codigoNormalizado)
+        })
+      },
+    possuiTodasPermissoes:
+      (state) =>
+      (codigos: string[]): boolean => {
+        const permissoes = state.usuario?.permissoes ?? []
+        const permissoesNormalizadas = new Set(
+          permissoes
+            .filter((permissao): permissao is string => typeof permissao === 'string')
+            .map((permissao) => permissao.toLowerCase())
+        )
+
+        return codigos.every((codigo) => {
+          const codigoNormalizado = codigo?.trim().toLowerCase()
+          return Boolean(codigoNormalizado) && permissoesNormalizadas.has(codigoNormalizado)
+        })
+      },
   },
 
   actions: {
@@ -227,7 +276,7 @@ export const useAuthStore = defineStore('auth', {
         this.autenticado = true
       } catch (error) {
         this.reset()
-        this.erro = error instanceof Error ? error.message : 'Falha ao inicializar autenticacao.'
+        this.erro = error instanceof Error ? error.message : 'Não foi possível inicializar a autenticação.'
       } finally {
         this.inicializado = true
         this.carregando = false
@@ -245,7 +294,7 @@ export const useAuthStore = defineStore('auth', {
           (await authService.acquireAccessToken(result.account ?? (await authService.getAccount())))
 
         if (!token) {
-          throw new Error('Nao foi possivel obter access token do Microsoft Entra ID.')
+          throw new Error('Não foi possível obter access token do Microsoft Entra ID.')
         }
 
         setHttpAuthToken(token)
@@ -297,11 +346,11 @@ export const useAuthStore = defineStore('auth', {
 
     async iniciarEmulacaoPerfil(perfil: PerfilEmulado): Promise<void> {
       if (import.meta.env.PROD || !this.modoLocal) {
-        throw new Error('A emulacao de perfil esta disponivel apenas em Development local.')
+        throw new Error('A emulação de perfil está disponível apenas em Development local.')
       }
 
       if (!this.autenticado || !this.usuario) {
-        throw new Error('Nao foi possivel identificar o usuario autenticado para iniciar a emulacao.')
+        throw new Error('Não foi possível identificar o usuário autenticado para iniciar a emulação.')
       }
 
       const perfis = this.usuario.perfis ?? []
@@ -310,7 +359,7 @@ export const useAuthStore = defineStore('auth', {
       const administradorOriginal = usuarioOriginalPersistido?.perfil === 'Administrador'
 
       if (!administradorAtual && !administradorOriginal) {
-        throw new Error('Apenas Administrador pode iniciar emulacao de perfis.')
+        throw new Error('Apenas Administrador pode iniciar emulação de perfis.')
       }
 
       if (this.emulandoPerfil && this.perfilEmulado === perfil) {
@@ -330,7 +379,7 @@ export const useAuthStore = defineStore('auth', {
       let contextoOriginal: UsuarioOriginalEmulacao
       if (emulacaoAnteriorAtiva) {
         if (!usuarioOriginalPersistido) {
-          throw new Error('Contexto original da emulacao nao encontrado.')
+          throw new Error('Contexto original da emulação não encontrado.')
         }
 
         contextoOriginal = usuarioOriginalPersistido
@@ -375,8 +424,8 @@ export const useAuthStore = defineStore('auth', {
           this.limparEmulacao()
         }
 
-        const mensagem = error instanceof Error ? error.message : 'Falha ao sincronizar usuario emulado.'
-        throw new Error(`Nao foi possivel iniciar a emulacao de ${dadosPerfilEmulado.descricao}. ${mensagem}`)
+        const mensagem = error instanceof Error ? error.message : 'Não foi possível sincronizar usuário emulado.'
+        throw new Error(`Não foi possível iniciar a emulação de ${dadosPerfilEmulado.descricao}. ${mensagem}`)
       }
     },
 
@@ -397,7 +446,7 @@ export const useAuthStore = defineStore('auth', {
       const usuarioOriginal = this.obterUsuarioOriginalPersistido()
       if (!usuarioOriginal) {
         this.reset()
-        throw new Error('Contexto original da emulacao nao encontrado. Realize novo login.')
+        throw new Error('Contexto original da emulação não encontrado. Realize novo login.')
       }
 
       const contextoEmuladoAtual: UsuarioOriginalEmulacao = {
@@ -432,8 +481,8 @@ export const useAuthStore = defineStore('auth', {
           limparEmulacaoSessionStorage()
         }
 
-        const mensagem = error instanceof Error ? error.message : 'Falha ao restaurar usuario administrativo.'
-        throw new Error(`Nao foi possivel encerrar a emulacao. ${mensagem}`)
+        const mensagem = error instanceof Error ? error.message : 'Não foi possível restaurar usuário administrativo.'
+        throw new Error(`Não foi possível encerrar a emulação. ${mensagem}`)
       }
     },
 
@@ -461,7 +510,7 @@ export const useAuthStore = defineStore('auth', {
 
     async carregarMe(): Promise<void> {
       const response = await httpClient.get<MeResponse>('/api/me')
-      this.usuario = response
+      this.usuario = normalizarUsuarioAutenticado(response)
     },
   },
 })

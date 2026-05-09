@@ -64,9 +64,17 @@ public sealed class UsuarioAtualService(
             .Where(x => x.PerfilAcesso.Ativo)
             .Select(x => x.PerfilAcesso.Nome)
             .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x)
             .ToArray();
 
-        var permissoes = PerfisInternos.ObterPermissoes(perfis);
+        var permissoes = usuario.UsuarioPerfis
+            .Where(x => x.PerfilAcesso.Ativo)
+            .SelectMany(x => x.PerfilAcesso.PerfilPermissoes)
+            .Where(x => x.PermissaoSistema.Ativo)
+            .Select(x => x.PermissaoSistema.Codigo)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x)
+            .ToArray();
         var autenticadoPor = principal.Identity?.AuthenticationType == AuthSchemes.LocalDevelopment
             ? "LocalDevelopment"
             : "AzureAd";
@@ -91,6 +99,8 @@ public sealed class UsuarioAtualService(
         return await dbContext.Usuarios
             .Include(x => x.UsuarioPerfis)
             .ThenInclude(x => x.PerfilAcesso)
+            .ThenInclude(x => x.PerfilPermissoes)
+            .ThenInclude(x => x.PermissaoSistema)
             .FirstOrDefaultAsync(
                 x => x.Ativo && (x.Email == email || x.Login == login),
                 cancellationToken);

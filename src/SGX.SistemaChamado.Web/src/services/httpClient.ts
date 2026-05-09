@@ -41,7 +41,7 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
 
   if (response.status === 401) {
     redirectTo('/login')
-    throw new Error('Acesso nao autenticado (401).')
+    throw new Error('Acesso não autenticado (401).')
   }
 
   if (response.status === 403) {
@@ -51,7 +51,7 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
 
   if (!response.ok) {
     const message = await response.text()
-    throw new Error(`HTTP ${response.status}: ${message || 'Erro ao processar requisicao.'}`)
+    throw new Error(`HTTP ${response.status}: ${message || 'Erro ao processar requisição.'}`)
   }
 
   if (response.status === 204) {

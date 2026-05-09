@@ -8,6 +8,8 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<PerfilAcesso> PerfisAcesso => Set<PerfilAcesso>();
     public DbSet<UsuarioPerfilAcesso> UsuariosPerfisAcesso => Set<UsuarioPerfilAcesso>();
+    public DbSet<PermissaoSistema> PermissoesSistema => Set<PermissaoSistema>();
+    public DbSet<PerfilAcessoPermissao> PerfisAcessoPermissoes => Set<PerfilAcessoPermissao>();
     public DbSet<Departamento> Departamentos => Set<Departamento>();
     public DbSet<CategoriaChamado> CategoriasChamado => Set<CategoriaChamado>();
     public DbSet<PrioridadeChamado> PrioridadesChamado => Set<PrioridadeChamado>();
@@ -20,6 +22,10 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<SlaControle> SlaControles => Set<SlaControle>();
     public DbSet<ParametroSistema> ParametrosSistema => Set<ParametroSistema>();
     public DbSet<LogIntegracaoEmail> LogsIntegracaoEmail => Set<LogIntegracaoEmail>();
+    public DbSet<RoadmapItsmItem> RoadmapItsmItens => Set<RoadmapItsmItem>();
+    public DbSet<RoadmapCategoria> RoadmapCategorias => Set<RoadmapCategoria>();
+    public DbSet<RoadmapChecklistItem> RoadmapChecklistItens => Set<RoadmapChecklistItem>();
+    public DbSet<RoadmapImplementacaoFutura> RoadmapImplementacoesFuturas => Set<RoadmapImplementacaoFutura>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

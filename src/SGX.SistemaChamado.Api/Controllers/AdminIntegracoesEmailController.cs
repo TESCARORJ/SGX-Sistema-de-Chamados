@@ -16,6 +16,7 @@ public sealed class AdminIntegracoesEmailController(
     IValidator<FiltroLogsEmailRequest> filtroValidator) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = PermissionPolicies.IntegracoesEmailVisualizar)]
     public async Task<IActionResult> Listar([FromQuery] FiltroLogsEmailRequest request, CancellationToken cancellationToken)
     {
         var validation = await filtroValidator.ValidateAsync(request, cancellationToken);
@@ -36,6 +37,7 @@ public sealed class AdminIntegracoesEmailController(
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = PermissionPolicies.IntegracoesEmailVisualizar)]
     public async Task<IActionResult> Obter(Guid id, CancellationToken cancellationToken)
     {
         try

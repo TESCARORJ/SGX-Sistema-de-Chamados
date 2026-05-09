@@ -15,8 +15,8 @@ function fmtDate(value: string): string {
   <div class="column q-gutter-sm">
     <EmptyState
       v-if="!comentarios.length"
-      titulo="Sem comentarios"
-      mensagem="Nenhum comentario administrativo foi registrado ate o momento."
+      titulo="Sem comentários"
+      mensagem="Nenhum comentário encontrado."
     />
 
     <q-card

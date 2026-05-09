@@ -36,9 +36,9 @@ function enviar(): void {
       autogrow
       maxlength="2000"
       counter
-      label="Novo comentario"
+      label="Novo comentário"
       :disable="props.loading"
-      :rules="[(v) => !!String(v || '').trim() || 'Informe um comentario']"
+      :rules="[(v) => !!String(v || '').trim() || 'Informe um comentário']"
     />
 
     <div class="row justify-end">
@@ -46,7 +46,7 @@ function enviar(): void {
         type="submit"
         color="primary"
         icon="send"
-        label="Adicionar comentario"
+        label="Adicionar comentário"
         :loading="props.loading"
         :disable="props.loading"
       />

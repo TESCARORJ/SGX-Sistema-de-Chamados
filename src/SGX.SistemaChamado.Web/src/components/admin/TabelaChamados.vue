@@ -11,6 +11,7 @@ const $q = useQuasar()
 const props = defineProps<{
   rows: ChamadoAdminResumo[]
   loading?: boolean
+  canAssumir?: boolean
   canForceAssume?: boolean
 }>()
 
@@ -20,16 +21,16 @@ const emit = defineEmits<{
 }>()
 
 const columns: QTableColumn<ChamadoAdminResumo>[] = [
-  { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left', sortable: true },
-  { name: 'titulo', label: 'Titulo', field: 'titulo', align: 'left', sortable: true },
+  { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', sortable: true },
+  { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true },
   { name: 'solicitante', label: 'Solicitante', field: 'solicitanteNome', align: 'left', sortable: true },
   { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
   { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
-  { name: 'responsavel', label: 'Responsavel', field: 'responsavelNome', align: 'left', sortable: true },
+  { name: 'responsavel', label: 'Responsável', field: 'responsavelNome', align: 'left', sortable: true },
   { name: 'abertoEm', label: 'Aberto em', field: 'abertoEm', align: 'left', sortable: true },
   { name: 'atualizadoEm', label: 'Atualizado em', field: 'atualizadoEm', align: 'left', sortable: true },
-  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' },
+  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' },
 ]
 
 function formatarData(value: string | null): string {
@@ -41,6 +42,10 @@ function formatarData(value: string | null): string {
 }
 
 function podeAssumir(row: ChamadoAdminResumo): boolean {
+  if (props.canAssumir === false) {
+    return false
+  }
+
   if (!row.responsavelNome) {
     return true
   }
@@ -131,7 +136,7 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
               <div class="text-caption text-grey-7">{{ slotProps.row.codigo }}</div>
               <div class="text-subtitle1 text-weight-medium">{{ slotProps.row.titulo }}</div>
               <div class="text-caption text-grey-7 q-mt-xs">Solicitante: {{ slotProps.row.solicitanteNome }}</div>
-              <div class="text-caption text-grey-7">Responsavel: {{ slotProps.row.responsavelNome || '-' }}</div>
+              <div class="text-caption text-grey-7">Responsável: {{ slotProps.row.responsavelNome || '-' }}</div>
               <div class="text-caption text-grey-7">Aberto em: {{ formatarData(slotProps.row.abertoEm) }}</div>
             </div>
 

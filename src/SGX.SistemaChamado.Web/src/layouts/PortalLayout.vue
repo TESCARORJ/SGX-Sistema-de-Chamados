@@ -72,13 +72,16 @@ async function voltarParaAdministrador(): Promise<void> {
     await authStore.encerrarEmulacao()
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Falha ao restaurar perfil administrativo.'
+    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
       type: 'negative',
       message,
     })
 
-    if (message.includes('Contexto original da emulacao nao encontrado')) {
+    if (
+      message.includes('Contexto original da emulacao nao encontrado') ||
+      message.includes('Contexto original da emulação não encontrado')
+    ) {
       await router.replace('/login')
     }
   } finally {
@@ -152,7 +155,7 @@ async function voltarParaAdministrador(): Promise<void> {
           </template>
 
           <div class="text-weight-medium">Visualizando como Solicitante Demo</div>
-          <div class="text-caption">Voce esta visualizando o sistema como Solicitante Demo.</div>
+          <div class="text-caption">Você está visualizando o sistema como Solicitante Demo.</div>
 
           <template #action>
             <q-btn

@@ -1,6 +1,7 @@
 import { httpClient } from './httpClient'
 import type {
   AlterarSituacaoCadastroResponse,
+  AtualizarPermissoesPerfilRequest,
   AtualizarCategoriaChamadoRequest,
   AtualizarDepartamentoRequest,
   AtualizarPerfilAcessoRequest,
@@ -17,8 +18,10 @@ import type {
   DepartamentoResumoResponse,
   FiltroCadastroRequest,
   PagedResultResponse,
+  PerfilPermissoes,
   PerfilAcessoDetalheResponse,
   PerfilAcessoResumoResponse,
+  PermissaoSistema,
   PrioridadeChamadoDetalheResponse,
   PrioridadeChamadoResumoResponse,
   StatusChamadoDetalheResponse,
@@ -44,6 +47,10 @@ export const cadastrosAdminService = {
   criarPerfil: (payload: CriarPerfilAcessoRequest) => httpClient.post<PerfilAcessoDetalheResponse>('/api/admin/cadastros/perfis', payload),
   atualizarPerfil: (id: string, payload: AtualizarPerfilAcessoRequest) =>
     httpClient.put<PerfilAcessoDetalheResponse>(`/api/admin/cadastros/perfis/${id}`, payload),
+  listarPermissoes: () => httpClient.get<PermissaoSistema[]>('/api/admin/cadastros/permissoes'),
+  obterPermissoesPerfil: (id: string) => httpClient.get<PerfilPermissoes>(`/api/admin/cadastros/perfis/${id}/permissoes`),
+  atualizarPermissoesPerfil: (id: string, payload: AtualizarPermissoesPerfilRequest) =>
+    httpClient.put<PerfilPermissoes>(`/api/admin/cadastros/perfis/${id}/permissoes`, payload),
   inativarPerfil: (id: string) => httpClient.post<AlterarSituacaoCadastroResponse>(`/api/admin/cadastros/perfis/${id}/inativar`),
   reativarPerfil: (id: string) => httpClient.post<AlterarSituacaoCadastroResponse>(`/api/admin/cadastros/perfis/${id}/reativar`),
 

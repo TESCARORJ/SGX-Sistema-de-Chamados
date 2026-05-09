@@ -38,6 +38,7 @@ public sealed class AdminConfiguracoesController(
         => ExecutarAsync(() => obterParametroUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("parametros")]
+    [Authorize(Policy = PermissionPolicies.ParametrosGerenciar)]
     public async Task<IActionResult> Criar([FromBody] CriarParametroSistemaRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarParametroValidator, request, cancellationToken);
@@ -50,6 +51,7 @@ public sealed class AdminConfiguracoesController(
     }
 
     [HttpPut("parametros/{id:guid}")]
+    [Authorize(Policy = PermissionPolicies.ParametrosGerenciar)]
     public async Task<IActionResult> Atualizar(Guid id, [FromBody] AtualizarParametroSistemaRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarParametroValidator, request, cancellationToken);
@@ -62,10 +64,12 @@ public sealed class AdminConfiguracoesController(
     }
 
     [HttpPost("parametros/{id:guid}/inativar")]
+    [Authorize(Policy = PermissionPolicies.ParametrosGerenciar)]
     public Task<IActionResult> Inativar(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarParametroUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("parametros/{id:guid}/reativar")]
+    [Authorize(Policy = PermissionPolicies.ParametrosGerenciar)]
     public Task<IActionResult> Reativar(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarParametroUseCase.ExecutarAsync(id, cancellationToken));
 

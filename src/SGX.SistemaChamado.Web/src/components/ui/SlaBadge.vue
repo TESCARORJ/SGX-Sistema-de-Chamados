@@ -13,7 +13,7 @@ const estilo = computed(() => {
   }
 
   if (props.proximo) {
-    return { color: 'orange-1', textColor: 'orange-9', icon: 'schedule', label: 'Proximo do vencimento' }
+    return { color: 'orange-1', textColor: 'orange-9', icon: 'schedule', label: 'Próximos do vencimento' }
   }
 
   if (props.pausado) {
