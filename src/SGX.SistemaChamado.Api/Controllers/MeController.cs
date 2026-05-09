@@ -15,17 +15,26 @@ public sealed class MeController(IUsuarioAtualService usuarioAtualService) : Con
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var usuario = await usuarioAtualService.ObterAsync(cancellationToken);
+        try
+        {
+            var usuario = await usuarioAtualService.ObterAsync(cancellationToken);
 
-        return Ok(new MeResponse(
-            usuario.Id,
-            usuario.Nome,
-            usuario.Email,
-            usuario.Login,
-            usuario.Situacao,
-            usuario.Perfis,
-            usuario.Permissoes,
-            usuario.DepartamentoId,
-            usuario.AutenticadoPor));
+            return Ok(new MeResponse(
+                usuario.Id,
+                usuario.Nome,
+                usuario.Email,
+                usuario.Login,
+                usuario.Situacao,
+                usuario.Perfis,
+                usuario.Permissoes,
+                usuario.DepartamentoId,
+                usuario.AutenticadoPor));
+        }
+        catch (OperationCanceledException) when (
+            cancellationToken.IsCancellationRequested ||
+            HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            return StatusCode(499);
+        }
     }
 }

@@ -134,6 +134,42 @@ public sealed class AnexarArquivoChamadoUseCaseTests
         Assert.Contains(context.HistoricosChamado, x => x.Tipo == TipoHistoricoChamado.AnexoAdicionado);
     }
 
+    [Fact]
+    public async Task SolicitanteNaoDeveAnexarEmChamadoDeOutroSolicitante()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedDados(context);
+        var storage = new FakeArquivoStorageService();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto, storage);
+        var stream = new MemoryStream([1, 2, 3]);
+
+        await Assert.ThrowsAsync<UnauthorizedAccessException>(() => useCase.ExecutarAsync(dados.ChamadoOutro.Id, new UploadAnexoChamadoRequest
+        {
+            NomeArquivo = "evidencia.pdf",
+            ContentType = "application/pdf",
+            TamanhoBytes = stream.Length,
+            Conteudo = stream
+        }));
+    }
+
+    [Fact]
+    public async Task DeveRejeitarNomeDeArquivoComPathTraversal()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedDados(context);
+        var storage = new FakeArquivoStorageService();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto, storage);
+        var stream = new MemoryStream([1, 2, 3]);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.ChamadoProprio.Id, new UploadAnexoChamadoRequest
+        {
+            NomeArquivo = "..\\..\\passwd.txt",
+            ContentType = "text/plain",
+            TamanhoBytes = stream.Length,
+            Conteudo = stream
+        }));
+    }
+
     private static AnexarArquivoChamadoUseCase CriarUseCase(
         SGXSistemaChamadoDbContext context,
         UsuarioContextoAplicacao usuarioContexto,
@@ -147,23 +183,26 @@ public sealed class AnexarArquivoChamadoUseCaseTests
             PortalUseCasesTestFactory.ArquivosOptionsPadrao,
             PortalUseCasesTestFactory.Uow(context));
 
-    private static async Task<(Chamado ChamadoProprio, UsuarioContextoAplicacao UsuarioContexto)> SeedDados(SGXSistemaChamadoDbContext context)
+    private static async Task<(Chamado ChamadoProprio, Chamado ChamadoOutro, UsuarioContextoAplicacao UsuarioContexto)> SeedDados(SGXSistemaChamadoDbContext context)
     {
         var prioridade = context.PrioridadesChamado.First();
         var status = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Aberto);
         var categoria = new CategoriaChamado("Categoria", null, null, "teste");
 
         var usuario = new Usuario("Usuario 1", "u1@empresa.com", "u1", "teste");
+        var usuarioOutro = new Usuario("Usuario 2", "u2@empresa.com", "u2", "teste");
         context.CategoriasChamado.Add(categoria);
-        context.Usuarios.Add(usuario);
+        context.Usuarios.AddRange(usuario, usuarioOutro);
         await context.SaveChangesAsync();
 
         var chamadoProprio = new Chamado("CH-A1", "Chamado A1", "Descricao", usuario.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste");
-        context.Chamados.Add(chamadoProprio);
+        var chamadoOutro = new Chamado("CH-A2", "Chamado A2", "Descricao", usuarioOutro.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste");
+        context.Chamados.AddRange(chamadoProprio, chamadoOutro);
         await context.SaveChangesAsync();
 
         return (
             chamadoProprio,
+            chamadoOutro,
             new UsuarioContextoAplicacao(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, ["Solicitante"]));
     }
 }

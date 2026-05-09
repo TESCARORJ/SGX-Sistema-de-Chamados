@@ -226,13 +226,17 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  await authStore.initialize()
+  if (!to.meta.requiresAuth && to.path !== '/login') {
+    return true
+  }
 
-  if (to.path === '/login' && authStore.autenticado) {
+  const autenticado = await authStore.inicializarSessao()
+
+  if (to.path === '/login' && autenticado) {
     return authStore.rotaInicial
   }
 
-  if (to.meta.requiresAuth && !authStore.autenticado) {
+  if (to.meta.requiresAuth && !autenticado) {
     return '/login'
   }
 

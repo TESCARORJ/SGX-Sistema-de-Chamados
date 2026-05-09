@@ -21,8 +21,22 @@ public sealed class AbrirChamadoUseCase(
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork) : IAbrirChamadoUseCase
 {
+    private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
+
     public async Task<ChamadoDetalheResponse> ExecutarAsync(CriarChamadoRequest request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.CategoriaId == Guid.Empty)
+        {
+            throw new InvalidOperationException("Categoria obrigatoria.");
+        }
+
+        if (request.PrioridadeId == Guid.Empty)
+        {
+            throw new InvalidOperationException("Prioridade obrigatoria.");
+        }
+
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
 
         var categoria = await categoriaRepository.Query()
@@ -66,7 +80,7 @@ public sealed class AbrirChamadoUseCase(
         var historicoCriado = new HistoricoChamado(
             chamado.Id,
             TipoHistoricoChamado.Criado,
-            PortalUseCaseHelpers.ObterDescricaoHistorico(TipoHistoricoChamado.Criado),
+            DescricaoHistoricoCriacaoPortal,
             usuarioAtual.Id,
             usuarioAtual.Login);
 
@@ -89,6 +103,6 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.SlaControle)
             .FirstAsync(x => x.Id == chamado.Id, cancellationToken);
 
-        return PortalUseCaseHelpers.MapDetalhe(chamadoCriado);
+        return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);
     }
 }

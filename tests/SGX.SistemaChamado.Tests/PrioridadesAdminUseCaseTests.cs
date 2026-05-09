@@ -104,7 +104,8 @@ public sealed class PrioridadesAdminUseCaseTests
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
-            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante")));
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante")),
+            PortalUseCasesTestFactory.ArquivosOptionsPadrao);
 
         var portal = await useCase.ExecutarAsync();
         Assert.DoesNotContain(portal.Prioridades, x => x.Id == prioridade.Id);

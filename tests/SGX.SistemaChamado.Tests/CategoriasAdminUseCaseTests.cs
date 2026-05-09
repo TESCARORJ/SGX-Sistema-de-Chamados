@@ -91,7 +91,8 @@ public sealed class CategoriasAdminUseCaseTests
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
-            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante")));
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante")),
+            PortalUseCasesTestFactory.ArquivosOptionsPadrao);
 
         var contexto = await useCase.ExecutarAsync();
         Assert.DoesNotContain(contexto.Categorias, x => x.Nome == "Inativa");

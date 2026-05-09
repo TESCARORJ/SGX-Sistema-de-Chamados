@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
+using SGX.SistemaChamado.Application.Options;
 using SGX.SistemaChamado.Domain.Entities;
 
 namespace SGX.SistemaChamado.Application.UseCases.Portal;
@@ -12,7 +14,8 @@ public sealed class ObterPortalContextoUseCase(
     IRepository<CategoriaChamado> categoriaRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
     IRepository<StatusChamado> statusRepository,
-    IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService) : IObterPortalContextoUseCase
+    IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
+    IOptions<ArquivosOptions> arquivosOptions) : IObterPortalContextoUseCase
 {
     public async Task<PortalContextoResponse> ExecutarAsync(CancellationToken cancellationToken = default)
     {
@@ -46,13 +49,34 @@ public sealed class ObterPortalContextoUseCase(
             .Select(x => new StatusPortalResponse(x.Id, x.Nome, (int)x.Codigo))
             .ToListAsync(cancellationToken);
 
+        var configuracaoAnexos = CriarConfiguracaoAnexos(arquivosOptions.Value);
+
         return new PortalContextoResponse
         {
             Usuario = new UsuarioPortalResponse(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, usuario.Perfis),
             Departamentos = departamentos,
             Categorias = categorias,
             Prioridades = prioridades,
-            Status = status
+            Status = status,
+            ConfiguracaoAnexos = configuracaoAnexos
         };
+    }
+
+    private static ConfiguracaoAnexoPortalResponse? CriarConfiguracaoAnexos(ArquivosOptions options)
+    {
+        var tiposPermitidos = options.ContentTypesPermitidos
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        long? tamanhoMaximo = options.TamanhoMaximoBytes > 0 ? options.TamanhoMaximoBytes : null;
+
+        if (tiposPermitidos.Length == 0 && tamanhoMaximo is null)
+        {
+            return null;
+        }
+
+        return new ConfiguracaoAnexoPortalResponse(tiposPermitidos, tamanhoMaximo);
     }
 }

@@ -84,6 +84,21 @@ public sealed class ListarChamadosAdminUseCaseTests
         Assert.True(response.Total >= 2);
     }
 
+    [Fact]
+    public async Task ChamadoAbertoNoPortalDeveAparecerNaFilaAdministrativa()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest());
+
+        Assert.Contains(response.Items, item => item.Codigo == "CH-ADMIN-001");
+    }
+
     private static async Task<(UsuarioContextoAplicacao AtendenteContexto, Guid StatusEmAtendimentoId, Guid PrioridadeAltaId, Guid CategoriaInfraId)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
         var atendente = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Atendente", "aten@empresa.com", TipoPerfil.Atendente);

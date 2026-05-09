@@ -51,6 +51,61 @@ public sealed class DetalharMeuChamadoUseCaseTests
         Assert.Equal(dados.ChamadoOutro.Id, response.Id);
     }
 
+    [Fact]
+    public async Task DeveRetornarDadosCompletosSemComentariosInternos()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var comentarioPublico = new ComentarioChamado(
+            dados.ChamadoSolicitante.Id,
+            dados.SolicitanteContexto.Id,
+            "Comentario publico",
+            false,
+            "teste");
+
+        var comentarioInterno = new ComentarioChamado(
+            dados.ChamadoSolicitante.Id,
+            dados.SolicitanteContexto.Id,
+            "Comentario interno",
+            true,
+            "teste");
+
+        var historicoCriacao = new HistoricoChamado(
+            dados.ChamadoSolicitante.Id,
+            TipoHistoricoChamado.Criado,
+            "Chamado criado pelo portal",
+            dados.SolicitanteContexto.Id,
+            "teste");
+
+        var anexo = new AnexoChamado(
+            dados.ChamadoSolicitante.Id,
+            "evidencia.pdf",
+            "arquivo.pdf",
+            "application/pdf",
+            1024,
+            "storage/anexos/arquivo.pdf",
+            dados.SolicitanteContexto.Id,
+            "teste");
+
+        context.ComentariosChamado.AddRange(comentarioPublico, comentarioInterno);
+        context.HistoricosChamado.Add(historicoCriacao);
+        context.AnexosChamado.Add(anexo);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.Equal("Chamado Proprio", response.Titulo);
+        Assert.NotEmpty(response.Historico);
+        Assert.Single(response.Anexos);
+        Assert.Single(response.Comentarios);
+        Assert.DoesNotContain(response.Comentarios, item => item.Mensagem.Contains("interno", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static async Task<(Chamado ChamadoSolicitante, Chamado ChamadoOutro, UsuarioContextoAplicacao SolicitanteContexto, UsuarioContextoAplicacao AdminContexto)> SeedChamados(SGXSistemaChamadoDbContext context)
     {
         var prioridade = context.PrioridadesChamado.First();

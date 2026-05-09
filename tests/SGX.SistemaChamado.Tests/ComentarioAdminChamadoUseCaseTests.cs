@@ -51,6 +51,7 @@ public sealed class ComentarioAdminChamadoUseCaseTests
         var detalhe = await detalharPortal.ExecutarAsync(dados.Chamado.Id);
 
         Assert.Empty(detalhe.Comentarios);
+        Assert.DoesNotContain(detalhe.Historico, item => item.Descricao.Contains("interno", StringComparison.OrdinalIgnoreCase));
     }
 
     private static ComentarChamadoAdminUseCase CriarUseCase(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)

@@ -165,3 +165,58 @@ Nesta iteracao, endpoints de categoria/checklist reutilizam `Roadmap.Visualizar`
 
 Pendencia real para evolucao futura:
 - avaliar criacao de permissao granular dedicada para categorias/checklist (`RoadmapCategorias.*`, `RoadmapChecklist.*`).
+
+## Sprint Portal 3 - Abertura de chamado pelo portal
+
+Area: Abertura de chamado pelo portal
+Categoria: Portal
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+Proxima acao: Homologar fluxo com usuario real.
+
+Checklist de entrega tecnica:
+- [x] Endpoint de contexto do portal validado
+- [x] Endpoint de criacao de chamado validado
+- [x] Validacoes obrigatorias implementadas
+- [x] Solicitante obtido pelo usuario autenticado
+- [x] Status inicial Aberto aplicado
+- [x] Historico inicial criado
+- [x] Tela /portal/chamados/novo implementada
+- [x] Upload de anexo validado
+- [x] Redirecionamento para detalhe validado
+- [x] Chamado listado no portal
+- [x] Chamado visivel no admin
+- [x] Detalhe do portal validado
+- [x] Historico inicial visivel
+- [x] Testes backend criados/atualizados
+- [x] Build frontend validado
+- [ ] Homologacao manual com usuario real
+
+Pendencias evolutivas:
+- homologacao manual com usuario real
+- testes E2E frontend do fluxo portal->admin
+- validacao de anexos em ambiente real (tipos e limites com arquivos reais)
+
+## Sprint Portal 4 - Fechamento do item Abertura de chamado pelo portal
+
+Item: Abertura de chamado pelo portal
+Categoria: Portal
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Interpretacao:
+- Implementado funcionalmente significa entrega tecnica concluida e validada por inspecao, build e testes.
+- Nao significa homologado com usuario real nem em producao.
+
+Criterio de aceite registrado:
+Solicitante autenticado consegue abrir chamado pelo portal com dados obrigatorios, visualizar retorno de sucesso e acessar o detalhe do chamado criado. Backend registra status inicial, historico e vinculo com solicitante. Quando anexos estao disponiveis, arquivos permitidos podem ser enviados e visualizados no detalhe.
+
+Proxima acao:
+Validar com usuario real em homologacao.
+
+Pendencias tecnicas registradas:
+- homologacao manual com usuario real
+- testes E2E frontend
+- validacao de anexos em ambiente real

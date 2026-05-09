@@ -97,6 +97,31 @@ public static class SeedData
     public static readonly Guid ChecklistMatrizFrontendId = Guid.Parse("67676767-6767-6767-6767-676767676708");
     public static readonly Guid ChecklistControleVisualId = Guid.Parse("67676767-6767-6767-6767-676767676709");
     public static readonly Guid ChecklistHomologacaoUsuariosId = Guid.Parse("67676767-6767-6767-6767-676767676710");
+    public static readonly Guid ChecklistPortalContextoValidadoId = Guid.Parse("67676767-6767-6767-6767-676767676711");
+    public static readonly Guid ChecklistPortalCriacaoValidadaId = Guid.Parse("67676767-6767-6767-6767-676767676712");
+    public static readonly Guid ChecklistPortalValidacoesObrigatoriasId = Guid.Parse("67676767-6767-6767-6767-676767676713");
+    public static readonly Guid ChecklistPortalSolicitanteAutenticadoId = Guid.Parse("67676767-6767-6767-6767-676767676714");
+    public static readonly Guid ChecklistPortalStatusAbertoId = Guid.Parse("67676767-6767-6767-6767-676767676715");
+    public static readonly Guid ChecklistPortalHistoricoInicialId = Guid.Parse("67676767-6767-6767-6767-676767676716");
+    public static readonly Guid ChecklistPortalSlaInicialId = Guid.Parse("67676767-6767-6767-6767-676767676717");
+    public static readonly Guid ChecklistPortalTelaNovoId = Guid.Parse("67676767-6767-6767-6767-676767676718");
+    public static readonly Guid ChecklistPortalUploadAnexoId = Guid.Parse("67676767-6767-6767-6767-676767676719");
+    public static readonly Guid ChecklistPortalRedirectDetalheId = Guid.Parse("67676767-6767-6767-6767-676767676720");
+    public static readonly Guid ChecklistPortalListagemPortalId = Guid.Parse("67676767-6767-6767-6767-676767676721");
+    public static readonly Guid ChecklistPortalVisivelAdminId = Guid.Parse("67676767-6767-6767-6767-676767676722");
+    public static readonly Guid ChecklistPortalDetalheValidadoId = Guid.Parse("67676767-6767-6767-6767-676767676723");
+    public static readonly Guid ChecklistPortalHistoricoVisivelId = Guid.Parse("67676767-6767-6767-6767-676767676724");
+    public static readonly Guid ChecklistPortalAnexoVisivelPortalId = Guid.Parse("67676767-6767-6767-6767-676767676725");
+    public static readonly Guid ChecklistPortalAnexoVisivelAdminId = Guid.Parse("67676767-6767-6767-6767-676767676726");
+    public static readonly Guid ChecklistPortalTestesBackendId = Guid.Parse("67676767-6767-6767-6767-676767676727");
+    public static readonly Guid ChecklistPortalBuildFrontendId = Guid.Parse("67676767-6767-6767-6767-676767676728");
+    public static readonly Guid ChecklistPortalHomologacaoUsuarioRealId = Guid.Parse("67676767-6767-6767-6767-676767676729");
+    public static readonly Guid ChecklistPortalE2eFrontendId = Guid.Parse("67676767-6767-6767-6767-676767676730");
+    public static readonly Guid ChecklistPortalValidacaoAnexosHomologacaoId = Guid.Parse("67676767-6767-6767-6767-676767676731");
+    public static readonly Guid ChecklistPortalAnexoInvalidoAmigavelId = Guid.Parse("67676767-6767-6767-6767-676767676732");
+    public static readonly Guid ChecklistPortalFluxoCompletoAcompanharId = Guid.Parse("67676767-6767-6767-6767-676767676733");
+    public static readonly Guid ChecklistPortalSolicitanteEntraId = Guid.Parse("67676767-6767-6767-6767-676767676734");
+    public static readonly Guid ChecklistPortalAtendenteFilaId = Guid.Parse("67676767-6767-6767-6767-676767676735");
 
     public static readonly object[] PerfisAcesso =
     [
@@ -391,23 +416,23 @@ public static class SeedData
             Area = "Abertura de chamado pelo portal",
             Categoria = "Portal",
             RoadmapCategoriaId = RoadmapCategoriaPortalId,
-            SituacaoAtual = "Prevista no portal /portal",
-            AtencaoTecnica = "Demonstrar fluxo completo: abrir, anexar, acompanhar",
-            Status = StatusRoadmapItsm.EmValidacao,
+            SituacaoAtual = "Fluxo implementado no portal com abertura, anexos opcionais, listagem e detalhe",
+            AtencaoTecnica = "Validar com usuario real e consolidar evidencias de homologacao",
+            Status = StatusRoadmapItsm.Implementado,
             Prioridade = PrioridadeRoadmapItsm.Alta,
             Impacto = ImpactoRoadmapItsm.Alto,
-            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            Decisao = DecisaoRoadmapItsm.DesenvolverAgora,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas,
+            PercentualImplementacao = 72,
+            PendenciasTecnicas = "Testes E2E frontend do fluxo de abertura, validação real de anexos em homologação e script lint frontend.",
+            PendenciasHomologacao = "Validar com usuário real o fluxo completo de abrir chamado, anexar arquivo, acompanhar no portal e visualizar na fila administrativa.",
+            EvidenciaImplementacao = "GET /api/portal/contexto; POST /api/portal/chamados; tela /portal/chamados/novo; listagem /portal/chamados; detalhe /portal/chamados/:id; fila /admin/chamados; testes backend; build frontend.",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "Solicitante autenticado consegue abrir chamado pelo portal com título, descrição, categoria e prioridade, anexar arquivo permitido, visualizar o detalhe do chamado, acompanhar o status no portal e o chamado aparece na fila administrativa para atendimento.",
+            ProximaAcao = "Executar homologação manual do fluxo completo com usuário real.",
+            Observacao = "Implementado funcionalmente; nao homologado em usuario real nesta iteracao.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 1,
@@ -869,6 +894,31 @@ public static class SeedData
 
     public static readonly object[] RoadmapChecklistItens =
     [
+        new { Id = ChecklistPortalContextoValidadoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Endpoint de contexto do portal validado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalCriacaoValidadaId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Endpoint de criação de chamado validado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalValidacoesObrigatoriasId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validações obrigatórias implementadas", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalSolicitanteAutenticadoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Solicitante obtido pelo usuário autenticado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 4, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalStatusAbertoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Status inicial Aberto aplicado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 5, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalHistoricoInicialId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Histórico inicial criado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 6, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalTelaNovoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Tela /portal/chamados/novo implementada", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 7, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalSlaInicialId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Formulário com validação visual implementado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 8, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalUploadAnexoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Consumo de GET /api/portal/contexto implementado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 9, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalRedirectDetalheId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Consumo de POST /api/portal/chamados implementado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 10, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalListagemPortalId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Redirecionamento para detalhe após abertura implementado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 11, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalVisivelAdminId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Listagem /portal/chamados validada tecnicamente", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 12, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalDetalheValidadoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Detalhe /portal/chamados/:id validado tecnicamente", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 13, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalHistoricoVisivelId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Chamado visível na fila administrativa", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 14, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalAnexoVisivelPortalId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Detalhe administrativo do chamado validado tecnicamente", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 15, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalAnexoVisivelAdminId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Build backend validado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 16, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalTestesBackendId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Testes backend executados com sucesso", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 17, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalBuildFrontendId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Build frontend validado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 18, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalHomologacaoUsuarioRealId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Homologação manual com usuário real", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 19, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalE2eFrontendId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Testes E2E frontend do fluxo de abertura", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Testes, Ordem = 20, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalValidacaoAnexosHomologacaoId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação real de anexos em ambiente de homologação", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 21, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalAnexoInvalidoAmigavelId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação de anexo inválido com mensagem amigável", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 22, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalFluxoCompletoAcompanharId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação completa do fluxo abrir, anexar e acompanhar", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 23, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalSolicitanteEntraId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação com perfil Solicitante real do Microsoft Entra ID", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 24, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistPortalAtendenteFilaId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação com Atendente visualizando o chamado na fila", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 25, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPerfisMacroId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Perfis macro criados", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistCrudPerfisId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "CRUD de perfis criado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPermissoesGranularesId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Permissões granulares criadas", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },

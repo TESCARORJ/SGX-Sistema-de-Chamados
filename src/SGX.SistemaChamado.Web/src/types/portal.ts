@@ -39,6 +39,10 @@ export interface PortalContextoResponse {
   categorias: CategoriaPortal[]
   prioridades: PrioridadePortal[]
   status: StatusPortal[]
+  configuracaoAnexos?: {
+    tiposPermitidos: string[]
+    tamanhoMaximoBytes: number | null
+  } | null
 }
 
 export interface FiltroChamadosPortal {
@@ -119,13 +123,16 @@ export interface ChamadoDetalhePortal {
   sla: SlaResumo | null
 }
 
-export interface CriarChamadoPortalPayload {
+export interface CriarChamadoRequest {
   titulo: string
   descricao: string
   departamentoId?: string
   categoriaId: string
   prioridadeId: string
 }
+
+export type ChamadoCriadoResponse = ChamadoDetalhePortal
+export type CriarChamadoPortalPayload = CriarChamadoRequest
 
 export interface ComentarChamadoPayload {
   mensagem: string

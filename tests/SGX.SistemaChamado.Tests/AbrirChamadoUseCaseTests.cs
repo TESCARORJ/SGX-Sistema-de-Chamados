@@ -58,7 +58,10 @@ public sealed class AbrirChamadoUseCaseTests
         });
 
         Assert.Equal("Aberto", response.Status);
-        Assert.Contains(context.HistoricosChamado, x => x.Tipo == TipoHistoricoChamado.Criado);
+        Assert.Equal(OrigemChamado.Portal, context.Chamados.Single().Origem);
+        Assert.Contains(
+            context.HistoricosChamado,
+            x => x.Tipo == TipoHistoricoChamado.Criado && x.Descricao == "Chamado criado pelo portal");
     }
 
     [Fact]
@@ -78,6 +81,24 @@ public sealed class AbrirChamadoUseCaseTests
     }
 
     [Fact]
+    public async Task DeveRejeitarCategoriaInativa()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        dados.Categoria.Desativar("teste");
+        await context.SaveChangesAsync();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id
+        }));
+    }
+
+    [Fact]
     public async Task DeveRejeitarPrioridadeInexistenteOuInativa()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
@@ -90,6 +111,24 @@ public sealed class AbrirChamadoUseCaseTests
             Descricao = "Descricao valida",
             CategoriaId = dados.Categoria.Id,
             PrioridadeId = Guid.NewGuid()
+        }));
+    }
+
+    [Fact]
+    public async Task DeveRejeitarPrioridadeInativa()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        dados.Prioridade.Desativar("teste");
+        await context.SaveChangesAsync();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id
         }));
     }
 

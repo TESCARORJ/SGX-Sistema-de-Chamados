@@ -78,3 +78,36 @@
 
 
 
+
+## Sprint Portal 3 - Fluxo portal/admin
+
+- [ ] Validar criacao de chamado em `/portal/chamados/novo`
+- [ ] Validar upload de anexo permitido na abertura
+- [ ] Validar mensagem de falha parcial de anexos
+- [ ] Validar redirecionamento para `/portal/chamados/:id`
+- [ ] Validar historico inicial no detalhe do portal
+- [ ] Validar anexo exibido no detalhe do portal
+- [ ] Validar chamado listado em `/portal/chamados`
+- [ ] Validar chamado visivel em `/admin/chamados`
+- [ ] Validar detalhe administrativo em `/admin/chamados/:id` (origem, historico, anexos)
+- [ ] Validar erro amigavel para anexo invalido
+
+## Abertura de chamado pelo portal
+
+- [ ] Entrar como Solicitante.
+- [ ] Abrir /portal/chamados/novo.
+- [ ] Validar obrigatoriedade de titulo.
+- [ ] Validar obrigatoriedade de descricao.
+- [ ] Validar obrigatoriedade de categoria.
+- [ ] Validar obrigatoriedade de prioridade.
+- [ ] Abrir chamado com dados validos.
+- [ ] Confirmar mensagem de sucesso.
+- [ ] Confirmar redirecionamento para detalhe.
+- [ ] Confirmar chamado listado em /portal/chamados.
+- [ ] Confirmar historico inicial.
+- [ ] Confirmar anexo no portal, se aplicavel.
+- [ ] Confirmar chamado na fila administrativa.
+- [ ] Confirmar detalhe no admin.
+- [ ] Confirmar anexo no admin, se aplicavel.
+- [ ] Confirmar que solicitante nao acessa chamado de outro solicitante.
+- [ ] Confirmar que comentarios internos nao aparecem no portal.

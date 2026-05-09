@@ -40,6 +40,6 @@ public sealed class DetalharMeuChamadoUseCase(
             throw new UnauthorizedAccessException("Acesso negado ao chamado solicitado.");
         }
 
-        return PortalUseCaseHelpers.MapDetalhe(chamado);
+        return PortalUseCaseHelpers.MapDetalhe(chamado, usuarioAtual);
     }
 }

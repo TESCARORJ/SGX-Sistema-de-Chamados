@@ -70,7 +70,7 @@ function montarFiltroRequest(): FiltroChamadosPortal {
 }
 
 async function carregarContexto(): Promise<void> {
-  const contexto = await portalService.obterPortalContexto()
+  const contexto = await portalService.getPortalContexto()
   categorias.value = contexto.categorias
   prioridades.value = contexto.prioridades
   status.value = contexto.status

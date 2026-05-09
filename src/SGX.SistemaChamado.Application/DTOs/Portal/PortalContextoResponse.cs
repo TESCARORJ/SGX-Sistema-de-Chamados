@@ -5,6 +5,9 @@ public sealed record CategoriaPortalResponse(Guid Id, string Nome, Guid? Departa
 public sealed record PrioridadePortalResponse(Guid Id, string Nome, int Nivel);
 public sealed record StatusPortalResponse(Guid Id, string Nome, int Codigo);
 public sealed record UsuarioPortalResponse(Guid Id, string Nome, string Email, string Login, IReadOnlyCollection<string> Perfis);
+public sealed record ConfiguracaoAnexoPortalResponse(
+    IReadOnlyCollection<string> TiposPermitidos,
+    long? TamanhoMaximoBytes);
 
 public sealed class PortalContextoResponse
 {
@@ -13,4 +16,5 @@ public sealed class PortalContextoResponse
     public IReadOnlyCollection<CategoriaPortalResponse> Categorias { get; init; } = [];
     public IReadOnlyCollection<PrioridadePortalResponse> Prioridades { get; init; } = [];
     public IReadOnlyCollection<StatusPortalResponse> Status { get; init; } = [];
+    public ConfiguracaoAnexoPortalResponse? ConfiguracaoAnexos { get; init; }
 }

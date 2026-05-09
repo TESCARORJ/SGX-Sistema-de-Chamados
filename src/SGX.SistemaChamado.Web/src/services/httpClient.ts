@@ -1,9 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5168'
+﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5168'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 let bearerToken: string | null = null
 let devHeaders: Record<string, string> | null = null
+let authRedirectSuppressed = false
+
+export class HttpRequestError extends Error {
+  readonly status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+    this.name = 'HttpRequestError'
+  }
+}
 
 function redirectTo(path: '/login' | '/acesso-negado'): void {
   if (typeof window === 'undefined') {
@@ -40,18 +51,27 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
   })
 
   if (response.status === 401) {
-    redirectTo('/login')
-    throw new Error('Acesso não autenticado (401).')
+    if (!authRedirectSuppressed) {
+      redirectTo('/login')
+    }
+
+    throw new HttpRequestError(401, 'Acesso não autenticado (401).')
   }
 
   if (response.status === 403) {
-    redirectTo('/acesso-negado')
-    throw new Error('Acesso negado (403).')
+    if (!authRedirectSuppressed) {
+      redirectTo('/acesso-negado')
+    }
+
+    throw new HttpRequestError(403, 'Acesso negado (403).')
   }
 
   if (!response.ok) {
     const message = await response.text()
-    throw new Error(`HTTP ${response.status}: ${message || 'Erro ao processar requisição.'}`)
+    throw new HttpRequestError(
+      response.status,
+      `HTTP ${response.status}: ${message || 'Erro ao processar requisição.'}`
+    )
   }
 
   if (response.status === 204) {
@@ -69,6 +89,10 @@ export function setHttpLocalDevHeaders(headers: Record<string, string> | null): 
   devHeaders = import.meta.env.PROD ? null : headers
 }
 
+export function setHttpAuthRedirectSuppressed(suppressed: boolean): void {
+  authRedirectSuppressed = suppressed
+}
+
 export const httpClient = {
   get: <T>(path: string) => request<T>(path, 'GET'),
   post: <T>(path: string, body?: unknown) => request<T>(path, 'POST', body),
@@ -76,3 +100,4 @@ export const httpClient = {
   patch: <T>(path: string, body?: unknown) => request<T>(path, 'PATCH', body),
   delete: <T>(path: string) => request<T>(path, 'DELETE'),
 }
+

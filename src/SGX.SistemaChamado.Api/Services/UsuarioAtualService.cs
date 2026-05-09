@@ -97,6 +97,7 @@ public sealed class UsuarioAtualService(
     private async Task<Usuario?> CarregarUsuarioInternoAsync(string email, string login, CancellationToken cancellationToken)
     {
         return await dbContext.Usuarios
+            .AsSplitQuery()
             .Include(x => x.UsuarioPerfis)
             .ThenInclude(x => x.PerfilAcesso)
             .ThenInclude(x => x.PerfilPermissoes)

@@ -11,7 +11,7 @@ const adminLocalNome = 'Administrador SGX'
 const adminLocalSenha = 'Admin@123456'
 
 const emailLocal = ref(adminLocalEmail)
-const senhaLocal = ref(adminLocalSenha)
+const senhaLocal = ref('')
 const erroLocal = ref<string | null>(null)
 
 const localAuthEnabled =

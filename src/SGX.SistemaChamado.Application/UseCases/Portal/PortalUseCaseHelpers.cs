@@ -38,8 +38,16 @@ internal static class PortalUseCaseHelpers
         };
     }
 
-    public static ChamadoDetalheResponse MapDetalhe(Chamado chamado)
+    public static ChamadoDetalheResponse MapDetalhe(Chamado chamado, UsuarioContextoAplicacao? usuarioContexto = null)
     {
+        var historico = chamado.Historicos.AsEnumerable();
+        if (usuarioContexto is not null && !PodeVisaoAmpliada(usuarioContexto))
+        {
+            historico = historico.Where(x =>
+                !(x.Tipo == TipoHistoricoChamado.ComentarioAdicionado &&
+                  x.Descricao.Contains("interno", StringComparison.OrdinalIgnoreCase)));
+        }
+
         return new ChamadoDetalheResponse
         {
             Id = chamado.Id,
@@ -64,7 +72,7 @@ internal static class PortalUseCaseHelpers
                 .OrderByDescending(x => x.CriadoEm)
                 .Select(x => new AnexoChamadoResponse(x.Id, x.NomeArquivo, x.ContentType, x.TamanhoBytes, x.CriadoEm, x.UsuarioId, x.Usuario.Nome))
                 .ToArray(),
-            Historico = chamado.Historicos
+            Historico = historico
                 .OrderByDescending(x => x.CriadoEm)
                 .Select(x => new HistoricoChamadoResponse(
                     x.Id,

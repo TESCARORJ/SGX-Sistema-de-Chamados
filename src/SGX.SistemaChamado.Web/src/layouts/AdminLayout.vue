@@ -474,7 +474,7 @@ watch(
                 expand-separator
                 :icon="item.icon"
                 :label="item.label"
-                :default-opened="true"
+                :default-opened="false"
                 header-class="menu-group"
                 :disable="drawerMini"
               >

@@ -1,8 +1,9 @@
 import { httpClient } from './httpClient'
 import type {
+  ChamadoCriadoResponse,
   ChamadoDetalhePortal,
   ComentarChamadoPayload,
-  CriarChamadoPortalPayload,
+  CriarChamadoRequest,
   FiltroChamadosPortal,
   ListaChamadosPortalResponse,
   PortalContextoResponse,
@@ -28,15 +29,15 @@ function buildQuery(params: FiltroChamadosPortal): string {
 }
 
 export const portalService = {
-  obterPortalContexto: () => httpClient.get<PortalContextoResponse>('/api/portal/contexto'),
+  getPortalContexto: () => httpClient.get<PortalContextoResponse>('/api/portal/contexto'),
 
   listarMeusChamados: (filtros: FiltroChamadosPortal = {}) =>
     httpClient.get<ListaChamadosPortalResponse>(`/api/portal/chamados${buildQuery(filtros)}`),
 
   obterChamado: (id: string) => httpClient.get<ChamadoDetalhePortal>(`/api/portal/chamados/${id}`),
 
-  abrirChamado: (payload: CriarChamadoPortalPayload) =>
-    httpClient.post<ChamadoDetalhePortal>('/api/portal/chamados', payload),
+  criarChamado: (payload: CriarChamadoRequest) =>
+    httpClient.post<ChamadoCriadoResponse>('/api/portal/chamados', payload),
 
   comentarChamado: (id: string, payload: ComentarChamadoPayload) =>
     httpClient.post<ComentarioChamado>(`/api/portal/chamados/${id}/comentarios`, payload),
@@ -49,4 +50,8 @@ export const portalService = {
 
   removerAnexo: (id: string, anexoId: string) =>
     httpClient.delete<void>(`/api/portal/chamados/${id}/anexos/${anexoId}`),
+
+  obterPortalContexto: () => httpClient.get<PortalContextoResponse>('/api/portal/contexto'),
+  abrirChamado: (payload: CriarChamadoRequest) =>
+    httpClient.post<ChamadoCriadoResponse>('/api/portal/chamados', payload),
 }

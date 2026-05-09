@@ -198,3 +198,51 @@ Frontend:
 - Consulta: perfil `Administrador` ou `Atendente` + permissao `Roadmap.Visualizar`.
 - Mutacao: perfil `Administrador` + permissao `Roadmap.Gerenciar`.
 - Observacao: permissao granular dedicada para categoria/checklist permanece como evolucao futura.
+
+## Sprint Portal 3 - Validacao de fluxo portal/admin
+
+### Rotas validadas
+- `/portal/chamados`
+  - Endpoints: `GET /api/portal/contexto`, `GET /api/portal/chamados`
+  - Componentes: `QPage`, `PageHeader`, `AppSectionCard`, `QTable`, `QCard`, `QBtn`, `QChip/QBadge`
+  - Status visual: OK inspecao + build
+  - Status funcional: OK inspecao + build
+  - Pendencias: validacao manual com usuario real
+
+- `/portal/chamados/novo`
+  - Endpoints: `GET /api/portal/contexto`, `POST /api/portal/chamados`, `POST /api/portal/chamados/{id}/anexos`
+  - Componentes: `QPage`, `QForm`, `QInput`, `QSelect`, `UploadAnexo`, `QBanner`, `QBtn`, `LoadingState`, `ErrorState`
+  - Status visual: OK inspecao + build
+  - Status funcional: OK inspecao + build
+  - Pendencias: validacao manual do fluxo de falha parcial de anexos
+
+- `/portal/chamados/:id`
+  - Endpoints: `GET /api/portal/chamados/{id}`, `POST /api/portal/chamados/{id}/comentarios`, `POST /api/portal/chamados/{id}/anexos`
+  - Componentes: `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `StatusBadge`, `PrioridadeBadge`, `SlaBadge`, `UploadAnexo`, `FormComentario`
+  - Status visual: OK inspecao + build
+  - Status funcional: OK inspecao + build
+  - Pendencias: validacao manual de mensagens 403/404 em ambiente real
+
+- `/admin/chamados`
+  - Endpoint: `GET /api/admin/chamados`
+  - Componentes: `QPage`, `PageHeader`, `AppSectionCard`, `QTable`, `QPagination`, `QBtn`, `QBanner`
+  - Status visual: OK inspecao + build
+  - Status funcional: OK inspecao + build
+  - Pendencias: validacao manual de filtros apos abertura via portal
+
+- `/admin/chamados/:id`
+  - Endpoint: `GET /api/admin/chamados/{id}`
+  - Componentes: `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `QChip/QBadge`, `QBtn`
+  - Status visual: OK inspecao + build
+  - Status funcional: OK inspecao + build
+  - Pendencias: homologacao manual com usuario administrativo real
+
+## Sprint Portal 4 - Matriz de validacao das rotas portal/admin
+
+| Rota | Layout | Endpoints consumidos | Componentes Quasar principais | Status visual | Status funcional | Validacao | Pendencias |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `/portal/chamados/novo` | `PortalLayout` | `GET /api/portal/contexto`, `POST /api/portal/chamados`, `POST /api/portal/chamados/{id}/anexos` | `QPage`, `PageHeader`, `AppSectionCard`, `QForm`, `QInput`, `QSelect`, `UploadAnexo`, `QBanner`, `QBtn`, `LoadingState`, `ErrorState` | OK inspecao + build | OK inspecao + build | Pendente manual | homologacao real e teste de anexo invalido em ambiente real |
+| `/portal/chamados` | `PortalLayout` | `GET /api/portal/contexto`, `GET /api/portal/chamados` | `QPage`, `PageHeader`, `AppSectionCard`, `QTable`, `QCard`, `QBtn`, `QChip`, `QBadge`, `LoadingState`, `ErrorState`, `EmptyState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar dados reais de producao/homologacao |
+| `/portal/chamados/:id` | `PortalLayout` | `GET /api/portal/chamados/{id}`, `POST /api/portal/chamados/{id}/comentarios`, `POST /api/portal/chamados/{id}/anexos` | `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `QCard`, `QBtn`, `QChip`, `StatusBadge`, `PrioridadeBadge`, `SlaBadge`, `UploadAnexo`, `FormComentario`, `LoadingState`, `ErrorState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar 403/404 com usuarios reais |
+| `/admin/chamados` | `AdminLayout` | `GET /api/admin/chamados` | `QPage`, `PageHeader`, `AppSectionCard`, `QTable`, `QPagination`, `QBtn`, `QBanner`, `LoadingState`, `ErrorState`, `EmptyState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar filtros com dados reais apos abertura no portal |
+| `/admin/chamados/:id` | `AdminLayout` | `GET /api/admin/chamados/{id}` | `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `QChip`, `QBadge`, `QBtn`, `LoadingState`, `ErrorState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar historico/anexo com usuario real |

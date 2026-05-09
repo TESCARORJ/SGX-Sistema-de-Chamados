@@ -8,29 +8,35 @@ import 'quasar/src/css/index.sass'
 import '@quasar/extras/material-icons/material-icons.css'
 import './style.css'
 
-createApp(App)
-  .use(createPinia())
-  .use(router)
-  .use(Quasar, {
-    plugins: {
-      Dialog,
-      Loading,
-      Notify,
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(router)
+app.use(Quasar, {
+  plugins: {
+    Dialog,
+    Loading,
+    Notify,
+  },
+  config: {
+    brand: {
+      primary: '#0b5ed7',
+      secondary: '#062f66',
+      accent: '#0284c7',
+      dark: '#031b38',
     },
-    config: {
-      brand: {
-        primary: '#0b5ed7',
-        secondary: '#062f66',
-        accent: '#0284c7',
-        dark: '#031b38',
-      },
-      notify: {
-        position: 'top-right',
-        timeout: 3000,
-      },
-      loading: {
-        delay: 250,
-      },
+    notify: {
+      position: 'top-right',
+      timeout: 3000,
     },
-  })
-  .mount('#app')
+    loading: {
+      delay: 250,
+    },
+  },
+})
+
+router.isReady().finally(() => {
+  app.mount('#app')
+})
+

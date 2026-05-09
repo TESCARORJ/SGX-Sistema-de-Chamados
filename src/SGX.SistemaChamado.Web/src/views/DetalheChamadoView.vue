@@ -63,6 +63,8 @@ async function carregar(): Promise<void> {
 
     if (message.includes('403')) {
       erro.value = 'Você não possui permissão para visualizar este chamado.'
+    } else if (message.includes('404')) {
+      erro.value = 'Chamado não encontrado.'
     } else {
       erro.value = message
     }

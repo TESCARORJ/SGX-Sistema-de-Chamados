@@ -103,3 +103,35 @@ Diretriz de seguranca:
 - Percentual de implementacao passa a ser calculado automaticamente pelo checklist ativo do item.
 - Regra de calculo: concluidos ativos / ativos * 100.
 - UI exibe labels amigaveis para status tecnico/implementacao, sem mostrar enums crus.
+
+## Atualizacao Sprint Portal 3
+
+Entregas consolidadas:
+- upload de anexos na abertura (`/portal/chamados/novo`) com envio sequencial apos criacao
+- tratamento de falha parcial de anexos sem perder abertura do chamado
+- validacao visual de tipo/tamanho de anexo com base no contexto do portal
+- listagem de chamados no portal validada com exibicao de chamados recem-criados
+- detalhe do portal validado com historico, anexos, comentarios publicos e SLA
+- integracao portal/admin validada em testes de listagem e detalhe administrativo
+
+Pendencias evolutivas:
+- homologacao manual com usuario real
+- testes E2E do fluxo portal->admin
+
+## Sprint Portal 4 - Fechamento tecnico
+
+Item: Abertura de chamado pelo portal
+- Situacao: Implementado funcionalmente
+- Status tecnico: Completo com pendencias evolutivas
+
+Entregas confirmadas:
+- backend da abertura validado
+- frontend /portal/chamados/novo validado
+- anexos, listagem e detalhe do portal validados
+- visibilidade na fila administrativa validada
+- historico inicial validado
+
+Pendencias evolutivas reais:
+- homologacao manual com usuario real
+- testes E2E frontend
+- validacao de anexos em ambiente real

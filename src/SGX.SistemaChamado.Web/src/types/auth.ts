@@ -24,11 +24,13 @@ export interface UsuarioOriginalEmulacao {
 
 export interface AuthState {
   inicializado: boolean
+  carregandoSessao: boolean
   carregando: boolean
   autenticado: boolean
   token: string | null
   usuario: UsuarioAutenticado | null
   erro: string | null
+  erroInicializacao: string | null
   modoLocal: boolean
   localDevEmail: string
   localDevNome: string

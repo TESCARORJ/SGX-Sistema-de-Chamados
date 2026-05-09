@@ -1,6 +1,12 @@
-import { defineStore } from 'pinia'
+﻿import { defineStore } from 'pinia'
 import { authService } from '../services/authService'
-import { httpClient, setHttpAuthToken, setHttpLocalDevHeaders } from '../services/httpClient'
+import {
+  HttpRequestError,
+  httpClient,
+  setHttpAuthRedirectSuppressed,
+  setHttpAuthToken,
+  setHttpLocalDevHeaders,
+} from '../services/httpClient'
 import type {
   AuthState,
   MeResponse,
@@ -22,10 +28,21 @@ const atendenteDemoEmail = 'atendente.demo@sgxdigital.com'
 const atendenteDemoNome = 'Atendente Demo'
 const atendenteDemoPerfil: PerfilEmulado = 'Atendente'
 const emulacaoSessionKey = 'sgx.auth.emulacao'
+const localContextSessionKey = 'sgx.auth.localContext'
+let inicializacaoPromise: Promise<boolean> | null = null
 
 interface EmulacaoSessionPayload {
   usuarioOriginal: UsuarioOriginalEmulacao
   perfilEmulado: PerfilEmulado
+}
+
+interface LocalContextSessionPayload {
+  email: string
+  nome: string
+  perfil: PerfilUsuario
+  emulandoPerfil: boolean
+  perfilEmulado: PerfilEmulado | null
+  usuarioOriginal: UsuarioOriginalEmulacao | null
 }
 
 function perfilParaRota(perfis: PerfilUsuario[]): '/admin' | '/portal' | '/acesso-negado' {
@@ -56,6 +73,14 @@ function obterPerfilAdministrativo(perfis: PerfilUsuario[], fallback: PerfilUsua
   return fallback
 }
 
+function ehPerfilUsuarioValido(perfil: unknown): perfil is PerfilUsuario {
+  return perfil === 'Administrador' || perfil === 'Atendente' || perfil === 'Solicitante'
+}
+
+function ehPerfilEmuladoValido(perfil: unknown): perfil is PerfilEmulado {
+  return perfil === 'Solicitante' || perfil === 'Atendente'
+}
+
 function salvarEmulacaoSessionStorage(payload: EmulacaoSessionPayload): void {
   if (typeof window === 'undefined') {
     return
@@ -80,6 +105,10 @@ function carregarEmulacaoSessionStorage(): EmulacaoSessionPayload | null {
       return null
     }
 
+    if (!ehPerfilEmuladoValido(payload.perfilEmulado) || !ehPerfilUsuarioValido(payload.usuarioOriginal.perfil)) {
+      return null
+    }
+
     return payload
   } catch {
     return null
@@ -92,6 +121,62 @@ function limparEmulacaoSessionStorage(): void {
   }
 
   window.sessionStorage.removeItem(emulacaoSessionKey)
+}
+
+function salvarContextoLocalSessionStorage(payload: LocalContextSessionPayload): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(localContextSessionKey, JSON.stringify(payload))
+}
+
+function carregarContextoLocalSessionStorage(): LocalContextSessionPayload | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const raw = window.sessionStorage.getItem(localContextSessionKey)
+  if (!raw) {
+    return null
+  }
+
+  try {
+    const payload = JSON.parse(raw) as LocalContextSessionPayload
+    if (!payload?.email || !payload?.nome || !ehPerfilUsuarioValido(payload?.perfil)) {
+      return null
+    }
+
+    if (typeof payload.emulandoPerfil !== 'boolean') {
+      return null
+    }
+
+    if (payload.perfilEmulado !== null && !ehPerfilEmuladoValido(payload.perfilEmulado)) {
+      return null
+    }
+
+    if (payload.usuarioOriginal) {
+      if (
+        !payload.usuarioOriginal.email ||
+        !payload.usuarioOriginal.nome ||
+        !ehPerfilUsuarioValido(payload.usuarioOriginal.perfil)
+      ) {
+        return null
+      }
+    }
+
+    return payload
+  } catch {
+    return null
+  }
+}
+
+function limparContextoLocalSessionStorage(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.removeItem(localContextSessionKey)
 }
 
 function obterDadosPerfilEmulado(perfil: PerfilEmulado): {
@@ -125,14 +210,58 @@ function normalizarUsuarioAutenticado(usuario: MeResponse): MeResponse {
   }
 }
 
+function construirUsuarioLocalFallback(contexto: LocalContextSessionPayload): MeResponse {
+  return {
+    id: contexto.email,
+    nome: contexto.nome,
+    email: contexto.email,
+    login: contexto.email,
+    situacao: 'Ativo',
+    perfis: [contexto.perfil],
+    permissoes: [],
+    departamentoId: null,
+    autenticadoPor: 'LocalDevelopment',
+  }
+}
+
+function ehErroNaoAutorizado(error: unknown): boolean {
+  return error instanceof HttpRequestError && (error.status === 401 || error.status === 403)
+}
+
+function ehErroCancelamento(error: unknown): boolean {
+  if (!error) {
+    return false
+  }
+
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    return true
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const candidate = error as { name?: string; code?: string; message?: string }
+    const mensagem = candidate.message?.toLowerCase() ?? ''
+    return (
+      candidate.name === 'CanceledError' ||
+      candidate.name === 'AbortError' ||
+      candidate.code === 'ERR_CANCELED' ||
+      mensagem.includes('aborted') ||
+      mensagem.includes('canceled')
+    )
+  }
+
+  return false
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     inicializado: false,
+    carregandoSessao: false,
     carregando: false,
     autenticado: false,
     token: null,
     usuario: null,
     erro: null,
+    erroInicializacao: null,
     modoLocal: modoLocalHabilitado,
     localDevEmail: adminLocalDevEmail,
     localDevNome: adminLocalDevNome,
@@ -220,9 +349,76 @@ export const useAuthStore = defineStore('auth', {
       })
     },
 
+    persistirContextoLocal(): void {
+      if (!this.modoLocal || import.meta.env.PROD || !this.autenticado) {
+        limparContextoLocalSessionStorage()
+        return
+      }
+
+      salvarContextoLocalSessionStorage({
+        email: this.localDevEmail,
+        nome: this.localDevNome,
+        perfil: this.localDevPerfil,
+        emulandoPerfil: this.emulandoPerfil,
+        perfilEmulado: this.perfilEmulado,
+        usuarioOriginal: this.usuarioOriginal,
+      })
+    },
+
+    restaurarContextoLocal(): LocalContextSessionPayload | null {
+      if (import.meta.env.PROD || !this.modoLocal) {
+        limparContextoLocalSessionStorage()
+        limparEmulacaoSessionStorage()
+        return null
+      }
+
+      const contextoAtual = carregarContextoLocalSessionStorage()
+      if (contextoAtual) {
+        return contextoAtual
+      }
+
+      const emulacaoLegada = carregarEmulacaoSessionStorage()
+      if (!emulacaoLegada) {
+        return null
+      }
+
+      const dadosPerfilEmulado = obterDadosPerfilEmulado(emulacaoLegada.perfilEmulado)
+      return {
+        email: dadosPerfilEmulado.email,
+        nome: dadosPerfilEmulado.nome,
+        perfil: dadosPerfilEmulado.perfil,
+        emulandoPerfil: true,
+        perfilEmulado: emulacaoLegada.perfilEmulado,
+        usuarioOriginal: emulacaoLegada.usuarioOriginal,
+      }
+    },
+
+    aplicarContextoLocal(contexto: LocalContextSessionPayload): void {
+      this.localDevEmail = contexto.email
+      this.localDevNome = contexto.nome
+      this.localDevPerfil = contexto.perfil
+      this.emulandoPerfil = contexto.emulandoPerfil
+      this.perfilEmulado = contexto.perfilEmulado
+      this.usuarioOriginal = contexto.usuarioOriginal
+
+      if (this.emulandoPerfil && this.usuarioOriginal && this.perfilEmulado) {
+        salvarEmulacaoSessionStorage({
+          usuarioOriginal: this.usuarioOriginal,
+          perfilEmulado: this.perfilEmulado,
+        })
+      } else {
+        limparEmulacaoSessionStorage()
+      }
+    },
+
     obterUsuarioOriginalPersistido(): UsuarioOriginalEmulacao | null {
       if (this.usuarioOriginal) {
         return this.usuarioOriginal
+      }
+
+      const contexto = carregarContextoLocalSessionStorage()
+      if (contexto?.usuarioOriginal) {
+        return contexto.usuarioOriginal
       }
 
       const payload = carregarEmulacaoSessionStorage()
@@ -236,35 +432,93 @@ export const useAuthStore = defineStore('auth', {
       limparEmulacaoSessionStorage()
     },
 
-    async initialize(): Promise<void> {
-      if (this.inicializado || this.carregando) {
-        return
+    async inicializarSessao(): Promise<boolean> {
+      if (this.inicializado) {
+        return this.autenticado
       }
 
-      this.carregando = true
-      this.erro = null
+      if (inicializacaoPromise) {
+        return await inicializacaoPromise
+      }
 
-      try {
-        if (this.modoLocal) {
-          this.limparEmulacao()
-          this.usuario = null
-          this.token = null
-          this.autenticado = false
-          setHttpAuthToken(null)
-          setHttpLocalDevHeaders(null)
-          return
+      inicializacaoPromise = (async (): Promise<boolean> => {
+        this.carregandoSessao = true
+        this.erro = null
+        this.erroInicializacao = null
+        setHttpAuthRedirectSuppressed(true)
+
+        try {
+        if (this.modoLocal && !import.meta.env.PROD) {
+          const contexto = this.restaurarContextoLocal()
+
+          if (contexto) {
+            this.aplicarContextoLocal(contexto)
+          } else {
+            this.localDevEmail = adminLocalDevEmail
+            this.localDevNome = adminLocalDevNome
+            this.localDevPerfil = adminLocalDevPerfil
+            this.limparEmulacao()
+          }
+
+          this.aplicarHeadersModoLocal()
+
+          try {
+            await this.carregarMe()
+            this.autenticado = true
+            this.persistirContextoLocal()
+            return true
+          } catch (error) {
+            if (ehErroNaoAutorizado(error)) {
+              this.reset()
+              this.autenticado = false
+              return false
+            } else if (ehErroCancelamento(error)) {
+              const contextoValido = Boolean(contexto || this.usuario || this.autenticado)
+              if (contexto && !this.usuario) {
+                this.usuario = construirUsuarioLocalFallback(contexto)
+                this.autenticado = true
+                this.persistirContextoLocal()
+                return true
+              }
+
+              this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
+              return contextoValido
+            } else if (contexto) {
+              this.usuario = construirUsuarioLocalFallback(contexto)
+              this.autenticado = true
+              this.erro = 'Sessão local restaurada parcialmente. Verifique a conectividade da API.'
+              this.erroInicializacao = this.erro
+              this.persistirContextoLocal()
+              return true
+            } else {
+              this.autenticado = false
+              this.usuario = null
+              this.erro = error instanceof Error ? error.message : 'Não foi possível restaurar a sessão local.'
+              this.erroInicializacao = this.erro
+              return false
+            }
+          }
         }
+
+        limparContextoLocalSessionStorage()
+        limparEmulacaoSessionStorage()
 
         const account = await authService.getAccount()
         if (!account) {
           this.autenticado = false
-          return
+          this.usuario = null
+          this.token = null
+          setHttpAuthToken(null)
+          return false
         }
 
         const token = await authService.acquireAccessToken(account)
         if (!token) {
           this.autenticado = false
-          return
+          this.usuario = null
+          this.token = null
+          setHttpAuthToken(null)
+          return false
         }
 
         setHttpAuthToken(token)
@@ -274,13 +528,36 @@ export const useAuthStore = defineStore('auth', {
 
         await this.carregarMe()
         this.autenticado = true
+        return true
       } catch (error) {
+        if (ehErroCancelamento(error)) {
+          this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
+          return this.autenticado
+        }
+
+        if (ehErroNaoAutorizado(error)) {
+          this.reset()
+          this.autenticado = false
+          return false
+        }
+
         this.reset()
         this.erro = error instanceof Error ? error.message : 'Não foi possível inicializar a autenticação.'
+        this.erroInicializacao = this.erro
+        return false
       } finally {
         this.inicializado = true
-        this.carregando = false
+        this.carregandoSessao = false
+        setHttpAuthRedirectSuppressed(false)
+        inicializacaoPromise = null
       }
+      })()
+
+      return await inicializacaoPromise
+    },
+
+    async initialize(): Promise<void> {
+      await this.inicializarSessao()
     },
 
     async loginMicrosoft(): Promise<void> {
@@ -299,6 +576,7 @@ export const useAuthStore = defineStore('auth', {
 
         setHttpAuthToken(token)
         setHttpLocalDevHeaders(null)
+        limparContextoLocalSessionStorage()
         this.limparEmulacao()
         this.token = token
 
@@ -310,12 +588,13 @@ export const useAuthStore = defineStore('auth', {
         throw error
       } finally {
         this.inicializado = true
+        this.carregandoSessao = false
         this.carregando = false
       }
     },
 
     async loginLocalDev(payload?: { email?: string; nome?: string; perfil?: PerfilUsuario }): Promise<void> {
-      if (!this.modoLocal) {
+      if (!this.modoLocal || import.meta.env.PROD) {
         throw new Error('Modo local de autenticacao esta desabilitado.')
       }
 
@@ -335,6 +614,7 @@ export const useAuthStore = defineStore('auth', {
         await this.carregarMe()
         this.autenticado = true
         this.inicializado = true
+        this.persistirContextoLocal()
       } catch (error) {
         this.reset()
         this.erro = error instanceof Error ? error.message : 'Falha no login local.'
@@ -406,6 +686,7 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         await this.carregarMe()
+        this.persistirContextoLocal()
       } catch (error) {
         this.localDevEmail = contextoAnterior.email
         this.localDevNome = contextoAnterior.nome
@@ -420,8 +701,10 @@ export const useAuthStore = defineStore('auth', {
             usuarioOriginal: usuarioOriginalAnterior,
             perfilEmulado: perfilAnteriorEmulacao,
           })
+          this.persistirContextoLocal()
         } else {
           this.limparEmulacao()
+          this.persistirContextoLocal()
         }
 
         const mensagem = error instanceof Error ? error.message : 'Não foi possível sincronizar usuário emulado.'
@@ -463,6 +746,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await this.carregarMe()
         this.limparEmulacao()
+        this.persistirContextoLocal()
       } catch (error) {
         this.localDevEmail = contextoEmuladoAtual.email
         this.localDevNome = contextoEmuladoAtual.nome
@@ -480,6 +764,8 @@ export const useAuthStore = defineStore('auth', {
         } else {
           limparEmulacaoSessionStorage()
         }
+
+        this.persistirContextoLocal()
 
         const mensagem = error instanceof Error ? error.message : 'Não foi possível restaurar usuário administrativo.'
         throw new Error(`Não foi possível encerrar a emulação. ${mensagem}`)
@@ -501,9 +787,11 @@ export const useAuthStore = defineStore('auth', {
       this.autenticado = false
       this.usuario = null
       this.token = null
+      this.erroInicializacao = null
       this.localDevEmail = adminLocalDevEmail
       this.localDevNome = adminLocalDevNome
       this.localDevPerfil = adminLocalDevPerfil
+      limparContextoLocalSessionStorage()
       setHttpAuthToken(null)
       setHttpLocalDevHeaders(null)
     },
@@ -514,3 +802,4 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
+
