@@ -13,6 +13,12 @@ public sealed class EmailWorkerOptions
     public bool TlsHabilitado { get; init; } = false;
     public int IntervaloSegundos { get; init; } = 60;
     public int MaxMensagensPorCiclo { get; init; } = 20;
+    public Guid? CategoriaPadraoId { get; init; }
+    public Guid? PrioridadePadraoId { get; init; }
+    public Guid? DepartamentoPadraoId { get; init; }
+    public string[] DominiosPermitidos { get; init; } = [];
+    public int TamanhoMaximoAnexoMb { get; init; } = 10;
+    public string[] ExtensoesPermitidas { get; init; } = [];
     public bool MarcarComoLidaAoProcessar { get; init; } = true;
     public bool MoverProcessadas { get; init; }
     public string PastaProcessadas { get; init; } = "Processadas";

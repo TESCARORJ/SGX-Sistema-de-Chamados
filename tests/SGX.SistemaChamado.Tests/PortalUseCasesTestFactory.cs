@@ -41,6 +41,22 @@ internal static class PortalUseCasesTestFactory
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             ]
         });
+
+    public static IOptions<EmailWorkerOptions> EmailWorkerOptionsPadrao =>
+        Options.Create(new EmailWorkerOptions
+        {
+            ImapHost = "imap.teste.local",
+            ImapPorta = 993,
+            Usuario = "worker@teste.local",
+            Senha = "nao-utilizada-em-testes",
+            Pasta = "INBOX",
+            SslHabilitado = true,
+            TlsHabilitado = false,
+            IntervaloSegundos = 60,
+            MaxMensagensPorCiclo = 20,
+            TamanhoMaximoAnexoMb = 10,
+            ExtensoesPermitidas = [".pdf", ".png", ".jpg", ".jpeg", ".txt", ".doc", ".docx", ".xls", ".xlsx"]
+        });
 }
 
 internal sealed class FakeUsuarioContextoAplicacaoService(UsuarioContextoAplicacao usuario) : IUsuarioContextoAplicacaoService

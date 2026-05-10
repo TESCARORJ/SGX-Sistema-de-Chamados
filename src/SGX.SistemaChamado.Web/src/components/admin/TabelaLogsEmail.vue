@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { useQuasar } from 'quasar'
 import type { LogIntegracaoEmailResumoResponse } from '../../types/integracaoEmail'
 import StatusProcessamentoEmailBadge from './StatusProcessamentoEmailBadge.vue'
@@ -14,18 +14,20 @@ const props = defineProps<{
 const emit = defineEmits<{
   alterarPagina: [pagina: number]
   verDetalhe: [id: string]
+  abrirChamado: [id: string]
 }>()
 
 const $q = useQuasar()
 
 const columns = [
   { name: 'dataRecebimento', label: 'Data recebimento', field: 'dataRecebimento', align: 'left' as const },
+  { name: 'dataProcessamento', label: 'Data processamento', field: 'dataProcessamento', align: 'left' as const },
   { name: 'remetente', label: 'Remetente', field: 'remetente', align: 'left' as const },
   { name: 'assunto', label: 'Assunto', field: 'assunto', align: 'left' as const },
   { name: 'status', label: 'Status', field: 'statusProcessamento', align: 'left' as const },
-  { name: 'chamado', label: 'Chamado vinculado', field: 'chamadoCodigo', align: 'left' as const },
+  { name: 'chamado', label: 'Chamado', field: 'chamadoCodigo', align: 'left' as const },
   { name: 'erro', label: 'Erro', field: 'erroResumido', align: 'left' as const },
-  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' as const },
+  { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' as const },
 ]
 
 function formatarData(valor: string | null): string {
@@ -50,6 +52,10 @@ function formatarData(valor: string | null): string {
       <q-td :props="slotProps">{{ formatarData(slotProps.row.dataRecebimento) }}</q-td>
     </template>
 
+    <template #body-cell-dataProcessamento="slotProps">
+      <q-td :props="slotProps">{{ formatarData(slotProps.row.dataProcessamento) }}</q-td>
+    </template>
+
     <template #body-cell-status="slotProps">
       <q-td :props="slotProps">
         <StatusProcessamentoEmailBadge :status="slotProps.row.statusProcessamento" />
@@ -57,7 +63,7 @@ function formatarData(valor: string | null): string {
     </template>
 
     <template #body-cell-chamado="slotProps">
-      <q-td :props="slotProps">{{ slotProps.row.chamadoCodigo ?? '-' }}</q-td>
+      <q-td :props="slotProps">{{ slotProps.row.chamadoCodigo ?? 'Sem vinculo' }}</q-td>
     </template>
 
     <template #body-cell-erro="slotProps">
@@ -68,7 +74,16 @@ function formatarData(valor: string | null): string {
 
     <template #body-cell-acoes="slotProps">
       <q-td :props="slotProps">
-        <q-btn flat color="primary" label="Ver detalhe" @click="emit('verDetalhe', slotProps.row.id)" />
+        <div class="row justify-end q-gutter-xs no-wrap">
+          <q-btn flat color="primary" label="Ver detalhe" @click="emit('verDetalhe', slotProps.row.id)" />
+          <q-btn
+            v-if="slotProps.row.chamadoId"
+            flat
+            color="secondary"
+            label="Abrir chamado"
+            @click="emit('abrirChamado', slotProps.row.chamadoId)"
+          />
+        </div>
       </q-td>
     </template>
   </q-table>

@@ -15,9 +15,12 @@ public sealed class FiltroLogsEmailRequestValidator : AbstractValidator<FiltroLo
             .InclusiveBetween(1, 200)
             .WithMessage("TamanhoPagina deve estar entre 1 e 200.");
 
-        RuleFor(x => x.DataFim)
-            .GreaterThanOrEqualTo(x => x.DataInicio!.Value)
-            .When(x => x.DataInicio.HasValue && x.DataFim.HasValue)
-            .WithMessage("DataFim deve ser maior ou igual a DataInicio.");
+        RuleFor(x => x)
+            .Must(x => !x.DataInicialEfetiva.HasValue || !x.DataFinalEfetiva.HasValue || x.DataFinalEfetiva.Value >= x.DataInicialEfetiva.Value)
+            .WithMessage("Data final deve ser maior ou igual a data inicial.");
+
+        RuleFor(x => x.Direcao)
+            .Must(v => string.IsNullOrWhiteSpace(v) || string.Equals(v, "asc", StringComparison.OrdinalIgnoreCase) || string.Equals(v, "desc", StringComparison.OrdinalIgnoreCase))
+            .WithMessage("Direcao deve ser asc ou desc.");
     }
 }

@@ -11,6 +11,7 @@ export interface RoadmapItsmResumoResponse {
   id: string
   area: string
   categoria: string
+  objetivo: string | null
   roadmapCategoriaId: string | null
   roadmapCategoriaNome: string | null
   roadmapCategoriaCor: string | null
@@ -57,6 +58,7 @@ export interface RoadmapItsmDetalheResponse extends RoadmapItsmResumoResponse {
 export interface CriarRoadmapItsmItemRequest {
   area: string
   categoria: string
+  objetivo?: string | null
   roadmapCategoriaId?: string | null
   situacaoAtual: string
   atencaoTecnica: string

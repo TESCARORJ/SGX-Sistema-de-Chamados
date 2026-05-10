@@ -87,8 +87,14 @@ Diretriz de seguranca:
 
 - `Status` permanece como classificacao geral/legado para compatibilidade.
 - `StatusImplementacao` e a referencia principal para maturidade real da entrega.
+- `Objetivo` descreve a finalidade de cada item e a necessidade de negocio/operacao que ele resolve.
 - `Implementado funcionalmente` significa entrega tecnica feita, mas ainda nao implica homologacao final ou producao.
 - Pendencias evolutivas devem ser registradas em `PendenciasTecnicas`, `PendenciasHomologacao` e `ProximaAcao`.
+
+Exemplos de objetivo preenchido:
+- Abertura de chamado pelo portal
+- Abertura por e-mail
+- Perfis de acesso
 
 ## Roadmap ITSM - futuras implementacoes
 
@@ -135,3 +141,65 @@ Pendencias evolutivas reais:
 - homologacao manual com usuario real
 - testes E2E frontend
 - validacao de anexos em ambiente real
+
+## Sprint Integracoes E-mail 2 - Atualizacao
+
+Entregas tecnicas confirmadas:
+- abertura automatica de chamado para e-mail novo;
+- origem `Email` aplicada ao chamado;
+- status inicial `Aberto` aplicado;
+- historico inicial `Chamado criado a partir de e-mail`;
+- deduplicacao por `MessageId` mantida;
+- configuracoes de categoria/prioridade/departamento/dominios no `EmailWorker`.
+
+Pendencias para evolucao:
+- correlacao avancada de respostas;
+- escopo completo de anexos por e-mail;
+- validacao IMAP real com caixa institucional;
+- homologacao com e-mails reais.
+
+## Sprint Integracoes E-mail 3 - Atualizacao
+
+Entregas tecnicas confirmadas:
+- correlacao de resposta por codigo no assunto (`SGX`/`CHM`);
+- correlacao por `InReplyTo` e `References` via `LogIntegracaoEmail`;
+- resposta correlacionada gera comentario publico e historico de resposta;
+- anexos validados por extensao, tamanho e MIME;
+- bloqueio explicito de extensoes perigosas e tentativa de path traversal;
+- sucesso parcial de anexos sem derrubar processamento do Worker.
+
+Pendencias evolutivas:
+- validacao IMAP real e homologacao com e-mails reais;
+- OAuth para caixa Microsoft (se exigido pelo ambiente);
+- retry/backoff, dead-letter e reprocessamento manual;
+- varredura antivirus e sanitizacao HTML avancada;
+- monitoramento operacional e E2E com IMAP real.
+
+## Sprint Integracoes E-mail 4 - Atualizacao
+
+Entregas tecnicas confirmadas:
+- endpoints administrativos de logs de e-mail com listagem, detalhe, filtros, ordenacao e paginacao;
+- tela administrativa `/admin/integracoes/email` com filtros, estado vazio/erro/loading e dialog tecnico;
+- labels amigaveis de status (`Nao correlacionado` sem enum cru na UI);
+- acao de abrir chamado vinculado a partir da tabela e do detalhe do log;
+- bloqueio de acesso para `Solicitante` mantido em backend e frontend.
+
+Pendencias evolutivas:
+- validacao com caixa IMAP real e homologacao com e-mails reais;
+- reprocessamento manual, retry/backoff e dead-letter;
+- monitoramento operacional do Worker e E2E com IMAP real.
+
+## Sprint Integracoes E-mail 5 - Atualizacao
+
+Fechamento tecnico realizado:
+- item `Abertura por e-mail` atualizado para `Implementado funcionalmente`;
+- status tecnico atualizado para `Completo com pendencias evolutivas`;
+- checklist tecnico/evolutivo vinculado ao roadmap com percentual automatico por itens ativos;
+- documentacao consolidada de configuracao, processamento, correlacao, anexos e logs administrativos.
+
+Pendencias reais mantidas:
+- validacao IMAP real e homologacao com e-mails/anexos reais;
+- OAuth Microsoft (se exigido), retry/backoff, dead-letter;
+- monitoramento/metricas/alertas do Worker;
+- reprocessamento manual de mensagens com erro;
+- sanitizacao HTML avancada e antivirus de anexos.

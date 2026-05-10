@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260509213632_AddIntegracaoEmailLogs")]
+    partial class AddIntegracaoEmailLogs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2307,566 +2310,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("68686868-6868-6868-6868-686868686701"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Worker",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 1,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Projeto Worker.Email validado/criado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686702"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Configuracao",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 2,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Configuracoes IMAP definidas"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686703"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Worker",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 3,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Leitura IMAP implementada"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686704"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Worker",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 4,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Processamento em lote implementado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686705"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Persistencia",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 5,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "LogIntegracaoEmail implementado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686706"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Consistencia",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 6,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Prevencao de duplicidade por MessageId implementada"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686707"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Chamado",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 7,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "E-mail novo cria chamado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686708"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Chamado",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 8,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Origem E-mail aplicada ao chamado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686709"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Chamado",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 9,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Status inicial Aberto aplicado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686710"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Historico",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 10,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Historico inicial criado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686711"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Correlacao",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 11,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Correlacao por codigo do chamado implementada"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686712"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Correlacao",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 12,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Correlacao por Message-Id/In-Reply-To implementada"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686713"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Comentarios",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 13,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Resposta por e-mail adiciona comentario"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686714"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Anexos",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 14,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Anexos por e-mail validados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686715"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Anexos",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 15,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Anexos permitidos sao salvos"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686716"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Anexos",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 16,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Anexos invalidos sao rejeitados e logados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686717"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Admin",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 17,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Endpoint de logs administrativos implementado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686718"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Frontend",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 18,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Tela /admin/integracoes/email validada"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686719"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Frontend",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 19,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Filtros de logs implementados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686720"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Frontend",
-                            Grupo = 2,
-                            Obrigatorio = true,
-                            Ordem = 20,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Detalhe de log em dialog implementado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686721"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Testes",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 21,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Testes unitarios de processamento criados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686722"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Testes",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 22,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Testes de correlacao criados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686723"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Testes",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 23,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Testes de anexos criados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686724"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Validacao",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 24,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Build backend validado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686725"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Validacao",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 25,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Testes backend executados"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686726"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Validacao",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 26,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Build Worker validado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686727"),
-                            Ativo = true,
-                            Concluido = true,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Validacao",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 27,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Build frontend validado"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686728"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Homologacao",
-                            Grupo = 5,
-                            Obrigatorio = true,
-                            Ordem = 28,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Validacao com caixa IMAP real"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686729"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Homologacao",
-                            Grupo = 5,
-                            Obrigatorio = true,
-                            Ordem = 29,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Homologacao com e-mails reais"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686730"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Homologacao",
-                            Grupo = 5,
-                            Obrigatorio = true,
-                            Ordem = 30,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Validacao com anexos reais"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686731"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Evolucao",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 31,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Autenticacao OAuth para caixa Microsoft, se exigido"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686732"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Evolucao",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 32,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Retry/backoff em falhas temporarias"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686733"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Evolucao",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 33,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Dead-letter ou fila de mensagens com erro"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686734"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Evolucao",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 34,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Monitoramento/health check do Worker"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686735"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Evolucao",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 35,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Painel de reprocessamento manual de e-mails com erro"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686736"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Seguranca",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 36,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Sanitizacao avancada de HTML"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686737"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Seguranca",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 37,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Antivirus/varredura de anexos"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686738"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Testes",
-                            Grupo = 3,
-                            Obrigatorio = true,
-                            Ordem = 38,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Teste E2E com IMAP real"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686739"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Observabilidade",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 39,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Metricas operacionais do Worker"
-                        },
-                        new
-                        {
-                            Id = new Guid("68686868-6868-6868-6868-686868686740"),
-                            Ativo = true,
-                            Concluido = false,
-                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CriadoPor = "seed.sistema",
-                            Descricao = "Grupo solicitado: Observabilidade",
-                            Grupo = 1,
-                            Obrigatorio = true,
-                            Ordem = 40,
-                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777702"),
-                            Titulo = "Alertas de falha recorrente no processamento de e-mail"
-                        },
-                        new
-                        {
                             Id = new Guid("67676767-6767-6767-6767-676767676701"),
                             Ativo = true,
                             Concluido = true,
@@ -3166,11 +2609,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("impacto");
 
-                    b.Property<string>("Objetivo")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
-                        .HasColumnName("objetivo");
-
                     b.Property<string>("Observacao")
                         .HasMaxLength(1200)
                         .HasColumnType("character varying(1200)")
@@ -3258,7 +2696,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Decisao = 1,
                             EvidenciaImplementacao = "GET /api/portal/contexto; POST /api/portal/chamados; tela /portal/chamados/novo; listagem /portal/chamados; detalhe /portal/chamados/:id; fila /admin/chamados; testes backend; build frontend.",
                             Impacto = 1,
-                            Objetivo = "Permitir que o solicitante autenticado registre chamados diretamente pelo portal, informando titulo, descricao, categoria, prioridade e anexos opcionais, acompanhando depois o andamento, historico e status do atendimento.",
                             Observacao = "Implementado funcionalmente; nao homologado em usuario real nesta iteracao.",
                             Ordem = 1,
                             PendenciasHomologacao = "Validar com usuário real o fluxo completo de abrir chamado, anexar arquivo, acompanhar no portal e visualizar na fila administrativa.",
@@ -3276,34 +2713,27 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777702"),
                             Area = "Abertura por e-mail",
-                            AtencaoTecnica = "Validar com caixa IMAP real, e-mails reais, anexos reais e regras de autenticacao exigidas pelo ambiente.",
+                            AtencaoTecnica = "Testar e mostrar correlacao por codigo, assunto e resposta",
                             Ativo = true,
-                            Categoria = "Integracoes",
+                            Categoria = "Integracao",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "E-mail recebido na caixa configurada e processado pelo Worker, criando chamado com origem E-mail, status inicial, historico e vinculo com remetente. Respostas correlacionadas adicionam comentario ao chamado existente. Anexos permitidos sao tratados conforme regras de seguranca. Logs tecnicos ficam disponiveis na area administrativa.",
-                            Decisao = 1,
-                            EvidenciaImplementacao = "Worker.Email; EmailWorkerOptions; LogIntegracaoEmail; ProcessarEmailRecebidoUseCase; EmailParaChamadoService; correlacao por assunto e headers; anexos por e-mail; endpoints de logs; tela /admin/integracoes/email; testes automatizados; docs/INTEGRACAO-EMAIL.md.",
+                            Decisao = 4,
                             Impacto = 1,
-                            Objetivo = "Permitir que e-mails recebidos em uma caixa configurada sejam processados pelo Worker IMAP para criar chamados automaticamente, correlacionar respostas com chamados existentes, registrar anexos permitidos e manter logs tecnicos de processamento.",
-                            Observacao = "Implementado funcionalmente; nao homologado e nao em producao sem validacao IMAP real.",
                             Ordem = 2,
-                            PendenciasHomologacao = "Validacao com caixa IMAP real, homologacao com e-mails reais e validacao com anexos reais.",
-                            PendenciasTecnicas = "OAuth Microsoft (se exigido), retry/backoff, dead-letter, monitoramento do Worker, reprocessamento manual, sanitizacao avancada de HTML, antivirus de anexos e metricas/alertas operacionais.",
-                            PercentualImplementacao = 68,
+                            PercentualImplementacao = 0,
                             Prioridade = 1,
-                            ProximaAcao = "Validar com caixa IMAP real em homologacao.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666604"),
-                            SituacaoAtual = "Fluxo implementado tecnicamente via Worker.Email, com criacao de chamado por e-mail, correlacao de respostas, tratamento de anexos e logs administrativos.",
-                            Status = 1,
-                            StatusImplementacao = 3,
-                            StatusTecnico = 3
+                            SituacaoAtual = "Prevista via Worker IMAP",
+                            Status = 2,
+                            StatusImplementacao = 0,
+                            StatusTecnico = 0
                         },
                         new
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777703"),
                             Area = "Perfis de acesso",
-                            AtencaoTecnica = "Validar permissoes finas por tela e acao durante homologacao e evoluir auditoria detalhada de alteracoes de permissoes.",
+                            AtencaoTecnica = "Validar permissoes finas por tela e acao",
                             Ativo = true,
                             Categoria = "Seguranca",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -3312,7 +2742,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Decisao = 1,
                             EvidenciaImplementacao = "docs/SEGURANCA-PERFIS-PERMISSOES.md; docs/ROADMAP.md; testes backend com permissoes; matriz de permissoes no frontend.",
                             Impacto = 1,
-                            Objetivo = "Controlar o acesso ao sistema por perfis e permissoes granulares, permitindo definir o que Administradores, Atendentes e Solicitantes podem visualizar, executar e administrar sem necessidade de alteracao de codigo.",
                             Observacao = "Status legado mantido para compatibilidade; usar StatusImplementacao como referencia principal.",
                             Ordem = 3,
                             PendenciasHomologacao = "Validar com usuarios reais os perfis Administrador, Atendente e Solicitante, incluindo acoes permitidas e bloqueadas.",
@@ -3323,7 +2752,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             ProximaAcao = "Executar homologacao com usuarios reais e priorizar auditoria detalhada.",
                             Responsavel = "Thiago Tescaro",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666601"),
-                            SituacaoAtual = "Perfis macro, permissoes granulares, matriz de permissoes, /api/me com permissoes efetivas e controle visual por permissao implementados.",
+                            SituacaoAtual = "Administrador, Atendente e Solicitante",
                             Status = 1,
                             StatusImplementacao = 3,
                             StatusTecnico = 3

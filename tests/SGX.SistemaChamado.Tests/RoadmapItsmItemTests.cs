@@ -13,6 +13,7 @@ public sealed class RoadmapItsmItemTests
         var item = new RoadmapItsmItem(
             "Seguranca",
             "Validacao",
+            "Validar controles de acesso",
             null,
             "Em andamento",
             "Ajustar permissao por rota",

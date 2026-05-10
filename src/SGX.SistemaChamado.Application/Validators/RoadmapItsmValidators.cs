@@ -43,6 +43,11 @@ public sealed class CriarRoadmapItsmItemRequestValidator : AbstractValidator<Cri
         RuleFor(x => x.RoadmapCategoriaId)
             .NotEmpty().WithMessage("RoadmapCategoriaId e obrigatorio.");
 
+        RuleFor(x => x.Objetivo)
+            .MaximumLength(4000)
+            .When(x => !string.IsNullOrWhiteSpace(x.Objetivo))
+            .WithMessage("Objetivo deve ter no maximo 4000 caracteres.");
+
         RuleFor(x => x.SituacaoAtual)
             .NotEmpty().WithMessage("Situacao atual e obrigatoria.")
             .MaximumLength(800).WithMessage("Situacao atual deve ter no maximo 800 caracteres.");
@@ -134,6 +139,11 @@ public sealed class AtualizarRoadmapItsmItemRequestValidator : AbstractValidator
 
         RuleFor(x => x.RoadmapCategoriaId)
             .NotEmpty().WithMessage("RoadmapCategoriaId e obrigatorio.");
+
+        RuleFor(x => x.Objetivo)
+            .MaximumLength(4000)
+            .When(x => !string.IsNullOrWhiteSpace(x.Objetivo))
+            .WithMessage("Objetivo deve ter no maximo 4000 caracteres.");
 
         RuleFor(x => x.SituacaoAtual)
             .NotEmpty().WithMessage("Situacao atual e obrigatoria.")

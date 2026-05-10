@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\src\SGX.SistemaChamado.Application\SGX.SistemaChamado.Application.csproj" />
     <ProjectReference Include="..\..\src\SGX.SistemaChamado.Infrastructure\SGX.SistemaChamado.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\SGX.SistemaChamado.Api\SGX.SistemaChamado.Api.csproj" />
+    <ProjectReference Include="..\..\src\SGX.SistemaChamado.Worker.Email\SGX.SistemaChamado.Worker.Email.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,6 +11,14 @@ const emit = defineEmits<{
 }>()
 
 const form = reactive<FiltroLogsEmailRequest>({
+  dataInicial: undefined,
+  dataFinal: undefined,
+  status: undefined,
+  remetente: undefined,
+  chamadoId: undefined,
+  codigoChamado: undefined,
+  assunto: undefined,
+  messageId: undefined,
   pagina: 1,
   tamanhoPagina: 20,
 })
@@ -18,7 +26,9 @@ const form = reactive<FiltroLogsEmailRequest>({
 const statusOptions: { label: string; value: StatusProcessamentoEmail }[] = [
   { label: 'Pendente', value: 'Pendente' },
   { label: 'Processado', value: 'Processado' },
-  { label: 'Ignorado duplicado', value: 'IgnoradoDuplicado' },
+  { label: 'Ignorado', value: 'Ignorado' },
+  { label: 'Duplicado', value: 'Duplicado' },
+  { label: 'Não correlacionado', value: 'NaoCorrelacionado' },
   { label: 'Erro', value: 'Erro' },
 ]
 
@@ -27,12 +37,19 @@ function aplicarFiltros(): void {
 }
 
 function limparFiltros(): void {
+  form.dataInicial = undefined
+  form.dataFinal = undefined
   form.dataInicio = undefined
   form.dataFim = undefined
   form.status = undefined
   form.remetente = undefined
   form.chamadoId = undefined
+  form.codigoChamado = undefined
+  form.assunto = undefined
+  form.messageId = undefined
   form.texto = undefined
+  form.ordenarPor = undefined
+  form.direcao = undefined
   form.pagina = 1
   form.tamanhoPagina = 20
   emit('filtrar', { ...form })
@@ -43,10 +60,10 @@ function limparFiltros(): void {
   <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6 col-md-2">
-        <q-input v-model="form.dataInicio" label="Data inicio" type="date" dense outlined />
+        <q-input v-model="form.dataInicial" label="Data inicial" type="date" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
-        <q-input v-model="form.dataFim" label="Data fim" type="date" dense outlined />
+        <q-input v-model="form.dataFinal" label="Data final" type="date" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
         <q-select
@@ -62,14 +79,20 @@ function limparFiltros(): void {
           outlined
         />
       </div>
-      <div class="col-12 col-sm-6 col-md-3">
+      <div class="col-12 col-sm-6 col-md-2">
         <q-input v-model="form.remetente" label="Remetente" dense outlined />
       </div>
-      <div class="col-12 col-sm-6 col-md-3">
+      <div class="col-12 col-sm-6 col-md-2">
         <q-input v-model="form.chamadoId" label="Chamado (ID)" dense outlined />
       </div>
-      <div class="col-12 col-sm-6 col-md-4">
-        <q-input v-model="form.texto" label="Busca livre" dense outlined />
+      <div class="col-12 col-sm-6 col-md-2">
+        <q-input v-model="form.codigoChamado" label="Codigo chamado" dense outlined />
+      </div>
+      <div class="col-12 col-sm-6 col-md-2">
+        <q-input v-model="form.assunto" label="Assunto" dense outlined />
+      </div>
+      <div class="col-12 col-sm-6 col-md-2">
+        <q-input v-model="form.messageId" label="MessageId" dense outlined />
       </div>
       <div class="col-12 col-sm-6 col-md-2">
         <q-input
@@ -86,7 +109,7 @@ function limparFiltros(): void {
 
     <div class="row justify-end q-gutter-sm">
       <q-btn type="submit" color="primary" label="Filtrar" :loading="loading" />
-      <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
+      <q-btn flat color="primary" label="Limpar filtros" :disable="loading" @click="limparFiltros" />
     </div>
   </q-form>
 </template>

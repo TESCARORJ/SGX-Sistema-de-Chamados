@@ -124,6 +124,12 @@ public sealed class MailKitEmailImapClient(
     private static async Task<EmailMessageData> MapearMensagemAsync(UniqueId uid, MimeMessage mimeMessage, CancellationToken cancellationToken)
     {
         var remetente = mimeMessage.From.Mailboxes.FirstOrDefault();
+        var destinatarios = mimeMessage.To.Mailboxes
+            .Select(x => x.Address)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim().ToLowerInvariant())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
         var anexos = new List<EmailAttachmentData>();
 
         foreach (var attachment in mimeMessage.Attachments)
@@ -140,7 +146,8 @@ public sealed class MailKitEmailImapClient(
 
                     var nome = string.IsNullOrWhiteSpace(mimePart.FileName) ? "anexo.bin" : mimePart.FileName;
                     var contentType = mimePart.ContentType?.MimeType ?? "application/octet-stream";
-                    anexos.Add(new EmailAttachmentData(nome, contentType, stream.ToArray()));
+                    var conteudo = stream.ToArray();
+                    anexos.Add(new EmailAttachmentData(nome, contentType, conteudo, conteudo.LongLength, mimePart.ContentId));
                     break;
                 }
                 case MessagePart messagePart:
@@ -154,7 +161,8 @@ public sealed class MailKitEmailImapClient(
                     var nome = messagePart.ContentDisposition?.FileName ??
                                messagePart.ContentType?.Name ??
                                "mensagem.eml";
-                    anexos.Add(new EmailAttachmentData(nome, "message/rfc822", stream.ToArray()));
+                    var conteudo = stream.ToArray();
+                    anexos.Add(new EmailAttachmentData(nome, "message/rfc822", conteudo, conteudo.LongLength, messagePart.ContentId));
                     break;
                 }
             }
@@ -167,6 +175,7 @@ public sealed class MailKitEmailImapClient(
             InReplyTo = NormalizarHeader(mimeMessage.InReplyTo),
             References = mimeMessage.References.Select(NormalizarHeader).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray()!,
             RemetenteEmail = remetente?.Address ?? string.Empty,
+            Destinatario = destinatarios.Length == 0 ? null : string.Join(';', destinatarios),
             RemetenteNome = remetente?.Name,
             Assunto = mimeMessage.Subject ?? string.Empty,
             CorpoTexto = mimeMessage.TextBody,

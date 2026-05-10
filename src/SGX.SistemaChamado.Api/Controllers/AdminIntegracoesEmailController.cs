@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Application.DTOs.Admin;
@@ -34,6 +35,10 @@ public sealed class AdminIntegracoesEmailController(
         {
             return Forbid();
         }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Nao foi possivel carregar os logs de integracao de e-mail." });
+        }
     }
 
     [HttpGet("{id:guid}")]
@@ -52,6 +57,10 @@ public sealed class AdminIntegracoesEmailController(
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { mensagem = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Nao foi possivel carregar o detalhe do log de integracao de e-mail." });
         }
     }
 }

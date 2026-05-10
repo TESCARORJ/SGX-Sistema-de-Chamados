@@ -122,6 +122,46 @@ public static class SeedData
     public static readonly Guid ChecklistPortalFluxoCompletoAcompanharId = Guid.Parse("67676767-6767-6767-6767-676767676733");
     public static readonly Guid ChecklistPortalSolicitanteEntraId = Guid.Parse("67676767-6767-6767-6767-676767676734");
     public static readonly Guid ChecklistPortalAtendenteFilaId = Guid.Parse("67676767-6767-6767-6767-676767676735");
+    public static readonly Guid ChecklistEmailWorkerProjetoValidadoId = Guid.Parse("68686868-6868-6868-6868-686868686701");
+    public static readonly Guid ChecklistEmailConfiguracoesImapDefinidasId = Guid.Parse("68686868-6868-6868-6868-686868686702");
+    public static readonly Guid ChecklistEmailLeituraImapImplementadaId = Guid.Parse("68686868-6868-6868-6868-686868686703");
+    public static readonly Guid ChecklistEmailProcessamentoLoteImplementadoId = Guid.Parse("68686868-6868-6868-6868-686868686704");
+    public static readonly Guid ChecklistEmailLogIntegracaoImplementadoId = Guid.Parse("68686868-6868-6868-6868-686868686705");
+    public static readonly Guid ChecklistEmailDeduplicacaoMessageIdId = Guid.Parse("68686868-6868-6868-6868-686868686706");
+    public static readonly Guid ChecklistEmailNovoCriaChamadoId = Guid.Parse("68686868-6868-6868-6868-686868686707");
+    public static readonly Guid ChecklistEmailOrigemAplicadaId = Guid.Parse("68686868-6868-6868-6868-686868686708");
+    public static readonly Guid ChecklistEmailStatusAbertoAplicadoId = Guid.Parse("68686868-6868-6868-6868-686868686709");
+    public static readonly Guid ChecklistEmailHistoricoInicialCriadoId = Guid.Parse("68686868-6868-6868-6868-686868686710");
+    public static readonly Guid ChecklistEmailCorrelacaoCodigoAssuntoId = Guid.Parse("68686868-6868-6868-6868-686868686711");
+    public static readonly Guid ChecklistEmailCorrelacaoHeadersId = Guid.Parse("68686868-6868-6868-6868-686868686712");
+    public static readonly Guid ChecklistEmailRespostaAdicionaComentarioId = Guid.Parse("68686868-6868-6868-6868-686868686713");
+    public static readonly Guid ChecklistEmailAnexosValidadosId = Guid.Parse("68686868-6868-6868-6868-686868686714");
+    public static readonly Guid ChecklistEmailAnexosPermitidosSalvosId = Guid.Parse("68686868-6868-6868-6868-686868686715");
+    public static readonly Guid ChecklistEmailAnexosInvalidosRejeitadosId = Guid.Parse("68686868-6868-6868-6868-686868686716");
+    public static readonly Guid ChecklistEmailEndpointLogsAdminId = Guid.Parse("68686868-6868-6868-6868-686868686717");
+    public static readonly Guid ChecklistEmailTelaAdminValidadaId = Guid.Parse("68686868-6868-6868-6868-686868686718");
+    public static readonly Guid ChecklistEmailFiltrosLogsImplementadosId = Guid.Parse("68686868-6868-6868-6868-686868686719");
+    public static readonly Guid ChecklistEmailDetalheDialogImplementadoId = Guid.Parse("68686868-6868-6868-6868-686868686720");
+    public static readonly Guid ChecklistEmailTestesProcessamentoId = Guid.Parse("68686868-6868-6868-6868-686868686721");
+    public static readonly Guid ChecklistEmailTestesCorrelacaoId = Guid.Parse("68686868-6868-6868-6868-686868686722");
+    public static readonly Guid ChecklistEmailTestesAnexosId = Guid.Parse("68686868-6868-6868-6868-686868686723");
+    public static readonly Guid ChecklistEmailBuildBackendValidadoId = Guid.Parse("68686868-6868-6868-6868-686868686724");
+    public static readonly Guid ChecklistEmailTestesBackendExecutadosId = Guid.Parse("68686868-6868-6868-6868-686868686725");
+    public static readonly Guid ChecklistEmailBuildWorkerValidadoId = Guid.Parse("68686868-6868-6868-6868-686868686726");
+    public static readonly Guid ChecklistEmailBuildFrontendValidadoId = Guid.Parse("68686868-6868-6868-6868-686868686727");
+    public static readonly Guid ChecklistEmailValidacaoCaixaImapRealId = Guid.Parse("68686868-6868-6868-6868-686868686728");
+    public static readonly Guid ChecklistEmailHomologacaoEmailsReaisId = Guid.Parse("68686868-6868-6868-6868-686868686729");
+    public static readonly Guid ChecklistEmailValidacaoAnexosReaisId = Guid.Parse("68686868-6868-6868-6868-686868686730");
+    public static readonly Guid ChecklistEmailOauthMicrosoftId = Guid.Parse("68686868-6868-6868-6868-686868686731");
+    public static readonly Guid ChecklistEmailRetryBackoffId = Guid.Parse("68686868-6868-6868-6868-686868686732");
+    public static readonly Guid ChecklistEmailDeadLetterId = Guid.Parse("68686868-6868-6868-6868-686868686733");
+    public static readonly Guid ChecklistEmailMonitoramentoWorkerId = Guid.Parse("68686868-6868-6868-6868-686868686734");
+    public static readonly Guid ChecklistEmailReprocessamentoManualId = Guid.Parse("68686868-6868-6868-6868-686868686735");
+    public static readonly Guid ChecklistEmailSanitizacaoHtmlAvancadaId = Guid.Parse("68686868-6868-6868-6868-686868686736");
+    public static readonly Guid ChecklistEmailAntivirusAnexosId = Guid.Parse("68686868-6868-6868-6868-686868686737");
+    public static readonly Guid ChecklistEmailTesteE2eImapRealId = Guid.Parse("68686868-6868-6868-6868-686868686738");
+    public static readonly Guid ChecklistEmailMetricasOperacionaisId = Guid.Parse("68686868-6868-6868-6868-686868686739");
+    public static readonly Guid ChecklistEmailAlertasFalhaRecorrenteId = Guid.Parse("68686868-6868-6868-6868-686868686740");
 
     public static readonly object[] PerfisAcesso =
     [
@@ -415,6 +455,7 @@ public static class SeedData
             Id = RoadmapItsmItem01Id,
             Area = "Abertura de chamado pelo portal",
             Categoria = "Portal",
+            Objetivo = "Permitir que o solicitante autenticado registre chamados diretamente pelo portal, informando titulo, descricao, categoria, prioridade e anexos opcionais, acompanhando depois o andamento, historico e status do atendimento.",
             RoadmapCategoriaId = RoadmapCategoriaPortalId,
             SituacaoAtual = "Fluxo implementado no portal com abertura, anexos opcionais, listagem e detalhe",
             AtencaoTecnica = "Validar com usuario real e consolidar evidencias de homologacao",
@@ -446,25 +487,26 @@ public static class SeedData
         {
             Id = RoadmapItsmItem02Id,
             Area = "Abertura por e-mail",
-            Categoria = "Integracao",
+            Categoria = "Integracoes",
+            Objetivo = "Permitir que e-mails recebidos em uma caixa configurada sejam processados pelo Worker IMAP para criar chamados automaticamente, correlacionar respostas com chamados existentes, registrar anexos permitidos e manter logs tecnicos de processamento.",
             RoadmapCategoriaId = RoadmapCategoriaIntegracoesId,
-            SituacaoAtual = "Prevista via Worker IMAP",
-            AtencaoTecnica = "Testar e mostrar correlacao por codigo, assunto e resposta",
-            Status = StatusRoadmapItsm.EmValidacao,
+            SituacaoAtual = "Fluxo implementado tecnicamente via Worker.Email, com criacao de chamado por e-mail, correlacao de respostas, tratamento de anexos e logs administrativos.",
+            AtencaoTecnica = "Validar com caixa IMAP real, e-mails reais, anexos reais e regras de autenticacao exigidas pelo ambiente.",
+            Status = StatusRoadmapItsm.Implementado,
             Prioridade = PrioridadeRoadmapItsm.Alta,
             Impacto = ImpactoRoadmapItsm.Alto,
-            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            Decisao = DecisaoRoadmapItsm.DesenvolverAgora,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas,
+            PercentualImplementacao = 68,
+            PendenciasTecnicas = "OAuth Microsoft (se exigido), retry/backoff, dead-letter, monitoramento do Worker, reprocessamento manual, sanitizacao avancada de HTML, antivirus de anexos e metricas/alertas operacionais.",
+            PendenciasHomologacao = "Validacao com caixa IMAP real, homologacao com e-mails reais e validacao com anexos reais.",
+            EvidenciaImplementacao = "Worker.Email; EmailWorkerOptions; LogIntegracaoEmail; ProcessarEmailRecebidoUseCase; EmailParaChamadoService; correlacao por assunto e headers; anexos por e-mail; endpoints de logs; tela /admin/integracoes/email; testes automatizados; docs/INTEGRACAO-EMAIL.md.",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "E-mail recebido na caixa configurada e processado pelo Worker, criando chamado com origem E-mail, status inicial, historico e vinculo com remetente. Respostas correlacionadas adicionam comentario ao chamado existente. Anexos permitidos sao tratados conforme regras de seguranca. Logs tecnicos ficam disponiveis na area administrativa.",
+            ProximaAcao = "Validar com caixa IMAP real em homologacao.",
+            Observacao = "Implementado funcionalmente; nao homologado e nao em producao sem validacao IMAP real.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 2,
@@ -479,9 +521,10 @@ public static class SeedData
             Id = RoadmapItsmItem03Id,
             Area = "Perfis de acesso",
             Categoria = "Seguranca",
+            Objetivo = "Controlar o acesso ao sistema por perfis e permissoes granulares, permitindo definir o que Administradores, Atendentes e Solicitantes podem visualizar, executar e administrar sem necessidade de alteracao de codigo.",
             RoadmapCategoriaId = RoadmapCategoriaSegurancaId,
-            SituacaoAtual = "Administrador, Atendente e Solicitante",
-            AtencaoTecnica = "Validar permissoes finas por tela e acao",
+            SituacaoAtual = "Perfis macro, permissoes granulares, matriz de permissoes, /api/me com permissoes efetivas e controle visual por permissao implementados.",
+            AtencaoTecnica = "Validar permissoes finas por tela e acao durante homologacao e evoluir auditoria detalhada de alteracoes de permissoes.",
             Status = StatusRoadmapItsm.Implementado,
             Prioridade = PrioridadeRoadmapItsm.Alta,
             Impacto = ImpactoRoadmapItsm.Alto,
@@ -919,6 +962,46 @@ public static class SeedData
         new { Id = ChecklistPortalFluxoCompletoAcompanharId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação completa do fluxo abrir, anexar e acompanhar", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 23, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPortalSolicitanteEntraId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação com perfil Solicitante real do Microsoft Entra ID", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 24, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPortalAtendenteFilaId, RoadmapItemId = RoadmapItsmItem01Id, Titulo = "Validação com Atendente visualizando o chamado na fila", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 25, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailWorkerProjetoValidadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Projeto Worker.Email validado/criado", Descricao = "Grupo solicitado: Worker", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailConfiguracoesImapDefinidasId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Configuracoes IMAP definidas", Descricao = "Grupo solicitado: Configuracao", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailLeituraImapImplementadaId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Leitura IMAP implementada", Descricao = "Grupo solicitado: Worker", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailProcessamentoLoteImplementadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Processamento em lote implementado", Descricao = "Grupo solicitado: Worker", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 4, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailLogIntegracaoImplementadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "LogIntegracaoEmail implementado", Descricao = "Grupo solicitado: Persistencia", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 5, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailDeduplicacaoMessageIdId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Prevencao de duplicidade por MessageId implementada", Descricao = "Grupo solicitado: Consistencia", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 6, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailNovoCriaChamadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "E-mail novo cria chamado", Descricao = "Grupo solicitado: Chamado", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 7, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailOrigemAplicadaId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Origem E-mail aplicada ao chamado", Descricao = "Grupo solicitado: Chamado", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 8, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailStatusAbertoAplicadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Status inicial Aberto aplicado", Descricao = "Grupo solicitado: Chamado", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 9, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailHistoricoInicialCriadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Historico inicial criado", Descricao = "Grupo solicitado: Historico", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 10, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailCorrelacaoCodigoAssuntoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Correlacao por codigo do chamado implementada", Descricao = "Grupo solicitado: Correlacao", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 11, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailCorrelacaoHeadersId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Correlacao por Message-Id/In-Reply-To implementada", Descricao = "Grupo solicitado: Correlacao", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 12, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailRespostaAdicionaComentarioId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Resposta por e-mail adiciona comentario", Descricao = "Grupo solicitado: Comentarios", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 13, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailAnexosValidadosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Anexos por e-mail validados", Descricao = "Grupo solicitado: Anexos", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 14, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailAnexosPermitidosSalvosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Anexos permitidos sao salvos", Descricao = "Grupo solicitado: Anexos", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 15, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailAnexosInvalidosRejeitadosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Anexos invalidos sao rejeitados e logados", Descricao = "Grupo solicitado: Anexos", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 16, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailEndpointLogsAdminId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Endpoint de logs administrativos implementado", Descricao = "Grupo solicitado: Admin", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 17, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTelaAdminValidadaId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Tela /admin/integracoes/email validada", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 18, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailFiltrosLogsImplementadosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Filtros de logs implementados", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 19, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailDetalheDialogImplementadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Detalhe de log em dialog implementado", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 20, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTestesProcessamentoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Testes unitarios de processamento criados", Descricao = "Grupo solicitado: Testes", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 21, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTestesCorrelacaoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Testes de correlacao criados", Descricao = "Grupo solicitado: Testes", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 22, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTestesAnexosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Testes de anexos criados", Descricao = "Grupo solicitado: Testes", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 23, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailBuildBackendValidadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Build backend validado", Descricao = "Grupo solicitado: Validacao", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 24, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTestesBackendExecutadosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Testes backend executados", Descricao = "Grupo solicitado: Validacao", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 25, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailBuildWorkerValidadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Build Worker validado", Descricao = "Grupo solicitado: Validacao", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 26, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailBuildFrontendValidadoId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Build frontend validado", Descricao = "Grupo solicitado: Validacao", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 27, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailValidacaoCaixaImapRealId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Validacao com caixa IMAP real", Descricao = "Grupo solicitado: Homologacao", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 28, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailHomologacaoEmailsReaisId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Homologacao com e-mails reais", Descricao = "Grupo solicitado: Homologacao", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 29, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailValidacaoAnexosReaisId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Validacao com anexos reais", Descricao = "Grupo solicitado: Homologacao", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 30, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailOauthMicrosoftId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Autenticacao OAuth para caixa Microsoft, se exigido", Descricao = "Grupo solicitado: Evolucao", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 31, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailRetryBackoffId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Retry/backoff em falhas temporarias", Descricao = "Grupo solicitado: Evolucao", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 32, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailDeadLetterId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Dead-letter ou fila de mensagens com erro", Descricao = "Grupo solicitado: Evolucao", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 33, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailMonitoramentoWorkerId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Monitoramento/health check do Worker", Descricao = "Grupo solicitado: Evolucao", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 34, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailReprocessamentoManualId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Painel de reprocessamento manual de e-mails com erro", Descricao = "Grupo solicitado: Evolucao", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 35, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailSanitizacaoHtmlAvancadaId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Sanitizacao avancada de HTML", Descricao = "Grupo solicitado: Seguranca", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 36, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailAntivirusAnexosId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Antivirus/varredura de anexos", Descricao = "Grupo solicitado: Seguranca", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 37, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailTesteE2eImapRealId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Teste E2E com IMAP real", Descricao = "Grupo solicitado: Testes", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 38, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailMetricasOperacionaisId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Metricas operacionais do Worker", Descricao = "Grupo solicitado: Observabilidade", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 39, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistEmailAlertasFalhaRecorrenteId, RoadmapItemId = RoadmapItsmItem02Id, Titulo = "Alertas de falha recorrente no processamento de e-mail", Descricao = "Grupo solicitado: Observabilidade", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 40, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPerfisMacroId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Perfis macro criados", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistCrudPerfisId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "CRUD de perfis criado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistPermissoesGranularesId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Permissões granulares criadas", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },

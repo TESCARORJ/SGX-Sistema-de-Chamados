@@ -14,6 +14,7 @@ using SGX.SistemaChamado.Application.Services.Email;
 using SGX.SistemaChamado.Application.Services.Sla;
 using SGX.SistemaChamado.Application.UseCases;
 using SGX.SistemaChamado.Application.UseCases.Admin;
+using SGX.SistemaChamado.Application.UseCases.Email;
 using SGX.SistemaChamado.Application.UseCases.Portal;
 using SGX.SistemaChamado.Infrastructure.Persistence;
 using SGX.SistemaChamado.Infrastructure.Repositories;
@@ -45,6 +46,8 @@ public static class DependencyInjection
         services.AddScoped<ICodigoChamadoService, CodigoChamadoService>();
         services.AddScoped<IEmailCorrelationService, EmailCorrelationService>();
         services.AddScoped<IEmailMessageProcessor, EmailMessageProcessor>();
+        services.AddScoped<IEmailParaChamadoService, EmailParaChamadoService>();
+        services.AddScoped<IProcessarEmailRecebidoUseCase, ProcessarEmailRecebidoUseCase>();
         services.AddScoped<ISlaCalculator, SlaCalculator>();
         services.AddScoped<ISlaService, SlaService>();
 

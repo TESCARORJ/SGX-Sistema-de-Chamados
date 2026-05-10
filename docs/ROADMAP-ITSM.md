@@ -8,6 +8,7 @@ O Roadmap ITSM organiza a evolucao funcional e tecnica do SGX Sistema de Chamado
 
 - Area
 - Categoria (legado)
+- Objetivo
 - RoadmapCategoriaId (referencia principal)
 - Ordem
 - SituacaoAtual
@@ -56,6 +57,15 @@ Campos da secao:
 - DataHomologacao
 - CriterioAceite
 - ProximaAcao
+
+## Campo Objetivo
+
+`Objetivo` explica a finalidade do item no sistema e responde: "qual problema ou necessidade este item resolve?".
+
+Exemplos registrados:
+- Abertura de chamado pelo portal: permitir abertura pelo solicitante autenticado com titulo, descricao, categoria, prioridade, anexos opcionais e acompanhamento posterior.
+- Abertura por e-mail: processar e-mails via Worker IMAP para abrir chamados, correlacionar respostas, tratar anexos permitidos e registrar logs tecnicos.
+- Perfis de acesso: controlar o acesso por perfis e permissoes granulares sem necessidade de alteracao de codigo.
 
 ### Significado de "Implementado funcionalmente"
 
@@ -220,3 +230,173 @@ Pendencias tecnicas registradas:
 - homologacao manual com usuario real
 - testes E2E frontend
 - validacao de anexos em ambiente real
+
+## Sprint Integracoes E-mail 2 - E-mail novo cria chamado
+
+Area: Abertura por e-mail  
+Categoria: Integracoes
+
+Status da implementacao: Em desenvolvimento  
+Status tecnico: Em avaliacao continua
+
+Checklist entregue nesta sprint:
+- [x] E-mail novo cria chamado
+- [x] Origem E-mail aplicada ao chamado
+- [x] Status inicial Aberto aplicado
+- [x] Historico inicial criado
+- [x] Prevencao de duplicidade por MessageId implementada
+- [x] Configuracoes de categoria/prioridade padrao definidas
+- [x] Testes unitarios de processamento criados/atualizados
+
+Pendencias mantidas para proximas sprints:
+- [ ] Correlacao de respostas (regras finais)
+- [ ] Anexos por e-mail (escopo completo)
+- [ ] Validacao com caixa IMAP real
+- [ ] Homologacao com e-mails reais
+
+## Sprint Integracoes E-mail 3 - Correlacao de respostas e anexos
+
+Area: Abertura por e-mail  
+Categoria: Integracoes
+
+Status da implementacao: Em desenvolvimento  
+Status tecnico: Completo com pendencias evolutivas
+
+Checklist entregue nesta sprint:
+- [x] Correlacao por codigo do chamado implementada
+- [x] Correlacao por Message-Id/In-Reply-To/References implementada
+- [x] Resposta por e-mail adiciona comentario publico
+- [x] Anexos por e-mail validados
+- [x] Anexos permitidos sao salvos
+- [x] Anexos invalidos sao rejeitados e logados
+- [x] Testes de correlacao criados/atualizados
+- [x] Testes de anexos criados/atualizados
+
+Pendencias mantidas:
+- [ ] Validacao com caixa IMAP real
+- [ ] Homologacao com e-mails reais
+- [ ] Validacao com anexos reais
+- [ ] OAuth para caixa Microsoft (se exigido)
+- [ ] Retry/backoff
+- [ ] Dead-letter
+- [ ] Monitoramento do Worker
+- [ ] Reprocessamento manual de e-mails com erro
+- [ ] Sanitizacao avancada de HTML
+- [ ] Antivirus/varredura de anexos
+- [ ] Teste E2E com IMAP real
+
+## Sprint Integracoes E-mail 4 - Logs administrativos e tela
+
+Area: Abertura por e-mail  
+Categoria: Integracoes
+
+Status da implementacao: Em desenvolvimento  
+Status tecnico: Completo com pendencias evolutivas
+
+Checklist entregue nesta sprint:
+- [x] Endpoint de logs administrativos implementado
+- [x] Tela `/admin/integracoes/email` validada
+- [x] Filtros de logs implementados
+- [x] Detalhe de log em dialog implementado
+- [x] Solicitante bloqueado nos logs administrativos
+- [x] Build frontend validado
+
+Pendencias mantidas:
+- [ ] Validacao com caixa IMAP real
+- [ ] Homologacao com e-mails reais
+- [ ] Validacao com anexos reais
+- [ ] Retry/backoff
+- [ ] Dead-letter
+- [ ] Reprocessamento manual
+- [ ] Monitoramento/health check
+- [ ] OAuth Microsoft (se exigido)
+- [ ] Antivirus/varredura de anexos
+- [ ] Teste E2E com IMAP real
+
+## Sprint Integracoes E-mail 5 - Fechamento tecnico, checklist e homologacao
+
+Area: Abertura por e-mail  
+Categoria: Integracoes
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Completo com pendencias evolutivas
+
+Criterio de aceite consolidado:
+E-mail recebido na caixa configurada e processado pelo Worker, criando chamado com origem E-mail, status inicial, historico e vinculo com remetente. Respostas correlacionadas adicionam comentario ao chamado existente. Anexos permitidos sao tratados conforme regras de seguranca. Logs tecnicos ficam disponiveis na area administrativa.
+
+Proxima acao:
+Validar com caixa IMAP real em homologacao.
+
+Pendencias tecnicas registradas:
+- validacao com caixa IMAP real
+- homologacao com e-mails reais
+- validacao com anexos reais
+- OAuth Microsoft (se exigido)
+- retry/backoff
+- dead-letter
+- monitoramento do Worker
+- reprocessamento manual
+- sanitizacao avancada de HTML
+- antivirus/varredura de anexos
+- teste E2E com IMAP real
+
+Evidencias de implementacao:
+- Worker.Email
+- EmailWorkerOptions
+- LogIntegracaoEmail
+- ProcessarEmailRecebidoUseCase
+- EmailParaChamadoService
+- correlacao de respostas
+- tratamento de anexos
+- endpoints administrativos de logs
+- tela `/admin/integracoes/email`
+- testes automatizados
+- `docs/INTEGRACAO-EMAIL.md`
+
+Checklist tecnico (vinculado ao item):
+- [x] 1. Projeto Worker.Email validado/criado
+- [x] 2. Configuracoes IMAP definidas
+- [x] 3. Leitura IMAP implementada
+- [x] 4. Processamento em lote implementado
+- [x] 5. LogIntegracaoEmail implementado
+- [x] 6. Prevencao de duplicidade por MessageId implementada
+- [x] 7. E-mail novo cria chamado
+- [x] 8. Origem E-mail aplicada ao chamado
+- [x] 9. Status inicial Aberto aplicado
+- [x] 10. Historico inicial criado
+- [x] 11. Correlacao por codigo do chamado implementada
+- [x] 12. Correlacao por Message-Id/In-Reply-To implementada
+- [x] 13. Resposta por e-mail adiciona comentario
+- [x] 14. Anexos por e-mail validados
+- [x] 15. Anexos permitidos sao salvos
+- [x] 16. Anexos invalidos sao rejeitados e logados
+- [x] 17. Endpoint de logs administrativos implementado
+- [x] 18. Tela /admin/integracoes/email validada
+- [x] 19. Filtros de logs implementados
+- [x] 20. Detalhe de log em dialog implementado
+- [x] 21. Testes unitarios de processamento criados
+- [x] 22. Testes de correlacao criados
+- [x] 23. Testes de anexos criados
+- [x] 24. Build backend validado
+- [x] 25. Testes backend executados
+- [x] 26. Build Worker validado
+- [x] 27. Build frontend validado
+
+Checklist de evolucao/homologacao (pendente):
+- [ ] 28. Validacao com caixa IMAP real
+- [ ] 29. Homologacao com e-mails reais
+- [ ] 30. Validacao com anexos reais
+- [ ] 31. Autenticacao OAuth para caixa Microsoft, se exigido
+- [ ] 32. Retry/backoff em falhas temporarias
+- [ ] 33. Dead-letter ou fila de mensagens com erro
+- [ ] 34. Monitoramento/health check do Worker
+- [ ] 35. Painel de reprocessamento manual de e-mails com erro
+- [ ] 36. Sanitizacao avancada de HTML
+- [ ] 37. Antivirus/varredura de anexos
+- [ ] 38. Teste E2E com IMAP real
+- [ ] 39. Metricas operacionais do Worker
+- [ ] 40. Alertas de falha recorrente no processamento de e-mail
+
+Observacao de percentual:
+- percentual do item deve ser calculado automaticamente pelo checklist ativo;
+- nao preencher percentual manual quando checklist estiver ativo.

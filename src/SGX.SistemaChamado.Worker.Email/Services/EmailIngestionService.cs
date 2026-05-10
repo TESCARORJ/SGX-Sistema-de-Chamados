@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using SGX.SistemaChamado.Application.DTOs.Email;
 using SGX.SistemaChamado.Application.Interfaces.Email;
 using SGX.SistemaChamado.Application.Options;
 
@@ -6,7 +7,7 @@ namespace SGX.SistemaChamado.Worker.Email.Services;
 
 public sealed class EmailIngestionService(
     IEmailImapClient emailImapClient,
-    IEmailMessageProcessor emailMessageProcessor,
+    IProcessarEmailRecebidoUseCase processarEmailRecebidoUseCase,
     IOptions<EmailWorkerOptions> emailWorkerOptions,
     ILogger<EmailIngestionService> logger)
 {
@@ -34,15 +35,31 @@ public sealed class EmailIngestionService(
 
         foreach (var mensagem in mensagens)
         {
-            EmailMensagemProcessamentoResultado resultado;
+            EmailProcessingResult resultado;
             try
             {
-                resultado = await emailMessageProcessor.ProcessarAsync(mensagem, cancellationToken);
+                resultado = await processarEmailRecebidoUseCase.ExecutarAsync(new EmailMessageDto
+                {
+                    Identificador = mensagem.Identificador,
+                    MessageId = mensagem.MessageId,
+                    InReplyTo = mensagem.InReplyTo,
+                    References = mensagem.References,
+                    RemetenteEmail = mensagem.RemetenteEmail,
+                    RemetenteNome = mensagem.RemetenteNome,
+                    Destinatario = mensagem.Destinatario,
+                    Assunto = mensagem.Assunto,
+                    CorpoTexto = mensagem.CorpoTexto,
+                    CorpoHtml = mensagem.CorpoHtml,
+                    DataRecebimento = mensagem.DataRecebimento,
+                    Anexos = mensagem.Anexos
+                        .Select(x => new EmailAttachmentDto(x.NomeArquivo, x.ContentType, x.Conteudo, x.TamanhoBytes, x.ContentId))
+                        .ToArray()
+                }, cancellationToken);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Falha inesperada no processamento de mensagem. Identificador={Identificador}", mensagem.Identificador);
-                resultado = new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Erro, null, ex.Message);
+                resultado = new EmailProcessingResult(EmailProcessingStatus.Erro, null, ex.Message);
             }
 
             try
@@ -52,7 +69,7 @@ public sealed class EmailIngestionService(
                     await emailImapClient.MarcarComoLidaAsync(mensagem.Identificador, cancellationToken);
                 }
 
-                if (resultado.Status == EmailMensagemProcessamentoStatus.Erro)
+                if (resultado.Status == EmailProcessingStatus.Erro)
                 {
                     if (options.MoverComErro)
                     {

@@ -246,3 +246,33 @@ Frontend:
 | `/portal/chamados/:id` | `PortalLayout` | `GET /api/portal/chamados/{id}`, `POST /api/portal/chamados/{id}/comentarios`, `POST /api/portal/chamados/{id}/anexos` | `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `QCard`, `QBtn`, `QChip`, `StatusBadge`, `PrioridadeBadge`, `SlaBadge`, `UploadAnexo`, `FormComentario`, `LoadingState`, `ErrorState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar 403/404 com usuarios reais |
 | `/admin/chamados` | `AdminLayout` | `GET /api/admin/chamados` | `QPage`, `PageHeader`, `AppSectionCard`, `QTable`, `QPagination`, `QBtn`, `QBanner`, `LoadingState`, `ErrorState`, `EmptyState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar filtros com dados reais apos abertura no portal |
 | `/admin/chamados/:id` | `AdminLayout` | `GET /api/admin/chamados/{id}` | `QPage`, `PageHeader`, `AppSectionCard`, `QList`, `QItem`, `QTimeline`, `QChip`, `QBadge`, `QBtn`, `LoadingState`, `ErrorState` | OK inspecao + build | OK inspecao + build | Pendente manual | validar historico/anexo com usuario real |
+
+## Sprint Integracoes E-mail 4 - Validacao da rota administrativa
+
+### Rota `/admin/integracoes/email`
+- Layout: `AdminLayout`
+- Endpoints consumidos:
+  - `GET /api/admin/integracoes/email/logs`
+  - `GET /api/admin/integracoes/email/logs/{id}`
+- Componentes Quasar usados:
+  - `QPage`, `PageHeader`, `AppSectionCard`, `QForm`, `QInput`, `QSelect`, `QTable`, `QBadge`, `QDialog`, `QExpansionItem`, `QBtn`
+- Status visual: OK inspecao + build
+- Status funcional: OK inspecao + build
+- Pendencias reais:
+  - validacao manual com base de logs reais em homologacao
+  - confirmacao de acesso com perfis reais (Administrador/Atendente/Solicitante)
+
+## Sprint Integracoes E-mail 5 - Confirmacao da rota administrativa
+
+- Rota: `/admin/integracoes/email`
+- Layout: `AdminLayout`
+- Endpoints consumidos:
+  - `GET /api/admin/integracoes/email/logs`
+  - `GET /api/admin/integracoes/email/logs/{id}`
+- Componentes Quasar:
+  - `QPage`, `PageHeader`, `AppSectionCard`, `QForm`, `QInput`, `QSelect`, `QTable`, `QBadge`, `QDialog`, `QExpansionItem`, `QBtn`
+- Status visual: OK inspecao + build
+- Status funcional: OK inspecao + build
+- Pendencias reais:
+  - validacao manual com massa de logs reais
+  - validacao com caixa IMAP real em homologacao

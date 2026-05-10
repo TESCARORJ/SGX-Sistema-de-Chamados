@@ -16,6 +16,7 @@ public sealed record RoadmapItsmResumoResponse(
     Guid Id,
     string Area,
     string Categoria,
+    string? Objetivo,
     Guid? RoadmapCategoriaId,
     string? RoadmapCategoriaNome,
     string? RoadmapCategoriaCor,
@@ -53,6 +54,7 @@ public sealed record RoadmapItsmDetalheResponse(
     Guid Id,
     string Area,
     string Categoria,
+    string? Objetivo,
     Guid? RoadmapCategoriaId,
     string? RoadmapCategoriaNome,
     string? RoadmapCategoriaCor,
@@ -96,6 +98,7 @@ public sealed class CriarRoadmapItsmItemRequest
 {
     public string Area { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
+    public string? Objetivo { get; init; }
     public Guid? RoadmapCategoriaId { get; init; }
     public string SituacaoAtual { get; init; } = string.Empty;
     public string AtencaoTecnica { get; init; } = string.Empty;
@@ -124,6 +127,7 @@ public sealed class AtualizarRoadmapItsmItemRequest
 {
     public string Area { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
+    public string? Objetivo { get; init; }
     public Guid? RoadmapCategoriaId { get; init; }
     public string SituacaoAtual { get; init; } = string.Empty;
     public string AtencaoTecnica { get; init; } = string.Empty;

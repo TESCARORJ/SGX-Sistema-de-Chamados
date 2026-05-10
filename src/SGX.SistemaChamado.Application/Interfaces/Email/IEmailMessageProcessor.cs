@@ -3,8 +3,10 @@ namespace SGX.SistemaChamado.Application.Interfaces.Email;
 public enum EmailMensagemProcessamentoStatus
 {
     Processado = 1,
-    IgnoradoDuplicado = 2,
-    Erro = 3
+    Ignorado = 2,
+    Erro = 3,
+    Duplicado = 4,
+    NaoCorrelacionado = 5
 }
 
 public sealed record EmailMensagemProcessamentoResultado(

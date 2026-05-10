@@ -13,8 +13,11 @@ public sealed class LogIntegracaoEmailConfiguration : IEntityTypeConfiguration<L
 
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.MessageId).HasColumnName("message_id").HasMaxLength(600);
+        builder.Property(x => x.InReplyTo).HasColumnName("in_reply_to").HasMaxLength(600);
+        builder.Property(x => x.References).HasColumnName("references").HasMaxLength(4000);
         builder.Property(x => x.Fingerprint).HasColumnName("fingerprint").HasMaxLength(180).IsRequired();
         builder.Property(x => x.Remetente).HasColumnName("remetente").HasMaxLength(320).IsRequired();
+        builder.Property(x => x.Destinatario).HasColumnName("destinatario").HasMaxLength(1200);
         builder.Property(x => x.NomeRemetente).HasColumnName("nome_remetente").HasMaxLength(180);
         builder.Property(x => x.Assunto).HasColumnName("assunto").HasMaxLength(600);
         builder.Property(x => x.DataRecebimento).HasColumnName("data_recebimento").IsRequired();

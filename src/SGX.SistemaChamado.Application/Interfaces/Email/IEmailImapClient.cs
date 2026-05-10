@@ -3,7 +3,9 @@ namespace SGX.SistemaChamado.Application.Interfaces.Email;
 public sealed record EmailAttachmentData(
     string NomeArquivo,
     string ContentType,
-    byte[] Conteudo);
+    byte[] Conteudo,
+    long TamanhoBytes,
+    string? ContentId);
 
 public sealed class EmailMessageData
 {
@@ -12,6 +14,7 @@ public sealed class EmailMessageData
     public string? InReplyTo { get; init; }
     public IReadOnlyCollection<string> References { get; init; } = [];
     public string RemetenteEmail { get; init; } = string.Empty;
+    public string? Destinatario { get; init; }
     public string? RemetenteNome { get; init; }
     public string Assunto { get; init; } = string.Empty;
     public string? CorpoTexto { get; init; }

@@ -7,6 +7,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
 {
     public string Area { get; private set; } = string.Empty;
     public string Categoria { get; private set; } = string.Empty;
+    public string? Objetivo { get; private set; }
     public Guid? RoadmapCategoriaId { get; private set; }
     public string SituacaoAtual { get; private set; } = string.Empty;
     public string AtencaoTecnica { get; private set; } = string.Empty;
@@ -40,6 +41,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
     public RoadmapItsmItem(
         string area,
         string categoria,
+        string? objetivo,
         Guid? roadmapCategoriaId,
         string situacaoAtual,
         string atencaoTecnica,
@@ -65,6 +67,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
     {
         DefinirArea(area);
         DefinirCategoria(categoria);
+        DefinirObjetivo(objetivo);
         DefinirRoadmapCategoria(roadmapCategoriaId);
         DefinirSituacaoAtual(situacaoAtual);
         DefinirAtencaoTecnica(atencaoTecnica);
@@ -92,6 +95,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
     public void Atualizar(
         string area,
         string categoria,
+        string? objetivo,
         Guid? roadmapCategoriaId,
         string situacaoAtual,
         string atencaoTecnica,
@@ -117,6 +121,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
     {
         DefinirArea(area);
         DefinirCategoria(categoria);
+        DefinirObjetivo(objetivo);
         DefinirRoadmapCategoria(roadmapCategoriaId);
         DefinirSituacaoAtual(situacaoAtual);
         DefinirAtencaoTecnica(atencaoTecnica);
@@ -177,6 +182,11 @@ public sealed class RoadmapItsmItem : AuditableEntity
         }
 
         Categoria = categoria.Trim();
+    }
+
+    public void DefinirObjetivo(string? objetivo)
+    {
+        Objetivo = string.IsNullOrWhiteSpace(objetivo) ? null : objetivo.Trim();
     }
 
     public void DefinirRoadmapCategoria(Guid? roadmapCategoriaId)

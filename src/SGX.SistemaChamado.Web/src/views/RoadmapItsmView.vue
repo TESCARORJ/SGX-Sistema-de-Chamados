@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QTableColumn } from 'quasar'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
@@ -82,6 +82,7 @@ const filtros = reactive({
 const formRoadmap = reactive({
   area: '',
   categoria: '',
+  objetivo: '',
   roadmapCategoriaId: null as string | null,
   ordem: 1,
   situacaoAtual: '',
@@ -176,41 +177,41 @@ const mostrarBannerImplementadoFuncionalmente = computed(() => formRoadmap.statu
 const mostrarPendenciasEvolutivas = computed(() => formRoadmap.statusTecnico === 3)
 
 const colunasRoadmap: QTableColumn<RoadmapItsmResumoResponse>[] = [
-  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'left' },
-  { name: 'area', label: 'Área', field: 'area', align: 'left', sortable: true },
+  { name: 'acoes', label: 'AÃ§Ãµes', field: 'acoes', align: 'left' },
+  { name: 'area', label: 'Ãrea', field: 'area', align: 'left', sortable: true },
   { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left' },
-  { name: 'statusImplementacao', label: 'Status implementação', field: 'statusImplementacaoDescricao', align: 'left' },
-  { name: 'statusTecnico', label: 'Status técnico', field: 'statusTecnicoDescricao', align: 'left' },
+  { name: 'statusImplementacao', label: 'Status implementaÃ§Ã£o', field: 'statusImplementacaoDescricao', align: 'left' },
+  { name: 'statusTecnico', label: 'Status tÃ©cnico', field: 'statusTecnicoDescricao', align: 'left' },
   { name: 'percentual', label: '%', field: 'percentualImplementacao', align: 'center' },
 ]
 
 const colunasCategorias: QTableColumn<RoadmapCategoriaResponse>[] = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left', sortable: true },
   { name: 'cor', label: 'Cor', field: 'cor', align: 'left' },
-  { name: 'icone', label: 'Ícone', field: 'icone', align: 'left' },
+  { name: 'icone', label: 'Ãcone', field: 'icone', align: 'left' },
   { name: 'ordem', label: 'Ordem', field: 'ordem', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
-  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'AÃ§Ãµes', field: 'acoes', align: 'right' },
 ]
 
 const colunasChecklist: QTableColumn<RoadmapChecklistItemResponse>[] = [
-  { name: 'titulo', label: 'Título', field: 'titulo', align: 'left' },
+  { name: 'titulo', label: 'TÃ­tulo', field: 'titulo', align: 'left' },
   { name: 'grupo', label: 'Grupo', field: 'grupoDescricao', align: 'left' },
   { name: 'ordem', label: 'Ordem', field: 'ordem', align: 'center' },
-  { name: 'concluido', label: 'Concluído', field: 'concluido', align: 'center' },
+  { name: 'concluido', label: 'ConcluÃ­do', field: 'concluido', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
-  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'AÃ§Ãµes', field: 'acoes', align: 'right' },
 ]
 
 const colunasImplementacao: QTableColumn<RoadmapImplementacaoFuturaResponse>[] = [
-  { name: 'titulo', label: 'Título', field: 'titulo', align: 'left' },
+  { name: 'titulo', label: 'TÃ­tulo', field: 'titulo', align: 'left' },
   { name: 'tipo', label: 'Tipo', field: 'tipoDescricao', align: 'left' },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridadeDescricao', align: 'left' },
   { name: 'status', label: 'Status', field: 'statusDescricao', align: 'left' },
-  { name: 'responsavel', label: 'Responsável', field: 'responsavel', align: 'left' },
+  { name: 'responsavel', label: 'ResponsÃ¡vel', field: 'responsavel', align: 'left' },
   { name: 'prazoAlvo', label: 'Prazo alvo', field: 'prazoAlvo', align: 'left' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
-  { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
+  { name: 'acoes', label: 'AÃ§Ãµes', field: 'acoes', align: 'right' },
 ]
 
 function formatarDataCurta(value: string | null): string {
@@ -229,6 +230,7 @@ function labelStatusTecnico(value: number): string {
 function carregarFormRoadmap(item: RoadmapItsmDetalheResponse): void {
   formRoadmap.area = item.area
   formRoadmap.categoria = item.categoria
+  formRoadmap.objetivo = item.objetivo ?? ''
   formRoadmap.roadmapCategoriaId = item.roadmapCategoriaId
   formRoadmap.ordem = item.ordem
   formRoadmap.situacaoAtual = item.situacaoAtual
@@ -306,6 +308,7 @@ async function salvarRoadmap(): Promise<void> {
     const payload: AtualizarRoadmapItsmItemRequest = {
       area: formRoadmap.area,
       categoria: formRoadmap.categoria || (opcoesCategoriasAtivas.value.find((x) => x.value === formRoadmap.roadmapCategoriaId)?.label ?? ''),
+      objetivo: formRoadmap.objetivo || null,
       roadmapCategoriaId: formRoadmap.roadmapCategoriaId,
       ordem: formRoadmap.ordem,
       situacaoAtual: formRoadmap.situacaoAtual,
@@ -514,7 +517,7 @@ async function salvarImplementacao(): Promise<void> {
         observacao: formImplementacao.observacao || null,
       }
       await roadmapItsmService.criarImplementacao(payload)
-      sucesso.value = 'Implementação criada com sucesso.'
+      sucesso.value = 'ImplementaÃ§Ã£o criada com sucesso.'
     } else if (implementacaoSelecionada.value) {
       const payload: AtualizarRoadmapImplementacaoFuturaRequest = {
         titulo: formImplementacao.titulo,
@@ -529,13 +532,13 @@ async function salvarImplementacao(): Promise<void> {
         ativo: formImplementacao.ativo,
       }
       await roadmapItsmService.atualizarImplementacao(implementacaoSelecionada.value.id, payload)
-      sucesso.value = 'Implementação atualizada com sucesso.'
+      sucesso.value = 'ImplementaÃ§Ã£o atualizada com sucesso.'
     }
     modalImplementacaoAberto.value = false
     await recarregarDetalheAtual()
     await carregarListaRoadmap()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao salvar implementação.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao salvar implementaÃ§Ã£o.'
   }
 }
 
@@ -570,7 +573,7 @@ onMounted(async () => {
   <q-page class="q-pa-md">
     <PageHeader
       title="Roadmap ITSM"
-      subtitle="Status real da implementação, categorias e checklist governável."
+      subtitle="Status real da implementaÃ§Ã£o, categorias e checklist governÃ¡vel."
     />
 
     <q-banner v-if="sucesso" class="bg-positive text-white q-mb-md">{{ sucesso }}</q-banner>
@@ -635,7 +638,7 @@ onMounted(async () => {
           </q-td>
         </template>
         <template #body-cell-ativo="slotProps">
-          <q-td><q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'Não' }}</q-badge></q-td>
+          <q-td><q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'NÃ£o' }}</q-badge></q-td>
         </template>
         <template #body-cell-acoes="slotProps">
           <q-td>
@@ -664,16 +667,29 @@ onMounted(async () => {
         </q-card-section>
 
         <q-card-section v-if="detalheAtual" class="q-gutter-md">
-          <q-form class="row q-col-gutter-sm">
-            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.area" outlined dense label="Área" :disable="modoSomenteLeitura" /></div>
+          <q-form class="row q-col-gutter-sm roadmap-form-texto-preto">
+            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.area" outlined dense label="Ãrea" :disable="modoSomenteLeitura" /></div>
             <div class="col-12 col-md-6"><q-select v-model="formRoadmap.roadmapCategoriaId" outlined dense emit-value map-options :options="opcoesCategoriasAtivas" label="Categoria" :disable="modoSomenteLeitura" /></div>
             <div class="col-12 col-md-4"><q-input v-model.number="formRoadmap.ordem" type="number" outlined dense label="Ordem" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12 col-md-8"><q-input v-model="formRoadmap.situacaoAtual" outlined dense label="Situação atual" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12"><q-input v-model="formRoadmap.atencaoTecnica" outlined dense autogrow label="Atenção técnica" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12">
+              <q-input
+                v-model="formRoadmap.objetivo"
+                outlined
+                dense
+                type="textarea"
+                autogrow
+                label="Objetivo"
+                hint="Explique o objetivo deste item dentro do sistema."
+                :disable="modoSomenteLeitura"
+              />
+              <div v-if="!formRoadmap.objetivo" class="text-caption text-grey-7 q-mt-xs">Objetivo ainda não informado.</div>
+            </div>
+            <div class="col-12 col-md-8"><q-input v-model="formRoadmap.situacaoAtual" outlined dense label="SituaÃ§Ã£o atual" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12"><q-input v-model="formRoadmap.atencaoTecnica" outlined dense autogrow label="AtenÃ§Ã£o tÃ©cnica" :disable="modoSomenteLeitura" /></div>
 
-            <div class="col-12"><div class="text-subtitle2">Status real da implementação</div></div>
-            <div class="col-12 col-md-4"><q-select v-model="formRoadmap.statusImplementacao" outlined dense emit-value map-options :options="opcoesStatusImplementacao" label="Status da implementação" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12 col-md-4"><q-select v-model="formRoadmap.statusTecnico" outlined dense emit-value map-options :options="opcoesStatusTecnico" label="Status técnico" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12"><div class="text-subtitle2">Status real da implementaÃ§Ã£o</div></div>
+            <div class="col-12 col-md-4"><q-select v-model="formRoadmap.statusImplementacao" outlined dense emit-value map-options :options="opcoesStatusImplementacao" label="Status da implementaÃ§Ã£o" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12 col-md-4"><q-select v-model="formRoadmap.statusTecnico" outlined dense emit-value map-options :options="opcoesStatusTecnico" label="Status tÃ©cnico" :disable="modoSomenteLeitura" /></div>
             <div class="col-12 col-md-4">
               <q-input v-model.number="formRoadmap.percentualImplementacao" type="number" outlined dense label="Percentual (%)" :disable="true" />
             </div>
@@ -681,45 +697,45 @@ onMounted(async () => {
               <q-linear-progress :value="(formRoadmap.percentualImplementacao || 0) / 100" color="primary" size="10px" rounded />
               <div class="text-caption q-mt-xs">{{ formRoadmap.percentualImplementacao }}% - {{ percentualCalculadoPorChecklist ? 'calculado pelo checklist' : 'valor legado/manual' }}</div>
               <q-banner v-if="percentualCalculadoPorChecklist" dense class="bg-blue-1 text-primary q-mt-sm">
-                O percentual é calculado automaticamente com base no checklist ativo.
+                O percentual Ã© calculado automaticamente com base no checklist ativo.
               </q-banner>
             </div>
 
             <div class="col-12">
               <q-banner v-if="mostrarBannerImplementadoFuncionalmente" class="bg-warning text-dark">
-                Este status indica entrega funcional, mas não necessariamente homologação ou produção.
+                Este status indica entrega funcional, mas nÃ£o necessariamente homologaÃ§Ã£o ou produÃ§Ã£o.
               </q-banner>
             </div>
             <div class="col-12" v-if="mostrarPendenciasEvolutivas">
               <q-banner class="bg-orange-2 text-dark">
-                Status técnico indica pendências evolutivas. Detalhe as pendências para governança.
+                Status tÃ©cnico indica pendÃªncias evolutivas. Detalhe as pendÃªncias para governanÃ§a.
               </q-banner>
             </div>
 
-            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.pendenciasTecnicas" outlined dense autogrow label="Pendências técnicas" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.pendenciasHomologacao" outlined dense autogrow label="Pendências de homologação" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12"><q-input v-model="formRoadmap.evidenciaImplementacao" outlined dense autogrow label="Evidência da implementação" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.dataConclusaoTecnica" outlined dense type="date" label="Data de conclusão técnica" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.dataHomologacao" outlined dense type="date" label="Data de homologação" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12"><q-input v-model="formRoadmap.criterioAceite" outlined dense autogrow label="Critério de aceite" :disable="modoSomenteLeitura" /></div>
-            <div class="col-12"><q-input v-model="formRoadmap.proximaAcao" outlined dense autogrow label="Próxima ação" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.pendenciasTecnicas" outlined dense autogrow label="PendÃªncias tÃ©cnicas" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.pendenciasHomologacao" outlined dense autogrow label="PendÃªncias de homologaÃ§Ã£o" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12"><q-input v-model="formRoadmap.evidenciaImplementacao" outlined dense autogrow label="EvidÃªncia da implementaÃ§Ã£o" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.dataConclusaoTecnica" outlined dense type="date" label="Data de conclusÃ£o tÃ©cnica" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12 col-md-6"><q-input v-model="formRoadmap.dataHomologacao" outlined dense type="date" label="Data de homologaÃ§Ã£o" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12"><q-input v-model="formRoadmap.criterioAceite" outlined dense autogrow label="CritÃ©rio de aceite" :disable="modoSomenteLeitura" /></div>
+            <div class="col-12"><q-input v-model="formRoadmap.proximaAcao" outlined dense autogrow label="PrÃ³xima aÃ§Ã£o" :disable="modoSomenteLeitura" /></div>
           </q-form>
 
-          <AppSectionCard title="Checklist da implementação" icon="checklist">
+          <AppSectionCard title="Checklist da implementaÃ§Ã£o" icon="checklist">
             <div class="row items-center q-mb-sm">
-              <div class="text-caption">Concluídos: {{ detalheAtual.quantidadeChecklistConcluido }}/{{ detalheAtual.quantidadeChecklistAtivo }}</div>
+              <div class="text-caption">ConcluÃ­dos: {{ detalheAtual.quantidadeChecklistConcluido }}/{{ detalheAtual.quantidadeChecklistAtivo }}</div>
               <q-space />
               <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat color="primary" icon="add" label="Novo item" @click="abrirModalChecklist('criar')" />
             </div>
             <q-table :rows="checklist" :columns="colunasChecklist" row-key="id" flat bordered>
               <template #body-cell-concluido="slotProps">
                 <q-td>
-                  <q-badge :color="slotProps.row.concluido ? 'positive' : 'grey-6'">{{ slotProps.row.concluido ? 'Sim' : 'Não' }}</q-badge>
+                  <q-badge :color="slotProps.row.concluido ? 'positive' : 'grey-6'">{{ slotProps.row.concluido ? 'Sim' : 'NÃ£o' }}</q-badge>
                 </q-td>
               </template>
               <template #body-cell-ativo="slotProps">
                 <q-td>
-                  <q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'Não' }}</q-badge>
+                  <q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'NÃ£o' }}</q-badge>
                 </q-td>
               </template>
               <template #body-cell-acoes="slotProps">
@@ -752,13 +768,13 @@ onMounted(async () => {
             </q-table>
           </AppSectionCard>
 
-          <AppSectionCard title="Futuras implementações" icon="engineering">
+          <AppSectionCard title="Futuras implementaÃ§Ãµes" icon="engineering">
             <div class="row justify-end q-mb-sm">
-              <q-btn v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar'" flat color="primary" icon="add" label="Nova implementação" @click="abrirModalImplementacao('criar')" />
+              <q-btn v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar'" flat color="primary" icon="add" label="Nova implementaÃ§Ã£o" @click="abrirModalImplementacao('criar')" />
             </div>
             <q-table :rows="implementacoes" :columns="colunasImplementacao" row-key="id" flat bordered>
               <template #body-cell-prazoAlvo="slotProps"><q-td>{{ formatarDataCurta(slotProps.row.prazoAlvo) }}</q-td></template>
-              <template #body-cell-ativo="slotProps"><q-td><q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'Não' }}</q-badge></q-td></template>
+              <template #body-cell-ativo="slotProps"><q-td><q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'NÃ£o' }}</q-badge></q-td></template>
               <template #body-cell-acoes="slotProps">
                 <q-td>
                   <q-btn v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" @click="abrirModalImplementacao('editar', slotProps.row)" />
@@ -795,9 +811,9 @@ onMounted(async () => {
         <q-card-section class="text-h6">{{ modoCategoria === 'criar' ? 'Nova categoria' : 'Editar categoria' }}</q-card-section>
         <q-card-section class="row q-col-gutter-sm">
           <div class="col-12"><q-input v-model="formCategoria.nome" outlined dense label="Nome" /></div>
-          <div class="col-12"><q-input v-model="formCategoria.descricao" outlined dense autogrow label="Descrição" /></div>
+          <div class="col-12"><q-input v-model="formCategoria.descricao" outlined dense autogrow label="DescriÃ§Ã£o" /></div>
           <div class="col-12 col-md-4"><q-input v-model="formCategoria.cor" outlined dense label="Cor" /></div>
-          <div class="col-12 col-md-4"><q-input v-model="formCategoria.icone" outlined dense label="Ícone" /></div>
+          <div class="col-12 col-md-4"><q-input v-model="formCategoria.icone" outlined dense label="Ãcone" /></div>
           <div class="col-12 col-md-4"><q-input v-model.number="formCategoria.ordem" type="number" outlined dense label="Ordem" /></div>
           <div class="col-12"><q-toggle v-model="formCategoria.ativo" label="Ativo" /></div>
         </q-card-section>
@@ -812,12 +828,12 @@ onMounted(async () => {
       <q-card style="min-width: 600px">
         <q-card-section class="text-h6">{{ modoChecklist === 'criar' ? 'Novo item do checklist' : 'Editar item do checklist' }}</q-card-section>
         <q-card-section class="row q-col-gutter-sm">
-          <div class="col-12"><q-input v-model="formChecklist.titulo" outlined dense label="Título" /></div>
-          <div class="col-12"><q-input v-model="formChecklist.descricao" outlined dense autogrow label="Descrição" /></div>
+          <div class="col-12"><q-input v-model="formChecklist.titulo" outlined dense label="TÃ­tulo" /></div>
+          <div class="col-12"><q-input v-model="formChecklist.descricao" outlined dense autogrow label="DescriÃ§Ã£o" /></div>
           <div class="col-12 col-md-4"><q-select v-model="formChecklist.grupo" outlined dense emit-value map-options :options="opcoesGrupoChecklist" label="Grupo" /></div>
           <div class="col-12 col-md-4"><q-input v-model.number="formChecklist.ordem" outlined dense type="number" label="Ordem" /></div>
-          <div class="col-12 col-md-4"><q-toggle v-model="formChecklist.obrigatorio" label="Obrigatório" /></div>
-          <div class="col-12 col-md-6"><q-toggle v-model="formChecklist.concluido" label="Concluído" /></div>
+          <div class="col-12 col-md-4"><q-toggle v-model="formChecklist.obrigatorio" label="ObrigatÃ³rio" /></div>
+          <div class="col-12 col-md-6"><q-toggle v-model="formChecklist.concluido" label="ConcluÃ­do" /></div>
           <div class="col-12 col-md-6"><q-toggle v-model="formChecklist.ativo" label="Ativo" /></div>
         </q-card-section>
         <q-card-actions align="right">
@@ -829,17 +845,17 @@ onMounted(async () => {
 
     <q-dialog v-model="modalImplementacaoAberto">
       <q-card style="min-width: 680px">
-        <q-card-section class="text-h6">{{ modoImplementacao === 'criar' ? 'Nova implementação' : 'Editar implementação' }}</q-card-section>
+        <q-card-section class="text-h6">{{ modoImplementacao === 'criar' ? 'Nova implementaÃ§Ã£o' : 'Editar implementaÃ§Ã£o' }}</q-card-section>
         <q-card-section class="row q-col-gutter-sm">
-          <div class="col-12"><q-input v-model="formImplementacao.titulo" outlined dense label="Título" /></div>
-          <div class="col-12"><q-input v-model="formImplementacao.descricao" outlined dense autogrow label="Descrição" /></div>
+          <div class="col-12"><q-input v-model="formImplementacao.titulo" outlined dense label="TÃ­tulo" /></div>
+          <div class="col-12"><q-input v-model="formImplementacao.descricao" outlined dense autogrow label="DescriÃ§Ã£o" /></div>
           <div class="col-12 col-md-4"><q-select v-model="formImplementacao.tipo" outlined dense emit-value map-options :options="opcoesTipoImplementacao" label="Tipo" /></div>
           <div class="col-12 col-md-4"><q-select v-model="formImplementacao.prioridade" outlined dense emit-value map-options :options="opcoesPrioridadeImplementacao" label="Prioridade" /></div>
           <div class="col-12 col-md-4"><q-select v-model="formImplementacao.status" outlined dense emit-value map-options :options="opcoesStatusImplementacaoFutura" label="Status" /></div>
-          <div class="col-12 col-md-6"><q-input v-model="formImplementacao.responsavel" outlined dense label="Responsável" /></div>
+          <div class="col-12 col-md-6"><q-input v-model="formImplementacao.responsavel" outlined dense label="ResponsÃ¡vel" /></div>
           <div class="col-12 col-md-3"><q-input v-model="formImplementacao.prazoAlvo" outlined dense type="date" label="Prazo alvo" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="formImplementacao.dataConclusao" outlined dense type="date" label="Data conclusão" /></div>
-          <div class="col-12"><q-input v-model="formImplementacao.observacao" outlined dense autogrow label="Observação" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="formImplementacao.dataConclusao" outlined dense type="date" label="Data conclusÃ£o" /></div>
+          <div class="col-12"><q-input v-model="formImplementacao.observacao" outlined dense autogrow label="ObservaÃ§Ã£o" /></div>
           <div class="col-12"><q-toggle v-model="formImplementacao.ativo" label="Ativo" /></div>
         </q-card-section>
         <q-card-actions align="right">
@@ -852,3 +868,24 @@ onMounted(async () => {
     <ConfirmDialog v-model="confirmacaoAberta" :mensagem="confirmacaoMensagem" @confirm="executarConfirmacao" />
   </q-page>
 </template>
+
+<style scoped>
+.roadmap-form-texto-preto :deep(.q-field__native),
+.roadmap-form-texto-preto :deep(.q-field__input),
+.roadmap-form-texto-preto :deep(.q-field__prefix),
+.roadmap-form-texto-preto :deep(.q-field__suffix) {
+  color: #000 !important;
+}
+
+.roadmap-form-texto-preto :deep(.q-field--disabled .q-field__native),
+.roadmap-form-texto-preto :deep(.q-field--disabled .q-field__input),
+.roadmap-form-texto-preto :deep(.q-field--readonly .q-field__native),
+.roadmap-form-texto-preto :deep(.q-field--readonly .q-field__input) {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+}
+</style>
+
+
+

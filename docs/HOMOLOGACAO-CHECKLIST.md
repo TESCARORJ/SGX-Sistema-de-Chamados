@@ -111,3 +111,60 @@
 - [ ] Confirmar anexo no admin, se aplicavel.
 - [ ] Confirmar que solicitante nao acessa chamado de outro solicitante.
 - [ ] Confirmar que comentarios internos nao aparecem no portal.
+
+## Integracao de e-mail - Sprint 2
+
+- [ ] Confirmar e-mail novo abrindo chamado automaticamente
+- [ ] Confirmar origem `Email` no chamado criado
+- [ ] Confirmar status inicial `Aberto`
+- [ ] Confirmar historico inicial `Chamado criado a partir de e-mail`
+- [ ] Confirmar deduplicacao por `MessageId`
+- [ ] Confirmar bloqueio por `DominiosPermitidos` (quando configurado)
+- [ ] Confirmar log tecnico em sucesso/duplicado/ignorado/erro
+
+## Integracao de e-mail - Sprint 3
+
+- [ ] Confirmar correlacao por codigo no assunto (`SGX`/`CHM`)
+- [ ] Confirmar correlacao por `InReplyTo`
+- [ ] Confirmar correlacao por `References`
+- [ ] Confirmar resposta correlacionada criando comentario publico
+- [ ] Confirmar historico `Resposta recebida por e-mail`
+- [ ] Confirmar anexo permitido salvo no chamado
+- [ ] Confirmar anexo invalido rejeitado e registrado no log
+- [ ] Confirmar sucesso parcial quando apenas anexos falham
+- [ ] Confirmar `NaoCorrelacionado` quando houver indicio de resposta sem chamado
+
+## Integracao de e-mail - Sprint 4
+
+- [ ] Entrar como Administrador e abrir `/admin/integracoes/email`
+- [ ] Confirmar listagem de logs
+- [ ] Filtrar por status
+- [ ] Filtrar por remetente
+- [ ] Filtrar por assunto
+- [ ] Filtrar por MessageId
+- [ ] Filtrar por chamado/codigo
+- [ ] Abrir detalhe do log
+- [ ] Validar `MessageId`, `InReplyTo` e `References`
+- [ ] Expandir `Erro tecnico`
+- [ ] Abrir chamado vinculado quando houver `ChamadoId`
+- [ ] Entrar como Solicitante e confirmar bloqueio
+
+## Abertura por e-mail
+
+- [ ] Configurar caixa IMAP de homologacao.
+- [ ] Rodar Worker.Email.
+- [ ] Enviar e-mail novo.
+- [ ] Confirmar criacao do chamado.
+- [ ] Confirmar origem E-mail.
+- [ ] Confirmar status inicial Aberto.
+- [ ] Confirmar historico inicial.
+- [ ] Confirmar log em /admin/integracoes/email.
+- [ ] Responder e-mail com codigo do chamado.
+- [ ] Confirmar comentario no chamado.
+- [ ] Enviar anexo permitido.
+- [ ] Confirmar anexo no chamado.
+- [ ] Enviar anexo invalido.
+- [ ] Confirmar rejeicao e log tecnico.
+- [ ] Validar duplicidade por MessageId.
+- [ ] Validar e-mail nao correlacionado.
+- [ ] Validar filtros da tela de logs.

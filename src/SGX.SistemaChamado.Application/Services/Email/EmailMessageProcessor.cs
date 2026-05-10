@@ -23,6 +23,7 @@ public sealed class EmailMessageProcessor(
     IRepository<Usuario> usuarioRepository,
     IRepository<UsuarioPerfilAcesso> usuarioPerfilRepository,
     IRepository<PerfilAcesso> perfilAcessoRepository,
+    IRepository<Departamento> departamentoRepository,
     IRepository<CategoriaChamado> categoriaRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
     IRepository<StatusChamado> statusRepository,
@@ -32,6 +33,7 @@ public sealed class EmailMessageProcessor(
     ICodigoChamadoService codigoChamadoService,
     ISlaService slaService,
     IOptions<ArquivosOptions> arquivosOptions,
+    IOptions<EmailWorkerOptions> emailWorkerOptions,
     IUnitOfWork unitOfWork,
     ILogger<EmailMessageProcessor> logger) : IEmailMessageProcessor
 {
@@ -39,6 +41,10 @@ public sealed class EmailMessageProcessor(
     private const int MaxTitulo = 180;
     private const int MaxDescricao = 4000;
     private const int MaxComentario = 3000;
+    private static readonly HashSet<string> ExtensoesBloqueadas = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".exe", ".bat", ".cmd", ".ps1", ".js", ".vbs", ".msi", ".scr"
+    };
     private static readonly Regex RegexScript = new(@"<script[\s\S]*?</script>", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex RegexTagsHtml = new(@"<[^>]+>", RegexOptions.Compiled);
 
@@ -55,13 +61,16 @@ public sealed class EmailMessageProcessor(
             logExistente.MarcarDuplicado(logExistente.ChamadoId, agora, UsuarioIntegracao);
             logIntegracaoEmailRepository.Update(logExistente);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.IgnoradoDuplicado, logExistente.ChamadoId, null);
+            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Duplicado, logExistente.ChamadoId, null);
         }
 
         var log = new LogIntegracaoEmail(
             messageId,
+            Limitar(NormalizarHeader(mensagem.InReplyTo), 600),
+            Limitar(NormalizarReferences(mensagem.References), 4000),
             fingerprint,
             Limitar(mensagem.RemetenteEmail?.Trim().ToLowerInvariant(), 320) ?? "desconhecido@local",
+            Limitar(mensagem.Destinatario, 1200),
             Limitar(mensagem.RemetenteNome, 180),
             Limitar(mensagem.Assunto, 600),
             mensagem.DataRecebimento == default ? agora : mensagem.DataRecebimento,
@@ -77,14 +86,32 @@ public sealed class EmailMessageProcessor(
         catch (DbUpdateException dbEx)
         {
             logger.LogWarning(dbEx, "Mensagem ignorada por conflito de chave unica (deduplicacao concorrente). MessageId={MessageId} Fingerprint={Fingerprint}", messageId, fingerprint);
-            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.IgnoradoDuplicado, null, null);
+            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Duplicado, null, null);
         }
 
         Chamado? chamado = null;
         try
         {
-            chamado = await emailCorrelationService.TryFindChamadoAsync(mensagem, cancellationToken);
+            if (!RemetentePermitido(mensagem.RemetenteEmail))
+            {
+                log.MarcarIgnorado(DateTime.UtcNow, UsuarioIntegracao, "Remetente fora dos dominios permitidos.");
+                logIntegracaoEmailRepository.Update(log);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Ignorado, null, "Remetente fora dos dominios permitidos.");
+            }
+
+            var correlationResult = await emailCorrelationService.CorrelacionarAsync(mensagem, cancellationToken);
+            chamado = correlationResult.Chamado;
             var usuario = await ObterOuCriarUsuarioAsync(mensagem, cancellationToken);
+
+            if (chamado is null && correlationResult.PossuiIndicadorResposta)
+            {
+                const string mensagemNaoCorrelacionada = "Nao foi possivel correlacionar a resposta com um chamado existente.";
+                log.MarcarNaoCorrelacionado(DateTime.UtcNow, UsuarioIntegracao, mensagemNaoCorrelacionada);
+                logIntegracaoEmailRepository.Update(log);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.NaoCorrelacionado, null, mensagemNaoCorrelacionada);
+            }
 
             if (chamado is null)
             {
@@ -95,9 +122,16 @@ public sealed class EmailMessageProcessor(
                 await AdicionarComentarioAsync(chamado, usuario, mensagem, cancellationToken);
             }
 
-            await ProcessarAnexosAsync(mensagem, chamado, usuario, cancellationToken);
+            var avisosAnexos = await ProcessarAnexosAsync(mensagem, chamado, usuario, cancellationToken);
 
             log.MarcarProcessado(chamado.Id, DateTime.UtcNow, UsuarioIntegracao);
+            if (avisosAnexos.Count > 0)
+            {
+                log.AtualizarObservacao(
+                    $"Mensagem processada, mas um ou mais anexos foram rejeitados. {string.Join(" | ", avisosAnexos.Take(5))}",
+                    UsuarioIntegracao);
+            }
+
             logIntegracaoEmailRepository.Update(log);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -106,10 +140,10 @@ public sealed class EmailMessageProcessor(
         catch (Exception ex)
         {
             logger.LogError(ex, "Falha ao processar mensagem de e-mail. MessageId={MessageId} Fingerprint={Fingerprint}", messageId, fingerprint);
-            log.MarcarErro(Limitar(ex.ToString(), 8000) ?? "Erro ao processar mensagem.", DateTime.UtcNow, UsuarioIntegracao, chamado?.Id);
+            log.MarcarErro(CriarMensagemErroControlada(ex), DateTime.UtcNow, UsuarioIntegracao, chamado?.Id);
             logIntegracaoEmailRepository.Update(log);
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Erro, chamado?.Id, ex.Message);
+            return new EmailMensagemProcessamentoResultado(EmailMensagemProcessamentoStatus.Erro, chamado?.Id, CriarMensagemErroControlada(ex));
         }
     }
 
@@ -199,7 +233,7 @@ public sealed class EmailMessageProcessor(
         var titulo = Limitar(SanitizarTexto(mensagem.Assunto), MaxTitulo);
         if (string.IsNullOrWhiteSpace(titulo))
         {
-            titulo = "Chamado recebido por e-mail";
+            titulo = "Chamado aberto por e-mail";
         }
 
         var descricao = Limitar(SanitizarCorpoMensagem(mensagem), MaxDescricao);
@@ -209,6 +243,7 @@ public sealed class EmailMessageProcessor(
         }
 
         var codigo = await codigoChamadoService.GerarAsync(cancellationToken);
+        var departamentoId = await ObterDepartamentoPadraoIdAsync(categoria.DepartamentoId, cancellationToken);
         var chamado = new Chamado(
             codigo,
             titulo,
@@ -219,14 +254,14 @@ public sealed class EmailMessageProcessor(
             statusAberto.Id,
             OrigemChamado.Email,
             UsuarioIntegracao,
-            categoria.DepartamentoId);
+            departamentoId);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
         var historico = new HistoricoChamado(
             chamado.Id,
             TipoHistoricoChamado.IntegracaoEmail,
-            "Chamado criado por integracao de e-mail",
+            "Chamado criado a partir de e-mail",
             solicitante.Id,
             UsuarioIntegracao);
 
@@ -245,7 +280,7 @@ public sealed class EmailMessageProcessor(
         var comentarioTexto = Limitar(SanitizarCorpoMensagem(mensagem), MaxComentario);
         if (string.IsNullOrWhiteSpace(comentarioTexto))
         {
-            comentarioTexto = "Resposta de e-mail sem conteudo textual.";
+            comentarioTexto = "Resposta recebida por e-mail sem conteudo textual.";
         }
 
         var comentario = new ComentarioChamado(
@@ -260,7 +295,7 @@ public sealed class EmailMessageProcessor(
         var historico = new HistoricoChamado(
             chamado.Id,
             TipoHistoricoChamado.IntegracaoEmail,
-            "Comentario adicionado por resposta de e-mail",
+            "Resposta recebida por e-mail",
             autor.Id,
             UsuarioIntegracao);
 
@@ -269,13 +304,21 @@ public sealed class EmailMessageProcessor(
         chamadoRepository.Update(chamado);
     }
 
-    private async Task ProcessarAnexosAsync(EmailMessageData mensagem, Chamado chamado, Usuario usuario, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<string>> ProcessarAnexosAsync(EmailMessageData mensagem, Chamado chamado, Usuario usuario, CancellationToken cancellationToken)
     {
+        var avisos = new List<string>();
         var options = arquivosOptions.Value;
+        var workerOptions = emailWorkerOptions.Value;
         var contentTypesPermitidos = options.ContentTypesPermitidos
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x.Trim().ToLowerInvariant())
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var extensoesPermitidas = workerOptions.ExtensoesPermitidas
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim().StartsWith('.') ? x.Trim().ToLowerInvariant() : $".{x.Trim().ToLowerInvariant()}")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var tamanhoMaximoBytesWorker = Math.Max(1, workerOptions.TamanhoMaximoAnexoMb) * 1024L * 1024L;
+        var tamanhoMaximoBytes = Math.Min(options.TamanhoMaximoBytes, tamanhoMaximoBytesWorker);
 
         foreach (var anexo in mensagem.Anexos)
         {
@@ -284,19 +327,45 @@ public sealed class EmailMessageProcessor(
                 if (anexo.Conteudo.Length <= 0)
                 {
                     logger.LogWarning("Anexo ignorado (tamanho invalido). MessageId={MessageId} Nome={Nome}", mensagem.MessageId, anexo.NomeArquivo);
+                    avisos.Add($"Anexo '{anexo.NomeArquivo}' rejeitado por tamanho invalido.");
                     continue;
                 }
 
-                if (anexo.Conteudo.Length > options.TamanhoMaximoBytes)
+                var tamanhoAnexo = anexo.TamanhoBytes > 0 ? anexo.TamanhoBytes : anexo.Conteudo.LongLength;
+                if (tamanhoAnexo > tamanhoMaximoBytes)
                 {
-                    logger.LogWarning("Anexo ignorado por exceder limite de tamanho. MessageId={MessageId} Nome={Nome} Tamanho={Tamanho}", mensagem.MessageId, anexo.NomeArquivo, anexo.Conteudo.Length);
+                    logger.LogWarning("Anexo ignorado por exceder limite de tamanho. MessageId={MessageId} Nome={Nome} Tamanho={Tamanho}", mensagem.MessageId, anexo.NomeArquivo, tamanhoAnexo);
+                    avisos.Add($"Anexo '{anexo.NomeArquivo}' rejeitado por exceder tamanho maximo.");
                     continue;
                 }
 
-                var nomeArquivoOriginal = Path.GetFileName(anexo.NomeArquivo ?? string.Empty);
+                var nomeArquivoOriginal = SanitizarNomeArquivo(anexo.NomeArquivo);
                 if (string.IsNullOrWhiteSpace(nomeArquivoOriginal))
                 {
                     logger.LogWarning("Anexo ignorado por nome invalido. MessageId={MessageId}", mensagem.MessageId);
+                    avisos.Add("Anexo rejeitado por nome invalido.");
+                    continue;
+                }
+
+                var extensao = Path.GetExtension(nomeArquivoOriginal).Trim().ToLowerInvariant();
+                if (string.IsNullOrWhiteSpace(extensao))
+                {
+                    logger.LogWarning("Anexo ignorado por nao possuir extensao. MessageId={MessageId} Nome={Nome}", mensagem.MessageId, nomeArquivoOriginal);
+                    avisos.Add($"Anexo '{nomeArquivoOriginal}' rejeitado por nao possuir extensao.");
+                    continue;
+                }
+
+                if (ExtensoesBloqueadas.Contains(extensao))
+                {
+                    logger.LogWarning("Anexo ignorado por extensao bloqueada. MessageId={MessageId} Nome={Nome} Extensao={Extensao}", mensagem.MessageId, nomeArquivoOriginal, extensao);
+                    avisos.Add($"Anexo '{nomeArquivoOriginal}' rejeitado por extensao bloqueada.");
+                    continue;
+                }
+
+                if (extensoesPermitidas.Count > 0 && !extensoesPermitidas.Contains(extensao))
+                {
+                    logger.LogWarning("Anexo ignorado por extensao nao permitida. MessageId={MessageId} Nome={Nome} Extensao={Extensao}", mensagem.MessageId, nomeArquivoOriginal, extensao);
+                    avisos.Add($"Anexo '{nomeArquivoOriginal}' rejeitado por extensao nao permitida.");
                     continue;
                 }
 
@@ -308,10 +377,10 @@ public sealed class EmailMessageProcessor(
                 if (!contentTypesPermitidos.Contains(mediaType) && !isOctetStream)
                 {
                     logger.LogWarning("Anexo ignorado por content type nao permitido. MessageId={MessageId} Nome={Nome} ContentType={ContentType}", mensagem.MessageId, nomeArquivoOriginal, contentType);
+                    avisos.Add($"Anexo '{nomeArquivoOriginal}' rejeitado por content type nao permitido.");
                     continue;
                 }
 
-                var extensao = Path.GetExtension(nomeArquivoOriginal);
                 var nomeFisico = $"{Guid.NewGuid():N}{extensao}";
                 await using var stream = new MemoryStream(anexo.Conteudo, writable: false);
 
@@ -324,7 +393,7 @@ public sealed class EmailMessageProcessor(
                     nomeArquivoOriginal,
                     nomeFisico,
                     string.IsNullOrWhiteSpace(mediaType) ? "application/octet-stream" : mediaType,
-                    anexo.Conteudo.Length,
+                    tamanhoAnexo,
                     resultadoStorage.CaminhoRelativo,
                     usuario.Id,
                     UsuarioIntegracao);
@@ -334,7 +403,7 @@ public sealed class EmailMessageProcessor(
                 var historico = new HistoricoChamado(
                     chamado.Id,
                     TipoHistoricoChamado.AnexoAdicionado,
-                    $"Anexo adicionado por integracao de e-mail: {nomeArquivoOriginal}",
+                    $"Anexo recebido por e-mail: {nomeArquivoOriginal}",
                     usuario.Id,
                     UsuarioIntegracao);
 
@@ -343,12 +412,28 @@ public sealed class EmailMessageProcessor(
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Falha ao salvar anexo da integracao de e-mail. MessageId={MessageId} Nome={Nome}", mensagem.MessageId, anexo.NomeArquivo);
+                avisos.Add($"Falha ao salvar anexo '{anexo.NomeArquivo}'.");
             }
         }
+
+        return avisos;
     }
 
     private async Task<CategoriaChamado> ObterCategoriaPadraoAsync(CancellationToken cancellationToken)
     {
+        var categoriaPadraoId = emailWorkerOptions.Value.CategoriaPadraoId;
+        if (categoriaPadraoId.HasValue && categoriaPadraoId.Value != Guid.Empty)
+        {
+            var categoriaPorConfiguracao = await categoriaRepository.Query()
+                .FirstOrDefaultAsync(x => x.Ativo && x.Id == categoriaPadraoId.Value, cancellationToken);
+            if (categoriaPorConfiguracao is not null)
+            {
+                return categoriaPorConfiguracao;
+            }
+
+            throw new InvalidOperationException("CategoriaPadraoId configurada no EmailWorker nao foi encontrada ou esta inativa.");
+        }
+
         var categoriaIdParam = await ObterParametroAtivoAsync("email.integracao.categoriaPadraoId", cancellationToken);
         if (Guid.TryParse(categoriaIdParam, out var categoriaId))
         {
@@ -378,6 +463,19 @@ public sealed class EmailMessageProcessor(
 
     private async Task<PrioridadeChamado> ObterPrioridadePadraoAsync(CancellationToken cancellationToken)
     {
+        var prioridadePadraoId = emailWorkerOptions.Value.PrioridadePadraoId;
+        if (prioridadePadraoId.HasValue && prioridadePadraoId.Value != Guid.Empty)
+        {
+            var prioridadePorConfiguracao = await prioridadeRepository.Query()
+                .FirstOrDefaultAsync(x => x.Ativo && x.Id == prioridadePadraoId.Value, cancellationToken);
+            if (prioridadePorConfiguracao is not null)
+            {
+                return prioridadePorConfiguracao;
+            }
+
+            throw new InvalidOperationException("PrioridadePadraoId configurada no EmailWorker nao foi encontrada ou esta inativa.");
+        }
+
         var prioridadeIdParam = await ObterParametroAtivoAsync("email.integracao.prioridadePadraoId", cancellationToken);
         if (Guid.TryParse(prioridadeIdParam, out var prioridadeId))
         {
@@ -412,6 +510,24 @@ public sealed class EmailMessageProcessor(
             .FirstOrDefaultAsync(x => x.Ativo && x.Chave == chave, cancellationToken);
 
         return parametro?.Valor?.Trim();
+    }
+
+    private async Task<Guid?> ObterDepartamentoPadraoIdAsync(Guid? departamentoCategoria, CancellationToken cancellationToken)
+    {
+        var departamentoPadraoId = emailWorkerOptions.Value.DepartamentoPadraoId;
+        if (!departamentoPadraoId.HasValue || departamentoPadraoId.Value == Guid.Empty)
+        {
+            return departamentoCategoria;
+        }
+
+        var departamentoAtivo = await departamentoRepository.Query()
+            .AnyAsync(x => x.Ativo && x.Id == departamentoPadraoId.Value, cancellationToken);
+        if (!departamentoAtivo)
+        {
+            throw new InvalidOperationException("DepartamentoPadraoId configurado no EmailWorker nao foi encontrado ou esta inativo.");
+        }
+
+        return departamentoPadraoId.Value;
     }
 
     private static string? Limitar(string? valor, int maximo)
@@ -493,5 +609,83 @@ public sealed class EmailMessageProcessor(
         }
 
         return value.Trim().Trim('<', '>');
+    }
+
+    private static string? NormalizarReferences(IReadOnlyCollection<string> references)
+    {
+        if (references.Count == 0)
+        {
+            return null;
+        }
+
+        var normalizados = references
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => NormalizarHeader(x)!)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return normalizados.Length == 0 ? null : string.Join(';', normalizados);
+    }
+
+    private static string CriarMensagemErroControlada(Exception ex)
+    {
+        var mensagem = ex.Message;
+        if (string.IsNullOrWhiteSpace(mensagem))
+        {
+            mensagem = "Erro ao processar mensagem de e-mail.";
+        }
+
+        return Limitar(mensagem, 8000) ?? "Erro ao processar mensagem de e-mail.";
+    }
+
+    private static string? SanitizarNomeArquivo(string? nomeArquivo)
+    {
+        if (string.IsNullOrWhiteSpace(nomeArquivo))
+        {
+            return null;
+        }
+
+        var nomeBase = Path.GetFileName(nomeArquivo.Trim());
+        if (string.IsNullOrWhiteSpace(nomeBase))
+        {
+            return null;
+        }
+
+        var nomeSemControle = new string(nomeBase.Where(ch => !char.IsControl(ch)).ToArray()).Trim();
+        if (string.IsNullOrWhiteSpace(nomeSemControle))
+        {
+            return null;
+        }
+
+        foreach (var invalido in Path.GetInvalidFileNameChars())
+        {
+            nomeSemControle = nomeSemControle.Replace(invalido, '_');
+        }
+
+        return nomeSemControle.Trim();
+    }
+
+    private bool RemetentePermitido(string? remetenteEmail)
+    {
+        var dominios = emailWorkerOptions.Value.DominiosPermitidos
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x.Trim().ToLowerInvariant())
+            .ToArray();
+
+        if (dominios.Length == 0)
+        {
+            return true;
+        }
+
+        var remetente = (remetenteEmail ?? string.Empty).Trim().ToLowerInvariant();
+        var arrobaIndex = remetente.LastIndexOf('@');
+        if (arrobaIndex <= 0 || arrobaIndex == remetente.Length - 1)
+        {
+            return false;
+        }
+
+        var dominio = remetente[(arrobaIndex + 1)..];
+        return dominios.Contains(dominio, StringComparer.OrdinalIgnoreCase);
     }
 }

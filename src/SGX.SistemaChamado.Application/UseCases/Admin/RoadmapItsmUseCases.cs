@@ -108,6 +108,7 @@ public sealed class CriarRoadmapItsmItemUseCase(
         var item = new RoadmapItsmItem(
             request.Area,
             categoriaLegado,
+            request.Objetivo,
             categoria?.Id,
             request.SituacaoAtual,
             request.AtencaoTecnica,
@@ -180,6 +181,7 @@ public sealed class AtualizarRoadmapItsmItemUseCase(
         item.Atualizar(
             request.Area,
             categoriaLegado,
+            request.Objetivo,
             categoria?.Id,
             request.SituacaoAtual,
             request.AtencaoTecnica,
@@ -1118,6 +1120,7 @@ internal static class RoadmapItsmMaps
             item.Id,
             item.Area,
             nomeCategoria,
+            item.Objetivo,
             item.RoadmapCategoriaId,
             item.RoadmapCategoria?.Nome,
             item.RoadmapCategoria?.Cor,
@@ -1161,6 +1164,7 @@ internal static class RoadmapItsmMaps
             item.Id,
             item.Area,
             nomeCategoria,
+            item.Objetivo,
             item.RoadmapCategoriaId,
             item.RoadmapCategoria?.Nome,
             item.RoadmapCategoria?.Cor,

@@ -8,14 +8,18 @@ const props = defineProps<{
 const colorByStatus: Record<StatusProcessamentoEmail, string> = {
   Pendente: 'grey-7',
   Processado: 'positive',
-  IgnoradoDuplicado: 'warning',
+  Ignorado: 'warning',
+  Duplicado: 'orange-8',
+  NaoCorrelacionado: 'indigo',
   Erro: 'negative',
 }
 
 const labelByStatus: Record<StatusProcessamentoEmail, string> = {
   Pendente: 'Pendente',
   Processado: 'Processado',
-  IgnoradoDuplicado: 'Duplicado',
+  Ignorado: 'Ignorado',
+  Duplicado: 'Duplicado',
+  NaoCorrelacionado: 'Não correlacionado',
   Erro: 'Erro',
 }
 </script>

@@ -15,6 +15,7 @@ public sealed class RoadmapItsmItemConfiguration : IEntityTypeConfiguration<Road
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.Area).HasColumnName("area").HasMaxLength(180).IsRequired();
         builder.Property(x => x.Categoria).HasColumnName("categoria").HasMaxLength(120).IsRequired();
+        builder.Property(x => x.Objetivo).HasColumnName("objetivo").HasMaxLength(4000);
         builder.Property(x => x.RoadmapCategoriaId).HasColumnName("roadmap_categoria_id");
         builder.Property(x => x.SituacaoAtual).HasColumnName("situacao_atual").HasMaxLength(800).IsRequired();
         builder.Property(x => x.AtencaoTecnica).HasColumnName("atencao_tecnica").HasMaxLength(1200).IsRequired();

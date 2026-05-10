@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510033208_CorrigirChecklistAberturaEmailRoadmap")]
+    partial class CorrigirChecklistAberturaEmailRoadmap
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3166,11 +3169,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("impacto");
 
-                    b.Property<string>("Objetivo")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
-                        .HasColumnName("objetivo");
-
                     b.Property<string>("Observacao")
                         .HasMaxLength(1200)
                         .HasColumnType("character varying(1200)")
@@ -3258,7 +3256,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Decisao = 1,
                             EvidenciaImplementacao = "GET /api/portal/contexto; POST /api/portal/chamados; tela /portal/chamados/novo; listagem /portal/chamados; detalhe /portal/chamados/:id; fila /admin/chamados; testes backend; build frontend.",
                             Impacto = 1,
-                            Objetivo = "Permitir que o solicitante autenticado registre chamados diretamente pelo portal, informando titulo, descricao, categoria, prioridade e anexos opcionais, acompanhando depois o andamento, historico e status do atendimento.",
                             Observacao = "Implementado funcionalmente; nao homologado em usuario real nesta iteracao.",
                             Ordem = 1,
                             PendenciasHomologacao = "Validar com usuário real o fluxo completo de abrir chamado, anexar arquivo, acompanhar no portal e visualizar na fila administrativa.",
@@ -3276,7 +3273,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777702"),
                             Area = "Abertura por e-mail",
-                            AtencaoTecnica = "Validar com caixa IMAP real, e-mails reais, anexos reais e regras de autenticacao exigidas pelo ambiente.",
+                            AtencaoTecnica = "Validar fluxo completo com caixa IMAP real e e-mails reais antes de homologar",
                             Ativo = true,
                             Categoria = "Integracoes",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -3285,7 +3282,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Decisao = 1,
                             EvidenciaImplementacao = "Worker.Email; EmailWorkerOptions; LogIntegracaoEmail; ProcessarEmailRecebidoUseCase; EmailParaChamadoService; correlacao por assunto e headers; anexos por e-mail; endpoints de logs; tela /admin/integracoes/email; testes automatizados; docs/INTEGRACAO-EMAIL.md.",
                             Impacto = 1,
-                            Objetivo = "Permitir que e-mails recebidos em uma caixa configurada sejam processados pelo Worker IMAP para criar chamados automaticamente, correlacionar respostas com chamados existentes, registrar anexos permitidos e manter logs tecnicos de processamento.",
                             Observacao = "Implementado funcionalmente; nao homologado e nao em producao sem validacao IMAP real.",
                             Ordem = 2,
                             PendenciasHomologacao = "Validacao com caixa IMAP real, homologacao com e-mails reais e validacao com anexos reais.",
@@ -3294,7 +3290,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Prioridade = 1,
                             ProximaAcao = "Validar com caixa IMAP real em homologacao.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666604"),
-                            SituacaoAtual = "Fluxo implementado tecnicamente via Worker.Email, com criacao de chamado por e-mail, correlacao de respostas, tratamento de anexos e logs administrativos.",
+                            SituacaoAtual = "Worker.Email, abertura por e-mail, correlacao de respostas, anexos e logs administrativos implementados tecnicamente",
                             Status = 1,
                             StatusImplementacao = 3,
                             StatusTecnico = 3
@@ -3303,7 +3299,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777703"),
                             Area = "Perfis de acesso",
-                            AtencaoTecnica = "Validar permissoes finas por tela e acao durante homologacao e evoluir auditoria detalhada de alteracoes de permissoes.",
+                            AtencaoTecnica = "Validar permissoes finas por tela e acao",
                             Ativo = true,
                             Categoria = "Seguranca",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -3312,7 +3308,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Decisao = 1,
                             EvidenciaImplementacao = "docs/SEGURANCA-PERFIS-PERMISSOES.md; docs/ROADMAP.md; testes backend com permissoes; matriz de permissoes no frontend.",
                             Impacto = 1,
-                            Objetivo = "Controlar o acesso ao sistema por perfis e permissoes granulares, permitindo definir o que Administradores, Atendentes e Solicitantes podem visualizar, executar e administrar sem necessidade de alteracao de codigo.",
                             Observacao = "Status legado mantido para compatibilidade; usar StatusImplementacao como referencia principal.",
                             Ordem = 3,
                             PendenciasHomologacao = "Validar com usuarios reais os perfis Administrador, Atendente e Solicitante, incluindo acoes permitidas e bloqueadas.",
@@ -3323,7 +3318,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             ProximaAcao = "Executar homologacao com usuarios reais e priorizar auditoria detalhada.",
                             Responsavel = "Thiago Tescaro",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666601"),
-                            SituacaoAtual = "Perfis macro, permissoes granulares, matriz de permissoes, /api/me com permissoes efetivas e controle visual por permissao implementados.",
+                            SituacaoAtual = "Administrador, Atendente e Solicitante",
                             Status = 1,
                             StatusImplementacao = 3,
                             StatusTecnico = 3

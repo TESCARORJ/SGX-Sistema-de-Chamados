@@ -175,6 +175,10 @@ Arquivos:
 - `EmailWorker__TlsHabilitado`
 - `EmailWorker__IntervaloSegundos`
 - `EmailWorker__MaxMensagensPorCiclo`
+- `EmailWorker__CategoriaPadraoId`
+- `EmailWorker__PrioridadePadraoId`
+- `EmailWorker__DepartamentoPadraoId`
+- `EmailWorker__DominiosPermitidos__0`
 - `EmailWorker__MarcarComoLidaAoProcessar`
 - `EmailWorker__MoverProcessadas`
 - `EmailWorker__PastaProcessadas`
@@ -238,7 +242,10 @@ Comportamento:
 - Leitura periodica da caixa IMAP
 - Abertura de chamado para e-mail novo
 - Correlacao por codigo do chamado no assunto e headers (`In-Reply-To`, `References`)
+- Resposta correlacionada gera comentario publico e historico no chamado
 - Deduplicacao por `MessageId` e `Fingerprint`
+- Origem `Email` e status inicial `Aberto` na abertura automatica
+- Validacao de anexos por tamanho/extensao/MIME com bloqueio de extensoes perigosas
 - Persistencia de logs técnicos de integração
 - Reuso do `IArquivoStorageService` para anexos validos
 
@@ -254,6 +261,7 @@ Se IMAP não estiver configurado em Development, o Worker inicia e registra warn
 ## Roadmap e seguranca
 
 O roadmap do projeto e a documentacao de perfis/permissoes estao disponiveis na pasta `docs`.
+Os itens do Roadmap ITSM incluem o campo `Objetivo` para descrever claramente a finalidade de cada entrega.
 
 - `docs/ROADMAP.md`
 - `docs/SEGURANCA-PERFIS-PERMISSOES.md`
@@ -291,6 +299,7 @@ Cobertura atual inclui:
 - `docs/ROADMAP-ITSM.md`
 - `docs/SEGURANCA-PERFIS-PERMISSOES.md`
 - `docs/PUBLICACAO.md`
+- `docs/INTEGRACAO-EMAIL.md`
 
 
 

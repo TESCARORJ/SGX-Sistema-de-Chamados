@@ -124,6 +124,18 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task AdminIntegracaoEmailLogsPermiteAtendente()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.email@empresa.com", "Atendente", "Atendente");
+        _ = await client.GetAsync("/api/me");
+
+        var response = await client.GetAsync("/api/admin/integracoes/email/logs");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminCadastrosPermissoesListaComSucessoParaAtendente()
     {
         using var client = _factory.CreateClient();

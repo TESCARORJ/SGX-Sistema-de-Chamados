@@ -6,8 +6,11 @@ namespace SGX.SistemaChamado.Domain.Entities;
 public sealed class LogIntegracaoEmail : AuditableEntity
 {
     public string? MessageId { get; private set; }
+    public string? InReplyTo { get; private set; }
+    public string? References { get; private set; }
     public string Fingerprint { get; private set; } = string.Empty;
     public string Remetente { get; private set; } = string.Empty;
+    public string? Destinatario { get; private set; }
     public string? NomeRemetente { get; private set; }
     public string? Assunto { get; private set; }
     public DateTime DataRecebimento { get; private set; }
@@ -25,8 +28,11 @@ public sealed class LogIntegracaoEmail : AuditableEntity
 
     public LogIntegracaoEmail(
         string? messageId,
+        string? inReplyTo,
+        string? references,
         string fingerprint,
         string remetente,
+        string? destinatario,
         string? nomeRemetente,
         string? assunto,
         DateTime dataRecebimento,
@@ -43,8 +49,11 @@ public sealed class LogIntegracaoEmail : AuditableEntity
         }
 
         MessageId = string.IsNullOrWhiteSpace(messageId) ? null : messageId.Trim();
+        InReplyTo = string.IsNullOrWhiteSpace(inReplyTo) ? null : inReplyTo.Trim();
+        References = string.IsNullOrWhiteSpace(references) ? null : references.Trim();
         Fingerprint = fingerprint.Trim();
         Remetente = remetente.Trim().ToLowerInvariant();
+        Destinatario = string.IsNullOrWhiteSpace(destinatario) ? null : destinatario.Trim().ToLowerInvariant();
         NomeRemetente = string.IsNullOrWhiteSpace(nomeRemetente) ? null : nomeRemetente.Trim();
         Assunto = string.IsNullOrWhiteSpace(assunto) ? null : assunto.Trim();
         DataRecebimento = dataRecebimento;
@@ -72,8 +81,25 @@ public sealed class LogIntegracaoEmail : AuditableEntity
     {
         ChamadoId = chamadoId;
         DataProcessamento = dataProcessamento;
-        StatusProcessamento = StatusProcessamentoEmail.IgnoradoDuplicado;
+        StatusProcessamento = StatusProcessamentoEmail.Duplicado;
         Erro = null;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void MarcarIgnorado(DateTime dataProcessamento, string atualizadoPor, string? motivo = null, Guid? chamadoId = null)
+    {
+        ChamadoId = chamadoId;
+        DataProcessamento = dataProcessamento;
+        StatusProcessamento = StatusProcessamentoEmail.Ignorado;
+        Erro = string.IsNullOrWhiteSpace(motivo) ? null : motivo.Trim();
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void MarcarNaoCorrelacionado(DateTime dataProcessamento, string atualizadoPor, string? detalhe = null)
+    {
+        DataProcessamento = dataProcessamento;
+        StatusProcessamento = StatusProcessamentoEmail.NaoCorrelacionado;
+        Erro = string.IsNullOrWhiteSpace(detalhe) ? null : detalhe.Trim();
         AtualizarAuditoria(atualizadoPor);
     }
 
@@ -83,6 +109,12 @@ public sealed class LogIntegracaoEmail : AuditableEntity
         DataProcessamento = dataProcessamento;
         StatusProcessamento = StatusProcessamentoEmail.Erro;
         Erro = string.IsNullOrWhiteSpace(erro) ? "Erro nao informado." : erro.Trim();
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void AtualizarObservacao(string observacao, string atualizadoPor)
+    {
+        Erro = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
         AtualizarAuditoria(atualizadoPor);
     }
 }
