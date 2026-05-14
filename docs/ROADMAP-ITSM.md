@@ -176,6 +176,45 @@ Nesta iteracao, endpoints de categoria/checklist reutilizam `Roadmap.Visualizar`
 Pendencia real para evolucao futura:
 - avaliar criacao de permissao granular dedicada para categorias/checklist (`RoadmapCategorias.*`, `RoadmapChecklist.*`).
 
+## Gestao ITSM e Documentacao
+
+Area: Gestao ITSM e Documentacao
+Categoria: Governanca
+
+Objetivo:
+Centralizar no painel administrativo a consulta ao Roadmap ITSM e a documentacao funcional/tecnica do SGX Sistema de Chamados, facilitando apresentacao, governanca, homologacao e acompanhamento da evolucao do sistema.
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Acesso administrativo:
+- `Admin > Gestao ITSM > Roadmap`
+- `Admin > Gestao ITSM > Documentacao`
+
+Rotas:
+- `/admin/gestao-itsm/roadmap`
+- `/admin/gestao-itsm/documentacao`
+- `/admin/roadmap-itsm` mantida por compatibilidade.
+
+Checklist:
+- [x] Grupo Gestao ITSM criado no menu administrativo.
+- [x] Roadmap movido ou espelhado para Gestao ITSM.
+- [x] Tela de Documentacao ITSM criada.
+- [x] Documentos iniciais adicionados.
+- [x] Busca de documentos criada.
+- [x] Filtro por categoria criado.
+- [x] Link entre Roadmap e Documentacao criado.
+- [x] Permissoes integradas.
+- [x] Documentacao do repositorio atualizada.
+- [x] Testes ou validacao tecnica criados.
+
+Pendencias evolutivas:
+- Permitir edicao da documentacao pelo proprio sistema.
+- Versionar documentacao por release.
+- Anexar evidencias de homologacao.
+- Exportar documentacao em PDF.
+- Vincular documentos diretamente aos itens do roadmap.
+
 ## Sprint Portal 3 - Abertura de chamado pelo portal
 
 Area: Abertura de chamado pelo portal

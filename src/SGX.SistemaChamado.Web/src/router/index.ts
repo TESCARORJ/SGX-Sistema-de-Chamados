@@ -37,6 +37,7 @@ const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetal
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
 const IntegracaoMicrosoftEntraIdView = () => import('../views/IntegracaoMicrosoftEntraIdView.vue')
 const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
+const GestaoItsmDocumentacaoView = () => import('../views/GestaoItsmDocumentacaoView.vue')
 const SlaPoliciesAdminView = () => import('../views/SlaPoliciesAdminView.vue')
 const SlaAlertasAdminView = () => import('../views/SlaAlertasAdminView.vue')
 const SlaDashboardAdminView = () => import('../views/SlaDashboardAdminView.vue')
@@ -255,6 +256,24 @@ const routes: RouteRecordRaw[] = [
         path: 'roadmap-itsm',
         name: 'admin-roadmap-itsm',
         component: RoadmapItsmView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'gestao-itsm/roadmap',
+        name: 'admin-gestao-itsm-roadmap',
+        component: RoadmapItsmView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'gestao-itsm/documentacao',
+        name: 'admin-gestao-itsm-documentacao',
+        component: GestaoItsmDocumentacaoView,
         meta: {
           requiresAuth: true,
           perfisPermitidos: ['Administrador', 'Atendente'],

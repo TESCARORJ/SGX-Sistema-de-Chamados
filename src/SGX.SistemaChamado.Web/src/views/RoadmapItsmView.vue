@@ -1,6 +1,7 @@
 ﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QTableColumn } from 'quasar'
+import { useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
@@ -43,6 +44,7 @@ type ModoChecklist = 'criar' | 'editar'
 type ModoImplementacao = 'criar' | 'editar'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const loading = ref(false)
 const erro = ref<string | null>(null)
@@ -217,6 +219,10 @@ const colunasImplementacao: QTableColumn<RoadmapImplementacaoFuturaResponse>[] =
 function formatarDataCurta(value: string | null): string {
   if (!value) return '-'
   return new Date(value).toLocaleDateString('pt-BR')
+}
+
+function abrirDocumentacaoItsm(): void {
+  router.push('/admin/gestao-itsm/documentacao')
 }
 
 function labelStatusImplementacao(value: number): string {
@@ -572,9 +578,13 @@ onMounted(async () => {
 <template>
   <q-page class="q-pa-md">
     <PageHeader
-      title="Roadmap ITSM"
-      subtitle="Status real da implementação, categorias e checklist governável."
-    />
+      titulo="Roadmap ITSM"
+      subtitulo="Acompanhe evolução, status técnico, pendências, critérios de aceite e evidências da implantação ITSM."
+    >
+      <template #actions>
+        <q-btn color="primary" icon="library_books" label="Ver Documentação" @click="abrirDocumentacaoItsm" />
+      </template>
+    </PageHeader>
 
     <q-banner v-if="sucesso" class="bg-positive text-white q-mb-md">{{ sucesso }}</q-banner>
     <q-banner v-if="erro" class="bg-negative text-white q-mb-md">{{ erro }}</q-banner>

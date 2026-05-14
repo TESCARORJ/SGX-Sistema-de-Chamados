@@ -168,10 +168,23 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Roadmap ITSM',
+    label: 'Gestão ITSM',
     icon: 'insights',
-    to: '/admin/roadmap-itsm',
     requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
+    children: [
+      {
+        label: 'Roadmap',
+        icon: 'account_tree',
+        to: '/admin/gestao-itsm/roadmap',
+        requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
+      },
+      {
+        label: 'Documentação',
+        icon: 'library_books',
+        to: '/admin/gestao-itsm/documentacao',
+        requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
+      },
+    ],
   },
 ]
 
@@ -239,6 +252,8 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃ§Ãµes'
   if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃ§Ãµes'
+  if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'Documentação ITSM'
+  if (route.path.startsWith('/admin/gestao-itsm')) return 'Gestão ITSM'
   if (route.path.startsWith('/admin/roadmap-itsm')) return 'Roadmap ITSM'
   return 'Ãrea Administrativa'
 })
@@ -524,7 +539,7 @@ watch(
                 expand-separator
                 :icon="item.icon"
                 :label="item.label"
-                :default-opened="false"
+                :default-opened="grupoAberto(item.children)"
                 header-class="menu-group"
                 :disable="drawerMini"
               >

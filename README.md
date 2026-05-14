@@ -149,10 +149,18 @@ npm run build
 
 - `docs/AUTENTICACAO-CORPORATIVA.md`
 - `docs/CONFIGURACAO-AZURE-AD.md`
+- `docs/ROADMAP.md`
+- `docs/ROADMAP-ITSM.md`
 - `docs/EXECUCAO-LOCAL.md`
 - `docs/ARQUITETURA.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
 - `docs/SLA.md`
+
+No painel administrativo, a consulta gerencial fica em:
+
+- `Admin > Gestão ITSM > Roadmap` (`/admin/gestao-itsm/roadmap`)
+- `Admin > Gestão ITSM > Documentação` (`/admin/gestao-itsm/documentacao`)
+- A rota legada `/admin/roadmap-itsm` continua funcionando.
 
 ## Correções recentes - Integração Microsoft e senha por Administrador
 
