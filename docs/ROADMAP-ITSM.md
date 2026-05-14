@@ -565,22 +565,37 @@ Status da implementação: Implementado funcionalmente
 Status técnico: Completo com pendências evolutivas
 
 Objetivo:
-Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por perfis e permissões, com suporte a MFA, Conditional Access e uso fora da rede institucional.
+Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por usuários, perfis e permissões. O Azure autentica a identidade; o SGX controla o que cada usuário pode acessar e executar dentro do sistema.
+
+Situação atual:
+Fluxo de autenticação corporativa com Microsoft Entra ID/Azure AD implementado funcionalmente, com validação de token JWT, modo Single Tenant, controle de domínio permitido, integração com `GET /api/me`, criação/identificação de usuário interno e autorização por perfis/permissões do SGX. Ainda depende de homologação com tenant institucional real.
+
+Atenção técnica:
+Microsoft Entra ID/Azure AD autentica e o SGX autoriza. Roles/groups do Azure não concedem perfil administrativo automaticamente no SGX. Perfis e permissões continuam internos ao SGX.
 
 Checklist:
 - 19 itens técnicos concluídos
 - 8 itens pendentes de homologação/governança
 - percentual esperado aproximado: 70%
 
-Pendências:
-- tenant real
-- usuários reais
-- MFA
-- Conditional Access
-- logout corporativo
-- ambiente publicado/VPS
-- revisão com equipe Azure
-- evidência formal de homologação
+Pendências técnicas:
+- homologar com tenant institucional real do Microsoft Entra ID;
+- validar login com usuários corporativos reais;
+- validar MFA e Conditional Access;
+- validar logout corporativo;
+- validar ambiente publicado/VPS;
+- revisar configuração com a equipe responsável pelo Azure;
+- registrar evidências formais de homologação;
+- avaliar persistência opcional de `oid/tid`;
+- definir governança de ciclo de vida do usuário interno.
+
+Pendências de homologação:
+- executar homologação ponta a ponta com usuários reais de perfil Administrador, Atendente e Solicitante;
+- validar comportamento com usuário interno inativo;
+- validar bloqueio de domínio/tenant não permitido;
+- validar mensagens de erro de login;
+- validar redirecionamento por perfil/permissão após login;
+- registrar evidências com prints, data, ambiente e usuário de teste.
 
 Mensagem para reunião:
 A autenticação corporativa do SGX está desenhada para usar Microsoft Entra ID/Azure AD como identidade principal, enquanto o SGX mantém a autorização interna por perfis e permissões. Essa abordagem permite MFA, Conditional Access, acesso fora da rede e melhor governança sem transferir regras internas do sistema para o Azure.

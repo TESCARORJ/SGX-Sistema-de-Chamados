@@ -20,16 +20,20 @@ public sealed class AdminIntegracoesEmailController(
     [Authorize(Policy = PermissionPolicies.IntegracoesEmailVisualizar)]
     public async Task<IActionResult> Listar([FromQuery] FiltroLogsEmailRequest request, CancellationToken cancellationToken)
     {
-        var validation = await filtroValidator.ValidateAsync(request, cancellationToken);
-        if (!validation.IsValid)
-        {
-            return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
-        }
-
         try
         {
+            var validation = await filtroValidator.ValidateAsync(request, cancellationToken);
+            if (!validation.IsValid)
+            {
+                return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+            }
+
             var response = await listarLogsIntegracaoEmailUseCase.ExecutarAsync(request, cancellationToken);
             return Ok(response);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested || HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            return StatusCode(StatusCodes.Status499ClientClosedRequest, new { mensagem = "Requisicao cancelada pelo cliente." });
         }
         catch (UnauthorizedAccessException)
         {
@@ -49,6 +53,10 @@ public sealed class AdminIntegracoesEmailController(
         {
             var response = await obterLogIntegracaoEmailUseCase.ExecutarAsync(id, cancellationToken);
             return Ok(response);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested || HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            return StatusCode(StatusCodes.Status499ClientClosedRequest, new { mensagem = "Requisicao cancelada pelo cliente." });
         }
         catch (UnauthorizedAccessException)
         {

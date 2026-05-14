@@ -1,4 +1,4 @@
-export const roadmapStatusLabels: Record<number, string> = {
+﻿export const roadmapStatusLabels: Record<number, string> = {
   1: 'Implementado',
   2: 'Em validação',
   3: 'Parcial',

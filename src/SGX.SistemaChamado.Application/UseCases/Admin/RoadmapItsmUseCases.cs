@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
@@ -72,7 +72,7 @@ public sealed class ObterRoadmapItsmItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -160,7 +160,7 @@ public sealed class AtualizarRoadmapItsmItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -237,7 +237,7 @@ public sealed class AtualizarStatusRoadmapItsmUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -272,7 +272,7 @@ public sealed class InativarRoadmapItsmItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -298,7 +298,7 @@ public sealed class ReativarRoadmapItsmItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -401,7 +401,7 @@ public sealed class ListarRoadmapImplementacoesPorItemUseCase(
     {
         if (roadmapItemId == Guid.Empty)
         {
-            throw new ArgumentException("RoadmapItemId invalido.", nameof(roadmapItemId));
+            throw new ArgumentException("RoadmapItemId inválido.", nameof(roadmapItemId));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -436,7 +436,7 @@ public sealed class ObterRoadmapImplementacaoFuturaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -509,7 +509,7 @@ public sealed class AtualizarRoadmapImplementacaoFuturaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -558,7 +558,7 @@ public sealed class ConcluirRoadmapImplementacaoFuturaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -584,7 +584,7 @@ public sealed class InativarRoadmapImplementacaoFuturaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -610,7 +610,7 @@ public sealed class ReativarRoadmapImplementacaoFuturaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -665,7 +665,7 @@ public sealed class ObterRoadmapCategoriaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -716,7 +716,7 @@ public sealed class AtualizarRoadmapCategoriaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -759,7 +759,7 @@ public sealed class InativarRoadmapCategoriaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -785,7 +785,7 @@ public sealed class ReativarRoadmapCategoriaUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -811,7 +811,7 @@ public sealed class ListarRoadmapChecklistPorItemUseCase(
     {
         if (roadmapItemId == Guid.Empty)
         {
-            throw new ArgumentException("RoadmapItemId invalido.", nameof(roadmapItemId));
+            throw new ArgumentException("RoadmapItemId inválido.", nameof(roadmapItemId));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -845,7 +845,7 @@ public sealed class CriarRoadmapChecklistItemUseCase(
     {
         if (roadmapItemId == Guid.Empty)
         {
-            throw new ArgumentException("RoadmapItemId invalido.", nameof(roadmapItemId));
+            throw new ArgumentException("RoadmapItemId inválido.", nameof(roadmapItemId));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -885,7 +885,7 @@ public sealed class AtualizarRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -934,7 +934,7 @@ public sealed class ConcluirRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -966,7 +966,7 @@ public sealed class ReabrirRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -998,7 +998,7 @@ public sealed class InativarRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -1030,7 +1030,7 @@ public sealed class ExcluirRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -1062,7 +1062,7 @@ public sealed class ReativarRoadmapChecklistItemUseCase(
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Id invalido.", nameof(id));
+            throw new ArgumentException("Id inválido.", nameof(id));
         }
 
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
@@ -1370,3 +1370,4 @@ internal static class RoadmapItsmMaps
     };
 
 }
+

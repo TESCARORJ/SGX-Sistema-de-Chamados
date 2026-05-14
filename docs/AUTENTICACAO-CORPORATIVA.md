@@ -13,6 +13,14 @@ Padronizar a autenticação com múltiplos provedores no SGX Sistema de Chamados
 - `Hibrido`: Microsoft Entra ID + login local SGX.
 - `LocalDevelopment`: fluxo técnico separado, exclusivo de `Development`.
 
+## Status no Roadmap ITSM
+
+- Item: `Autenticação corporativa` (Área Segurança, ordem 4).
+- Status da implementação: `Implementado funcionalmente`.
+- Status técnico: `Completo com pendências evolutivas`.
+- Checklist ativo: `27` itens (`19` concluídos e `8` pendentes de homologação/governança), percentual calculado automaticamente (~`70%`).
+- Homologação real ainda pendente com tenant institucional e usuários corporativos reais.
+
 O login local de produção (`LocalSgx`) **não** substitui o login local de `Development`.
 
 ## Configurações obrigatórias

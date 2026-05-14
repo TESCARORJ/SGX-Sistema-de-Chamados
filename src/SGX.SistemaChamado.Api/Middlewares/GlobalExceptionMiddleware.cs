@@ -15,6 +15,18 @@ public sealed class GlobalExceptionMiddleware(
         {
             await next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            logger.LogInformation(
+                "Requisicao cancelada pelo cliente. CorrelationId={CorrelationId} TraceId={TraceId}",
+                context.Items[CorrelationIdMiddleware.HeaderName],
+                context.TraceIdentifier);
+
+            if (!context.Response.HasStarted)
+            {
+                context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
+            }
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex);

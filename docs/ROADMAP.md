@@ -211,6 +211,7 @@ Fechamento do item `Autenticacao corporativa` no Roadmap ITSM:
 - status tecnico consolidado em `Completo com pendencias evolutivas`;
 - checklist do item consolidado em `27` itens (`19` concluidos e `8` pendentes);
 - percentual de implementacao calculado automaticamente pelo checklist ativo (aprox. `70%`).
+- regra arquitetural reforcada: Microsoft Entra ID/Azure AD autentica e SGX autoriza por usuarios, perfis e permissoes internas.
 
 Pendencias reais mantidas:
 - homologacao com tenant institucional real do Microsoft Entra ID;
@@ -219,4 +220,5 @@ Pendencias reais mantidas:
 - validacao de logout corporativo;
 - validacao em ambiente publicado/VPS;
 - revisao com equipe responsavel pelo Azure;
-- evidencia formal de homologacao.
+- evidencia formal de homologacao;
+- governanca de ciclo de vida do usuario interno (bloqueio, reativacao e auditoria).
