@@ -3,6 +3,8 @@ using SGX.SistemaChamado.Api.Extensions;
 using SGX.SistemaChamado.Api.Middlewares;
 using SGX.SistemaChamado.Api.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using SGX.SistemaChamado.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args)
     .AddStructuredLogging();
@@ -13,6 +15,19 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+    if (dbContext.Database.IsRelational())
+    {
+        await dbContext.Database.MigrateAsync();
+    }
+    else
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+    }
+
+    var administradorInicialService = scope.ServiceProvider.GetRequiredService<IAdministradorInicialService>();
+    await administradorInicialService.SeedAsync();
+
     var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentSeedService>();
     await seeder.SeedAsync();
 }

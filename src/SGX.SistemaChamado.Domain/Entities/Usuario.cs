@@ -10,6 +10,12 @@ public sealed class Usuario : AuditableEntity
     public string Nome { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
     public string Login { get; private set; } = string.Empty;
+    public string? SenhaHashLocal { get; private set; }
+    public bool DeveAlterarSenha { get; private set; }
+    public DateTime? UltimaAlteracaoSenhaEm { get; private set; }
+    public int TentativasInvalidas { get; private set; }
+    public DateTime? BloqueadoAte { get; private set; }
+    public DateTime? UltimoLoginEm { get; private set; }
     public SituacaoUsuario Situacao { get; private set; } = SituacaoUsuario.Ativo;
     public DateTime? UltimoAcessoEm { get; private set; }
     public Guid? DepartamentoId { get; private set; }
@@ -59,9 +65,62 @@ public sealed class Usuario : AuditableEntity
         Login = login.Trim().ToLowerInvariant();
     }
 
+    public void DefinirSenhaHashLocal(string senhaHashLocal, string atualizadoPor)
+    {
+        if (string.IsNullOrWhiteSpace(senhaHashLocal))
+        {
+            throw new ArgumentException("A senha hash local e obrigatoria.", nameof(senhaHashLocal));
+        }
+
+        SenhaHashLocal = senhaHashLocal.Trim();
+        UltimaAlteracaoSenhaEm = DateTime.UtcNow;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void RemoverSenhaLocal(string atualizadoPor)
+    {
+        SenhaHashLocal = null;
+        DeveAlterarSenha = false;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void DefinirDeveAlterarSenha(bool deveAlterarSenha, string atualizadoPor)
+    {
+        DeveAlterarSenha = deveAlterarSenha;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
     public void AtualizarUltimoAcesso(DateTime acessoEmUtc, string atualizadoPor)
     {
         UltimoAcessoEm = acessoEmUtc;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void RegistrarLoginLocalBemSucedido(DateTime loginEmUtc, string atualizadoPor)
+    {
+        UltimoLoginEm = loginEmUtc;
+        TentativasInvalidas = 0;
+        BloqueadoAte = null;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void RegistrarFalhaLoginLocal(int tentativasMaximas, TimeSpan janelaBloqueio, DateTime agoraUtc, string atualizadoPor)
+    {
+        TentativasInvalidas++;
+
+        if (TentativasInvalidas >= tentativasMaximas)
+        {
+            BloqueadoAte = agoraUtc.Add(janelaBloqueio);
+            TentativasInvalidas = 0;
+        }
+
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void LimparLockout(string atualizadoPor)
+    {
+        TentativasInvalidas = 0;
+        BloqueadoAte = null;
         AtualizarAuditoria(atualizadoPor);
     }
 

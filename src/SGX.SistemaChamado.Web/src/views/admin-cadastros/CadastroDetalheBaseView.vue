@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -46,6 +46,12 @@ const erroPermissoesPerfil = ref<string | null>(null)
 const sucessoPermissoesPerfil = ref<string | null>(null)
 const perfilPermissoes = ref<PerfilPermissoes | null>(null)
 const codigosPermissoesSelecionadas = ref<string[]>([])
+const redefinirSenhaDialogAberto = ref(false)
+const redefinirSenhaLoading = ref(false)
+const redefinirSenhaErro = ref<string | null>(null)
+const redefinirSenhaNova = ref('')
+const redefinirSenhaConfirmacao = ref('')
+const redefinirSenhaDeveAlterar = ref(true)
 
 const perfis = ref<PerfilAcessoResumoResponse[]>([])
 const departamentos = ref<DepartamentoResumoResponse[]>([])
@@ -53,6 +59,7 @@ const departamentos = ref<DepartamentoResumoResponse[]>([])
 const idParam = computed(() => String(route.params.id ?? 'novo'))
 const isNovo = computed(() => idParam.value === 'novo')
 const isAdmin = computed(() => authStore.usuario?.perfis.includes('Administrador') ?? false)
+const fallbackAdminSemPermissoes = computed(() => isAdmin.value && (authStore.usuario?.permissoes?.length ?? 0) === 0)
 const podeGerenciarRegistro = computed(() => {
   switch (props.entidade) {
     case 'usuarios':
@@ -67,6 +74,17 @@ const podeGerenciarRegistro = computed(() => {
 })
 const somenteLeitura = computed(() => !podeGerenciarRegistro.value)
 const podeEditarPerfisDoUsuario = computed(() => authStore.possuiPermissao(permissoes.usuariosAlterarPerfis))
+const podeRedefinirSenhaUsuario = computed(() => {
+  if (props.entidade !== 'usuarios' || isNovo.value || !isAdmin.value) {
+    return false
+  }
+
+  if (fallbackAdminSemPermissoes.value) {
+    return true
+  }
+
+  return authStore.possuiAlgumaPermissao([permissoes.usuariosGerenciar, permissoes.usuariosRedefinirSenha])
+})
 const podeMostrarMatrizPermissoes = computed(() => props.entidade === 'perfis' && !isNovo.value)
 const podeVisualizarPermissoesPerfil = computed(() =>
   authStore.possuiAlgumaPermissao([
@@ -133,9 +151,9 @@ const opcoesSituacao = [
 
 const opcoesNivel = [
   { label: 'Baixa', value: 1 },
-  { label: 'Média', value: 2 },
+  { label: 'MÃ©dia', value: 2 },
   { label: 'Alta', value: 3 },
-  { label: 'Crítica', value: 4 },
+  { label: 'CrÃ­tica', value: 4 },
 ]
 
 const opcoesCodigoStatus = [
@@ -155,22 +173,22 @@ const opcoesTipoPerfil = [
 
 const regraObrigatoria = (valor: unknown): true | string => {
   if (typeof valor === 'number') {
-    return Number.isFinite(valor) ? true : 'Campo obrigatório.'
+    return Number.isFinite(valor) ? true : 'Campo obrigatÃ³rio.'
   }
 
   if (Array.isArray(valor)) {
-    return valor.length > 0 ? true : 'Campo obrigatório.'
+    return valor.length > 0 ? true : 'Campo obrigatÃ³rio.'
   }
 
-  return String(valor ?? '').trim().length > 0 ? true : 'Campo obrigatório.'
+  return String(valor ?? '').trim().length > 0 ? true : 'Campo obrigatÃ³rio.'
 }
 
 const regraEmail = (valor: string): true | string => {
   if (!valor?.trim()) {
-    return 'Campo obrigatório.'
+    return 'Campo obrigatÃ³rio.'
   }
 
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail válido.'
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail vÃ¡lido.'
 }
 
 const regraNumeroNaoNegativo = (valor: number): true | string =>
@@ -181,11 +199,12 @@ function mapModuloLabel(modulo: string): string {
     Dashboard: 'Dashboard',
     Chamados: 'Chamados',
     Cadastros: 'Cadastros',
-    Usuarios: 'Usuários',
+    Usuarios: 'UsuÃ¡rios',
     Perfis: 'Perfis',
-    Parametros: 'Parâmetros',
-    IntegracoesEmail: 'Integrações',
-    Notificacoes: 'Notificações',
+    Parametros: 'ParÃ¢metros',
+    IntegracoesEmail: 'IntegraÃ§Ãµes',
+    IntegracoesMicrosoft: 'IntegraÃ§Ãµes',
+    Notificacoes: 'NotificaÃ§Ãµes',
     Indicadores: 'Indicadores',
   }
 
@@ -336,7 +355,7 @@ async function carregarPermissoesPerfil(): Promise<void> {
     codigosPermissoesSelecionadas.value = response.permissoesVinculadas.map((item) => item.codigo)
   } catch (error) {
     erroPermissoesPerfil.value =
-      error instanceof Error ? error.message : 'Não foi possível carregar as permissões do perfil.'
+      error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar as permissÃµes do perfil.'
   } finally {
     loadingPermissoesPerfil.value = false
   }
@@ -359,14 +378,14 @@ async function salvarPermissoesPerfil(): Promise<void> {
     const response = await cadastrosAdminService.atualizarPermissoesPerfil(idParam.value, payload)
     perfilPermissoes.value = response
     codigosPermissoesSelecionadas.value = response.permissoesVinculadas.map((item) => item.codigo)
-    sucessoPermissoesPerfil.value = 'Permissões atualizadas com sucesso.'
+    sucessoPermissoesPerfil.value = 'PermissÃµes atualizadas com sucesso.'
     $q.notify({
       type: 'positive',
-      message: 'Permissões do perfil salvas com sucesso.',
+      message: 'PermissÃµes do perfil salvas com sucesso.',
     })
   } catch (error) {
     erroPermissoesPerfil.value =
-      error instanceof Error ? error.message : 'Não foi possível salvar as permissões do perfil.'
+      error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar as permissÃµes do perfil.'
     $q.notify({
       type: 'negative',
       message: erroPermissoesPerfil.value,
@@ -386,7 +405,7 @@ async function carregarTela(): Promise<void> {
     await carregarDetalhe()
     await carregarPermissoesPerfil()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar os dados.'
   } finally {
     loading.value = false
     carregamentoConcluido.value = true
@@ -536,7 +555,7 @@ async function salvar(): Promise<void> {
     sucesso.value = 'Registro salvo com sucesso.'
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível salvar as informações.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel salvar as informaÃ§Ãµes.'
   } finally {
     loading.value = false
   }
@@ -575,7 +594,7 @@ async function inativar(): Promise<void> {
     confirmarInativacao.value = false
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
   } finally {
     loading.value = false
   }
@@ -614,9 +633,50 @@ async function reativar(): Promise<void> {
     confirmarReativacao.value = false
     await carregarDetalhe()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
   } finally {
     loading.value = false
+  }
+}
+
+function abrirRedefinicaoSenha(): void {
+  redefinirSenhaDialogAberto.value = true
+  redefinirSenhaErro.value = null
+  redefinirSenhaNova.value = ''
+  redefinirSenhaConfirmacao.value = ''
+  redefinirSenhaDeveAlterar.value = true
+}
+
+async function confirmarRedefinicaoSenha(): Promise<void> {
+  redefinirSenhaErro.value = null
+
+  const novaSenha = redefinirSenhaNova.value.trim()
+  const confirmacao = redefinirSenhaConfirmacao.value.trim()
+  if (!novaSenha || !confirmacao) {
+    redefinirSenhaErro.value = 'Informe a nova senha e a confirmaÃ§Ã£o.'
+    return
+  }
+
+  redefinirSenhaLoading.value = true
+  try {
+    const response = await usuariosAdminService.redefinirSenha(idParam.value, {
+      novaSenha,
+      confirmarNovaSenha: confirmacao,
+      deveAlterarSenha: redefinirSenhaDeveAlterar.value,
+    })
+
+    redefinirSenhaDialogAberto.value = false
+    redefinirSenhaNova.value = ''
+    redefinirSenhaConfirmacao.value = ''
+    redefinirSenhaDeveAlterar.value = true
+    $q.notify({
+      type: 'positive',
+      message: response.mensagem || 'Senha redefinida com sucesso.',
+    })
+  } catch (error) {
+    redefinirSenhaErro.value = error instanceof Error ? error.message : 'Nao foi possivel redefinir a senha do usuario.'
+  } finally {
+    redefinirSenhaLoading.value = false
   }
 }
 
@@ -638,7 +698,7 @@ watch(
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
       :titulo="titulo"
-      :subtitulo="isNovo ? 'Criação de novo cadastro' : 'Detalhe e manutenção de cadastro'"
+      :subtitulo="isNovo ? 'CriaÃ§Ã£o de novo cadastro' : 'Detalhe e manutenÃ§Ã£o de cadastro'"
     >
       <template #actions>
         <div class="row q-gutter-sm items-center">
@@ -649,6 +709,15 @@ watch(
             :label="registroAtivo ? 'Ativo' : 'Inativo'"
           />
           <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
+          <q-btn
+            v-if="podeRedefinirSenhaUsuario"
+            color="warning"
+            outline
+            icon="password"
+            label="Redefinir senha"
+            :disable="loading"
+            @click="abrirRedefinicaoSenha"
+          />
           <q-btn
             v-if="podeGerenciarRegistro && !isNovo && registroAtivo"
             color="negative"
@@ -675,7 +744,7 @@ watch(
 
     <ErrorState
       v-else-if="erro && !carregamentoConcluido"
-      titulo="Não foi possível carregar o cadastro"
+      titulo="NÃ£o foi possÃ­vel carregar o cadastro"
       :mensagem="erro"
       @retry="carregarTela"
     />
@@ -711,7 +780,7 @@ watch(
                 map-options
                 :disable="somenteLeitura || isNovo"
                 :options="opcoesSituacao"
-                label="Situação"
+                label="SituaÃ§Ã£o"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -767,7 +836,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -787,7 +856,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -818,7 +887,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -838,7 +907,7 @@ watch(
                 map-options
                 :disable="somenteLeitura"
                 :options="opcoesNivel"
-                label="Nível"
+                label="NÃ­vel"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -859,7 +928,7 @@ watch(
                 outlined
                 dense
                 type="number"
-                label="Prazo resolução (h)"
+                label="Prazo resoluÃ§Ã£o (h)"
                 :readonly="somenteLeitura"
                 :rules="[regraNumeroNaoNegativo]"
               />
@@ -870,7 +939,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -890,7 +959,7 @@ watch(
                 map-options
                 :disable="somenteLeitura"
                 :options="opcoesCodigoStatus"
-                label="Código"
+                label="CÃ³digo"
                 :rules="[regraObrigatoria]"
               />
             </div>
@@ -906,7 +975,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -929,13 +998,13 @@ watch(
               />
             </div>
             <div class="col-12 col-md-3">
-              <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="Sensível" />
+              <q-toggle v-model="form.sensivel" :disable="somenteLeitura" label="SensÃ­vel" />
             </div>
             <div class="col-12 col-md-3">
               <q-badge
                 :color="form.sensivel ? 'warning' : 'grey-6'"
                 text-color="white"
-                :label="form.sensivel ? 'Parâmetro sensível' : 'Não sensível'"
+                :label="form.sensivel ? 'ParÃ¢metro sensÃ­vel' : 'NÃ£o sensÃ­vel'"
               />
             </div>
             <div class="col-12">
@@ -944,7 +1013,7 @@ watch(
                 outlined
                 dense
                 type="textarea"
-                label="Descrição"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
                 :rules="[regraObrigatoria]"
               />
@@ -959,13 +1028,13 @@ watch(
         bordered
         class="sgx-card q-pa-md q-mt-md"
       >
-        <div class="text-h6">Permissões do perfil</div>
+        <div class="text-h6">PermissÃµes do perfil</div>
         <div class="text-caption text-grey-7 q-mb-md">
-          Defina quais módulos e ações este perfil pode acessar no SGX Sistema de Chamados.
+          Defina quais mÃ³dulos e aÃ§Ãµes este perfil pode acessar no SGX Sistema de Chamados.
         </div>
 
         <q-banner rounded class="bg-orange-1 text-orange-10 q-mb-md">
-          Permissões críticas alteram recursos administrativos do sistema. Revise antes de salvar.
+          PermissÃµes crÃ­ticas alteram recursos administrativos do sistema. Revise antes de salvar.
         </q-banner>
 
         <q-banner
@@ -973,33 +1042,33 @@ watch(
           rounded
           class="bg-blue-1 text-blue-10 q-mb-md"
         >
-          Somente administradores com permissão adequada podem alterar permissões de perfil.
+          Somente administradores com permissÃ£o adequada podem alterar permissÃµes de perfil.
         </q-banner>
 
         <LoadingState
           v-if="loadingPermissoesPerfil"
           inline
-          mensagem="Carregando permissões do perfil..."
+          mensagem="Carregando permissÃµes do perfil..."
         />
 
         <ErrorState
           v-else-if="erroPermissoesPerfil"
-          titulo="Não foi possível carregar permissões"
+          titulo="NÃ£o foi possÃ­vel carregar permissÃµes"
           :mensagem="erroPermissoesPerfil"
           @retry="carregarPermissoesPerfil"
         />
 
         <EmptyState
           v-else-if="!podeVisualizarPermissoesPerfil"
-          titulo="Sem permissão de visualização"
-          mensagem="Você não possui permissão para consultar a matriz deste perfil."
+          titulo="Sem permissÃ£o de visualizaÃ§Ã£o"
+          mensagem="VocÃª nÃ£o possui permissÃ£o para consultar a matriz deste perfil."
           icon="lock"
         />
 
         <EmptyState
           v-else-if="!modulosPermissoes.length"
-          titulo="Nenhuma permissão disponível"
-          mensagem="Não há permissões cadastradas para exibição."
+          titulo="Nenhuma permissÃ£o disponÃ­vel"
+          mensagem="NÃ£o hÃ¡ permissÃµes cadastradas para exibiÃ§Ã£o."
           icon="shield"
         />
 
@@ -1029,7 +1098,7 @@ watch(
                       v-if="permissaoEhCritica(permissao.codigo)"
                       color="negative"
                       text-color="white"
-                      label="Crítica"
+                      label="CrÃ­tica"
                     />
                     <q-badge
                       v-else-if="permissoesVinculadasSet.has(permissao.codigo)"
@@ -1056,7 +1125,7 @@ watch(
               v-if="podeEditarPermissoesPerfil"
               color="primary"
               icon="save"
-              label="Salvar permissões"
+              label="Salvar permissÃµes"
               :loading="salvandoPermissoesPerfil"
               @click="salvarPermissoesPerfil"
             />
@@ -1071,7 +1140,7 @@ watch(
 
     <ConfirmDialog
       v-model="confirmarInativacao"
-      titulo="Confirmar inativação"
+      titulo="Confirmar inativaÃ§Ã£o"
       mensagem="Deseja realmente inativar este cadastro?"
       color="negative"
       confirmar-label="Inativar"
@@ -1081,12 +1150,63 @@ watch(
 
     <ConfirmDialog
       v-model="confirmarReativacao"
-      titulo="Confirmar reativação"
+      titulo="Confirmar reativaÃ§Ã£o"
       mensagem="Deseja realmente reativar este cadastro?"
       color="positive"
       confirmar-label="Reativar"
       :loading="loading"
       @confirm="reativar"
     />
+    <q-dialog v-model="redefinirSenhaDialogAberto" persistent>
+      <q-card style="min-width: 420px; max-width: 94vw">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Redefinir senha do usuário</div>
+          <q-space />
+          <q-btn icon="close" flat round dense :disable="redefinirSenhaLoading" v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <q-banner rounded class="bg-orange-1 text-orange-10 q-mb-md">
+            Defina uma senha forte. A senha é armazenada com hash seguro.
+          </q-banner>
+
+          <q-banner v-if="redefinirSenhaErro" rounded class="bg-red-1 text-negative q-mb-md">
+            {{ redefinirSenhaErro }}
+          </q-banner>
+
+          <q-form class="q-gutter-md" @submit.prevent="confirmarRedefinicaoSenha">
+            <q-input
+              v-model="redefinirSenhaNova"
+              outlined
+              dense
+              type="password"
+              autocomplete="new-password"
+              label="Nova senha"
+            />
+            <q-input
+              v-model="redefinirSenhaConfirmacao"
+              outlined
+              dense
+              type="password"
+              autocomplete="new-password"
+              label="Confirmar nova senha"
+            />
+            <q-toggle v-model="redefinirSenhaDeveAlterar" label="Exigir troca no próximo login" />
+          </q-form>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" :disable="redefinirSenhaLoading" v-close-popup />
+          <q-btn
+            color="primary"
+            label="Salvar senha"
+            :loading="redefinirSenhaLoading"
+            @click="confirmarRedefinicaoSenha"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
+
+

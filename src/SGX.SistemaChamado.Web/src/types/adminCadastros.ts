@@ -100,6 +100,12 @@ export interface AlterarPerfisUsuarioRequest {
   perfilIds: string[]
 }
 
+export interface RedefinirSenhaUsuarioAdminRequest {
+  novaSenha: string
+  confirmarNovaSenha: string
+  deveAlterarSenha: boolean
+}
+
 export interface DepartamentoResumoResponse {
   id: string
   nome: string

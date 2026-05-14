@@ -203,3 +203,20 @@ Pendencias reais mantidas:
 - monitoramento/metricas/alertas do Worker;
 - reprocessamento manual de mensagens com erro;
 - sanitizacao HTML avancada e antivirus de anexos.
+
+## Sprint Autenticacao 5 - Atualizacao
+
+Fechamento do item `Autenticacao corporativa` no Roadmap ITSM:
+- status da implementacao consolidado em `Implementado funcionalmente`;
+- status tecnico consolidado em `Completo com pendencias evolutivas`;
+- checklist do item consolidado em `27` itens (`19` concluidos e `8` pendentes);
+- percentual de implementacao calculado automaticamente pelo checklist ativo (aprox. `70%`).
+
+Pendencias reais mantidas:
+- homologacao com tenant institucional real do Microsoft Entra ID;
+- validacao com usuarios corporativos reais;
+- validacao de MFA e Conditional Access;
+- validacao de logout corporativo;
+- validacao em ambiente publicado/VPS;
+- revisao com equipe responsavel pelo Azure;
+- evidencia formal de homologacao.

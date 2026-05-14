@@ -9,6 +9,8 @@ import {
 } from '../services/httpClient'
 import type {
   AuthState,
+  LocalLoginResponse,
+  MensagemAuthResponse,
   MeResponse,
   PerfilEmulado,
   PerfilUsuario,
@@ -29,6 +31,7 @@ const atendenteDemoNome = 'Atendente Demo'
 const atendenteDemoPerfil: PerfilEmulado = 'Atendente'
 const emulacaoSessionKey = 'sgx.auth.emulacao'
 const localContextSessionKey = 'sgx.auth.localContext'
+const localSgxTokenSessionKey = 'sgx.auth.localSgxToken'
 let inicializacaoPromise: Promise<boolean> | null = null
 
 interface EmulacaoSessionPayload {
@@ -179,6 +182,31 @@ function limparContextoLocalSessionStorage(): void {
   window.sessionStorage.removeItem(localContextSessionKey)
 }
 
+function salvarTokenLocalSgxSessionStorage(token: string): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(localSgxTokenSessionKey, token)
+}
+
+function carregarTokenLocalSgxSessionStorage(): string | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const token = window.sessionStorage.getItem(localSgxTokenSessionKey)
+  return token && token.trim().length > 0 ? token : null
+}
+
+function limparTokenLocalSgxSessionStorage(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.removeItem(localSgxTokenSessionKey)
+}
+
 function obterDadosPerfilEmulado(perfil: PerfilEmulado): {
   email: string
   nome: string
@@ -207,6 +235,7 @@ function normalizarUsuarioAutenticado(usuario: MeResponse): MeResponse {
     ...usuario,
     perfis: Array.isArray(usuario.perfis) ? usuario.perfis : [],
     permissoes: Array.isArray(usuario.permissoes) ? usuario.permissoes : [],
+    deveAlterarSenha: Boolean(usuario.deveAlterarSenha),
   }
 }
 
@@ -221,11 +250,16 @@ function construirUsuarioLocalFallback(contexto: LocalContextSessionPayload): Me
     permissoes: [],
     departamentoId: null,
     autenticadoPor: 'LocalDevelopment',
+    deveAlterarSenha: false,
   }
 }
 
 function ehErroNaoAutorizado(error: unknown): boolean {
-  return error instanceof HttpRequestError && (error.status === 401 || error.status === 403)
+  return error instanceof HttpRequestError && error.status === 401
+}
+
+function ehErroAcessoNegado(error: unknown): boolean {
+  return error instanceof HttpRequestError && error.status === 403
 }
 
 function ehErroCancelamento(error: unknown): boolean {
@@ -252,15 +286,26 @@ function ehErroCancelamento(error: unknown): boolean {
   return false
 }
 
+function mensagemContaMicrosoftNaoAutorizada(): string {
+  return (
+    'Esta conta Microsoft não está autorizada para acessar este ambiente. ' +
+    'Use uma conta corporativa do tenant configurado para o SGX Sistema de Chamados. ' +
+    'Contas pessoais Microsoft não são aceitas neste ambiente. ' +
+    'Se você acredita que deveria ter acesso, procure o administrador do sistema.'
+  )
+}
+
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
     inicializado: false,
     carregandoSessao: false,
+    inicializandoSessao: false,
     carregando: false,
     autenticado: false,
     token: null,
     usuario: null,
     erro: null,
+    erroAutenticacao: null,
     erroInicializacao: null,
     modoLocal: modoLocalHabilitado,
     localDevEmail: adminLocalDevEmail,
@@ -275,6 +320,18 @@ export const useAuthStore = defineStore('auth', {
     rotaInicial(state): '/admin' | '/portal' | '/acesso-negado' {
       return perfilParaRota(state.usuario?.perfis ?? [])
     },
+    possuiPerfil:
+      (state) =>
+      (perfil: PerfilUsuario): boolean => {
+        const perfis = state.usuario?.perfis ?? []
+        return perfis.includes(perfil)
+      },
+    possuiAlgumPerfil:
+      (state) =>
+      (perfisRequeridos: PerfilUsuario[]): boolean => {
+        const perfis = state.usuario?.perfis ?? []
+        return perfisRequeridos.some((perfil) => perfis.includes(perfil))
+      },
     podeEmularSolicitante(state): boolean {
       if (!state.modoLocal || import.meta.env.PROD) {
         return false
@@ -332,6 +389,9 @@ export const useAuthStore = defineStore('auth', {
           return Boolean(codigoNormalizado) && permissoesNormalizadas.has(codigoNormalizado)
         })
       },
+    deveAlterarSenha(state): boolean {
+      return Boolean(state.usuario?.deveAlterarSenha)
+    },
   },
 
   actions: {
@@ -443,114 +503,160 @@ export const useAuthStore = defineStore('auth', {
 
       inicializacaoPromise = (async (): Promise<boolean> => {
         this.carregandoSessao = true
+        this.inicializandoSessao = true
         this.erro = null
+        this.erroAutenticacao = null
         this.erroInicializacao = null
         setHttpAuthRedirectSuppressed(true)
 
         try {
-        if (this.modoLocal && !import.meta.env.PROD) {
-          const contexto = this.restaurarContextoLocal()
+          if (this.modoLocal && !import.meta.env.PROD) {
+            const contexto = this.restaurarContextoLocal()
 
-          if (contexto) {
-            this.aplicarContextoLocal(contexto)
-          } else {
-            this.localDevEmail = adminLocalDevEmail
-            this.localDevNome = adminLocalDevNome
-            this.localDevPerfil = adminLocalDevPerfil
-            this.limparEmulacao()
-          }
+            if (contexto) {
+              this.aplicarContextoLocal(contexto)
+            } else {
+              this.localDevEmail = adminLocalDevEmail
+              this.localDevNome = adminLocalDevNome
+              this.localDevPerfil = adminLocalDevPerfil
+              this.limparEmulacao()
+            }
 
-          this.aplicarHeadersModoLocal()
+            this.aplicarHeadersModoLocal()
 
-          try {
-            await this.carregarMe()
-            this.autenticado = true
-            this.persistirContextoLocal()
-            return true
-          } catch (error) {
-            if (ehErroNaoAutorizado(error)) {
-              this.reset()
-              this.autenticado = false
-              return false
-            } else if (ehErroCancelamento(error)) {
-              const contextoValido = Boolean(contexto || this.usuario || this.autenticado)
-              if (contexto && !this.usuario) {
-                this.usuario = construirUsuarioLocalFallback(contexto)
-                this.autenticado = true
-                this.persistirContextoLocal()
-                return true
-              }
-
-              this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
-              return contextoValido
-            } else if (contexto) {
-              this.usuario = construirUsuarioLocalFallback(contexto)
+            try {
+              await this.carregarMe()
               this.autenticado = true
-              this.erro = 'Sessão local restaurada parcialmente. Verifique a conectividade da API.'
-              this.erroInicializacao = this.erro
               this.persistirContextoLocal()
               return true
-            } else {
-              this.autenticado = false
-              this.usuario = null
-              this.erro = error instanceof Error ? error.message : 'Não foi possível restaurar a sessão local.'
-              this.erroInicializacao = this.erro
-              return false
+            } catch (error) {
+              if (ehErroNaoAutorizado(error)) {
+                this.reset()
+                this.autenticado = false
+                return false
+              } else if (ehErroAcessoNegado(error)) {
+                this.erro = mensagemContaMicrosoftNaoAutorizada()
+                this.erroAutenticacao = this.erro
+                this.autenticado = true
+                return true
+              } else if (ehErroCancelamento(error)) {
+                const contextoValido = Boolean(contexto || this.usuario || this.autenticado)
+                if (contexto && !this.usuario) {
+                  this.usuario = construirUsuarioLocalFallback(contexto)
+                  this.autenticado = true
+                  this.persistirContextoLocal()
+                  return true
+                }
+
+                this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
+                return contextoValido
+              } else if (contexto) {
+                this.usuario = construirUsuarioLocalFallback(contexto)
+                this.autenticado = true
+                this.erro = 'Sessão local restaurada parcialmente. Verifique a conectividade da API.'
+                this.erroInicializacao = this.erro
+                this.persistirContextoLocal()
+                return true
+              } else {
+                this.autenticado = false
+                this.usuario = null
+                this.erro = error instanceof Error ? error.message : 'Não foi possível restaurar a sessão local.'
+                this.erroInicializacao = this.erro
+                this.erroAutenticacao = this.erro
+                return false
+              }
             }
           }
-        }
 
-        limparContextoLocalSessionStorage()
-        limparEmulacaoSessionStorage()
+          limparContextoLocalSessionStorage()
+          limparEmulacaoSessionStorage()
 
-        const account = await authService.getAccount()
-        if (!account) {
-          this.autenticado = false
-          this.usuario = null
-          this.token = null
-          setHttpAuthToken(null)
-          return false
-        }
+          const tokenLocalSgx = carregarTokenLocalSgxSessionStorage()
+          if (tokenLocalSgx) {
+            setHttpAuthToken(tokenLocalSgx)
+            setHttpLocalDevHeaders(null)
+            this.token = tokenLocalSgx
 
-        const token = await authService.acquireAccessToken(account)
-        if (!token) {
-          this.autenticado = false
-          this.usuario = null
-          this.token = null
-          setHttpAuthToken(null)
-          return false
-        }
+            try {
+              await this.carregarMe()
+              this.autenticado = true
+              return true
+            } catch (error) {
+              if (!ehErroNaoAutorizado(error)) {
+                throw error
+              }
 
-        setHttpAuthToken(token)
-        setHttpLocalDevHeaders(null)
-        this.limparEmulacao()
-        this.token = token
+              limparTokenLocalSgxSessionStorage()
+              setHttpAuthToken(null)
+              this.token = null
+            }
+          }
 
-        await this.carregarMe()
-        this.autenticado = true
-        return true
-      } catch (error) {
-        if (ehErroCancelamento(error)) {
-          this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
-          return this.autenticado
-        }
+          if (!authService.isAzureConfigured()) {
+            this.autenticado = false
+            this.usuario = null
+            this.token = null
+            setHttpAuthToken(null)
+            return false
+          }
 
-        if (ehErroNaoAutorizado(error)) {
+          const account = await authService.getAccount()
+          if (!account) {
+            this.autenticado = false
+            this.usuario = null
+            this.token = null
+            setHttpAuthToken(null)
+            return false
+          }
+
+          const token = await authService.acquireAccessToken(account)
+          if (!token) {
+            this.autenticado = false
+            this.usuario = null
+            this.token = null
+            setHttpAuthToken(null)
+            return false
+          }
+
+          setHttpAuthToken(token)
+          setHttpLocalDevHeaders(null)
+          this.limparEmulacao()
+          this.token = token
+
+          await this.carregarMe()
+          this.autenticado = true
+          return true
+        } catch (error) {
+          if (ehErroCancelamento(error)) {
+            this.erroInicializacao = 'Inicialização da sessão cancelada pelo navegador.'
+            return this.autenticado
+          }
+
+          if (ehErroNaoAutorizado(error)) {
+            this.reset()
+            this.autenticado = false
+            return false
+          }
+
+          if (ehErroAcessoNegado(error)) {
+            this.erro = mensagemContaMicrosoftNaoAutorizada()
+            this.erroAutenticacao = this.erro
+            this.autenticado = true
+            return true
+          }
+
           this.reset()
-          this.autenticado = false
+          this.erro = error instanceof Error ? error.message : 'Não foi possível inicializar a autenticação.'
+          this.erroAutenticacao = this.erro
+          this.erroInicializacao = this.erro
           return false
+        } finally {
+          this.inicializado = true
+          this.carregandoSessao = false
+          this.inicializandoSessao = false
+          setHttpAuthRedirectSuppressed(false)
+          inicializacaoPromise = null
         }
-
-        this.reset()
-        this.erro = error instanceof Error ? error.message : 'Não foi possível inicializar a autenticação.'
-        this.erroInicializacao = this.erro
-        return false
-      } finally {
-        this.inicializado = true
-        this.carregandoSessao = false
-        setHttpAuthRedirectSuppressed(false)
-        inicializacaoPromise = null
-      }
       })()
 
       return await inicializacaoPromise
@@ -563,6 +669,7 @@ export const useAuthStore = defineStore('auth', {
     async loginMicrosoft(): Promise<void> {
       this.carregando = true
       this.erro = null
+      this.erroAutenticacao = null
 
       try {
         const result = await authService.loginPopup()
@@ -576,6 +683,7 @@ export const useAuthStore = defineStore('auth', {
 
         setHttpAuthToken(token)
         setHttpLocalDevHeaders(null)
+        limparTokenLocalSgxSessionStorage()
         limparContextoLocalSessionStorage()
         this.limparEmulacao()
         this.token = token
@@ -583,12 +691,83 @@ export const useAuthStore = defineStore('auth', {
         await this.carregarMe()
         this.autenticado = true
       } catch (error) {
+        if (authService.isUserCancellation(error)) {
+          this.erro = 'Autenticação Microsoft cancelada pelo usuário.'
+          this.erroAutenticacao = this.erro
+          throw new Error(this.erro)
+        }
+
+        if (error instanceof HttpRequestError && (error.status === 401 || error.status === 403)) {
+          const mensagem = mensagemContaMicrosoftNaoAutorizada()
+          this.reset()
+          this.erro = mensagem
+          this.erroAutenticacao = mensagem
+          throw new Error(mensagem)
+        }
+
         this.reset()
-        this.erro = error instanceof Error ? error.message : 'Falha no login Microsoft.'
+        this.erro =
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível concluir a autenticação. Tente novamente.'
+        this.erroAutenticacao = this.erro
         throw error
       } finally {
         this.inicializado = true
         this.carregandoSessao = false
+        this.inicializandoSessao = false
+        this.carregando = false
+      }
+    },
+
+    async loginLocalSgx(payload: { email: string; senha: string }): Promise<void> {
+      const email = payload.email?.trim().toLowerCase() ?? ''
+      const senha = payload.senha ?? ''
+
+      if (!email || !senha) {
+        throw new Error('Informe e-mail e senha para login local SGX.')
+      }
+
+      this.carregando = true
+      this.erro = null
+      this.erroAutenticacao = null
+
+      try {
+        const resposta = await httpClient.post<LocalLoginResponse>('/api/auth/local/login', {
+          email,
+          senha,
+        })
+
+        if (!resposta?.accessToken) {
+          throw new Error('A API não retornou token de acesso para login local SGX.')
+        }
+
+        setHttpLocalDevHeaders(null)
+        setHttpAuthToken(resposta.accessToken)
+        salvarTokenLocalSgxSessionStorage(resposta.accessToken)
+        limparContextoLocalSessionStorage()
+        limparEmulacaoSessionStorage()
+        this.limparEmulacao()
+        this.token = resposta.accessToken
+
+        await this.carregarMe()
+        if (this.usuario && resposta.deveAlterarSenha) {
+          this.usuario.deveAlterarSenha = true
+        }
+        this.autenticado = true
+      } catch (error) {
+        limparTokenLocalSgxSessionStorage()
+        this.reset()
+        this.erro =
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível concluir o login local SGX. Tente novamente.'
+        this.erroAutenticacao = this.erro
+        throw error
+      } finally {
+        this.inicializado = true
+        this.carregandoSessao = false
+        this.inicializandoSessao = false
         this.carregando = false
       }
     },
@@ -603,11 +782,13 @@ export const useAuthStore = defineStore('auth', {
       this.localDevNome = payload?.nome?.trim() || adminLocalDevNome
       this.localDevPerfil = payload?.perfil || adminLocalDevPerfil
 
+      limparTokenLocalSgxSessionStorage()
       setHttpAuthToken(null)
       this.aplicarHeadersModoLocal()
 
       this.token = null
       this.erro = null
+      this.erroAutenticacao = null
       this.carregando = true
 
       try {
@@ -618,6 +799,7 @@ export const useAuthStore = defineStore('auth', {
       } catch (error) {
         this.reset()
         this.erro = error instanceof Error ? error.message : 'Falha no login local.'
+        this.erroAutenticacao = this.erro
         throw error
       } finally {
         this.carregando = false
@@ -775,7 +957,9 @@ export const useAuthStore = defineStore('auth', {
     async logout(): Promise<void> {
       this.limparEmulacao()
 
-      if (!this.modoLocal) {
+      if (this.usuario?.autenticadoPor === 'LocalSgx') {
+        limparTokenLocalSgxSessionStorage()
+      } else if (!this.modoLocal && authService.isAzureConfigured()) {
         await authService.logout()
       }
 
@@ -787,18 +971,64 @@ export const useAuthStore = defineStore('auth', {
       this.autenticado = false
       this.usuario = null
       this.token = null
+      this.erro = null
+      this.erroAutenticacao = null
       this.erroInicializacao = null
       this.localDevEmail = adminLocalDevEmail
       this.localDevNome = adminLocalDevNome
       this.localDevPerfil = adminLocalDevPerfil
+      limparTokenLocalSgxSessionStorage()
       limparContextoLocalSessionStorage()
       setHttpAuthToken(null)
       setHttpLocalDevHeaders(null)
     },
 
+    async loginLocalDevelopment(payload?: { email?: string; nome?: string; perfil?: PerfilUsuario }): Promise<void> {
+      await this.loginLocalDev(payload)
+    },
+
+    async emularSolicitante(): Promise<void> {
+      await this.iniciarEmulacaoSolicitante()
+    },
+
+    async emularAtendente(): Promise<void> {
+      await this.iniciarEmulacaoAtendente()
+    },
+
+    async voltarParaAdministrador(): Promise<void> {
+      await this.encerrarEmulacao()
+    },
+
     async carregarMe(): Promise<void> {
       const response = await httpClient.get<MeResponse>('/api/me')
       this.usuario = normalizarUsuarioAutenticado(response)
+    },
+
+    async alterarSenhaLocal(payload: {
+      senhaAtual: string
+      novaSenha: string
+      confirmacaoNovaSenha: string
+    }): Promise<string> {
+      const response = await httpClient.post<MensagemAuthResponse>('/api/auth/local/alterar-senha', payload)
+      await this.carregarMe()
+      return response.mensagem
+    },
+
+    async solicitarRecuperacaoSenha(email: string): Promise<string> {
+      const response = await httpClient.post<MensagemAuthResponse>('/api/auth/local/recuperar-senha/solicitar', {
+        email,
+      })
+
+      return response.mensagem
+    },
+
+    async redefinirSenhaLocal(payload: {
+      token: string
+      novaSenha: string
+      confirmacaoNovaSenha: string
+    }): Promise<string> {
+      const response = await httpClient.post<MensagemAuthResponse>('/api/auth/local/recuperar-senha/redefinir', payload)
+      return response.mensagem
     },
   },
 })

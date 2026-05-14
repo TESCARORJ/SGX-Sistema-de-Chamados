@@ -111,13 +111,23 @@ const menu: MenuItem[] = [
   {
     label: 'Integrações',
     icon: 'hub',
-    requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
+    requiredAnyPermissions: [
+      permissoes.integracoesEmailVisualizar,
+      permissoes.integracoesMicrosoftVisualizar,
+      permissoes.integracoesMicrosoftGerenciar,
+    ],
     children: [
       {
         label: 'E-mail',
         icon: 'mail',
         to: '/admin/integracoes/email',
         requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
+      },
+      {
+        label: 'Microsoft Entra ID',
+        icon: 'shield',
+        to: '/admin/integracoes/microsoft-entra-id',
+        requiredAnyPermissions: [permissoes.integracoesMicrosoftVisualizar, permissoes.integracoesMicrosoftGerenciar],
       },
     ],
   },
@@ -772,4 +782,5 @@ watch(
   }
 }
 </style>
+
 

@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.Extensions.Options;
@@ -11,9 +12,12 @@ using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.HealthChecks;
 using SGX.SistemaChamado.Api.Options;
 using SGX.SistemaChamado.Api.Services;
+using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Validators;
 using SGX.SistemaChamado.Infrastructure;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace SGX.SistemaChamado.Api.Extensions;
 
@@ -31,8 +35,10 @@ public static class ServiceCollectionExtensions
 
         services.AddValidatorsFromAssemblyContaining<ApiInfoRequestValidator>();
 
+        services.AddSingleton<IValidateOptions<AuthOptions>, AuthOptionsValidator>();
         services.AddOptions<AuthOptions>()
-            .Bind(configuration.GetSection(AuthOptions.SectionName));
+            .Bind(configuration.GetSection(AuthOptions.SectionName))
+            .ValidateOnStart();
 
         services.AddSingleton<IValidateOptions<AzureAdOptions>, AzureAdOptionsValidator>();
         services.AddOptions<AzureAdOptions>()
@@ -42,6 +48,13 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<IUsuarioAtualService, UsuarioAtualService>();
         services.AddScoped<IUsuarioContextoAplicacaoService, UsuarioContextoAplicacaoService>();
+        services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+        services.AddScoped<IPoliticaSenhaService, PoliticaSenhaService>();
+        services.AddScoped<ITokenRecuperacaoSenhaService, TokenRecuperacaoSenhaService>();
+        services.AddScoped<IAutenticacaoLocalSgxService, AutenticacaoLocalSgxService>();
+        services.AddScoped<IGestaoSenhaLocalSgxService, GestaoSenhaLocalSgxService>();
+        services.AddScoped<IConfiguracaoIntegracaoMicrosoftService, ConfiguracaoIntegracaoMicrosoftService>();
+        services.AddScoped<IAdministradorInicialService, AdministradorInicialService>();
         services.AddScoped<DevelopmentSeedService>();
 
         services
@@ -70,26 +83,43 @@ public static class ServiceCollectionExtensions
                         return AuthSchemes.LocalDevelopment;
                     }
 
-                    return JwtBearerDefaults.AuthenticationScheme;
+                    if (hasBearerToken)
+                    {
+                        var token = authorizationText["Bearer ".Length..].Trim();
+                        if (EhTokenLocalSgx(token, authOptions))
+                        {
+                            return AuthSchemes.BearerLocalSgx;
+                        }
+                    }
+
+                    return AuthSchemes.BearerMicrosoft;
                 };
             })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, _ => { })
+            .AddJwtBearer(AuthSchemes.BearerMicrosoft, _ => { })
+            .AddJwtBearer(AuthSchemes.BearerLocalSgx, _ => { })
             .AddScheme<AuthenticationSchemeOptions, DevLocalAuthenticationHandler>(AuthSchemes.LocalDevelopment, _ => { });
 
-        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+        services.AddOptions<JwtBearerOptions>(AuthSchemes.BearerMicrosoft)
             .Configure<IOptions<AzureAdOptions>>((options, azureAdOptionsWrapper) =>
             {
                 var azureAdOptions = azureAdOptionsWrapper.Value;
                 options.MapInboundClaims = false;
                 options.Authority = azureAdOptions.BuildAuthority();
+                var metadataAddress = azureAdOptions.BuildMetadataAddress();
+                if (!string.IsNullOrWhiteSpace(metadataAddress))
+                {
+                    options.MetadataAddress = metadataAddress;
+                }
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = false,
+                    ValidateIssuerSigningKey = true,
                     ValidIssuer = azureAdOptions.Issuer,
-                    ValidAudience = azureAdOptions.Audience
+                    ValidAudience = azureAdOptions.Audience,
+                    NameClaimType = "name"
                 };
 
                 if (!string.IsNullOrWhiteSpace(azureAdOptions.ClientId))
@@ -100,6 +130,24 @@ public static class ServiceCollectionExtensions
                         azureAdOptions.ClientId
                     ];
                 }
+            });
+
+        services.AddOptions<JwtBearerOptions>(AuthSchemes.BearerLocalSgx)
+            .Configure<IOptions<AuthOptions>>((options, authOptionsWrapper) =>
+            {
+                var authOptions = authOptionsWrapper.Value;
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = authOptions.JwtLocalIssuer,
+                    ValidAudience = authOptions.JwtLocalAudience,
+                    IssuerSigningKey = ObterChaveJwtLocal(authOptions),
+                    NameClaimType = "name"
+                };
             });
 
         services.AddScoped<IAuthorizationHandler, PerfilRequirementHandler>();
@@ -180,5 +228,40 @@ public static class ServiceCollectionExtensions
         services.AddHealthChecks()
             .AddCheck("api-live", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), tags: ["live"])
             .AddCheck<DatabaseReadyHealthCheck>("postgresql-ready", tags: ["ready"]);
+    }
+
+    private static SymmetricSecurityKey ObterChaveJwtLocal(AuthOptions authOptions)
+    {
+        var chave = (authOptions.JwtLocalChaveAssinatura ?? string.Empty).Trim();
+        if (chave.Length < 32)
+        {
+            return new SymmetricSecurityKey(Guid.NewGuid().ToByteArray());
+        }
+
+        return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chave));
+    }
+
+    private static bool EhTokenLocalSgx(string token, AuthOptions authOptions)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return false;
+        }
+
+        try
+        {
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var provedor = jwt.Claims.FirstOrDefault(x => x.Type == "auth_provider")?.Value;
+            if (string.Equals(provedor, "LocalSgx", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            return string.Equals(jwt.Issuer, authOptions.JwtLocalIssuer, StringComparison.Ordinal);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

@@ -966,24 +966,24 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888833"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999033")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888834"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999034")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888835"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999035")
@@ -991,7 +991,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999036")
@@ -999,7 +999,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999037")
@@ -1007,7 +1007,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999038")
@@ -1015,7 +1015,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999039")
@@ -1023,7 +1023,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999040")
@@ -1031,7 +1031,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999041")
@@ -1039,7 +1039,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999042")
@@ -1047,7 +1047,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999043")
@@ -1055,7 +1055,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999044")
@@ -1063,7 +1063,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999045")
@@ -1071,7 +1071,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999046")
@@ -1079,7 +1079,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999047")
@@ -1087,7 +1087,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999048")
@@ -1095,7 +1095,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999049")
@@ -1103,31 +1103,31 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999050")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999051")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888804"),
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999052")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999053")
@@ -1135,7 +1135,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999054")
@@ -1143,10 +1143,34 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888804"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999055")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999056")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999057")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999058")
                         });
                 });
 
@@ -1535,6 +1559,36 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Modulo = "RoadmapImplementacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888833"),
+                            Acao = "Visualizar",
+                            Ativo = true,
+                            Codigo = "IntegracoesMicrosoft.Visualizar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "IntegracoesMicrosoft"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888834"),
+                            Acao = "Gerenciar",
+                            Ativo = true,
+                            Codigo = "IntegracoesMicrosoft.Gerenciar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "IntegracoesMicrosoft"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888835"),
+                            Acao = "RedefinirSenha",
+                            Ativo = true,
+                            Codigo = "Usuarios.RedefinirSenha",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Usuarios"
                         });
                 });
 
@@ -2994,6 +3048,384 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 10,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
                             Titulo = "Homologação com usuários reais"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696701"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Arquitetura",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 1,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Decisão arquitetural Entra ID autentica e SGX autoriza"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696702"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Configuração",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "App Registration documentado"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696703"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Configuração",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Variáveis backend documentadas"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696704"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Configuração",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Variáveis frontend documentadas"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696705"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Backend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "JWT Bearer configurado na API"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696706"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Backend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Claims Microsoft mapeadas"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696707"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Backend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Usuário interno localizado por e-mail/login"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696708"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Backend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Usuário novo tratado conforme regra SGX"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696709"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Backend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "/api/me retorna usuário, perfis e permissões"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696710"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Login Microsoft disponível no frontend"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696711"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Segurança",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Login local restrito a Development"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696712"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Guards de rota funcionando"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696713"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Segurança",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Permissões internas preservadas"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696714"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Refresh/F5 sem logoff indevido tecnicamente"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696715"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Segurança",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Usuário inativo no SGX bloqueado"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696716"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Documentação",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Documentação criada/atualizada"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696717"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Validação",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Build backend validado"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696718"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Validação",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Testes backend executados"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696719"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Validação",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Build frontend validado"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696720"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Homologação com tenant real Microsoft Entra ID"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696721"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Teste com usuário real do domínio institucional"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696722"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Teste com MFA"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696723"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Teste com Conditional Access"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696724"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Teste de logout corporativo"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696725"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Homologação",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Teste em ambiente publicado/VPS"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696726"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Governança",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Revisão com equipe responsável pelo Azure"
+                        },
+                        new
+                        {
+                            Id = new Guid("69696969-6969-6969-6969-696969696727"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo solicitado: Governança",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
+                            Titulo = "Evidência formal de homologação"
                         });
                 });
 
@@ -3331,22 +3763,29 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Area = "Autenticacao corporativa",
-                            AtencaoTecnica = "Preparar explicacao clara: Azure autentica, SGX autoriza",
+                            Area = "Autenticação corporativa",
+                            AtencaoTecnica = "Homologar com tenant institucional real, usuários corporativos reais, MFA, Conditional Access, logout corporativo, ambiente publicado e evidências formais.",
                             Ativo = true,
-                            Categoria = "Seguranca",
+                            Categoria = "Segurança",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Decisao = 4,
+                            CriterioAceite = "Usuário autenticado pelo Microsoft Entra ID acessa o SGX Sistema de Chamados, a API valida o token JWT, o SGX localiza ou cria o usuário interno conforme regra, retorna perfis e permissões em /api/me, e o frontend direciona para /admin, /portal ou /acesso-negado conforme autorização interna.",
+                            Decisao = 1,
+                            EvidenciaImplementacao = "docs/AUTENTICACAO-CORPORATIVA.md; docs/CONFIGURACAO-AZURE-AD.md; docs/HOMOLOGACAO-CHECKLIST.md; LoginView; authService; authStore; httpClient; router guards; ServiceCollectionExtensions; UsuarioAtualService; GET /api/me; testes backend; build frontend.",
                             Impacto = 1,
+                            Objetivo = "Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por perfis e permissões, com suporte a MFA, Conditional Access e uso fora da rede institucional.",
+                            Observacao = "Implementado funcionalmente. Não homologado. A autorização permanece interna no SGX por perfis e permissões.",
                             Ordem = 4,
-                            PercentualImplementacao = 0,
+                            PendenciasHomologacao = "Validar login Microsoft com usuário corporativo real, confirmar /api/me com Bearer token, validar redirecionamento por perfil, confirmar bloqueio de usuário interno inativo, testar refresh/F5 sem perda indevida de sessão, testar logout e registrar evidências.",
+                            PendenciasTecnicas = "Homologação com tenant real Microsoft Entra ID, teste com usuário real do domínio institucional, validação de MFA, Conditional Access, logout corporativo, ambiente publicado/VPS, revisão com equipe responsável pelo Azure e evidência formal de homologação.",
+                            PercentualImplementacao = 70,
                             Prioridade = 1,
+                            ProximaAcao = "Executar homologação com tenant institucional real e usuários corporativos reais.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666601"),
-                            SituacaoAtual = "Entra ID/Azure AD previsto",
-                            Status = 4,
-                            StatusImplementacao = 0,
-                            StatusTecnico = 0
+                            SituacaoAtual = "Fluxo técnico implementado com login Microsoft no frontend, validação JWT na API, resolução de usuário interno, retorno de perfis e permissões em /api/me, login local restrito a Development e documentação de configuração do Microsoft Entra ID.",
+                            Status = 1,
+                            StatusImplementacao = 3,
+                            StatusTecnico = 3
                         },
                         new
                         {
@@ -3830,7 +4269,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Usuario", b =>
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TokenRecuperacaoSenha", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -3860,9 +4299,91 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("criado_por");
 
+                    b.Property<DateTime>("ExpiraEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expira_em");
+
+                    b.Property<string>("IpSolicitacao")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ip_solicitacao");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<string>("UserAgentSolicitacao")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("user_agent_solicitacao");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.Property<DateTime?>("UtilizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("utilizado_em");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiraEm")
+                        .HasDatabaseName("ix_tokens_recuperacao_senha_expira_em");
+
+                    b.HasIndex("TokenHash")
+                        .HasDatabaseName("ix_tokens_recuperacao_senha_token_hash");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("ix_tokens_recuperacao_senha_usuario_id");
+
+                    b.ToTable("tokens_recuperacao_senha", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime?>("BloqueadoAte")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("bloqueado_ate");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
                     b.Property<Guid?>("DepartamentoId")
                         .HasColumnType("uuid")
                         .HasColumnName("departamento_id");
+
+                    b.Property<bool>("DeveAlterarSenha")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("deve_alterar_senha");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -3882,13 +4403,32 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(180)")
                         .HasColumnName("nome");
 
+                    b.Property<string>("SenhaHashLocal")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("senha_hash_local");
+
                     b.Property<int>("Situacao")
                         .HasColumnType("integer")
                         .HasColumnName("situacao");
 
+                    b.Property<int>("TentativasInvalidas")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("tentativas_invalidas");
+
+                    b.Property<DateTime?>("UltimaAlteracaoSenhaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ultima_alteracao_senha_em");
+
                     b.Property<DateTime?>("UltimoAcessoEm")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ultimo_acesso_em");
+
+                    b.Property<DateTime?>("UltimoLoginEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ultimo_login_em");
 
                     b.HasKey("Id");
 
@@ -4145,6 +4685,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Chamado");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TokenRecuperacaoSenha", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Usuario", b =>

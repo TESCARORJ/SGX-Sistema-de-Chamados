@@ -2,8 +2,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SGX.SistemaChamado.Api.Authorization;
+using SGX.SistemaChamado.Api.Contracts.Admin;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Api.Services;
 
 namespace SGX.SistemaChamado.Api.Controllers;
 
@@ -18,6 +20,8 @@ public sealed class AdminCadastrosController(
     IInativarUsuarioAdminUseCase inativarUsuarioUseCase,
     IReativarUsuarioAdminUseCase reativarUsuarioUseCase,
     IAlterarPerfisUsuarioUseCase alterarPerfisUsuarioUseCase,
+    IGestaoSenhaLocalSgxService gestaoSenhaLocalSgxService,
+    IUsuarioAtualService usuarioAtualService,
     IListarPerfisAcessoUseCase listarPerfisUseCase,
     IObterPerfilAcessoUseCase obterPerfilUseCase,
     IListarPermissoesSistemaUseCase listarPermissoesSistemaUseCase,
@@ -136,6 +140,42 @@ public sealed class AdminCadastrosController(
     [Authorize(Policy = PermissionPolicies.UsuariosGerenciar)]
     public Task<IActionResult> ReativarUsuario(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarUsuarioUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("usuarios/{id:guid}/redefinir-senha")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.UsuariosRedefinirSenha)]
+    public async Task<IActionResult> RedefinirSenhaUsuario(
+        Guid id,
+        [FromBody] RedefinirSenhaUsuarioAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var usuarioAutenticado = await usuarioAtualService.ObterAsync(cancellationToken);
+            var response = await gestaoSenhaLocalSgxService.RedefinirSenhaPorAdministradorAsync(
+                id,
+                request,
+                usuarioAutenticado.Email,
+                cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
 
     [HttpGet("perfis")]
     public async Task<IActionResult> ListarPerfis([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)

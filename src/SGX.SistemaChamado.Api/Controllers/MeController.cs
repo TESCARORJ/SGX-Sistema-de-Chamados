@@ -28,7 +28,8 @@ public sealed class MeController(IUsuarioAtualService usuarioAtualService) : Con
                 usuario.Perfis,
                 usuario.Permissoes,
                 usuario.DepartamentoId,
-                usuario.AutenticadoPor));
+                usuario.AutenticadoPor,
+                usuario.DeveAlterarSenha));
         }
         catch (OperationCanceledException) when (
             cancellationToken.IsCancellationRequested ||

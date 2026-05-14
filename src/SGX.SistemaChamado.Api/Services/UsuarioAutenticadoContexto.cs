@@ -9,7 +9,8 @@ public sealed record UsuarioAutenticadoContexto(
     Guid? DepartamentoId,
     string AutenticadoPor,
     IReadOnlyCollection<string> Perfis,
-    IReadOnlyCollection<string> Permissoes)
+    IReadOnlyCollection<string> Permissoes,
+    bool DeveAlterarSenha = false)
 {
     public bool PossuiPerfil(string perfil) => Perfis.Contains(perfil, StringComparer.OrdinalIgnoreCase);
 

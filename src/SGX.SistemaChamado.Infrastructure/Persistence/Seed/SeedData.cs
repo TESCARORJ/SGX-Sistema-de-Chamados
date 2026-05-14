@@ -43,6 +43,9 @@ public static class SeedData
     public static readonly Guid PermissaoRoadmapGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888830");
     public static readonly Guid PermissaoRoadmapImplementacoesVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888831");
     public static readonly Guid PermissaoRoadmapImplementacoesGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888832");
+    public static readonly Guid PermissaoIntegracoesMicrosoftVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888833");
+    public static readonly Guid PermissaoIntegracoesMicrosoftGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888834");
+    public static readonly Guid PermissaoUsuariosRedefinirSenhaId = Guid.Parse("88888888-8888-8888-8888-888888888835");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -162,6 +165,33 @@ public static class SeedData
     public static readonly Guid ChecklistEmailTesteE2eImapRealId = Guid.Parse("68686868-6868-6868-6868-686868686738");
     public static readonly Guid ChecklistEmailMetricasOperacionaisId = Guid.Parse("68686868-6868-6868-6868-686868686739");
     public static readonly Guid ChecklistEmailAlertasFalhaRecorrenteId = Guid.Parse("68686868-6868-6868-6868-686868686740");
+    public static readonly Guid ChecklistAutenticacaoArquiteturaDefinidaId = Guid.Parse("69696969-6969-6969-6969-696969696701");
+    public static readonly Guid ChecklistAutenticacaoAppRegistrationDocumentadoId = Guid.Parse("69696969-6969-6969-6969-696969696702");
+    public static readonly Guid ChecklistAutenticacaoVariaveisBackendDocumentadasId = Guid.Parse("69696969-6969-6969-6969-696969696703");
+    public static readonly Guid ChecklistAutenticacaoVariaveisFrontendDocumentadasId = Guid.Parse("69696969-6969-6969-6969-696969696704");
+    public static readonly Guid ChecklistAutenticacaoJwtBearerConfiguradoId = Guid.Parse("69696969-6969-6969-6969-696969696705");
+    public static readonly Guid ChecklistAutenticacaoClaimsMicrosoftMapeadasId = Guid.Parse("69696969-6969-6969-6969-696969696706");
+    public static readonly Guid ChecklistAutenticacaoUsuarioLocalizadoPorEmailLoginId = Guid.Parse("69696969-6969-6969-6969-696969696707");
+    public static readonly Guid ChecklistAutenticacaoUsuarioNovoTratadoRegraSgxId = Guid.Parse("69696969-6969-6969-6969-696969696708");
+    public static readonly Guid ChecklistAutenticacaoApiMePerfisPermissoesId = Guid.Parse("69696969-6969-6969-6969-696969696709");
+    public static readonly Guid ChecklistAutenticacaoLoginMicrosoftFrontendId = Guid.Parse("69696969-6969-6969-6969-696969696710");
+    public static readonly Guid ChecklistAutenticacaoLoginLocalApenasDevelopmentId = Guid.Parse("69696969-6969-6969-6969-696969696711");
+    public static readonly Guid ChecklistAutenticacaoGuardsFuncionandoId = Guid.Parse("69696969-6969-6969-6969-696969696712");
+    public static readonly Guid ChecklistAutenticacaoPermissoesInternasPreservadasId = Guid.Parse("69696969-6969-6969-6969-696969696713");
+    public static readonly Guid ChecklistAutenticacaoRefreshSemLogoffIndevidoId = Guid.Parse("69696969-6969-6969-6969-696969696714");
+    public static readonly Guid ChecklistAutenticacaoUsuarioInativoBloqueadoId = Guid.Parse("69696969-6969-6969-6969-696969696715");
+    public static readonly Guid ChecklistAutenticacaoDocumentacaoAtualizadaId = Guid.Parse("69696969-6969-6969-6969-696969696716");
+    public static readonly Guid ChecklistAutenticacaoBuildBackendValidadoId = Guid.Parse("69696969-6969-6969-6969-696969696717");
+    public static readonly Guid ChecklistAutenticacaoTestesBackendExecutadosId = Guid.Parse("69696969-6969-6969-6969-696969696718");
+    public static readonly Guid ChecklistAutenticacaoBuildFrontendValidadoId = Guid.Parse("69696969-6969-6969-6969-696969696719");
+    public static readonly Guid ChecklistAutenticacaoHomologacaoTenantRealId = Guid.Parse("69696969-6969-6969-6969-696969696720");
+    public static readonly Guid ChecklistAutenticacaoTesteUsuarioRealDominioId = Guid.Parse("69696969-6969-6969-6969-696969696721");
+    public static readonly Guid ChecklistAutenticacaoTesteMfaId = Guid.Parse("69696969-6969-6969-6969-696969696722");
+    public static readonly Guid ChecklistAutenticacaoTesteConditionalAccessId = Guid.Parse("69696969-6969-6969-6969-696969696723");
+    public static readonly Guid ChecklistAutenticacaoTesteLogoutCorporativoId = Guid.Parse("69696969-6969-6969-6969-696969696724");
+    public static readonly Guid ChecklistAutenticacaoTesteAmbientePublicadoId = Guid.Parse("69696969-6969-6969-6969-696969696725");
+    public static readonly Guid ChecklistAutenticacaoRevisaoEquipeAzureId = Guid.Parse("69696969-6969-6969-6969-696969696726");
+    public static readonly Guid ChecklistAutenticacaoEvidenciaFormalHomologacaoId = Guid.Parse("69696969-6969-6969-6969-696969696727");
 
     public static readonly object[] PerfisAcesso =
     [
@@ -236,7 +266,10 @@ public static class SeedData
         (PermissaoRoadmapVisualizarId, "Roadmap.Visualizar"),
         (PermissaoRoadmapGerenciarId, "Roadmap.Gerenciar"),
         (PermissaoRoadmapImplementacoesVisualizarId, "RoadmapImplementacoes.Visualizar"),
-        (PermissaoRoadmapImplementacoesGerenciarId, "RoadmapImplementacoes.Gerenciar")
+        (PermissaoRoadmapImplementacoesGerenciarId, "RoadmapImplementacoes.Gerenciar"),
+        (PermissaoIntegracoesMicrosoftVisualizarId, "IntegracoesMicrosoft.Visualizar"),
+        (PermissaoIntegracoesMicrosoftGerenciarId, "IntegracoesMicrosoft.Gerenciar"),
+        (PermissaoUsuariosRedefinirSenhaId, "Usuarios.RedefinirSenha")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -552,26 +585,27 @@ public static class SeedData
         new
         {
             Id = RoadmapItsmItem04Id,
-            Area = "Autenticacao corporativa",
-            Categoria = "Seguranca",
+            Area = "Autenticação corporativa",
+            Categoria = "Segurança",
+            Objetivo = "Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por perfis e permissões, com suporte a MFA, Conditional Access e uso fora da rede institucional.",
             RoadmapCategoriaId = RoadmapCategoriaSegurancaId,
-            SituacaoAtual = "Entra ID/Azure AD previsto",
-            AtencaoTecnica = "Preparar explicacao clara: Azure autentica, SGX autoriza",
-            Status = StatusRoadmapItsm.Pendente,
+            SituacaoAtual = "Fluxo técnico implementado com login Microsoft no frontend, validação JWT na API, resolução de usuário interno, retorno de perfis e permissões em /api/me, login local restrito a Development e documentação de configuração do Microsoft Entra ID.",
+            AtencaoTecnica = "Homologar com tenant institucional real, usuários corporativos reais, MFA, Conditional Access, logout corporativo, ambiente publicado e evidências formais.",
+            Status = StatusRoadmapItsm.Implementado,
             Prioridade = PrioridadeRoadmapItsm.Alta,
             Impacto = ImpactoRoadmapItsm.Alto,
-            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            Decisao = DecisaoRoadmapItsm.DesenvolverAgora,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas,
+            PercentualImplementacao = 70,
+            PendenciasTecnicas = "Homologação com tenant real Microsoft Entra ID, teste com usuário real do domínio institucional, validação de MFA, Conditional Access, logout corporativo, ambiente publicado/VPS, revisão com equipe responsável pelo Azure e evidência formal de homologação.",
+            PendenciasHomologacao = "Validar login Microsoft com usuário corporativo real, confirmar /api/me com Bearer token, validar redirecionamento por perfil, confirmar bloqueio de usuário interno inativo, testar refresh/F5 sem perda indevida de sessão, testar logout e registrar evidências.",
+            EvidenciaImplementacao = "docs/AUTENTICACAO-CORPORATIVA.md; docs/CONFIGURACAO-AZURE-AD.md; docs/HOMOLOGACAO-CHECKLIST.md; LoginView; authService; authStore; httpClient; router guards; ServiceCollectionExtensions; UsuarioAtualService; GET /api/me; testes backend; build frontend.",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "Usuário autenticado pelo Microsoft Entra ID acessa o SGX Sistema de Chamados, a API valida o token JWT, o SGX localiza ou cria o usuário interno conforme regra, retorna perfis e permissões em /api/me, e o frontend direciona para /admin, /portal ou /acesso-negado conforme autorização interna.",
+            ProximaAcao = "Executar homologação com tenant institucional real e usuários corporativos reais.",
+            Observacao = "Implementado funcionalmente. Não homologado. A autorização permanece interna no SGX por perfis e permissões.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 4,
@@ -1011,7 +1045,34 @@ public static class SeedData
         new { Id = ChecklistAuthorizationHandlerId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "AuthorizationHandler criado", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 7, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistMatrizFrontendId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Matriz de permissões no frontend", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 8, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistControleVisualId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Controle visual por permissão", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 9, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
-        new { Id = ChecklistHomologacaoUsuariosId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Homologação com usuários reais", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 10, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null }
+        new { Id = ChecklistHomologacaoUsuariosId, RoadmapItemId = RoadmapItsmItem03Id, Titulo = "Homologação com usuários reais", Descricao = (string?)null, Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 10, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoArquiteturaDefinidaId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Decisão arquitetural Entra ID autentica e SGX autoriza", Descricao = "Grupo solicitado: Arquitetura", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoAppRegistrationDocumentadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "App Registration documentado", Descricao = "Grupo solicitado: Configuração", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoVariaveisBackendDocumentadasId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Variáveis backend documentadas", Descricao = "Grupo solicitado: Configuração", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoVariaveisFrontendDocumentadasId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Variáveis frontend documentadas", Descricao = "Grupo solicitado: Configuração", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 4, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoJwtBearerConfiguradoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "JWT Bearer configurado na API", Descricao = "Grupo solicitado: Backend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 5, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoClaimsMicrosoftMapeadasId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Claims Microsoft mapeadas", Descricao = "Grupo solicitado: Backend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 6, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoUsuarioLocalizadoPorEmailLoginId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Usuário interno localizado por e-mail/login", Descricao = "Grupo solicitado: Backend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 7, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoUsuarioNovoTratadoRegraSgxId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Usuário novo tratado conforme regra SGX", Descricao = "Grupo solicitado: Backend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 8, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoApiMePerfisPermissoesId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "/api/me retorna usuário, perfis e permissões", Descricao = "Grupo solicitado: Backend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 9, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoLoginMicrosoftFrontendId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Login Microsoft disponível no frontend", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 10, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoLoginLocalApenasDevelopmentId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Login local restrito a Development", Descricao = "Grupo solicitado: Segurança", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 11, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoGuardsFuncionandoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Guards de rota funcionando", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 12, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoPermissoesInternasPreservadasId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Permissões internas preservadas", Descricao = "Grupo solicitado: Segurança", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 13, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoRefreshSemLogoffIndevidoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Refresh/F5 sem logoff indevido tecnicamente", Descricao = "Grupo solicitado: Frontend", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 14, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoUsuarioInativoBloqueadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Usuário inativo no SGX bloqueado", Descricao = "Grupo solicitado: Segurança", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 15, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoDocumentacaoAtualizadaId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Documentação criada/atualizada", Descricao = "Grupo solicitado: Documentação", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 16, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoBuildBackendValidadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Build backend validado", Descricao = "Grupo solicitado: Validação", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 17, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTestesBackendExecutadosId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Testes backend executados", Descricao = "Grupo solicitado: Validação", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 18, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoBuildFrontendValidadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Build frontend validado", Descricao = "Grupo solicitado: Validação", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 19, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoHomologacaoTenantRealId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Homologação com tenant real Microsoft Entra ID", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 20, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTesteUsuarioRealDominioId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Teste com usuário real do domínio institucional", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 21, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTesteMfaId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Teste com MFA", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 22, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTesteConditionalAccessId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Teste com Conditional Access", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 23, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTesteLogoutCorporativoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Teste de logout corporativo", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 24, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoTesteAmbientePublicadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Teste em ambiente publicado/VPS", Descricao = "Grupo solicitado: Homologação", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 25, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoRevisaoEquipeAzureId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Revisão com equipe responsável pelo Azure", Descricao = "Grupo solicitado: Governança", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 26, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistAutenticacaoEvidenciaFormalHomologacaoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Evidência formal de homologação", Descricao = "Grupo solicitado: Governança", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 27, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null }
     ];
 
     private static object[] CriarPerfisAcessoPermissoes()

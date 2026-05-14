@@ -9,4 +9,5 @@ public sealed record MeResponse(
     IReadOnlyCollection<string> Perfis,
     IReadOnlyCollection<string> Permissoes,
     Guid? DepartamentoId,
-    string AutenticadoPor);
+    string AutenticadoPor,
+    bool DeveAlterarSenha = false);

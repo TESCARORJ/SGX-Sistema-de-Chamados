@@ -7,6 +7,8 @@ const PortalLayout = () => import('../layouts/PortalLayout.vue')
 const AdminLayout = () => import('../layouts/AdminLayout.vue')
 
 const LoginView = () => import('../views/LoginView.vue')
+const AlterarSenhaView = () => import('../views/AlterarSenhaView.vue')
+const RecuperarSenhaView = () => import('../views/RecuperarSenhaView.vue')
 const AcessoNegadoView = () => import('../views/AcessoNegadoView.vue')
 
 const PortalDashboardView = () => import('../views/PortalDashboardView.vue')
@@ -33,6 +35,7 @@ const StatusDetalheView = () => import('../views/StatusDetalheView.vue')
 const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
 const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetalheView.vue')
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
+const IntegracaoMicrosoftEntraIdView = () => import('../views/IntegracaoMicrosoftEntraIdView.vue')
 const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
 
 declare module 'vue-router' {
@@ -57,6 +60,19 @@ const routes: RouteRecordRaw[] = [
         path: 'login',
         name: 'login',
         component: LoginView,
+      },
+      {
+        path: 'alterar-senha',
+        name: 'alterar-senha',
+        component: AlterarSenhaView,
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'recuperar-senha',
+        name: 'recuperar-senha',
+        component: RecuperarSenhaView,
       },
       {
         path: 'acesso-negado',
@@ -207,6 +223,11 @@ const routes: RouteRecordRaw[] = [
         component: IntegracaoEmailLogsView,
       },
       {
+        path: 'integracoes/microsoft-entra-id',
+        name: 'admin-integracoes-microsoft-entra-id',
+        component: IntegracaoMicrosoftEntraIdView,
+      },
+      {
         path: 'roadmap-itsm',
         name: 'admin-roadmap-itsm',
         component: RoadmapItsmView,
@@ -226,18 +247,38 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  if (!to.meta.requiresAuth && to.path !== '/login') {
+  if (!to.meta.requiresAuth && to.path !== '/login' && to.path !== '/alterar-senha' && to.path !== '/recuperar-senha') {
     return true
   }
 
   const autenticado = await authStore.inicializarSessao()
 
   if (to.path === '/login' && autenticado) {
+    if (authStore.deveAlterarSenha) {
+      return '/alterar-senha'
+    }
+
     return authStore.rotaInicial
+  }
+
+  if (to.path === '/alterar-senha' && !autenticado) {
+    return '/login'
+  }
+
+  if (to.path === '/alterar-senha' && autenticado && !authStore.deveAlterarSenha) {
+    return authStore.rotaInicial
+  }
+
+  if (to.path === '/recuperar-senha' && autenticado && authStore.deveAlterarSenha) {
+    return '/alterar-senha'
   }
 
   if (to.meta.requiresAuth && !autenticado) {
     return '/login'
+  }
+
+  if (to.path !== '/alterar-senha' && to.path !== '/login' && autenticado && authStore.deveAlterarSenha) {
+    return '/alterar-senha'
   }
 
   const perfisPermitidos = to.meta.perfisPermitidos

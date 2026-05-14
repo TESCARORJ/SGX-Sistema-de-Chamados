@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,9 +26,15 @@ public sealed class ApiIntegrationTestFactory : WebApplicationFactory<Program>
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Port=5432;Database=sgx_dummy;Username=sgx;Password=sgx",
+                ["Authentication:ProvedorPrincipal"] = "Local",
+                ["Authentication:LoginLocalHabilitado"] = "true",
                 ["Authentication:ModoLocalHabilitado"] = "true",
                 ["Authentication:AdminLocalEmail"] = "admin.local@sgx.local",
                 ["Authentication:AdminLocalNome"] = "Administrador Local",
+                ["Authentication:JwtLocalIssuer"] = "SGX.Local.Testes",
+                ["Authentication:JwtLocalAudience"] = "SGX.SistemaChamado.Api",
+                ["Authentication:JwtLocalChaveAssinatura"] = "sgx-testes-login-local-chave-com-minimo-32-caracteres",
+                ["Authentication:JwtLocalExpiracaoMinutos"] = "120",
                 ["AzureAd:TenantId"] = "",
                 ["AzureAd:ClientId"] = "",
                 ["AzureAd:Audience"] = "",
@@ -124,5 +131,55 @@ public sealed class ApiIntegrationTestFactory : WebApplicationFactory<Program>
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<Guid> GarantirUsuarioLocalComSenhaAsync(
+        string email,
+        string nome,
+        string senha,
+        TipoPerfil tipoPerfil = TipoPerfil.Solicitante,
+        CancellationToken cancellationToken = default)
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+
+        var emailNormalizado = email.Trim().ToLowerInvariant();
+        var login = emailNormalizado;
+
+        var usuario = await dbContext.Usuarios
+            .Include(x => x.UsuarioPerfis)
+            .FirstOrDefaultAsync(x => x.Email == emailNormalizado || x.Login == login, cancellationToken);
+
+        if (usuario is null)
+        {
+            usuario = new Usuario(nome, emailNormalizado, login, "integration-test");
+            dbContext.Usuarios.Add(usuario);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        else
+        {
+            usuario.DefinirNome(nome);
+            usuario.DefinirEmail(emailNormalizado);
+            usuario.DefinirLogin(login);
+            usuario.Ativar("integration-test");
+            usuario.AlterarSituacao(SituacaoUsuario.Ativo, "integration-test");
+        }
+
+        var hasher = new PasswordHasher<Usuario>();
+        usuario.DefinirSenhaHashLocal(hasher.HashPassword(usuario, senha), "integration-test");
+
+        var perfil = await dbContext.PerfisAcesso
+            .FirstAsync(x => x.TipoPerfil == tipoPerfil, cancellationToken);
+
+        var possuiPerfil = await dbContext.UsuariosPerfisAcesso
+            .AnyAsync(x => x.UsuarioId == usuario.Id && x.PerfilAcessoId == perfil.Id, cancellationToken);
+
+        if (!possuiPerfil)
+        {
+            dbContext.UsuariosPerfisAcesso.Add(new UsuarioPerfilAcesso(usuario.Id, perfil.Id, "integration-test"));
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return usuario.Id;
     }
 }

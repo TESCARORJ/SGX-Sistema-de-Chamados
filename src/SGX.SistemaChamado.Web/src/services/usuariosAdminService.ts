@@ -6,6 +6,7 @@ import type {
   CriarUsuarioAdminRequest,
   FiltroCadastroRequest,
   PagedResultResponse,
+  RedefinirSenhaUsuarioAdminRequest,
   UsuarioAdminDetalheResponse,
   UsuarioAdminResumoResponse,
 } from '../types/adminCadastros'
@@ -31,6 +32,8 @@ export const usuariosAdminService = {
     httpClient.put<UsuarioAdminDetalheResponse>(`/api/admin/cadastros/usuarios/${id}`, payload),
   alterarPerfis: (id: string, payload: AlterarPerfisUsuarioRequest) =>
     httpClient.put<UsuarioAdminDetalheResponse>(`/api/admin/cadastros/usuarios/${id}/perfis`, payload),
+  redefinirSenha: (id: string, payload: RedefinirSenhaUsuarioAdminRequest) =>
+    httpClient.post<{ mensagem: string }>(`/api/admin/cadastros/usuarios/${id}/redefinir-senha`, payload),
   inativar: (id: string) => httpClient.post<AlterarSituacaoCadastroResponse>(`/api/admin/cadastros/usuarios/${id}/inativar`),
   reativar: (id: string) => httpClient.post<AlterarSituacaoCadastroResponse>(`/api/admin/cadastros/usuarios/${id}/reativar`),
 }

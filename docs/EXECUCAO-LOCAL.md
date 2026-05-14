@@ -126,6 +126,29 @@ Comportamento:
 - A autenticação tecnica do backend continua via headers `X-Dev-*`.
 - Em produção, o fluxo oficial e Microsoft Entra ID.
 
+## 7.2 Administrador inicial seguro (produção/homologação)
+
+O Administrador inicial seguro **não** usa o login local Development.
+
+Variáveis de ambiente obrigatórias:
+- `SGX_ADMIN_INICIAL_EMAIL`
+- `SGX_ADMIN_INICIAL_SENHA`
+- `SGX_ADMIN_INICIAL_NOME`
+
+Exemplo com placeholders:
+
+```powershell
+$env:SGX_ADMIN_INICIAL_EMAIL="<admin@empresa.com>"
+$env:SGX_ADMIN_INICIAL_SENHA="<SenhaForteComMaiusculaMinusculaNumeroEspecial>"
+$env:SGX_ADMIN_INICIAL_NOME="<Administrador Inicial>"
+```
+
+Regras:
+- cria somente se não existir Administrador ativo;
+- senha é hasheada e não é salva em texto puro;
+- senha não é exibida em log;
+- remover/rotacionar as variáveis após o primeiro bootstrap.
+
 ## 7.1 emulação de perfis em Development
 
 Disponivel apenas em `Development`/modo local.
@@ -229,6 +252,35 @@ Observacoes:
 - Use variáveis de ambiente ou User Secrets para segredos.
 - Se a aba Run and Debug não detectar C#, instale `C# Dev Kit` e `C#`.
 - O fluxo local não deve abrir navegador automaticamente via VS Code.
+
+## 11. Sprint Autenticação 8 - Recuperação e hardening do login local SGX
+
+Variáveis de autenticação relevantes:
+- `Authentication__PoliticaSenha__TamanhoMinimo`
+- `Authentication__PoliticaSenha__ExigirMaiuscula`
+- `Authentication__PoliticaSenha__ExigirMinuscula`
+- `Authentication__PoliticaSenha__ExigirNumero`
+- `Authentication__PoliticaSenha__ExigirEspecial`
+- `Authentication__PoliticaSenha__BloquearSenhaAnterior`
+- `Authentication__Lockout__TentativasMaximas`
+- `Authentication__Lockout__MinutosBloqueio`
+- `Authentication__RecuperacaoSenha__ExpiracaoMinutos`
+
+Endpoints locais SGX:
+- `POST /api/auth/local/alterar-senha`
+- `POST /api/auth/local/recuperar-senha/solicitar`
+- `POST /api/auth/local/recuperar-senha/redefinir`
+
+Telas frontend:
+- `/alterar-senha`
+- `/recuperar-senha`
+
+Regras:
+- `LocalDevelopment` continua exclusivo de Development e não substitui fluxo de produção.
+- Em `LocalSgx`, se `deveAlterarSenha=true`, o usuário é redirecionado para `/alterar-senha`.
+- Durante troca obrigatória, a navegação protegida fica bloqueada até a troca de senha.
+- Solicitação de recuperação sempre retorna mensagem genérica sem revelar existência de e-mail.
+- Token de recuperação é temporário, hasheado no banco e de uso único.
 
 
 

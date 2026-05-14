@@ -12,8 +12,8 @@ public sealed class PermissoesSistemaSeedTests
         var permissoes = context.PermissoesSistema.ToList();
         var vinculos = context.PerfisAcessoPermissoes.ToList();
 
-        Assert.Equal(32, permissoes.Count);
-        Assert.Equal(55, vinculos.Count);
+        Assert.Equal(35, permissoes.Count);
+        Assert.Equal(58, vinculos.Count);
 
         Assert.Equal(permissoes.Count, permissoes.Select(x => x.Codigo).Distinct(StringComparer.Ordinal).Count());
         Assert.Equal(vinculos.Count, vinculos.Select(x => new { x.PerfilAcessoId, x.PermissaoSistemaId }).Distinct().Count());
@@ -22,7 +22,7 @@ public sealed class PermissoesSistemaSeedTests
         var totalAtendente = vinculos.Count(x => x.PerfilAcessoId == SeedData.PerfilAtendenteId);
         var totalSolicitante = vinculos.Count(x => x.PerfilAcessoId == SeedData.PerfilSolicitanteId);
 
-        Assert.Equal(32, totalAdmin);
+        Assert.Equal(35, totalAdmin);
         Assert.Equal(18, totalAtendente);
         Assert.Equal(5, totalSolicitante);
     }

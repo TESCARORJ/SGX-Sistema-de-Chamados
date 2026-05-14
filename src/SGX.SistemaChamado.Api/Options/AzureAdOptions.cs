@@ -9,6 +9,7 @@ public sealed class AzureAdOptions
     public string ClientId { get; init; } = string.Empty;
     public string Audience { get; init; } = string.Empty;
     public string Issuer { get; init; } = string.Empty;
+    public string? MetadataAddress { get; init; }
 
     public string BuildAuthority()
     {
@@ -21,5 +22,25 @@ public sealed class AzureAdOptions
         return string.IsNullOrWhiteSpace(TenantId)
             ? instance
             : $"{instance}{TenantId}/v2.0";
+    }
+
+    public string? BuildMetadataAddress()
+    {
+        var metadataAddress = MetadataAddress?.Trim();
+        if (string.IsNullOrWhiteSpace(metadataAddress))
+        {
+            return null;
+        }
+
+        return metadataAddress;
+    }
+
+    public bool EstaConfigurado()
+    {
+        return !string.IsNullOrWhiteSpace(Instance)
+            && !string.IsNullOrWhiteSpace(TenantId)
+            && !string.IsNullOrWhiteSpace(ClientId)
+            && !string.IsNullOrWhiteSpace(Audience)
+            && !string.IsNullOrWhiteSpace(Issuer);
     }
 }

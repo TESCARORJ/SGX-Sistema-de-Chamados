@@ -400,3 +400,300 @@ Checklist de evolucao/homologacao (pendente):
 Observacao de percentual:
 - percentual do item deve ser calculado automaticamente pelo checklist ativo;
 - nao preencher percentual manual quando checklist estiver ativo.
+
+## Sprint Autenticação 1 - Revisão da base e desenho final do fluxo Entra ID
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status anterior:
+- Status atual: Não iniciado
+- Status técnico: Não avaliado
+
+Status após a Sprint Autenticação 1:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
+
+Decisão arquitetural consolidada:
+- Microsoft Entra ID (Azure AD) autentica.
+- SGX Sistema de Chamados autoriza internamente por perfis e permissões.
+
+Escopo revisado nesta sprint:
+- [x] Revisão do login Microsoft no frontend (`LoginView`, `authService`, `AuthStore`)
+- [x] Revisão da validação JWT/API (`ServiceCollectionExtensions`)
+- [x] Revisão de `GET /api/me` (`MeController`, `UsuarioAtualService`)
+- [x] Revisão de `httpClient` e tratamento de `401/403`
+- [x] Revisão de router guards (`router.beforeEach`)
+- [x] Revisão do login local Development
+- [x] Revisão da emulação de perfis em Development
+- [x] Consolidação da documentação técnica da autenticação corporativa
+
+Fluxo oficial definido:
+1. Usuário acessa o frontend.
+2. Usuário clica em `Entrar com Microsoft Entra ID`.
+3. Usuário autentica no Microsoft Entra ID.
+4. Frontend recebe `access token`.
+5. API valida o token JWT.
+6. SGX identifica o usuário interno.
+7. SGX cria usuário interno quando aplicável.
+8. SGX retorna `GET /api/me` com perfis e permissões efetivas.
+9. Frontend redireciona conforme perfil/permissão.
+
+Pendências reais para Sprint Autenticação 2:
+- [ ] Configurar App Registration definitivo (SPA e API) no tenant institucional.
+- [ ] Validar escopo real da API no frontend (`VITE_AZURE_API_SCOPE`).
+- [ ] Homologar fluxo real com usuários corporativos (Administrador, Atendente e Solicitante).
+- [ ] Definir regra formal para provisionamento e bloqueio de usuário interno conforme ciclo de vida no Entra ID.
+- [ ] Registrar evidências formais de homologação para promoção a produção.
+
+Evidências de implementação/documentação:
+- `docs/AUTENTICACAO-CORPORATIVA.md`
+- `docs/CONFIGURACAO-AZURE-AD.md`
+- `docs/HOMOLOGACAO-CHECKLIST.md`
+
+## Sprint Autenticação 2 - Backend Microsoft Entra ID, JWT e usuário interno
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status após a Sprint Autenticação 2:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
+
+Decisão arquitetural mantida:
+- Microsoft Entra ID autentica.
+- SGX Sistema de Chamados autoriza internamente por perfis e permissões.
+
+Escopo entregue nesta sprint:
+- [x] Revisão e reforço da validação JWT (`Authority`, `Issuer`, `Audience`, expiração e assinatura).
+- [x] Suporte a `MetadataAddress` opcional em `AzureAdOptions`.
+- [x] Fortalecimento das opções de autenticação (`DominiosPermitidos`, `CriarUsuarioAutomaticamente`, `PerfilPadraoUsuarioMicrosoft`).
+- [x] Mapeamento de claims Microsoft com fallback definido (`preferred_username`, `email`, `upn`, `unique_name`).
+- [x] Regras de bloqueio por domínio não permitido.
+- [x] Regras de bloqueio de usuário interno inativo.
+- [x] Criação automática de usuário interno com perfil padrão quando permitido.
+- [x] Preservação do login local Development e emulação de perfis.
+- [x] Preservação do contrato de `GET /api/me` com `autenticadoPor=MicrosoftEntraId` no fluxo Microsoft.
+- [x] Testes automatizados de unidade e integração atualizados.
+
+Regras de segurança validadas:
+- [x] Perfis e permissões continuam internos no SGX.
+- [x] `roles` e `groups` do Azure AD não concedem perfil administrativo automaticamente.
+- [x] Login local não é habilitado fora de Development.
+
+Pendências reais para Sprint Autenticação 3:
+- [ ] Homologação ponta a ponta com tenant institucional real (Microsoft Entra ID).
+- [ ] Validação operacional em ambiente de homologação com usuários reais.
+- [ ] Definição final de governança de ciclo de vida de usuário interno (bloqueio, reativação e auditoria).
+- [ ] Avaliação de persistência opcional de identificadores corporativos (`oid`/`tid`) sem impacto em migrações indevidas.
+
+Evidências de implementação:
+- `src/SGX.SistemaChamado.Api/Services/UsuarioAtualService.cs`
+- `src/SGX.SistemaChamado.Api/Extensions/ServiceCollectionExtensions.cs`
+- `src/SGX.SistemaChamado.Api/Options/AuthOptions.cs`
+- `src/SGX.SistemaChamado.Api/Options/AzureAdOptions.cs`
+- `src/SGX.SistemaChamado.Api/Options/AzureAdOptionsValidator.cs`
+- `tests/SGX.SistemaChamado.Tests/UsuarioAtualServiceTests.cs`
+- `tests/SGX.SistemaChamado.Tests/ApiHttpIntegrationTests.cs`
+- `tests/SGX.SistemaChamado.Tests/AzureAdOptionsValidatorTests.cs`
+
+## Sprint Autenticação 3 - Frontend de login Microsoft e restauração de sessão
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status após a Sprint Autenticação 3:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
+
+Escopo entregue nesta sprint:
+- [x] Consolidação do login Microsoft no frontend (`LoginView`, `authService`, `authStore`).
+- [x] Ajuste de mensagens de erro e cancelamento amigável no popup Microsoft.
+- [x] Reforço de restauração de sessão com single-flight em `inicializarSessao`.
+- [x] Manutenção de `GET /api/me` como fonte de perfis e permissões.
+- [x] Preservação dos guards de `/admin`, `/portal`, `/acesso-negado` e `/login`.
+- [x] Preservação de login local e emulação apenas em Development.
+- [x] Bloqueio explícito de ações concorrentes no login (duplo clique).
+- [x] Alinhamento de tipagem do frontend para `autenticadoPor=MicrosoftEntraId`.
+
+Pendências reais para Sprint Autenticação 4:
+- [ ] Validar login Microsoft com tenant institucional real e evidências formais.
+- [ ] Validar cenários corporativos de MFA/Conditional Access em homologação.
+- [ ] Executar rodada completa de validação manual de UX de sessão em ambiente interativo.
+
+Evidências de implementação:
+- `src/SGX.SistemaChamado.Web/src/views/LoginView.vue`
+- `src/SGX.SistemaChamado.Web/src/services/authService.ts`
+- `src/SGX.SistemaChamado.Web/src/stores/authStore.ts`
+- `src/SGX.SistemaChamado.Web/src/types/auth.ts`
+- `docs/AUTENTICACAO-CORPORATIVA.md`
+- `docs/CONFIGURACAO-AZURE-AD.md`
+- `docs/HOMOLOGACAO-CHECKLIST.md`
+
+## Sprint Autenticação 4 - Configuração Microsoft Entra ID e homologação técnica
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Em desenvolvimento  
+Status técnico: Completo com pendências evolutivas
+
+Checklist entregue nesta sprint:
+- [x] App Registration documentado
+- [x] Redirect URI documentado
+- [x] Logout URI documentado
+- [x] Escopo de API documentado
+- [x] Variáveis backend documentadas
+- [x] Variáveis frontend documentadas
+- [x] Segurança MFA/Conditional Access documentada
+- [x] Checklist de homologação criado
+
+Pendências mantidas:
+- [ ] Configurar tenant institucional real
+- [ ] Executar homologação com usuário corporativo real
+- [ ] Validar MFA
+- [ ] Validar Conditional Access
+- [ ] Validar ambiente publicado/VPS
+- [ ] Registrar evidências formais de homologação
+
+## Sprint Autenticação 5 - Fechamento do item Autenticação corporativa
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
+
+Objetivo:
+Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por perfis e permissões, com suporte a MFA, Conditional Access e uso fora da rede institucional.
+
+Checklist:
+- 19 itens técnicos concluídos
+- 8 itens pendentes de homologação/governança
+- percentual esperado aproximado: 70%
+
+Pendências:
+- tenant real
+- usuários reais
+- MFA
+- Conditional Access
+- logout corporativo
+- ambiente publicado/VPS
+- revisão com equipe Azure
+- evidência formal de homologação
+
+Mensagem para reunião:
+A autenticação corporativa do SGX está desenhada para usar Microsoft Entra ID/Azure AD como identidade principal, enquanto o SGX mantém a autorização interna por perfis e permissões. Essa abordagem permite MFA, Conditional Access, acesso fora da rede e melhor governança sem transferir regras internas do sistema para o Azure.
+
+## Sprint Autenticação 7 - Administrador inicial seguro
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
+
+Objetivo:
+Permitir a criação segura do primeiro Administrador em produção por variáveis de ambiente explícitas, sem senha fixa e sem dependência do modo Development.
+
+Checklist:
+- [x] Variáveis de ambiente definidas (`SGX_ADMIN_INICIAL_EMAIL`, `SGX_ADMIN_INICIAL_SENHA`, `SGX_ADMIN_INICIAL_NOME`)
+- [x] Validação de e-mail implementada
+- [x] Validação de senha forte implementada
+- [x] Senha hasheada
+- [x] Perfil Administrador associado
+- [x] Não cria duplicidade se já existe Administrador ativo
+- [x] Documentação atualizada
+- [x] Testes criados/atualizados
+- [ ] Homologação em ambiente real pendente
+
+Pendências evolutivas:
+- processo operacional de rotação de credencial de bootstrap;
+- validação formal em homologação/produção;
+- auditoria operacional contínua de eventos de criação inicial.
+
+## Sprint Autenticação 8 - Recuperação de senha e hardening do login local SGX
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
+
+Objetivo:
+Permitir recuperação de senha local SGX, troca obrigatória e hardening de login para produção, sem senha em texto puro, sem enumeração de usuário e com lockout configurável.
+
+Checklist:
+- [x] troca de senha autenticada
+- [x] troca obrigatória
+- [x] recuperação de senha
+- [x] token temporário
+- [x] token de uso único
+- [x] token com expiração
+- [x] política de senha
+- [x] lockout
+- [x] último login
+- [x] frontend `/alterar-senha`
+- [x] frontend `/recuperar-senha`
+- [x] documentação
+- [x] testes
+- [ ] homologação real pendente
+
+Pendências evolutivas:
+- envio transacional real de e-mail para recuperação;
+- auditoria dedicada persistida em banco para eventos de autenticação local;
+- validação formal em ambiente publicado com evidências de lockout e recuperação.
+
+## Sprint Autenticação 9 - Tenant único, contas permitidas e homologação real Microsoft Entra ID
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
+
+Checklist técnico:
+- [x] Single Tenant documentado
+- [x] TenantId validado
+- [x] issuer validado
+- [x] tid validado
+- [x] audience validada
+- [x] contas pessoais Microsoft bloqueadas
+- [x] tenants externos bloqueados
+- [x] domínio permitido validado quando configurado
+- [x] roles/groups Azure não concedem admin
+- [x] mensagens frontend amigáveis
+- [x] testes automatizados criados/ajustados
+- [x] documentação atualizada
+
+Pendências:
+- homologação com tenant real;
+- teste com usuário externo real;
+- teste com conta pessoal Microsoft real;
+- MFA;
+- Conditional Access;
+- logout corporativo;
+- evidências formais.
+
+## Correções - Integração Microsoft, usuários demo e senha por Administrador
+
+Área: Autenticação corporativa  
+Categoria: Segurança
+
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
+
+Checklist técnico:
+- [x] Menu `Integrações` exibe `Microsoft Entra ID`
+- [x] Tela `/admin/integracoes/microsoft-entra-id` criada
+- [x] Endpoints administrativos de configuração Microsoft criados (`GET/PUT`)
+- [x] LoginView consome provedores com fallback amigável
+- [x] Seed Development mantém 2 usuários demonstrativos por perfil
+- [x] Redefinição de senha por Administrador implementada
+- [x] Permissões novas criadas (`IntegracoesMicrosoft.*`, `Usuarios.RedefinirSenha`)
+- [x] Testes automatizados atualizados
+
+Pendências evolutivas:
+- homologação funcional em banco PostgreSQL real com dados legados;
+- governança de limpeza administrativa para bases antigas com usuários demo excedentes;
+- revisão de UX para edição de configurações Microsoft em ambiente distribuído (quando exigir restart).

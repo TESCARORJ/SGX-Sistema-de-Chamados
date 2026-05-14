@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentValidation;
+using SGX.SistemaChamado.Api.Exceptions;
 
 namespace SGX.SistemaChamado.Api.Middlewares;
 
@@ -57,6 +58,7 @@ public sealed class GlobalExceptionMiddleware(
         {
             ValidationException => (StatusCodes.Status400BadRequest, "Requisicao invalida"),
             ArgumentException => (StatusCodes.Status400BadRequest, "Requisicao invalida"),
+            AcessoNegadoException => (StatusCodes.Status403Forbidden, "Acesso negado"),
             UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Nao autorizado"),
             KeyNotFoundException => (StatusCodes.Status404NotFound, "Recurso nao encontrado"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Conflito de regra de negocio"),

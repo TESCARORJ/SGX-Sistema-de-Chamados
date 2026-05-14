@@ -10,6 +10,9 @@ public static class PermissionPolicies
     public const string PerfisAlterarPermissoes = Prefixo + PermissoesConstants.PerfisAlterarPermissoes;
     public const string ParametrosGerenciar = Prefixo + PermissoesConstants.ParametrosGerenciar;
     public const string IntegracoesEmailVisualizar = Prefixo + PermissoesConstants.IntegracoesEmailVisualizar;
+    public const string IntegracoesMicrosoftVisualizar = Prefixo + PermissoesConstants.IntegracoesMicrosoftVisualizar;
+    public const string IntegracoesMicrosoftGerenciar = Prefixo + PermissoesConstants.IntegracoesMicrosoftGerenciar;
+    public const string UsuariosRedefinirSenha = Prefixo + PermissoesConstants.UsuariosRedefinirSenha;
     public const string ChamadosAssumir = Prefixo + PermissoesConstants.ChamadosAssumir;
     public const string ChamadosAtribuir = Prefixo + PermissoesConstants.ChamadosAtribuir;
     public const string ChamadosEncerrar = Prefixo + PermissoesConstants.ChamadosEncerrar;

@@ -276,3 +276,20 @@ Frontend:
 - Pendencias reais:
   - validacao manual com massa de logs reais
   - validacao com caixa IMAP real em homologacao
+
+## Sprint Autenticação 3 - Login Microsoft e restauração de sessão
+
+### Fluxo consolidado
+- Login Microsoft via `LoginView` + `authService` (MSAL popup).
+- Após autenticação, frontend obtém Bearer token e chama `GET /api/me`.
+- Perfis e permissões retornados pelo SGX determinam acesso e redirecionamento.
+
+### Sessão e refresh
+- `router.beforeEach` aguarda `authStore.inicializarSessao()`.
+- Single-flight ativo para evitar chamadas concorrentes de inicialização.
+- F5/Ctrl+F5 não deve causar falso logoff quando sessão é restaurável.
+
+### Segurança de ambiente
+- `Authorization: Bearer` no fluxo Microsoft.
+- `X-Dev-*` apenas em Development com modo local.
+- Login local e emulação não aparecem em Production.

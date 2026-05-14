@@ -1,4 +1,6 @@
-import {
+﻿import {
+  BrowserAuthError,
+  InteractionRequiredAuthError,
   PublicClientApplication,
   type AccountInfo,
   type AuthenticationResult,
@@ -45,12 +47,43 @@ async function ensureInitialized(): Promise<void> {
 function ensureAzureConfigured(): void {
   if (!clientId || !tenantId) {
     throw new Error(
-      'Azure AD não configurado no frontend. Defina VITE_AZURE_CLIENT_ID e VITE_AZURE_TENANT_ID.'
+      'Microsoft Entra ID não configurado no frontend. Defina VITE_AZURE_CLIENT_ID e VITE_AZURE_TENANT_ID.'
     )
   }
 }
 
+function isMsalUserCancellation(error: unknown): boolean {
+  if (
+    error instanceof BrowserAuthError &&
+    (error.errorCode === 'user_cancelled' || error.errorCode === 'user_cancelled_flow')
+  ) {
+    return true
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const candidate = error as { errorCode?: string; message?: string }
+    const code = candidate.errorCode?.toLowerCase() ?? ''
+    const message = candidate.message?.toLowerCase() ?? ''
+
+    return code.includes('user_cancelled') || message.includes('user cancelled')
+  }
+
+  return false
+}
+
+function isInteractionRequired(error: unknown): boolean {
+  return error instanceof InteractionRequiredAuthError
+}
+
 export const authService = {
+  isAzureConfigured(): boolean {
+    return Boolean(clientId && tenantId)
+  },
+
+  isUserCancellation(error: unknown): boolean {
+    return isMsalUserCancellation(error)
+  },
+
   async loginPopup(): Promise<AuthenticationResult> {
     ensureAzureConfigured()
     await ensureInitialized()
@@ -71,10 +104,22 @@ export const authService = {
 
     app.setActiveAccount(activeAccount)
 
-    const token = await app.acquireTokenSilent({
-      ...loginRequest,
-      account: activeAccount,
-    })
+    let token: AuthenticationResult
+    try {
+      token = await app.acquireTokenSilent({
+        ...loginRequest,
+        account: activeAccount,
+      })
+    } catch (error) {
+      if (isInteractionRequired(error)) {
+        token = await app.acquireTokenPopup({
+          ...loginRequest,
+          account: activeAccount,
+        })
+      } else {
+        throw error
+      }
+    }
 
     return token.accessToken
   },
