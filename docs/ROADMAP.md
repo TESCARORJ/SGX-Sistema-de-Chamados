@@ -222,3 +222,160 @@ Pendencias reais mantidas:
 - revisao com equipe responsavel pelo Azure;
 - evidencia formal de homologacao;
 - governanca de ciclo de vida do usuario interno (bloqueio, reativacao e auditoria).
+
+## Sprint SLA 1 - Base tecnica e administrativa
+
+Area: SLA
+Categoria: SLA
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Entregas da sprint:
+- modelagem inicial com entidades de politica e meta de SLA;
+- tabelas dedicadas para politicas e metas (`sla_politicas`, `sla_metas`);
+- seed idempotente da politica `SLA Padrao` com metas por prioridade;
+- endpoints administrativos para cadastro e manutencao;
+- permissoes granulares de SLA;
+- tela administrativa inicial em `/admin/sla/policies`.
+
+Pendencias evolutivas:
+- aplicacao automatica completa do SLA no ciclo do chamado (Sprint 2);
+- homologacao funcional com usuarios reais e evidencias formais.
+
+## Sprint SLA 2 - Aplicacao pratica nos chamados
+
+Area: SLA
+Categoria: SLA
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Entregas da sprint:
+- tabela `chamado_slas` criada para registrar o SLA aplicado ao chamado;
+- relacionamento 1:1 entre chamado e SLA aplicado;
+- servico centralizado para escolha de politica, calculo de prazos, primeira resposta, resolucao, pausa e reabertura;
+- SLA aplicado na abertura do chamado sem bloquear o fluxo quando nao houver politica/meta ativa;
+- DTOs de detalhe/listagem atualizados com resumo de SLA;
+- listagem administrativa com situacao de SLA e filtros por situacao;
+- detalhe administrativo e portal exibindo politica, prazos e situacao de SLA;
+- testes automatizados cobrindo prioridades, resposta, resolucao, pausa, politica especifica e ausencia de politica/meta;
+- documentacao `docs/SLA.md` atualizada.
+
+Checklist Sprint 2:
+- [x] Tabela de SLA aplicado ao chamado criada.
+- [x] Relacionamento entre chamado e SLA criado.
+- [x] Service de calculo de SLA criado.
+- [x] Politica aplicavel identificada por prioridade/categoria/departamento.
+- [x] SLA aplicado na criacao do chamado.
+- [x] Prazo de primeira resposta calculado.
+- [x] Prazo de resolucao calculado.
+- [x] Primeira resposta registrada.
+- [x] Resolucao registrada.
+- [x] Pausa de SLA preparada e implementada para `AguardandoSolicitante`.
+- [x] Situacao atual do SLA calculada.
+- [x] SLA exibido no detalhe do chamado.
+- [x] SLA exibido na listagem administrativa.
+- [x] Filtros administrativos de SLA criados.
+- [x] DTOs de chamado atualizados com resumo de SLA.
+- [x] Testes automatizados criados.
+- [x] Documentacao atualizada.
+
+Pendencias evolutivas:
+- calendario de horario comercial configuravel;
+- homologacao funcional em PostgreSQL real;
+- evidencias formais de UX em ambiente publicado.
+
+## Sprint SLA 3 - Alertas, vencimentos e painel
+
+Area: SLA
+Categoria: SLA
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Entregas da sprint:
+- configuracao administrativa de alertas de SLA;
+- historico de eventos de SLA com chave de idempotencia;
+- job periodico de monitoramento configuravel por `SlaMonitoring`;
+- eventos integrados ao ciclo de SLA aplicado, resposta, resolucao, pausa e retomada;
+- painel administrativo de SLA com indicadores e agrupamentos;
+- consulta estruturada para relatorio/exportacao futura;
+- historico de SLA no detalhe administrativo do chamado.
+
+Checklist Sprint 3:
+- [x] Configuração de alerta de SLA criada.
+- [x] Tela administrativa de configuração de alerta criada.
+- [x] Endpoints de configuração de alerta criados.
+- [x] Job de verificação de SLA criado.
+- [x] Periodicidade configurável por appsettings criada.
+- [x] Controle contra notificações/eventos duplicados criado.
+- [x] Histórico de eventos de SLA criado.
+- [x] Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resolução, pausa e retomada.
+- [x] Painel de indicadores de SLA criado.
+- [x] Indicador de SLA vencido criado.
+- [x] Indicador de SLA próximo do vencimento criado.
+- [x] Indicador de percentual de cumprimento criado.
+- [x] Métrica de tempo médio de primeira resposta criada.
+- [x] Métrica de tempo médio de resolução criada.
+- [x] Indicadores por prioridade criados.
+- [x] Indicadores por categoria criados.
+- [x] Indicadores por departamento criados.
+- [x] Histórico de SLA exibido no detalhe administrativo do chamado.
+- [x] Estrutura preparada para exportação futura.
+- [x] Documentação atualizada.
+- [x] Testes automatizados criados.
+
+Pendencias evolutivas:
+- integracao com servico oficial de notificacoes;
+- exportacao Excel/PDF;
+- dashboards historicos por periodo de violacao;
+- calendario por departamento/time;
+- importacao automatica de feriados.
+
+## Sprint SLA 4 - Calendario corporativo e horario comercial
+
+Area: SLA
+Categoria: SLA
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Entregas tecnicas:
+
+- entidades `CalendarioCorporativo`, `HorarioAtendimentoCalendario` e `ExcecaoCalendarioCorporativo`;
+- tabelas `calendarios_corporativos`, `horarios_atendimento_calendario` e `excecoes_calendario_corporativo`;
+- seed do calendario corporativo padrao em `America/Sao_Paulo`, segunda a sexta das 09:00 as 18:00;
+- politica de SLA com `CalendarioCorporativoId` opcional;
+- calculo de prazo e minutos decorridos com `SlaBusinessTimeCalculator`;
+- tela `Admin > SLA > Calendarios`;
+- tela de politicas atualizada com selecao de calendario;
+- detalhe do chamado exibindo tipo de calculo e calendario usado.
+
+Checklist Sprint 4:
+
+- [x] Entidade CalendarioCorporativo criada.
+- [x] Entidade HorarioAtendimentoCalendario criada.
+- [x] Entidade ExcecaoCalendarioCorporativo criada.
+- [x] Migrations de calendario criadas.
+- [x] Seed do calendario padrao criado.
+- [x] Relacionamento entre Politica SLA e Calendario criado.
+- [x] Service administrativo de calendario criado.
+- [x] Service de calculo de tempo util criado.
+- [x] Calculo de prazo de primeira resposta usando horario comercial implementado.
+- [x] Calculo de prazo de resolucao usando horario comercial implementado.
+- [x] Calculo de minutos uteis de primeira resposta implementado.
+- [x] Calculo de minutos uteis de resolucao implementado.
+- [x] Endpoints administrativos de calendario criados.
+- [x] Tela Admin > SLA > Calendarios criada.
+- [x] Tela de politica SLA atualizada com selecao de calendario.
+- [x] Detalhe do chamado mostra tipo de calculo e calendario usado.
+- [x] Testes automatizados criados.
+- [x] Documentacao atualizada.
+
+Pendencias evolutivas:
+
+- calendario especifico por departamento/time;
+- importacao automatica de feriados nacionais, estaduais e municipais;
+- excecoes recorrentes;
+- refinamento de prazo remanescente em reabertura.

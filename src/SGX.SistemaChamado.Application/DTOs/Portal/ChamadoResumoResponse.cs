@@ -1,3 +1,5 @@
+using SGX.SistemaChamado.Domain.Enums;
+
 namespace SGX.SistemaChamado.Application.DTOs.Portal;
 
 public sealed class ChamadoResumoResponse
@@ -13,6 +15,10 @@ public sealed class ChamadoResumoResponse
     public DateTime? AtualizadoEm { get; init; }
     public bool SlaVencido { get; init; }
     public bool SlaProximoVencimento { get; init; }
+    public SituacaoSlaChamadoEnum SituacaoSla { get; init; } = SituacaoSlaChamadoEnum.NaoAplicavel;
+    public string? PoliticaSlaNome { get; init; }
+    public int? TempoRestanteMinutos { get; init; }
+    public int? TempoExcedidoMinutos { get; init; }
     public DateTime? PrazoPrimeiraRespostaEm { get; init; }
     public DateTime? PrimeiraRespostaEm { get; init; }
     public DateTime? PrazoResolucaoEm { get; init; }

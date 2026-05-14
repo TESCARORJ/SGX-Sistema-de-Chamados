@@ -23,12 +23,12 @@ public sealed class AlterarPrioridadeChamadoUseCaseTests
             new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin),
             PortalUseCasesTestFactory.Uow(context));
 
-        var antes = context.SlaControles.Single(x => x.ChamadoId == dados.ChamadoId).PrazoResolucaoEm;
+        var antes = context.ChamadosSla.Single(x => x.ChamadoId == dados.ChamadoId).PrazoResolucao;
         var criticaId = context.PrioridadesChamado.First(x => x.Nivel == PrioridadeChamadoEnum.Critica).Id;
 
         await useCase.ExecutarAsync(dados.ChamadoId, new AlterarPrioridadeChamadoRequest { PrioridadeId = criticaId });
 
-        var depois = context.SlaControles.Single(x => x.ChamadoId == dados.ChamadoId).PrazoResolucaoEm;
+        var depois = context.ChamadosSla.Single(x => x.ChamadoId == dados.ChamadoId).PrazoResolucao;
         Assert.True(depois < antes);
     }
 
@@ -41,8 +41,23 @@ public sealed class AlterarPrioridadeChamadoUseCaseTests
         var prioridadeCritica = context.PrioridadesChamado.First(x => x.Nivel == PrioridadeChamadoEnum.Critica);
         var statusAberto = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Aberto);
 
-        context.SlaConfiguracoes.Add(new SlaConfiguracao(prioridadeAlta.Id, 4, 24, "teste"));
-        context.SlaConfiguracoes.Add(new SlaConfiguracao(prioridadeCritica.Id, 1, 2, "teste"));
+        foreach (var politicaExistente in context.SlaPoliticas.Where(x => x.Ativo).ToList())
+        {
+            politicaExistente.Desativar("teste");
+        }
+
+        foreach (var metaExistente in context.SlaMetas.Where(x => x.Ativo).ToList())
+        {
+            metaExistente.Desativar("teste");
+        }
+
+        var politica = new PoliticaSla("SLA Teste Prioridade", "Teste", 1, null, null, null, false, true, "teste");
+        context.SlaPoliticas.Add(politica);
+        await context.SaveChangesAsync();
+
+        context.SlaMetas.AddRange(
+            new MetaSla(politica.Id, prioridadeAlta.Id, 240, 1440, null, null, "teste"),
+            new MetaSla(politica.Id, prioridadeCritica.Id, 60, 120, null, null, "teste"));
         await context.SaveChangesAsync();
 
         var chamado = new Chamado("CH-APR-1", "Alterar prioridade", "Descricao", solicitante.Id, categoria.Id, prioridadeAlta.Id, statusAberto.Id, OrigemChamado.Portal, "teste");

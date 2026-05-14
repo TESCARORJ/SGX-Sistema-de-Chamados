@@ -81,5 +81,10 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
             .WithOne(x => x.Chamado)
             .HasForeignKey<SlaControle>(x => x.ChamadoId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(x => x.ChamadoSla)
+            .WithOne(x => x.Chamado)
+            .HasForeignKey<ChamadoSla>(x => x.ChamadoId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -99,6 +99,7 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
           :vencido="slotProps.row.slaVencido"
           :proximo="slotProps.row.slaProximoVencimento"
           :pausado="slotProps.row.estaPausado"
+          :situacao="slotProps.row.situacaoSla"
         />
       </q-td>
     </template>
@@ -147,6 +148,7 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
                 :vencido="slotProps.row.slaVencido"
                 :proximo="slotProps.row.slaProximoVencimento"
                 :pausado="slotProps.row.estaPausado"
+                :situacao="slotProps.row.situacaoSla"
               />
             </div>
           </q-card-section>

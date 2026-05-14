@@ -8,5 +8,9 @@ public enum StatusTecnicoRoadmapItsm
     CompletoComPendenciasEvolutivas = 3,
     RequerValidacao = 4,
     RequerCorrecao = 5,
-    Bloqueado = 6
+    Bloqueado = 6,
+    ModelagemInicialEmImplementacao = 7,
+    AplicacaoEmChamadosEmImplementacao = 8,
+    AlertasEIndicadoresSlaEmImplementacao = 9,
+    CalendarioCorporativoHorarioComercialEmImplementacao = 10
 }

@@ -41,6 +41,42 @@ const menu: MenuItem[] = [
     requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
   },
   {
+    label: 'SLA',
+    icon: 'schedule',
+    requiredAnyPermissions: [
+      permissoes.slaVisualizar,
+      permissoes.slaCriar,
+      permissoes.slaEditar,
+      permissoes.slaAtivarDesativar,
+    ],
+    children: [
+      {
+        label: 'Políticas',
+        icon: 'rule',
+        to: '/admin/sla/policies',
+        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaCriar, permissoes.slaEditar],
+      },
+      {
+        label: 'Alertas',
+        icon: 'notifications_active',
+        to: '/admin/sla/alertas',
+        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+      },
+      {
+        label: 'Calendários',
+        icon: 'event_available',
+        to: '/admin/sla/calendarios',
+        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+      },
+      {
+        label: 'Painel',
+        icon: 'monitoring',
+        to: '/admin/sla/painel',
+        requiredAnyPermissions: [permissoes.slaVisualizar],
+      },
+    ],
+  },
+  {
     label: 'Notificações',
     icon: 'notifications_active',
     to: '/admin/notificacoes',
@@ -195,6 +231,10 @@ const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
   if (route.path === '/admin/notificacoes') return 'Central de NotificaÃ§Ãµes'
+  if (route.path.startsWith('/admin/sla/alertas')) return 'Alertas de SLA'
+  if (route.path.startsWith('/admin/sla/calendarios')) return 'Calendários de SLA'
+  if (route.path.startsWith('/admin/sla/painel')) return 'Painel de SLA'
+  if (route.path.startsWith('/admin/sla')) return 'Políticas de SLA'
   if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃ§Ãµes'

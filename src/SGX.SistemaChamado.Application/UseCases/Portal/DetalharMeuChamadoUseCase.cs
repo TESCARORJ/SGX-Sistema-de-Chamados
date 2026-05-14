@@ -31,7 +31,8 @@ public sealed class DetalharMeuChamadoUseCase(
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
             .Include(x => x.Anexos).ThenInclude(x => x.Usuario)
             .Include(x => x.Historicos).ThenInclude(x => x.Usuario)
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 

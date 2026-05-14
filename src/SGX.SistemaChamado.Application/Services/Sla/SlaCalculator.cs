@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -6,10 +7,12 @@ using SGX.SistemaChamado.Domain.Entities;
 namespace SGX.SistemaChamado.Application.Services.Sla;
 
 public sealed class SlaCalculator(
-    IRepository<SlaConfiguracao> slaConfiguracaoRepository,
-    IRepository<PrioridadeChamado> prioridadeRepository) : ISlaCalculator
+    IRepository<PoliticaSla> politicaRepository,
+    IRepository<CalendarioCorporativo> calendarioRepository,
+    IRepository<PrioridadeChamado> prioridadeRepository,
+    ILogger<SlaCalculator> logger) : ISlaCalculator
 {
-    public async Task<SlaPrazos> CalcularPrazosAsync(
+    public async Task<SlaPrazosAplicados?> CalcularPrazosAsync(
         Guid prioridadeId,
         Guid? categoriaId,
         Guid? departamentoId,
@@ -20,68 +23,110 @@ public sealed class SlaCalculator(
             throw new ArgumentException("A prioridade informada para calculo de SLA e invalida.", nameof(prioridadeId));
         }
 
-        var configuracoes = await slaConfiguracaoRepository.Query()
+        var politicas = await politicaRepository.Query()
             .AsNoTracking()
-            .Where(x => x.Ativo && x.PrioridadeId == prioridadeId)
+            .Where(x => x.Ativo)
+            .Include(x => x.CalendarioCorporativo)
+                .ThenInclude(x => x!.HorariosAtendimento)
+            .Include(x => x.CalendarioCorporativo)
+                .ThenInclude(x => x!.Excecoes)
+            .Include(x => x.Metas.Where(m => m.Ativo && m.PrioridadeId == prioridadeId))
             .ToListAsync(cancellationToken);
 
-        var porDepartamentoCategoria = configuracoes.FirstOrDefault(x =>
-            x.DepartamentoId == departamentoId &&
-            x.CategoriaId == categoriaId &&
-            departamentoId.HasValue &&
-            categoriaId.HasValue);
+        var candidata = politicas
+            .Select(p => new
+            {
+                Politica = p,
+                Meta = p.Metas.FirstOrDefault(),
+                Score = CalcularScore(p, categoriaId, departamentoId),
+                Match = EhCompativel(p, categoriaId, departamentoId)
+            })
+            .Where(x => x.Match && x.Meta is not null)
+            .OrderByDescending(x => x.Score)
+            .ThenBy(x => x.Politica.Ordem)
+            .ThenBy(x => x.Politica.Nome)
+            .FirstOrDefault();
 
-        if (porDepartamentoCategoria is not null)
+        if (candidata?.Meta is not null)
         {
-            return new SlaPrazos(
-                porDepartamentoCategoria.PrazoPrimeiraRespostaHoras,
-                porDepartamentoCategoria.PrazoResolucaoHoras,
-                "Departamento+Categoria+Prioridade");
+            var calendario = await ResolverCalendarioAsync(candidata.Politica, cancellationToken);
+
+            return new SlaPrazosAplicados(
+                candidata.Politica.Id,
+                candidata.Politica.Nome,
+                prioridadeId,
+                candidata.Meta.TempoPrimeiraRespostaMinutos,
+                candidata.Meta.TempoResolucaoMinutos,
+                candidata.Politica.UsarHorarioComercial,
+                calendario?.Id,
+                calendario?.Nome,
+                calendario,
+                candidata.Politica.PausarQuandoAguardandoSolicitante,
+                $"Politica:{candidata.Politica.Nome}");
         }
 
-        var porCategoria = configuracoes.FirstOrDefault(x =>
-            x.DepartamentoId is null &&
-            x.CategoriaId == categoriaId &&
-            categoriaId.HasValue);
+        _ = prioridadeRepository;
+        return null;
+    }
 
-        if (porCategoria is not null)
+    private async Task<CalendarioCorporativo?> ResolverCalendarioAsync(PoliticaSla politica, CancellationToken cancellationToken)
+    {
+        if (!politica.UsarHorarioComercial)
         {
-            return new SlaPrazos(
-                porCategoria.PrazoPrimeiraRespostaHoras,
-                porCategoria.PrazoResolucaoHoras,
-                "Categoria+Prioridade");
+            return null;
         }
 
-        var porDepartamento = configuracoes.FirstOrDefault(x =>
-            x.DepartamentoId == departamentoId &&
-            x.CategoriaId is null &&
-            departamentoId.HasValue);
-
-        if (porDepartamento is not null)
+        if (politica.CalendarioCorporativo is { Ativo: true } calendarioVinculado)
         {
-            return new SlaPrazos(
-                porDepartamento.PrazoPrimeiraRespostaHoras,
-                porDepartamento.PrazoResolucaoHoras,
-                "Departamento+Prioridade");
+            return calendarioVinculado;
         }
 
-        var porPrioridade = configuracoes.FirstOrDefault(x => x.DepartamentoId is null && x.CategoriaId is null);
-        if (porPrioridade is not null)
-        {
-            return new SlaPrazos(
-                porPrioridade.PrazoPrimeiraRespostaHoras,
-                porPrioridade.PrazoResolucaoHoras,
-                "Prioridade");
-        }
-
-        var prioridade = await prioridadeRepository.Query()
+        var calendarioPadrao = await calendarioRepository.Query()
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == prioridadeId && x.Ativo, cancellationToken)
-            ?? throw new InvalidOperationException("Prioridade nao encontrada para fallback de SLA.");
+            .Include(x => x.HorariosAtendimento)
+            .Include(x => x.Excecoes)
+            .Where(x => x.Ativo && x.Padrao)
+            .OrderBy(x => x.Nome)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return new SlaPrazos(
-            prioridade.PrazoPrimeiraRespostaHoras,
-            prioridade.PrazoResolucaoHoras,
-            "FallbackPrioridade");
+        if (calendarioPadrao is null)
+        {
+            logger.LogWarning(
+                "Politica SLA {PoliticaSlaId} configurada para horario comercial sem calendario vinculado e sem calendario padrao ativo. O calculo usara minutos corridos.",
+                politica.Id);
+        }
+
+        return calendarioPadrao;
+    }
+
+    private static int CalcularScore(PoliticaSla politica, Guid? categoriaId, Guid? departamentoId)
+    {
+        var score = 0;
+        if (politica.CategoriaId.HasValue && politica.CategoriaId == categoriaId)
+        {
+            score += 2;
+        }
+
+        if (politica.DepartamentoId.HasValue && politica.DepartamentoId == departamentoId)
+        {
+            score += 1;
+        }
+
+        return score;
+    }
+
+    private static bool EhCompativel(PoliticaSla politica, Guid? categoriaId, Guid? departamentoId)
+    {
+        if (politica.CategoriaId.HasValue && politica.CategoriaId != categoriaId)
+        {
+            return false;
+        }
+
+        if (politica.DepartamentoId.HasValue && politica.DepartamentoId != departamentoId)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

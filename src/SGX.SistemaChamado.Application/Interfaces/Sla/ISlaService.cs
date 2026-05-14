@@ -11,5 +11,5 @@ public interface ISlaService
     Task AplicarMudancaStatusAsync(Chamado chamado, StatusChamado statusAnterior, StatusChamado statusAtual, string usuarioLogin, DateTime agoraUtc);
     Task RegistrarEncerramentoAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc);
     Task ReabrirAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default);
-    bool EstaProximoDoVencimento(SlaControle? slaControle, DateTime agoraUtc);
+    bool EstaProximoDoVencimento(ChamadoSla? chamadoSla, DateTime agoraUtc);
 }

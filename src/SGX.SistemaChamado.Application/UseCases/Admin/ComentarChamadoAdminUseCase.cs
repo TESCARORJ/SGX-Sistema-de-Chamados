@@ -3,6 +3,7 @@ using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
+using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -12,6 +13,7 @@ public sealed class ComentarChamadoAdminUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<ComentarioChamado> comentarioRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork) : IComentarChamadoAdminUseCase
 {
@@ -29,6 +31,7 @@ public sealed class ComentarChamadoAdminUseCase(
         }
 
         var chamado = await chamadoRepository.Query()
+            .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 
@@ -53,6 +56,11 @@ public sealed class ComentarChamadoAdminUseCase(
             usuario.Login);
 
         await historicoRepository.AddAsync(historico, cancellationToken);
+
+        if (!request.Interno)
+        {
+            await slaService.RegistrarPrimeiraRespostaAsync(chamado, usuario.Login, DateTime.UtcNow, cancellationToken);
+        }
 
         chamado.AtualizarAuditoria(usuario.Login);
         chamadoRepository.Update(chamado);

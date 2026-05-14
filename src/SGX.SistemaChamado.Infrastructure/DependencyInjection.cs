@@ -49,7 +49,11 @@ public static class DependencyInjection
         services.AddScoped<IEmailParaChamadoService, EmailParaChamadoService>();
         services.AddScoped<IProcessarEmailRecebidoUseCase, ProcessarEmailRecebidoUseCase>();
         services.AddScoped<ISlaCalculator, SlaCalculator>();
+        services.AddScoped<ISlaBusinessTimeCalculator, SlaBusinessTimeCalculator>();
+        services.AddScoped<ICalendarioCorporativoService, CalendarioCorporativoService>();
+        services.AddScoped<ISlaEventService, SlaEventService>();
         services.AddScoped<ISlaService, SlaService>();
+        services.AddScoped<ISlaMonitoringService, SlaMonitoringService>();
 
         services.AddScoped<IApiInfoUseCase, ApiInfoUseCase>();
         services.AddScoped<IAbrirChamadoUseCase, AbrirChamadoUseCase>();
@@ -153,6 +157,28 @@ public static class DependencyInjection
         services.AddScoped<IInativarRoadmapChecklistItemUseCase, InativarRoadmapChecklistItemUseCase>();
         services.AddScoped<IExcluirRoadmapChecklistItemUseCase, ExcluirRoadmapChecklistItemUseCase>();
         services.AddScoped<IReativarRoadmapChecklistItemUseCase, ReativarRoadmapChecklistItemUseCase>();
+        services.AddScoped<IListarPoliticasSlaUseCase, ListarPoliticasSlaUseCase>();
+        services.AddScoped<IObterPoliticaSlaUseCase, ObterPoliticaSlaUseCase>();
+        services.AddScoped<ICriarPoliticaSlaUseCase, CriarPoliticaSlaUseCase>();
+        services.AddScoped<IAtualizarPoliticaSlaUseCase, AtualizarPoliticaSlaUseCase>();
+        services.AddScoped<IAtualizarStatusPoliticaSlaUseCase, AtualizarStatusPoliticaSlaUseCase>();
+        services.AddScoped<IInativarPoliticaSlaUseCase, InativarPoliticaSlaUseCase>();
+        services.AddScoped<IObterConfiguracaoAlertaSlaUseCase, ObterConfiguracaoAlertaSlaUseCase>();
+        services.AddScoped<IAtualizarConfiguracaoAlertaSlaUseCase, AtualizarConfiguracaoAlertaSlaUseCase>();
+        services.AddScoped<IObterDashboardSlaUseCase, ObterDashboardSlaUseCase>();
+        services.AddScoped<IListarRelatorioSlaUseCase, ListarRelatorioSlaUseCase>();
+        services.AddScoped<IListarCalendariosCorporativosUseCase, ListarCalendariosCorporativosUseCase>();
+        services.AddScoped<IObterCalendarioCorporativoUseCase, ObterCalendarioCorporativoUseCase>();
+        services.AddScoped<ICriarCalendarioCorporativoUseCase, CriarCalendarioCorporativoUseCase>();
+        services.AddScoped<IAtualizarCalendarioCorporativoUseCase, AtualizarCalendarioCorporativoUseCase>();
+        services.AddScoped<IAtualizarStatusCalendarioCorporativoUseCase, AtualizarStatusCalendarioCorporativoUseCase>();
+        services.AddScoped<IDefinirCalendarioCorporativoPadraoUseCase, DefinirCalendarioCorporativoPadraoUseCase>();
+        services.AddScoped<ICriarHorarioAtendimentoCalendarioUseCase, CriarHorarioAtendimentoCalendarioUseCase>();
+        services.AddScoped<IAtualizarHorarioAtendimentoCalendarioUseCase, AtualizarHorarioAtendimentoCalendarioUseCase>();
+        services.AddScoped<IExcluirHorarioAtendimentoCalendarioUseCase, ExcluirHorarioAtendimentoCalendarioUseCase>();
+        services.AddScoped<ICriarExcecaoCalendarioCorporativoUseCase, CriarExcecaoCalendarioCorporativoUseCase>();
+        services.AddScoped<IAtualizarExcecaoCalendarioCorporativoUseCase, AtualizarExcecaoCalendarioCorporativoUseCase>();
+        services.AddScoped<IExcluirExcecaoCalendarioCorporativoUseCase, ExcluirExcecaoCalendarioCorporativoUseCase>();
 
         return services;
     }

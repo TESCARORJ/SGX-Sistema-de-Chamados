@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Domain.Entities;
 
 namespace SGX.SistemaChamado.Application.UseCases.Admin;
@@ -17,6 +17,8 @@ internal static class AdminChamadoLoader
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
             .Include(x => x.Anexos).ThenInclude(x => x.Usuario)
             .Include(x => x.Historicos).ThenInclude(x => x.Usuario)
-            .Include(x => x.SlaControle);
+            .Include(x => x.EventosSla).ThenInclude(x => x.Usuario)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo);
     }
 }

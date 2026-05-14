@@ -97,6 +97,83 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("anexos_chamado", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("nome");
+
+                    b.Property<bool>("Padrao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("padrao");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("time_zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .HasDatabaseName("ix_calendarios_corporativos_nome");
+
+                    b.HasIndex("Padrao")
+                        .IsUnique()
+                        .HasDatabaseName("ux_calendarios_corporativos_padrao_ativo")
+                        .HasFilter("padrao = true AND ativo = true");
+
+                    b.ToTable("calendarios_corporativos", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565701"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Calendário inicial para cálculo de SLA em horário comercial.",
+                            Nome = "Calendário Corporativo Padrão",
+                            Padrao = true,
+                            TimeZone = "America/Sao_Paulo"
+                        });
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", b =>
                 {
                     b.Property<Guid>("Id")
@@ -254,6 +331,134 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("chamados", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("CalendarioCorporativoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calendario_corporativo_id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<DateTime>("DataInicio")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_inicio");
+
+                    b.Property<DateTime?>("DataPausa")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_pausa");
+
+                    b.Property<DateTime?>("DataPrimeiraResposta")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_primeira_resposta");
+
+                    b.Property<DateTime?>("DataResolucao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_resolucao");
+
+                    b.Property<int>("MinutosPausados")
+                        .HasColumnType("integer")
+                        .HasColumnName("minutos_pausados");
+
+                    b.Property<int?>("MinutosPrimeiraResposta")
+                        .HasColumnType("integer")
+                        .HasColumnName("minutos_primeira_resposta");
+
+                    b.Property<int?>("MinutosResolucao")
+                        .HasColumnType("integer")
+                        .HasColumnName("minutos_resolucao");
+
+                    b.Property<bool>("Pausado")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pausado");
+
+                    b.Property<bool>("PausarQuandoAguardandoSolicitante")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pausar_quando_aguardando_solicitante");
+
+                    b.Property<Guid?>("PoliticaSlaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("politica_sla_id");
+
+                    b.Property<DateTime>("PrazoPrimeiraResposta")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("prazo_primeira_resposta");
+
+                    b.Property<DateTime>("PrazoResolucao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("prazo_resolucao");
+
+                    b.Property<bool?>("PrimeiraRespostaCumprida")
+                        .HasColumnType("boolean")
+                        .HasColumnName("primeira_resposta_cumprida");
+
+                    b.Property<bool>("PrimeiraRespostaViolada")
+                        .HasColumnType("boolean")
+                        .HasColumnName("primeira_resposta_violada");
+
+                    b.Property<Guid>("PrioridadeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("prioridade_id");
+
+                    b.Property<bool?>("ResolucaoCumprida")
+                        .HasColumnType("boolean")
+                        .HasColumnName("resolucao_cumprida");
+
+                    b.Property<bool>("ResolucaoViolada")
+                        .HasColumnType("boolean")
+                        .HasColumnName("resolucao_violada");
+
+                    b.Property<bool>("UsarHorarioComercial")
+                        .HasColumnType("boolean")
+                        .HasColumnName("usar_horario_comercial");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CalendarioCorporativoId");
+
+                    b.HasIndex("ChamadoId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_chamado_slas_chamado_id");
+
+                    b.HasIndex("PoliticaSlaId");
+
+                    b.HasIndex("PrazoResolucao")
+                        .HasDatabaseName("ix_chamado_slas_prazo_resolucao");
+
+                    b.HasIndex("PrioridadeId");
+
+                    b.ToTable("chamado_slas", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ComentarioChamado", b =>
                 {
                     b.Property<Guid>("Id")
@@ -309,6 +514,75 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("comentarios_chamado", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ConfiguracaoAlertaSla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<int>("MinutosAntesVencimentoPrimeiraResposta")
+                        .HasColumnType("integer")
+                        .HasColumnName("minutos_antes_vencimento_primeira_resposta");
+
+                    b.Property<int>("MinutosAntesVencimentoResolucao")
+                        .HasColumnType("integer")
+                        .HasColumnName("minutos_antes_vencimento_resolucao");
+
+                    b.Property<bool>("NotificarAtendente")
+                        .HasColumnType("boolean")
+                        .HasColumnName("notificar_atendente");
+
+                    b.Property<bool>("NotificarDepartamento")
+                        .HasColumnType("boolean")
+                        .HasColumnName("notificar_departamento");
+
+                    b.Property<bool>("NotificarGestor")
+                        .HasColumnType("boolean")
+                        .HasColumnName("notificar_gestor");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuracoes_alerta_sla", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565621"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            MinutosAntesVencimentoPrimeiraResposta = 30,
+                            MinutosAntesVencimentoResolucao = 120,
+                            NotificarAtendente = true,
+                            NotificarDepartamento = false,
+                            NotificarGestor = false
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Departamento", b =>
@@ -367,6 +641,138 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("departamentos", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EventoSla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<Guid>("ChamadoSlaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_sla_id");
+
+                    b.Property<string>("ChaveIdempotencia")
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)")
+                        .HasColumnName("chave_idempotencia");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<DateTime>("DataEvento")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_evento");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<int>("TipoEvento")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_evento");
+
+                    b.Property<Guid?>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_eventos_sla_chamado_id");
+
+                    b.HasIndex("ChamadoSlaId")
+                        .HasDatabaseName("ix_eventos_sla_chamado_sla_id");
+
+                    b.HasIndex("ChaveIdempotencia")
+                        .IsUnique()
+                        .HasDatabaseName("ux_eventos_sla_chave_idempotencia")
+                        .HasFilter("chave_idempotencia IS NOT NULL");
+
+                    b.HasIndex("DataEvento")
+                        .HasDatabaseName("ix_eventos_sla_data_evento");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("eventos_sla", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ExcecaoCalendarioCorporativo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CalendarioCorporativoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calendario_corporativo_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<DateOnly>("Data")
+                        .HasColumnType("date")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<TimeOnly?>("HoraFim")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("hora_fim");
+
+                    b.Property<TimeOnly?>("HoraInicio")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("hora_inicio");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CalendarioCorporativoId", "Data")
+                        .HasDatabaseName("ix_excecoes_calendario_corporativo_data");
+
+                    b.ToTable("excecoes_calendario_corporativo", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HistoricoChamado", b =>
                 {
                     b.Property<Guid>("Id")
@@ -409,6 +815,117 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("historicos_chamado", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HorarioAtendimentoCalendario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CalendarioCorporativoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calendario_corporativo_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("integer")
+                        .HasColumnName("dia_semana");
+
+                    b.Property<TimeOnly>("HoraFim")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("hora_fim");
+
+                    b.Property<TimeOnly>("HoraInicio")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("hora_inicio");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CalendarioCorporativoId", "DiaSemana")
+                        .HasDatabaseName("ix_horarios_atendimento_calendario_dia");
+
+                    b.ToTable("horarios_atendimento_calendario", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565711"),
+                            Ativo = true,
+                            CalendarioCorporativoId = new Guid("56565656-5656-5656-5656-565656565701"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            DiaSemana = 1,
+                            HoraFim = new TimeOnly(18, 0, 0),
+                            HoraInicio = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565712"),
+                            Ativo = true,
+                            CalendarioCorporativoId = new Guid("56565656-5656-5656-5656-565656565701"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            DiaSemana = 2,
+                            HoraFim = new TimeOnly(18, 0, 0),
+                            HoraInicio = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565713"),
+                            Ativo = true,
+                            CalendarioCorporativoId = new Guid("56565656-5656-5656-5656-565656565701"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            DiaSemana = 3,
+                            HoraFim = new TimeOnly(18, 0, 0),
+                            HoraInicio = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565714"),
+                            Ativo = true,
+                            CalendarioCorporativoId = new Guid("56565656-5656-5656-5656-565656565701"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            DiaSemana = 4,
+                            HoraFim = new TimeOnly(18, 0, 0),
+                            HoraInicio = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565715"),
+                            Ativo = true,
+                            CalendarioCorporativoId = new Guid("56565656-5656-5656-5656-565656565701"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            DiaSemana = 5,
+                            HoraFim = new TimeOnly(18, 0, 0),
+                            HoraInicio = new TimeOnly(9, 0, 0)
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.LogIntegracaoEmail", b =>
@@ -529,6 +1046,117 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_logs_integracao_email_status");
 
                     b.ToTable("logs_integracao_email", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MetaSla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("PoliticaSlaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("politica_sla_id");
+
+                    b.Property<Guid>("PrioridadeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("prioridade_id");
+
+                    b.Property<int?>("TempoAtualizacaoMinutos")
+                        .HasColumnType("integer")
+                        .HasColumnName("tempo_atualizacao_minutos");
+
+                    b.Property<int>("TempoPrimeiraRespostaMinutos")
+                        .HasColumnType("integer")
+                        .HasColumnName("tempo_primeira_resposta_minutos");
+
+                    b.Property<int>("TempoResolucaoMinutos")
+                        .HasColumnType("integer")
+                        .HasColumnName("tempo_resolucao_minutos");
+
+                    b.Property<int?>("TempoRespostaSubsequenteMinutos")
+                        .HasColumnType("integer")
+                        .HasColumnName("tempo_resposta_subsequente_minutos");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrioridadeId");
+
+                    b.HasIndex("PoliticaSlaId", "PrioridadeId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_sla_metas_politica_prioridade");
+
+                    b.ToTable("sla_metas", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565611"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            PoliticaSlaId = new Guid("56565656-5656-5656-5656-565656565601"),
+                            PrioridadeId = new Guid("55555555-5555-5555-5555-555555555551"),
+                            TempoPrimeiraRespostaMinutos = 480,
+                            TempoResolucaoMinutos = 2880
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565612"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            PoliticaSlaId = new Guid("56565656-5656-5656-5656-565656565601"),
+                            PrioridadeId = new Guid("55555555-5555-5555-5555-555555555552"),
+                            TempoPrimeiraRespostaMinutos = 240,
+                            TempoResolucaoMinutos = 1440
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565613"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            PoliticaSlaId = new Guid("56565656-5656-5656-5656-565656565601"),
+                            PrioridadeId = new Guid("55555555-5555-5555-5555-555555555553"),
+                            TempoPrimeiraRespostaMinutos = 60,
+                            TempoResolucaoMinutos = 480
+                        },
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565614"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            PoliticaSlaId = new Guid("56565656-5656-5656-5656-565656565601"),
+                            PrioridadeId = new Guid("55555555-5555-5555-5555-555555555554"),
+                            TempoPrimeiraRespostaMinutos = 30,
+                            TempoResolucaoMinutos = 240
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ParametroSistema", b =>
@@ -990,40 +1618,40 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888836"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999036")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888837"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999037")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888838"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999038")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888839"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999039")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888840"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999040")
@@ -1031,7 +1659,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999041")
@@ -1039,7 +1667,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999042")
@@ -1047,7 +1675,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999043")
@@ -1055,7 +1683,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999044")
@@ -1063,7 +1691,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999045")
@@ -1071,7 +1699,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999046")
@@ -1079,7 +1707,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999047")
@@ -1087,7 +1715,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999048")
@@ -1095,7 +1723,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999049")
@@ -1103,7 +1731,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999050")
@@ -1111,7 +1739,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999051")
@@ -1119,7 +1747,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999052")
@@ -1127,10 +1755,58 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999053")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999054")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999055")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999056")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999057")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999058")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888836"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999059")
                         },
                         new
                         {
@@ -1138,7 +1814,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999054")
+                            Id = new Guid("99999999-9999-9999-9999-999999999060")
                         },
                         new
                         {
@@ -1146,7 +1822,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888804"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999055")
+                            Id = new Guid("99999999-9999-9999-9999-999999999061")
                         },
                         new
                         {
@@ -1154,7 +1830,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999056")
+                            Id = new Guid("99999999-9999-9999-9999-999999999062")
                         },
                         new
                         {
@@ -1162,7 +1838,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999057")
+                            Id = new Guid("99999999-9999-9999-9999-999999999063")
                         },
                         new
                         {
@@ -1170,7 +1846,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999058")
+                            Id = new Guid("99999999-9999-9999-9999-999999999064")
                         });
                 });
 
@@ -1589,6 +2265,149 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Modulo = "Usuarios"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888836"),
+                            Acao = "Visualizar",
+                            Ativo = true,
+                            Codigo = "Sla.Visualizar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Sla"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888837"),
+                            Acao = "Criar",
+                            Ativo = true,
+                            Codigo = "Sla.Criar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Sla"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888838"),
+                            Acao = "Editar",
+                            Ativo = true,
+                            Codigo = "Sla.Editar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Sla"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888839"),
+                            Acao = "Excluir",
+                            Ativo = true,
+                            Codigo = "Sla.Excluir",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Sla"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888840"),
+                            Acao = "AtivarDesativar",
+                            Ativo = true,
+                            Codigo = "Sla.AtivarDesativar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "Sla"
+                        });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PoliticaSla", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("CalendarioCorporativoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("calendario_corporativo_id");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid?>("DepartamentoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("departamento_id");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("nome");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem");
+
+                    b.Property<bool>("PausarQuandoAguardandoSolicitante")
+                        .HasColumnType("boolean")
+                        .HasColumnName("pausar_quando_aguardando_solicitante");
+
+                    b.Property<bool>("UsarHorarioComercial")
+                        .HasColumnType("boolean")
+                        .HasColumnName("usar_horario_comercial");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CalendarioCorporativoId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("DepartamentoId");
+
+                    b.HasIndex("Ordem")
+                        .HasDatabaseName("ix_sla_politicas_ordem");
+
+                    b.ToTable("sla_politicas", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("56565656-5656-5656-5656-565656565601"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Política inicial de SLA do SGX Sistema de Chamados, usada como base para controle de primeira resposta e resolução dos chamados.",
+                            Nome = "SLA Padrão",
+                            Ordem = 1,
+                            PausarQuandoAguardandoSolicitante = true,
+                            UsarHorarioComercial = false
                         });
                 });
 
@@ -3426,6 +4245,972 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 27,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
                             Titulo = "Registrar evidências formais de homologação."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707701"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 1,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Entidade de política de SLA criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707702"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Entidade de metas de SLA criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707703"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Migration das tabelas de SLA criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707704"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Seed inicial de SLA padrão criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707705"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "DTOs de SLA criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707706"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Service de SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707707"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Endpoints administrativos criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707708"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Permissões administrativas de SLA criadas."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707709"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Tela administrativa básica criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707710"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Validações de duplicidade e campos obrigatórios criadas."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707711"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Testes automatizados da camada de service criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707712"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Testes de endpoints administrativos criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707713"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 1",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Documentação técnica inicial criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707714"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Tabela de SLA aplicado ao chamado criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707715"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Relacionamento entre chamado e SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707716"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Service de cálculo de SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707717"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Política aplicável identificada por prioridade/categoria/departamento."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707718"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "SLA aplicado na criação do chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707719"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Prazo de primeira resposta calculado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707720"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Prazo de resolução calculado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707721"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Primeira resposta registrada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707722"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Resolução registrada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707723"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Pausa de SLA preparada ou implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707724"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Situação atual do SLA calculada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707725"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "SLA exibido no detalhe do chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707726"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "SLA exibido na listagem administrativa."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707727"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Filtros administrativos de SLA criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707728"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "DTOs de chamado atualizados com resumo de SLA."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707729"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Testes automatizados criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707730"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 2",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Documentação atualizada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707731"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Configuração de alerta de SLA criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707732"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Tela administrativa de configuração de alerta criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707733"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Endpoints de configuração de alerta criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707734"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 34,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Job de verificação de SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707735"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 35,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Periodicidade configurável por appsettings criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707736"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 36,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Controle contra notificações/eventos duplicados criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707737"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 37,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Histórico de eventos de SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707738"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 38,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resolução, pausa e retomada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707739"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 39,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Painel de indicadores de SLA criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707740"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 40,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicador de SLA vencido criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707741"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 41,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicador de SLA próximo do vencimento criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707742"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 42,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicador de percentual de cumprimento criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707743"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 43,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Métrica de tempo médio de primeira resposta criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707744"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 44,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Métrica de tempo médio de resolução criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707745"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 45,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicadores por prioridade criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707746"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 46,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicadores por categoria criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707747"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 47,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Indicadores por departamento criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707748"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 48,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Histórico de SLA exibido no detalhe administrativo do chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707749"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 49,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Estrutura preparada para exportação futura."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707750"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 50,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Documentação atualizada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707751"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 3",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 51,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Testes automatizados criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707752"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 52,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Entidade CalendarioCorporativo criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707753"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 53,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Entidade HorarioAtendimentoCalendario criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707754"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 54,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Entidade ExcecaoCalendarioCorporativo criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707755"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 55,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Migrations de calendário criadas."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707756"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 56,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Seed do calendário padrão criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707757"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 57,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Relacionamento entre Política SLA e Calendário criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707758"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 58,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Service administrativo de calendário criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707759"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 59,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Service de cálculo de tempo útil criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707760"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 60,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Cálculo de prazo de primeira resposta usando horário comercial implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707761"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 61,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Cálculo de prazo de resolução usando horário comercial implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707762"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 62,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Cálculo de minutos úteis de primeira resposta implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707763"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 63,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Cálculo de minutos úteis de resolução implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707764"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 64,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Endpoints administrativos de calendário criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707765"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 65,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Tela Admin > SLA > Calendários criada."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707766"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 66,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Tela de política SLA atualizada com seleção de calendário."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707767"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 67,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Detalhe do chamado mostra tipo de cálculo e calendário usado."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707768"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 68,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Testes automatizados criados."
+                        },
+                        new
+                        {
+                            Id = new Guid("70707070-7070-7070-7070-707070707769"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist da Sprint 4",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 69,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
+                            Titulo = "Documentação atualizada."
                         });
                 });
 
@@ -3791,21 +5576,28 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777705"),
                             Area = "SLA",
-                            AtencaoTecnica = "Mostrar regra de prazo, pausa, resposta e encerramento",
+                            AtencaoTecnica = "O SLA não deve ser apenas um campo manual no chamado. Deve existir uma regra centralizada e auditável para cálculo de prazo. O sistema deve considerar prioridade, categoria, departamento responsável, horário útil, feriados, pausas/suspensões, reabertura de chamado e mudança de status. Evitar cálculo duplicado no frontend. A regra principal deve ficar no backend, com persistência dos marcos calculados no chamado para rastreabilidade.",
                             Ativo = true,
-                            Categoria = "Operacao",
+                            Categoria = "SLA",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
+                            CriterioAceite = "O sistema deve permitir cadastrar políticas de SLA e aplicá-las automaticamente aos chamados conforme as regras configuradas. Ao abrir ou atualizar um chamado, o backend deve calcular e persistir os prazos de primeira resposta, atendimento e/ou resolução, considerando prioridade, categoria, departamento, horário útil e regras de pausa/reabertura quando aplicável. O detalhe do chamado deve exibir o status do SLA de forma clara: dentro do prazo, próximo do vencimento, vencido ou suspenso. Administradores e gestores devem conseguir filtrar e acompanhar chamados por situação de SLA. O cálculo deve ser testável, centralizado no backend e validado por testes automatizados.",
                             Decisao = 4,
+                            EvidenciaImplementacao = "- docs/SLA.md\n- src/SGX.SistemaChamado.Domain/Entities/PoliticaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/MetaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/ChamadoSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/CalendarioCorporativo.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaService.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaCalculator.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaBusinessTimeCalculator.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaPoliciesController.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaCalendarsController.cs\n- tests/SGX.SistemaChamado.Tests/SlaServiceTests.cs",
                             Impacto = 1,
+                            Objetivo = "Permitir que o SGX Sistema de Chamados controle acordos de nível de serviço para chamados, definindo prazos de primeira resposta, atendimento e resolução conforme prioridade, categoria, departamento, tipo de solicitação e regras institucionais. O SLA deve apoiar gestão operacional, rastreabilidade, cobrança interna, indicadores e melhoria contínua do atendimento.",
+                            Observacao = "Status legado mantido para compatibilidade; o status real deve considerar StatusImplementacao, StatusTecnico e checklist ativo.",
                             Ordem = 5,
-                            PercentualImplementacao = 0,
+                            PendenciasHomologacao = "- Homologar cadastro de política de SLA.\n- Homologar abertura de chamado com cálculo automático de SLA.\n- Homologar SLA por prioridade.\n- Homologar SLA por categoria.\n- Homologar SLA por departamento responsável.\n- Homologar cálculo de vencimento com horário útil.\n- Homologar comportamento em chamado pausado ou aguardando solicitante.\n- Homologar comportamento em chamado reaberto.\n- Homologar exibição do SLA para atendente.\n- Homologar exibição do SLA para administrador/gestor.\n- Homologar filtros de chamados atrasados.\n- Homologar indicadores gerenciais.\n- Registrar evidências formais com prints, data, ambiente e usuário de teste.",
+                            PendenciasTecnicas = "- Validar cálculo de horário comercial em cenário real com volume institucional.\n- Evoluir calendário por departamento/time quando a governança estiver definida.\n- Evoluir importação automática de feriados nacionais/municipais.\n- Evoluir regras de reabertura para reaproveitamento de prazo remanescente.\n- Refinar política de proximidade do vencimento por canal/time.\n- Implementar alertas/notificações operacionais por SLA, se aplicável.\n- Consolidar trilha de auditoria e relatórios gerenciais de cumprimento.",
+                            PercentualImplementacao = 100,
                             Prioridade = 1,
+                            ProximaAcao = "Executar homologação funcional de ponta a ponta com usuários reais e validar regras de SLA em ambiente publicado, incluindo casos de pausa, reabertura e governança operacional.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666603"),
-                            SituacaoAtual = "Estrutura prevista com controle e configuracao",
-                            Status = 3,
-                            StatusImplementacao = 0,
-                            StatusTecnico = 0
+                            SituacaoAtual = "Sprints 1, 2, 3 e 4 implementadas e validadas funcionalmente, com políticas/metas, SLA aplicado aos chamados, alertas, eventos, monitoramento, painel gerencial e calendário corporativo para horário comercial.",
+                            Status = 4,
+                            StatusImplementacao = 3,
+                            StatusTecnico = 3
                         },
                         new
                         {
@@ -4553,6 +6345,39 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", "CalendarioCorporativo")
+                        .WithMany()
+                        .HasForeignKey("CalendarioCorporativoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithOne("ChamadoSla")
+                        .HasForeignKey("SGX.SistemaChamado.Domain.Entities.ChamadoSla", "ChamadoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.PoliticaSla", "PoliticaSla")
+                        .WithMany()
+                        .HasForeignKey("PoliticaSlaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", "Prioridade")
+                        .WithMany()
+                        .HasForeignKey("PrioridadeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CalendarioCorporativo");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("PoliticaSla");
+
+                    b.Navigation("Prioridade");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ComentarioChamado", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
@@ -4570,6 +6395,43 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Chamado");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EventoSla", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany("EventosSla")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.ChamadoSla", "ChamadoSla")
+                        .WithMany()
+                        .HasForeignKey("ChamadoSlaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("ChamadoSla");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ExcecaoCalendarioCorporativo", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", "CalendarioCorporativo")
+                        .WithMany("Excecoes")
+                        .HasForeignKey("CalendarioCorporativoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CalendarioCorporativo");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HistoricoChamado", b =>
@@ -4590,6 +6452,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HorarioAtendimentoCalendario", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", "CalendarioCorporativo")
+                        .WithMany("HorariosAtendimento")
+                        .HasForeignKey("CalendarioCorporativoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CalendarioCorporativo");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.LogIntegracaoEmail", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
@@ -4598,6 +6471,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Chamado");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MetaSla", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.PoliticaSla", "PoliticaSla")
+                        .WithMany("Metas")
+                        .HasForeignKey("PoliticaSlaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", "Prioridade")
+                        .WithMany()
+                        .HasForeignKey("PrioridadeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PoliticaSla");
+
+                    b.Navigation("Prioridade");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcessoPermissao", b =>
@@ -4617,6 +6509,30 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("PerfilAcesso");
 
                     b.Navigation("PermissaoSistema");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PoliticaSla", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", "CalendarioCorporativo")
+                        .WithMany()
+                        .HasForeignKey("CalendarioCorporativoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Departamento", "Departamento")
+                        .WithMany()
+                        .HasForeignKey("DepartamentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CalendarioCorporativo");
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Departamento");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RoadmapChecklistItem", b =>
@@ -4727,6 +6643,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", b =>
+                {
+                    b.Navigation("Excecoes");
+
+                    b.Navigation("HorariosAtendimento");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", b =>
                 {
                     b.Navigation("Chamados");
@@ -4738,7 +6661,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("Anexos");
 
+                    b.Navigation("ChamadoSla");
+
                     b.Navigation("Comentarios");
+
+                    b.Navigation("EventosSla");
 
                     b.Navigation("Historicos");
 
@@ -4766,6 +6693,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PermissaoSistema", b =>
                 {
                     b.Navigation("PerfilPermissoes");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PoliticaSla", b =>
+                {
+                    b.Navigation("Metas");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", b =>

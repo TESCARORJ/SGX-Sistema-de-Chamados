@@ -152,6 +152,7 @@ npm run build
 - `docs/EXECUCAO-LOCAL.md`
 - `docs/ARQUITETURA.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
+- `docs/SLA.md`
 
 ## Correções recentes - Integração Microsoft e senha por Administrador
 

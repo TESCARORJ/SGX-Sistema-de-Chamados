@@ -37,19 +37,6 @@ function formatarData(data: string | null): string {
   return new Date(data).toLocaleString('pt-BR')
 }
 
-function slaProximoVencimento(): boolean {
-  if (!detalhe.value?.sla) {
-    return false
-  }
-
-  const sla = detalhe.value.sla
-  if (sla.estaVencido || sla.estaPausado || sla.resolvidoEm) {
-    return false
-  }
-
-  return new Date(sla.prazoResolucaoEm).getTime() <= Date.now() + 4 * 60 * 60 * 1000
-}
-
 async function carregar(): Promise<void> {
   const id = String(route.params.id)
 
@@ -178,12 +165,16 @@ onMounted(carregar)
         <div class="q-mt-md row q-gutter-sm">
           <SlaBadge
             :vencido="detalhe.sla?.estaVencido"
-            :proximo="slaProximoVencimento()"
+            :proximo="detalhe.sla?.situacao === 'ProximoDoVencimento'"
             :pausado="detalhe.sla?.estaPausado"
+            :situacao="detalhe.sla?.situacao ?? 'NaoAplicavel'"
           />
 
           <q-chip dense square color="grey-3" text-color="grey-9" icon="schedule">
             Prazo resolução: {{ detalhe.sla ? formatarData(detalhe.sla.prazoResolucaoEm) : '-' }}
+          </q-chip>
+          <q-chip v-if="detalhe.sla" dense square color="grey-3" text-color="grey-9" icon="event_available">
+            {{ detalhe.sla.usarHorarioComercial ? 'Horário comercial' : 'Minutos corridos' }}
           </q-chip>
         </div>
       </AppSectionCard>

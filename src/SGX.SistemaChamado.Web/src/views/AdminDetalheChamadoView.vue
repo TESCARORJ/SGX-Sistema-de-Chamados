@@ -81,14 +81,7 @@ const chamadoReabrivel = computed(() => {
   return status.includes('encerrado') || status.includes('resolvido')
 })
 
-const slaProximo = computed(() => {
-  if (!detalhe.value?.sla) return false
-
-  const sla = detalhe.value.sla
-  if (sla.estaVencido || sla.estaPausado || sla.resolvidoEm) return false
-
-  return new Date(sla.prazoResolucaoEm).getTime() <= Date.now() + 4 * 60 * 60 * 1000
-})
+const slaProximo = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento')
 
 const atualizadoEm = computed(() => {
   if (!detalhe.value?.historico.length) {
@@ -394,7 +387,12 @@ onMounted(carregar)
         </q-list>
 
         <div class="q-mt-sm">
-          <SlaBadge :vencido="detalhe.sla?.estaVencido" :proximo="slaProximo" :pausado="detalhe.sla?.estaPausado" />
+          <SlaBadge
+            :vencido="detalhe.sla?.estaVencido"
+            :proximo="slaProximo"
+            :pausado="detalhe.sla?.estaPausado"
+            :situacao="detalhe.sla?.situacao ?? 'NaoAplicavel'"
+          />
         </div>
       </AppSectionCard>
 
@@ -405,7 +403,12 @@ onMounted(carregar)
               <q-item-section>
                 <q-item-label caption>Status atual</q-item-label>
                 <q-item-label>
-                  <SlaBadge :vencido="detalhe.sla?.estaVencido" :proximo="slaProximo" :pausado="detalhe.sla?.estaPausado" />
+                  <SlaBadge
+                    :vencido="detalhe.sla?.estaVencido"
+                    :proximo="slaProximo"
+                    :pausado="detalhe.sla?.estaPausado"
+                    :situacao="detalhe.sla?.situacao ?? 'NaoAplicavel'"
+                  />
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -425,6 +428,17 @@ onMounted(carregar)
               <q-item-section>
                 <q-item-label caption>Total pausado</q-item-label>
                 <q-item-label>{{ detalhe.sla?.totalMinutosPausado ?? 0 }} min</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>
+                <q-item-label caption>Tipo de cálculo</q-item-label>
+                <q-item-label>
+                  {{ detalhe.sla?.usarHorarioComercial ? 'Cálculo em horário comercial' : 'Cálculo em minutos corridos' }}
+                </q-item-label>
+                <q-item-label v-if="detalhe.sla?.usarHorarioComercial" caption>
+                  {{ detalhe.sla?.calendarioCorporativoNome || 'Calendário padrão' }}
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -492,6 +506,27 @@ onMounted(carregar)
           </AppSectionCard>
         </div>
       </div>
+
+      <AppSectionCard titulo="Histórico de SLA" subtitulo="Eventos de aplicação, alertas, pausa, resposta e resolução.">
+        <EmptyState
+          v-if="!detalhe.historicoSla.length"
+          titulo="Sem eventos de SLA"
+          mensagem="Nenhum evento de SLA foi registrado para este chamado."
+        />
+
+        <q-list v-else bordered separator>
+          <q-item v-for="evento in detalhe.historicoSla" :key="evento.id">
+            <q-item-section>
+              <q-item-label>{{ evento.tipoEventoDescricao }}</q-item-label>
+              <q-item-label caption>{{ evento.descricao }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-item-label caption>{{ formatarData(evento.dataEvento) }}</q-item-label>
+              <q-item-label caption>{{ evento.usuario || '-' }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </AppSectionCard>
 
       <AppSectionCard titulo="Anexos" subtitulo="Arquivos relacionados ao chamado.">
         <EmptyState v-if="!detalhe.anexos.length" titulo="Sem anexos" mensagem="Nenhum anexo foi enviado para este chamado." />

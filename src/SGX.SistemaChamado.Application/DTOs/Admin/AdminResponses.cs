@@ -1,4 +1,6 @@
-﻿namespace SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Domain.Enums;
+
+namespace SGX.SistemaChamado.Application.DTOs.Admin;
 
 public sealed record AdminUsuarioContextoResponse(
     Guid Id,
@@ -46,6 +48,10 @@ public sealed class ChamadoAdminResumoResponse
     public DateTime? EncerradoEm { get; init; }
     public bool SlaVencido { get; init; }
     public bool SlaProximoVencimento { get; init; }
+    public SituacaoSlaChamadoEnum SituacaoSla { get; init; } = SituacaoSlaChamadoEnum.NaoAplicavel;
+    public string? PoliticaSlaNome { get; init; }
+    public int? TempoRestanteMinutos { get; init; }
+    public int? TempoExcedidoMinutos { get; init; }
     public DateTime? PrazoPrimeiraRespostaEm { get; init; }
     public DateTime? PrimeiraRespostaEm { get; init; }
     public DateTime? PrazoResolucaoEm { get; init; }
@@ -74,6 +80,15 @@ public sealed record HistoricoAdminResponse(
     Guid? UsuarioId,
     string? Usuario);
 
+public sealed record EventoSlaAdminResponse(
+    Guid Id,
+    int TipoEvento,
+    string TipoEventoDescricao,
+    string Descricao,
+    DateTime DataEvento,
+    Guid? UsuarioId,
+    string? Usuario);
+
 public sealed record ComentarioAdminResponse(
     Guid Id,
     Guid UsuarioId,
@@ -92,13 +107,27 @@ public sealed record AnexoAdminResponse(
     string Usuario);
 
 public sealed record SlaAdminResponse(
+    string? PoliticaSlaNome,
+    string Prioridade,
+    DateTime DataInicio,
     DateTime PrazoPrimeiraRespostaEm,
     DateTime? PrimeiraRespostaEm,
     DateTime PrazoResolucaoEm,
     DateTime? ResolvidoEm,
+    bool? PrimeiraRespostaCumprida,
+    bool? ResolucaoCumprida,
+    bool PrimeiraRespostaViolada,
+    bool ResolucaoViolada,
     bool EstaVencido,
     bool EstaPausado,
-    int TotalMinutosPausado);
+    SituacaoSlaChamadoEnum Situacao,
+    int? MinutosPrimeiraResposta,
+    int? MinutosResolucao,
+    int? TempoRestanteMinutos,
+    int? TempoExcedidoMinutos,
+    int TotalMinutosPausado,
+    bool UsarHorarioComercial,
+    string? CalendarioCorporativoNome);
 
 public sealed class ChamadoAdminDetalheResponse
 {
@@ -118,5 +147,6 @@ public sealed class ChamadoAdminDetalheResponse
     public IReadOnlyCollection<ComentarioAdminResponse> Comentarios { get; init; } = [];
     public IReadOnlyCollection<AnexoAdminResponse> Anexos { get; init; } = [];
     public IReadOnlyCollection<HistoricoAdminResponse> Historico { get; init; } = [];
+    public IReadOnlyCollection<EventoSlaAdminResponse> HistoricoSla { get; init; } = [];
     public SlaAdminResponse? Sla { get; init; }
 }

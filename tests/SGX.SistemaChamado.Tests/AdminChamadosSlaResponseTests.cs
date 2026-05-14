@@ -54,10 +54,30 @@ public sealed class AdminChamadosSlaResponseTests
         context.Chamados.AddRange(chamadoVencido, chamadoProximo);
         await context.SaveChangesAsync();
 
-        var slaVencido = new SlaControle(chamadoVencido.Id, DateTime.UtcNow.AddHours(-8), DateTime.UtcNow.AddHours(-1), "teste");
+        var slaVencido = new ChamadoSla(
+            chamadoVencido.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow.AddHours(-8),
+            DateTime.UtcNow.AddHours(-6),
+            DateTime.UtcNow.AddHours(-1),
+            true,
+            false,
+            null,
+            "teste");
         slaVencido.RegistrarResolucao(DateTime.UtcNow, "teste");
-        var slaProximo = new SlaControle(chamadoProximo.Id, DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(2), "teste");
-        context.SlaControles.AddRange(slaVencido, slaProximo);
+        var slaProximo = new ChamadoSla(
+            chamadoProximo.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(30),
+            DateTime.UtcNow.AddMinutes(45),
+            true,
+            false,
+            null,
+            "teste");
+        context.ChamadosSla.AddRange(slaVencido, slaProximo);
         await context.SaveChangesAsync();
 
         return (AdminUseCasesTestFactory.Contexto(admin, "Administrador"), chamadoProximo.Id);

@@ -50,6 +50,7 @@ function formatarData(data: string | null): string {
           :vencido="props.chamado.slaVencido"
           :proximo="props.chamado.slaProximoVencimento"
           :pausado="props.chamado.estaPausado"
+          :situacao="props.chamado.situacaoSla"
         />
       </div>
     </q-card-section>

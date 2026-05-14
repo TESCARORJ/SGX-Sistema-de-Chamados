@@ -233,6 +233,7 @@ onMounted(async () => {
               :vencido="slotProps.row.slaVencido"
               :proximo="slotProps.row.slaProximoVencimento"
               :pausado="slotProps.row.estaPausado"
+              :situacao="slotProps.row.situacaoSla"
             />
           </q-td>
         </template>
@@ -282,6 +283,7 @@ onMounted(async () => {
                   :vencido="slotProps.row.slaVencido"
                   :proximo="slotProps.row.slaProximoVencimento"
                   :pausado="slotProps.row.estaPausado"
+                  :situacao="slotProps.row.situacaoSla"
                 />
 
                 <q-btn

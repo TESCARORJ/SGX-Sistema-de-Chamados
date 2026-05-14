@@ -24,6 +24,11 @@
   roadmapGerenciar: 'Roadmap.Gerenciar',
   roadmapImplementacoesVisualizar: 'RoadmapImplementacoes.Visualizar',
   roadmapImplementacoesGerenciar: 'RoadmapImplementacoes.Gerenciar',
+  slaVisualizar: 'Sla.Visualizar',
+  slaCriar: 'Sla.Criar',
+  slaEditar: 'Sla.Editar',
+  slaExcluir: 'Sla.Excluir',
+  slaAtivarDesativar: 'Sla.AtivarDesativar',
 } as const
 
 export const permissoesCriticas = [

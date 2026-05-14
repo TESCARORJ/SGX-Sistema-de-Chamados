@@ -28,6 +28,7 @@ watch(
   },
   { immediate: true }
 )
+
 function aplicar(): void {
   filtros.pagina = 1
   emit('filtrar', { ...filtros })
@@ -43,6 +44,7 @@ function limpar(): void {
   filtros.dataInicio = undefined
   filtros.dataFim = undefined
   filtros.slaVencido = undefined
+  filtros.slaSituacao = undefined
   filtros.texto = undefined
   filtros.pagina = 1
   filtros.tamanhoPagina = 20
@@ -56,7 +58,7 @@ function limpar(): void {
 <template>
   <q-form class="row q-col-gutter-sm" @submit.prevent="aplicar">
     <div class="col-12 col-md-3">
-      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="CÃ³digo, tÃ­tulo ou descriÃ§Ã£o" />
+      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
     </div>
 
     <div class="col-12 col-md-3">
@@ -115,7 +117,7 @@ function limpar(): void {
         map-options
         clearable
         outlined
-        label="ResponsÃ¡vel"
+        label="Responsável"
       />
     </div>
 
@@ -124,25 +126,30 @@ function limpar(): void {
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataInicio" type="date" outlined label="PerÃ­odo inicial" />
+      <q-input v-model="filtros.dataInicio" type="date" outlined label="Período inicial" />
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataFim" type="date" outlined label="PerÃ­odo final" />
+      <q-input v-model="filtros.dataFim" type="date" outlined label="Período final" />
     </div>
 
-    <div class="col-12 col-md-2">
+    <div class="col-12 col-md-3">
       <q-select
-        v-model="filtros.slaVencido"
+        v-model="filtros.slaSituacao"
         :options="[
           { label: 'Todos', value: undefined },
-          { label: 'SLA vencido', value: true },
-          { label: 'Sem vencimento', value: false },
+          { label: 'Não aplicável', value: 'NaoAplicavel' },
+          { label: 'Dentro do prazo', value: 'DentroDoPrazo' },
+          { label: 'Próximo do vencimento', value: 'ProximoDoVencimento' },
+          { label: 'Vencido', value: 'Vencido' },
+          { label: 'Cumprido', value: 'Cumprido' },
+          { label: 'Violado', value: 'Violado' },
+          { label: 'Pausado', value: 'Pausado' },
         ]"
         emit-value
         map-options
         outlined
-        label="SLA"
+        label="Situação SLA"
       />
     </div>
 
@@ -150,10 +157,10 @@ function limpar(): void {
       <q-select
         v-model="filtros.ordenarPor"
         :options="[
-          { label: 'AtualizaÃ§Ã£o', value: 'atualizadoEm' },
+          { label: 'Atualização', value: 'atualizadoEm' },
           { label: 'Abertura', value: 'abertoEm' },
-          { label: 'CÃ³digo', value: 'codigo' },
-          { label: 'TÃ­tulo', value: 'titulo' },
+          { label: 'Código', value: 'codigo' },
+          { label: 'Título', value: 'titulo' },
         ]"
         emit-value
         map-options
@@ -172,7 +179,7 @@ function limpar(): void {
         emit-value
         map-options
         outlined
-        label="DireÃ§Ã£o"
+        label="Direção"
       />
     </div>
 
@@ -182,4 +189,3 @@ function limpar(): void {
     </div>
   </q-form>
 </template>
-

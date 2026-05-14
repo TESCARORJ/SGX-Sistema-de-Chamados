@@ -18,4 +18,9 @@ public static class PermissoesConstants
     public const string RoadmapGerenciar = "Roadmap.Gerenciar";
     public const string RoadmapImplementacoesVisualizar = "RoadmapImplementacoes.Visualizar";
     public const string RoadmapImplementacoesGerenciar = "RoadmapImplementacoes.Gerenciar";
+    public const string SlaVisualizar = "Sla.Visualizar";
+    public const string SlaCriar = "Sla.Criar";
+    public const string SlaEditar = "Sla.Editar";
+    public const string SlaExcluir = "Sla.Excluir";
+    public const string SlaAtivarDesativar = "Sla.AtivarDesativar";
 }

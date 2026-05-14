@@ -96,10 +96,30 @@ public sealed class IndicadoresUseCaseTests
         context.Chamados.AddRange(chamado1, chamado2);
         await context.SaveChangesAsync();
 
-        var sla1 = new SlaControle(chamado1.Id, DateTime.UtcNow.AddHours(-3), DateTime.UtcNow.AddHours(1), "teste");
-        var sla2 = new SlaControle(chamado2.Id, DateTime.UtcNow.AddHours(-8), DateTime.UtcNow.AddHours(-1), "teste");
+        var sla1 = new ChamadoSla(
+            chamado1.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow.AddHours(-3),
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1),
+            true,
+            false,
+            null,
+            "teste");
+        var sla2 = new ChamadoSla(
+            chamado2.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow.AddHours(-8),
+            DateTime.UtcNow.AddHours(-6),
+            DateTime.UtcNow.AddHours(-1),
+            true,
+            false,
+            null,
+            "teste");
         sla2.RegistrarResolucao(DateTime.UtcNow, "teste");
-        context.SlaControles.AddRange(sla1, sla2);
+        context.ChamadosSla.AddRange(sla1, sla2);
         await context.SaveChangesAsync();
 
         return AdminUseCasesTestFactory.Contexto(admin, "Administrador");

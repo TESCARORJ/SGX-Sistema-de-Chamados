@@ -26,6 +26,7 @@ function buildQuery(params: FiltroChamadosAdmin): string {
   if (params.dataInicio) search.set('dataInicio', params.dataInicio)
   if (params.dataFim) search.set('dataFim', params.dataFim)
   if (typeof params.slaVencido === 'boolean') search.set('slaVencido', String(params.slaVencido))
+  if (params.slaSituacao) search.set('slaSituacao', params.slaSituacao)
   if (params.texto) search.set('texto', params.texto)
   if (params.pagina) search.set('pagina', String(params.pagina))
   if (params.tamanhoPagina) search.set('tamanhoPagina', String(params.tamanhoPagina))

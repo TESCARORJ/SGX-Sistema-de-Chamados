@@ -1,3 +1,5 @@
+using SGX.SistemaChamado.Domain.Enums;
+
 namespace SGX.SistemaChamado.Application.DTOs.Portal;
 
 public sealed record ComentarioChamadoResponse(
@@ -26,13 +28,27 @@ public sealed record HistoricoChamadoResponse(
     string? Usuario);
 
 public sealed record SlaResumoResponse(
+    string? PoliticaSlaNome,
+    string Prioridade,
+    DateTime DataInicio,
     DateTime PrazoPrimeiraRespostaEm,
     DateTime? PrimeiraRespostaEm,
     DateTime PrazoResolucaoEm,
     DateTime? ResolvidoEm,
+    bool? PrimeiraRespostaCumprida,
+    bool? ResolucaoCumprida,
+    bool PrimeiraRespostaViolada,
+    bool ResolucaoViolada,
     bool EstaVencido,
     bool EstaPausado,
-    int TotalMinutosPausado);
+    SituacaoSlaChamadoEnum Situacao,
+    int? MinutosPrimeiraResposta,
+    int? MinutosResolucao,
+    int? TempoRestanteMinutos,
+    int? TempoExcedidoMinutos,
+    int TotalMinutosPausado,
+    bool UsarHorarioComercial,
+    string? CalendarioCorporativoNome);
 
 public sealed class ChamadoDetalheResponse
 {

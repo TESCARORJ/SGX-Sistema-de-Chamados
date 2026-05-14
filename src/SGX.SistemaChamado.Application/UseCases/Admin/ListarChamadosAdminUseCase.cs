@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
+using SGX.SistemaChamado.Application.Services.Sla;
 using SGX.SistemaChamado.Domain.Entities;
+using SGX.SistemaChamado.Domain.Enums;
 
 namespace SGX.SistemaChamado.Application.UseCases.Admin;
 
@@ -27,7 +29,8 @@ public sealed class ListarChamadosAdminUseCase(
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
             .Include(x => x.Departamento)
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .Where(x => x.Ativo)
             .AsQueryable();
 
@@ -74,7 +77,35 @@ public sealed class ListarChamadosAdminUseCase(
 
         if (request.SlaVencido.HasValue)
         {
-            query = query.Where(x => x.SlaControle != null && x.SlaControle.EstaVencido == request.SlaVencido.Value);
+            query = request.SlaVencido.Value
+                ? query.Where(x => x.ChamadoSla != null && (x.ChamadoSla.ResolucaoViolada || (x.ChamadoSla.DataResolucao == null && x.ChamadoSla.PrazoResolucao < DateTime.UtcNow)))
+                : query.Where(x => x.ChamadoSla == null || (!x.ChamadoSla.ResolucaoViolada && (x.ChamadoSla.DataResolucao != null || x.ChamadoSla.PrazoResolucao >= DateTime.UtcNow)));
+        }
+
+        if (request.SlaSituacao.HasValue)
+        {
+            var agora = DateTime.UtcNow;
+            var limiteProximo = agora.AddMinutes(60);
+            query = request.SlaSituacao.Value switch
+            {
+                SituacaoSlaChamadoEnum.NaoAplicavel => query.Where(x => x.ChamadoSla == null),
+                SituacaoSlaChamadoEnum.Pausado => query.Where(x => x.ChamadoSla != null && x.ChamadoSla.Pausado),
+                SituacaoSlaChamadoEnum.Cumprido => query.Where(x => x.ChamadoSla != null && x.ChamadoSla.DataResolucao != null && !x.ChamadoSla.ResolucaoViolada),
+                SituacaoSlaChamadoEnum.Violado => query.Where(x => x.ChamadoSla != null && x.ChamadoSla.DataResolucao != null && x.ChamadoSla.ResolucaoViolada),
+                SituacaoSlaChamadoEnum.Vencido => query.Where(x => x.ChamadoSla != null && x.ChamadoSla.DataResolucao == null && x.ChamadoSla.PrazoResolucao < agora),
+                SituacaoSlaChamadoEnum.ProximoDoVencimento => query.Where(x =>
+                    x.ChamadoSla != null &&
+                    !x.ChamadoSla.Pausado &&
+                    x.ChamadoSla.DataResolucao == null &&
+                    x.ChamadoSla.PrazoResolucao >= agora &&
+                    x.ChamadoSla.PrazoResolucao <= limiteProximo),
+                SituacaoSlaChamadoEnum.DentroDoPrazo => query.Where(x =>
+                    x.ChamadoSla != null &&
+                    !x.ChamadoSla.Pausado &&
+                    x.ChamadoSla.DataResolucao == null &&
+                    x.ChamadoSla.PrazoResolucao > agora),
+                _ => query
+            };
         }
 
         if (!string.IsNullOrWhiteSpace(request.Texto))

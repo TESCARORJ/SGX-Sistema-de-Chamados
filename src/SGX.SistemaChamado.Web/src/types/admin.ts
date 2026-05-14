@@ -1,5 +1,14 @@
-﻿import type { AnexoChamado } from './anexo'
+import type { AnexoChamado } from './anexo'
 import type { ComentarioChamado } from './comentario'
+
+export type SituacaoSlaChamado =
+  | 'NaoAplicavel'
+  | 'DentroDoPrazo'
+  | 'ProximoDoVencimento'
+  | 'Vencido'
+  | 'Cumprido'
+  | 'Violado'
+  | 'Pausado'
 
 export interface AdminUsuarioContexto {
   id: string
@@ -60,6 +69,7 @@ export interface FiltroChamadosAdmin {
   dataInicio?: string
   dataFim?: string
   slaVencido?: boolean
+  slaSituacao?: SituacaoSlaChamado
   texto?: string
   pagina?: number
   tamanhoPagina?: number
@@ -83,6 +93,10 @@ export interface ChamadoAdminResumo {
   encerradoEm: string | null
   slaVencido: boolean
   slaProximoVencimento: boolean
+  situacaoSla: SituacaoSlaChamado
+  politicaSlaNome: string | null
+  tempoRestanteMinutos: number | null
+  tempoExcedidoMinutos: number | null
   prazoPrimeiraRespostaEm: string | null
   primeiraRespostaEm: string | null
   prazoResolucaoEm: string | null
@@ -114,14 +128,38 @@ export interface HistoricoAdmin {
   usuario: string | null
 }
 
+export interface EventoSlaAdmin {
+  id: string
+  tipoEvento: number
+  tipoEventoDescricao: string
+  descricao: string
+  dataEvento: string
+  usuarioId: string | null
+  usuario: string | null
+}
+
 export interface SlaAdmin {
+  politicaSlaNome: string | null
+  prioridade: string
+  dataInicio: string
   prazoPrimeiraRespostaEm: string
   primeiraRespostaEm: string | null
   prazoResolucaoEm: string
   resolvidoEm: string | null
+  primeiraRespostaCumprida: boolean | null
+  resolucaoCumprida: boolean | null
+  primeiraRespostaViolada: boolean
+  resolucaoViolada: boolean
   estaVencido: boolean
   estaPausado: boolean
+  situacao: SituacaoSlaChamado
+  minutosPrimeiraResposta: number | null
+  minutosResolucao: number | null
+  tempoRestanteMinutos: number | null
+  tempoExcedidoMinutos: number | null
   totalMinutosPausado: number
+  usarHorarioComercial: boolean
+  calendarioCorporativoNome: string | null
 }
 
 export interface ChamadoAdminDetalhe {
@@ -141,6 +179,7 @@ export interface ChamadoAdminDetalhe {
   comentarios: ComentarioChamado[]
   anexos: AnexoChamado[]
   historico: HistoricoAdmin[]
+  historicoSla: EventoSlaAdmin[]
   sla: SlaAdmin | null
 }
 

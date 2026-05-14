@@ -1,4 +1,4 @@
-﻿using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.UseCases.Portal;
@@ -36,6 +36,34 @@ public sealed class ComentarioAdminChamadoUseCaseTests
     }
 
     [Fact]
+    public async Task ComentarioPublicoRegistraPrimeiraRespostaDoSla()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var agora = DateTime.UtcNow;
+        var sla = new ChamadoSla(
+            dados.Chamado.Id,
+            null,
+            dados.Chamado.PrioridadeId,
+            agora.AddMinutes(-10),
+            agora.AddMinutes(30),
+            agora.AddHours(2),
+            true,
+            false,
+            null,
+            "teste");
+        context.ChamadosSla.Add(sla);
+        await context.SaveChangesAsync();
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        await useCase.ExecutarAsync(dados.Chamado.Id, new ComentarioAdminChamadoRequest { Mensagem = "Resposta publica", Interno = false });
+
+        Assert.NotNull(sla.DataPrimeiraResposta);
+        Assert.True(sla.PrimeiraRespostaCumprida);
+        Assert.False(sla.PrimeiraRespostaViolada);
+    }
+
+    [Fact]
     public async Task ComentarioInternoNaoApareceNoPortalDoSolicitante()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
@@ -59,6 +87,7 @@ public sealed class ComentarioAdminChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<Chamado>(context),
             PortalUseCasesTestFactory.Repo<ComentarioChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(contexto),
             PortalUseCasesTestFactory.Uow(context));
 

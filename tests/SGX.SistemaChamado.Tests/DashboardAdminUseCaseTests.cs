@@ -127,13 +127,45 @@ public sealed class DashboardAdminUseCaseTests
         context.Chamados.AddRange(chamadoVencido, chamadoProximo, chamadoSemResponsavel);
         await context.SaveChangesAsync();
 
-        var vencido = new SlaControle(chamadoVencido.Id, DateTime.UtcNow.AddHours(-8), DateTime.UtcNow.AddHours(-1), "teste");
+        var vencido = new ChamadoSla(
+            chamadoVencido.Id,
+            null,
+            prioridadeAlta.Id,
+            DateTime.UtcNow.AddHours(-8),
+            DateTime.UtcNow.AddHours(-6),
+            DateTime.UtcNow.AddHours(-1),
+            true,
+            false,
+            null,
+            "teste");
         vencido.RegistrarResolucao(DateTime.UtcNow, "teste");
-        var proximo = new SlaControle(chamadoProximo.Id, DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(2), "teste");
-        var normal = new SlaControle(chamadoSemResponsavel.Id, DateTime.UtcNow.AddHours(2), DateTime.UtcNow.AddHours(10), "teste");
+
+        var proximo = new ChamadoSla(
+            chamadoProximo.Id,
+            null,
+            prioridadeAlta.Id,
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddHours(1),
+            DateTime.UtcNow.AddMinutes(50),
+            true,
+            false,
+            null,
+            "teste");
+
+        var normal = new ChamadoSla(
+            chamadoSemResponsavel.Id,
+            null,
+            prioridadeAlta.Id,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddHours(2),
+            DateTime.UtcNow.AddHours(10),
+            true,
+            false,
+            null,
+            "teste");
         normal.IniciarPausa(DateTime.UtcNow.AddMinutes(-20), "teste");
 
-        context.SlaControles.AddRange(vencido, proximo, normal);
+        context.ChamadosSla.AddRange(vencido, proximo, normal);
         await context.SaveChangesAsync();
 
         return (

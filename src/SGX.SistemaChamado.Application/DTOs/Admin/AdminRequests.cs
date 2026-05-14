@@ -1,4 +1,6 @@
-﻿namespace SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Domain.Enums;
+
+namespace SGX.SistemaChamado.Application.DTOs.Admin;
 
 public sealed class FiltroChamadosAdminRequest
 {
@@ -11,6 +13,7 @@ public sealed class FiltroChamadosAdminRequest
     public DateTime? DataInicio { get; init; }
     public DateTime? DataFim { get; init; }
     public bool? SlaVencido { get; init; }
+    public SituacaoSlaChamadoEnum? SlaSituacao { get; init; }
     public string? Texto { get; init; }
     public int Pagina { get; init; } = 1;
     public int TamanhoPagina { get; init; } = 20;

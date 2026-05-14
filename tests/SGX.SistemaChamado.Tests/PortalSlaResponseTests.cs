@@ -54,9 +54,29 @@ public sealed class PortalSlaResponseTests
         context.Chamados.AddRange(meuChamado, outroChamado);
         await context.SaveChangesAsync();
 
-        var meuSla = new SlaControle(meuChamado.Id, DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(2), "teste");
-        var outroSla = new SlaControle(outroChamado.Id, DateTime.UtcNow.AddHours(2), DateTime.UtcNow.AddHours(10), "teste");
-        context.SlaControles.AddRange(meuSla, outroSla);
+        var meuSla = new ChamadoSla(
+            meuChamado.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow.AddHours(-1),
+            DateTime.UtcNow.AddMinutes(30),
+            DateTime.UtcNow.AddMinutes(40),
+            true,
+            false,
+            null,
+            "teste");
+        var outroSla = new ChamadoSla(
+            outroChamado.Id,
+            null,
+            prioridade.Id,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddHours(2),
+            DateTime.UtcNow.AddHours(10),
+            true,
+            false,
+            null,
+            "teste");
+        context.ChamadosSla.AddRange(meuSla, outroSla);
         await context.SaveChangesAsync();
 
         return (new UsuarioContextoAplicacao(solicitante.Id, solicitante.Nome, solicitante.Email, solicitante.Login, ["Solicitante"]), meuChamado.Id);

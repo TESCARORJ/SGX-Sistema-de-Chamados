@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
@@ -36,7 +36,7 @@ public sealed class AtribuirChamadoUseCase(
         }
 
         var chamado = await chamadoRepository.Query()
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 

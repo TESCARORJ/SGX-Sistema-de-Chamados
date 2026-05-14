@@ -20,7 +20,8 @@ public sealed class ListarMeusChamadosUseCase(
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
             .Include(x => x.Departamento)
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .AsQueryable();
 
         var podeVisaoAmpliada = request.VisaoAmpliada && PortalUseCaseHelpers.PodeVisaoAmpliada(usuarioAtual);

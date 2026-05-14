@@ -37,6 +37,10 @@ const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetal
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
 const IntegracaoMicrosoftEntraIdView = () => import('../views/IntegracaoMicrosoftEntraIdView.vue')
 const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
+const SlaPoliciesAdminView = () => import('../views/SlaPoliciesAdminView.vue')
+const SlaAlertasAdminView = () => import('../views/SlaAlertasAdminView.vue')
+const SlaDashboardAdminView = () => import('../views/SlaDashboardAdminView.vue')
+const SlaCalendariosAdminView = () => import('../views/SlaCalendariosAdminView.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -226,6 +230,26 @@ const routes: RouteRecordRaw[] = [
         path: 'integracoes/microsoft-entra-id',
         name: 'admin-integracoes-microsoft-entra-id',
         component: IntegracaoMicrosoftEntraIdView,
+      },
+      {
+        path: 'sla/policies',
+        name: 'admin-sla-policies',
+        component: SlaPoliciesAdminView,
+      },
+      {
+        path: 'sla/alertas',
+        name: 'admin-sla-alertas',
+        component: SlaAlertasAdminView,
+      },
+      {
+        path: 'sla/calendarios',
+        name: 'admin-sla-calendarios',
+        component: SlaCalendariosAdminView,
+      },
+      {
+        path: 'sla/painel',
+        name: 'admin-sla-painel',
+        component: SlaDashboardAdminView,
       },
       {
         path: 'roadmap-itsm',

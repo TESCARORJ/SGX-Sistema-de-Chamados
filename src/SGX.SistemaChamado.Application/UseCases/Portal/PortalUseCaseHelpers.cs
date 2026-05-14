@@ -16,6 +16,9 @@ internal static class PortalUseCaseHelpers
 
     public static ChamadoResumoResponse MapResumo(Chamado chamado)
     {
+        var agora = DateTime.UtcNow;
+        var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
+
         return new ChamadoResumoResponse
         {
             Id = chamado.Id,
@@ -27,14 +30,18 @@ internal static class PortalUseCaseHelpers
             Departamento = chamado.Departamento?.Nome,
             AbertoEm = chamado.AbertoEm,
             AtualizadoEm = chamado.AtualizadoEm,
-            SlaVencido = chamado.SlaControle?.EstaVencido ?? false,
-            SlaProximoVencimento = SlaRules.EstaProximoDoVencimento(chamado.SlaControle, DateTime.UtcNow),
-            PrazoPrimeiraRespostaEm = chamado.SlaControle?.PrazoPrimeiraRespostaEm,
-            PrimeiraRespostaEm = chamado.SlaControle?.PrimeiraRespostaEm,
-            PrazoResolucaoEm = chamado.SlaControle?.PrazoResolucaoEm,
-            ResolvidoEm = chamado.SlaControle?.ResolvidoEm,
-            EstaPausado = chamado.SlaControle?.EstaPausado ?? false,
-            TotalMinutosPausado = chamado.SlaControle?.TotalMinutosPausado ?? 0
+            SlaVencido = situacao is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado,
+            SlaProximoVencimento = situacao == SituacaoSlaChamadoEnum.ProximoDoVencimento,
+            SituacaoSla = situacao,
+            PoliticaSlaNome = chamado.ChamadoSla?.PoliticaSla?.Nome,
+            TempoRestanteMinutos = SlaRules.CalcularTempoRestanteMinutos(chamado.ChamadoSla, agora),
+            TempoExcedidoMinutos = SlaRules.CalcularTempoExcedidoMinutos(chamado.ChamadoSla, agora),
+            PrazoPrimeiraRespostaEm = chamado.ChamadoSla?.PrazoPrimeiraResposta,
+            PrimeiraRespostaEm = chamado.ChamadoSla?.DataPrimeiraResposta,
+            PrazoResolucaoEm = chamado.ChamadoSla?.PrazoResolucao,
+            ResolvidoEm = chamado.ChamadoSla?.DataResolucao,
+            EstaPausado = chamado.ChamadoSla?.Pausado ?? false,
+            TotalMinutosPausado = chamado.ChamadoSla?.MinutosPausados ?? 0
         };
     }
 
@@ -47,6 +54,9 @@ internal static class PortalUseCaseHelpers
                 !(x.Tipo == TipoHistoricoChamado.ComentarioAdicionado &&
                   x.Descricao.Contains("interno", StringComparison.OrdinalIgnoreCase)));
         }
+
+        var agora = DateTime.UtcNow;
+        var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
 
         return new ChamadoDetalheResponse
         {
@@ -83,16 +93,30 @@ internal static class PortalUseCaseHelpers
                     x.UsuarioId,
                     x.Usuario?.Nome))
                 .ToArray(),
-            Sla = chamado.SlaControle is null
+            Sla = chamado.ChamadoSla is null
                 ? null
                 : new SlaResumoResponse(
-                    chamado.SlaControle.PrazoPrimeiraRespostaEm,
-                    chamado.SlaControle.PrimeiraRespostaEm,
-                    chamado.SlaControle.PrazoResolucaoEm,
-                    chamado.SlaControle.ResolvidoEm,
-                    chamado.SlaControle.EstaVencido,
-                    chamado.SlaControle.EstaPausado,
-                    chamado.SlaControle.TotalMinutosPausado)
+                    chamado.ChamadoSla.PoliticaSla?.Nome,
+                    chamado.Prioridade.Nome,
+                    chamado.ChamadoSla.DataInicio,
+                    chamado.ChamadoSla.PrazoPrimeiraResposta,
+                    chamado.ChamadoSla.DataPrimeiraResposta,
+                    chamado.ChamadoSla.PrazoResolucao,
+                    chamado.ChamadoSla.DataResolucao,
+                    chamado.ChamadoSla.PrimeiraRespostaCumprida,
+                    chamado.ChamadoSla.ResolucaoCumprida,
+                    chamado.ChamadoSla.PrimeiraRespostaViolada,
+                    chamado.ChamadoSla.ResolucaoViolada,
+                    situacao is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado,
+                    chamado.ChamadoSla.Pausado,
+                    situacao,
+                    chamado.ChamadoSla.MinutosPrimeiraResposta,
+                    chamado.ChamadoSla.MinutosResolucao,
+                    SlaRules.CalcularTempoRestanteMinutos(chamado.ChamadoSla, agora),
+                    SlaRules.CalcularTempoExcedidoMinutos(chamado.ChamadoSla, agora),
+                    chamado.ChamadoSla.MinutosPausados,
+                    chamado.ChamadoSla.UsarHorarioComercial,
+                    chamado.ChamadoSla.CalendarioCorporativo?.Nome)
         };
     }
 

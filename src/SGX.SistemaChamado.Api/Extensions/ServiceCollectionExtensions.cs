@@ -14,6 +14,7 @@ using SGX.SistemaChamado.Api.Options;
 using SGX.SistemaChamado.Api.Services;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Options;
 using SGX.SistemaChamado.Application.Validators;
 using SGX.SistemaChamado.Infrastructure;
 using System.IdentityModel.Tokens.Jwt;
@@ -45,6 +46,10 @@ public static class ServiceCollectionExtensions
             .Bind(configuration.GetSection(AzureAdOptions.SectionName))
             .ValidateOnStart();
 
+        services.AddOptions<SlaMonitoringOptions>()
+            .Bind(configuration.GetSection(SlaMonitoringOptions.SectionName))
+            .Validate(options => options.IntervalMinutes > 0, "IntervalMinutes deve ser maior que zero.");
+
         services.AddHttpContextAccessor();
         services.AddScoped<IUsuarioAtualService, UsuarioAtualService>();
         services.AddScoped<IUsuarioContextoAplicacaoService, UsuarioContextoAplicacaoService>();
@@ -56,6 +61,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IConfiguracaoIntegracaoMicrosoftService, ConfiguracaoIntegracaoMicrosoftService>();
         services.AddScoped<IAdministradorInicialService, AdministradorInicialService>();
         services.AddScoped<DevelopmentSeedService>();
+        services.AddHostedService<SlaMonitoringBackgroundService>();
 
         services
             .AddAuthentication(options =>

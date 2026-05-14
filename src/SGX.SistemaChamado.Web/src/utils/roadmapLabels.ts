@@ -46,6 +46,8 @@ export const statusTecnicoLabels: Record<number, string> = {
   4: 'Requer validação',
   5: 'Requer correção',
   6: 'Bloqueado',
+  7: 'Modelagem inicial em implementação',
+  8: 'Aplicação em chamados em implementação',
 }
 
 export const tipoImplementacaoLabels: Record<number, string> = {

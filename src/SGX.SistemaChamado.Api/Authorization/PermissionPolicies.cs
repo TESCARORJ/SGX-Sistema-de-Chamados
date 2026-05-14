@@ -20,4 +20,9 @@ public static class PermissionPolicies
     public const string RoadmapGerenciar = Prefixo + PermissoesConstants.RoadmapGerenciar;
     public const string RoadmapImplementacoesVisualizar = Prefixo + PermissoesConstants.RoadmapImplementacoesVisualizar;
     public const string RoadmapImplementacoesGerenciar = Prefixo + PermissoesConstants.RoadmapImplementacoesGerenciar;
+    public const string SlaVisualizar = Prefixo + PermissoesConstants.SlaVisualizar;
+    public const string SlaCriar = Prefixo + PermissoesConstants.SlaCriar;
+    public const string SlaEditar = Prefixo + PermissoesConstants.SlaEditar;
+    public const string SlaExcluir = Prefixo + PermissoesConstants.SlaExcluir;
+    public const string SlaAtivarDesativar = Prefixo + PermissoesConstants.SlaAtivarDesativar;
 }

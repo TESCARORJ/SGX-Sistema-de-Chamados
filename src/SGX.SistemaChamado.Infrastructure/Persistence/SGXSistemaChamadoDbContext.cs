@@ -20,6 +20,14 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<AnexoChamado> AnexosChamado => Set<AnexoChamado>();
     public DbSet<SlaConfiguracao> SlaConfiguracoes => Set<SlaConfiguracao>();
     public DbSet<SlaControle> SlaControles => Set<SlaControle>();
+    public DbSet<ChamadoSla> ChamadosSla => Set<ChamadoSla>();
+    public DbSet<PoliticaSla> SlaPoliticas => Set<PoliticaSla>();
+    public DbSet<MetaSla> SlaMetas => Set<MetaSla>();
+    public DbSet<ConfiguracaoAlertaSla> ConfiguracoesAlertaSla => Set<ConfiguracaoAlertaSla>();
+    public DbSet<EventoSla> EventosSla => Set<EventoSla>();
+    public DbSet<CalendarioCorporativo> CalendariosCorporativos => Set<CalendarioCorporativo>();
+    public DbSet<HorarioAtendimentoCalendario> HorariosAtendimentoCalendario => Set<HorarioAtendimentoCalendario>();
+    public DbSet<ExcecaoCalendarioCorporativo> ExcecoesCalendarioCorporativo => Set<ExcecaoCalendarioCorporativo>();
     public DbSet<ParametroSistema> ParametrosSistema => Set<ParametroSistema>();
     public DbSet<LogIntegracaoEmail> LogsIntegracaoEmail => Set<LogIntegracaoEmail>();
     public DbSet<RoadmapItsmItem> RoadmapItsmItens => Set<RoadmapItsmItem>();

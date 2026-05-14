@@ -46,6 +46,11 @@ public static class SeedData
     public static readonly Guid PermissaoIntegracoesMicrosoftVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888833");
     public static readonly Guid PermissaoIntegracoesMicrosoftGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888834");
     public static readonly Guid PermissaoUsuariosRedefinirSenhaId = Guid.Parse("88888888-8888-8888-8888-888888888835");
+    public static readonly Guid PermissaoSlaVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888836");
+    public static readonly Guid PermissaoSlaCriarId = Guid.Parse("88888888-8888-8888-8888-888888888837");
+    public static readonly Guid PermissaoSlaEditarId = Guid.Parse("88888888-8888-8888-8888-888888888838");
+    public static readonly Guid PermissaoSlaExcluirId = Guid.Parse("88888888-8888-8888-8888-888888888839");
+    public static readonly Guid PermissaoSlaAtivarDesativarId = Guid.Parse("88888888-8888-8888-8888-888888888840");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -57,6 +62,18 @@ public static class SeedData
     public static readonly Guid PrioridadeMediaId = Guid.Parse("55555555-5555-5555-5555-555555555552");
     public static readonly Guid PrioridadeAltaId = Guid.Parse("55555555-5555-5555-5555-555555555553");
     public static readonly Guid PrioridadeCriticaId = Guid.Parse("55555555-5555-5555-5555-555555555554");
+    public static readonly Guid SlaPoliticaPadraoId = Guid.Parse("56565656-5656-5656-5656-565656565601");
+    public static readonly Guid SlaMetaPadraoBaixaId = Guid.Parse("56565656-5656-5656-5656-565656565611");
+    public static readonly Guid SlaMetaPadraoMediaId = Guid.Parse("56565656-5656-5656-5656-565656565612");
+    public static readonly Guid SlaMetaPadraoAltaId = Guid.Parse("56565656-5656-5656-5656-565656565613");
+    public static readonly Guid SlaMetaPadraoCriticaId = Guid.Parse("56565656-5656-5656-5656-565656565614");
+    public static readonly Guid ConfiguracaoAlertaSlaPadraoId = Guid.Parse("56565656-5656-5656-5656-565656565621");
+    public static readonly Guid CalendarioCorporativoPadraoId = Guid.Parse("56565656-5656-5656-5656-565656565701");
+    public static readonly Guid HorarioCalendarioPadraoSegundaId = Guid.Parse("56565656-5656-5656-5656-565656565711");
+    public static readonly Guid HorarioCalendarioPadraoTercaId = Guid.Parse("56565656-5656-5656-5656-565656565712");
+    public static readonly Guid HorarioCalendarioPadraoQuartaId = Guid.Parse("56565656-5656-5656-5656-565656565713");
+    public static readonly Guid HorarioCalendarioPadraoQuintaId = Guid.Parse("56565656-5656-5656-5656-565656565714");
+    public static readonly Guid HorarioCalendarioPadraoSextaId = Guid.Parse("56565656-5656-5656-5656-565656565715");
 
     public static readonly Guid RoadmapItsmItem01Id = Guid.Parse("77777777-7777-7777-7777-777777777701");
     public static readonly Guid RoadmapItsmItem02Id = Guid.Parse("77777777-7777-7777-7777-777777777702");
@@ -192,6 +209,54 @@ public static class SeedData
     public static readonly Guid ChecklistAutenticacaoTesteAmbientePublicadoId = Guid.Parse("69696969-6969-6969-6969-696969696725");
     public static readonly Guid ChecklistAutenticacaoRevisaoEquipeAzureId = Guid.Parse("69696969-6969-6969-6969-696969696726");
     public static readonly Guid ChecklistAutenticacaoEvidenciaFormalHomologacaoId = Guid.Parse("69696969-6969-6969-6969-696969696727");
+    public static readonly Guid ChecklistSlaPoliticaCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707701");
+    public static readonly Guid ChecklistSlaMetasCriadasId = Guid.Parse("70707070-7070-7070-7070-707070707702");
+    public static readonly Guid ChecklistSlaMigrationCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707703");
+    public static readonly Guid ChecklistSlaSeedPadraoCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707704");
+    public static readonly Guid ChecklistSlaDtosCriadosId = Guid.Parse("70707070-7070-7070-7070-707070707705");
+    public static readonly Guid ChecklistSlaServiceCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707706");
+    public static readonly Guid ChecklistSlaEndpointsCriadosId = Guid.Parse("70707070-7070-7070-7070-707070707707");
+    public static readonly Guid ChecklistSlaPermissoesCriadasId = Guid.Parse("70707070-7070-7070-7070-707070707708");
+    public static readonly Guid ChecklistSlaTelaCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707709");
+    public static readonly Guid ChecklistSlaValidacoesCriadasId = Guid.Parse("70707070-7070-7070-7070-707070707710");
+    public static readonly Guid ChecklistSlaTestesServiceCriadosId = Guid.Parse("70707070-7070-7070-7070-707070707711");
+    public static readonly Guid ChecklistSlaTestesEndpointsCriadosId = Guid.Parse("70707070-7070-7070-7070-707070707712");
+    public static readonly Guid ChecklistSlaDocumentacaoCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707713");
+    public static readonly Guid ChecklistSlaSprint2TabelaCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707714");
+    public static readonly Guid ChecklistSlaSprint2RelacionamentoCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707715");
+    public static readonly Guid ChecklistSlaSprint2ServiceCalculoCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707716");
+    public static readonly Guid ChecklistSlaSprint2PoliticaAplicavelId = Guid.Parse("70707070-7070-7070-7070-707070707717");
+    public static readonly Guid ChecklistSlaSprint2AplicacaoCriacaoId = Guid.Parse("70707070-7070-7070-7070-707070707718");
+    public static readonly Guid ChecklistSlaSprint2PrazoPrimeiraRespostaId = Guid.Parse("70707070-7070-7070-7070-707070707719");
+    public static readonly Guid ChecklistSlaSprint2PrazoResolucaoId = Guid.Parse("70707070-7070-7070-7070-707070707720");
+    public static readonly Guid ChecklistSlaSprint2RegistroPrimeiraRespostaId = Guid.Parse("70707070-7070-7070-7070-707070707721");
+    public static readonly Guid ChecklistSlaSprint2RegistroResolucaoId = Guid.Parse("70707070-7070-7070-7070-707070707722");
+    public static readonly Guid ChecklistSlaSprint2PausaId = Guid.Parse("70707070-7070-7070-7070-707070707723");
+    public static readonly Guid ChecklistSlaSprint2SituacaoAtualId = Guid.Parse("70707070-7070-7070-7070-707070707724");
+    public static readonly Guid ChecklistSlaSprint2DetalheChamadoId = Guid.Parse("70707070-7070-7070-7070-707070707725");
+    public static readonly Guid ChecklistSlaSprint2ListagemAdminId = Guid.Parse("70707070-7070-7070-7070-707070707726");
+    public static readonly Guid ChecklistSlaSprint2FiltrosAdminId = Guid.Parse("70707070-7070-7070-7070-707070707727");
+    public static readonly Guid ChecklistSlaSprint2DtosAtualizadosId = Guid.Parse("70707070-7070-7070-7070-707070707728");
+    public static readonly Guid ChecklistSlaSprint2TestesId = Guid.Parse("70707070-7070-7070-7070-707070707729");
+    public static readonly Guid ChecklistSlaSprint2DocumentacaoId = Guid.Parse("70707070-7070-7070-7070-707070707730");
+    public static readonly Guid ChecklistSlaSprint4CalendarioCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707752");
+    public static readonly Guid ChecklistSlaSprint4HorarioCriadoId = Guid.Parse("70707070-7070-7070-7070-707070707753");
+    public static readonly Guid ChecklistSlaSprint4ExcecaoCriadaId = Guid.Parse("70707070-7070-7070-7070-707070707754");
+    public static readonly Guid ChecklistSlaSprint4MigrationsId = Guid.Parse("70707070-7070-7070-7070-707070707755");
+    public static readonly Guid ChecklistSlaSprint4SeedPadraoId = Guid.Parse("70707070-7070-7070-7070-707070707756");
+    public static readonly Guid ChecklistSlaSprint4RelacionamentoPoliticaId = Guid.Parse("70707070-7070-7070-7070-707070707757");
+    public static readonly Guid ChecklistSlaSprint4ServiceAdminId = Guid.Parse("70707070-7070-7070-7070-707070707758");
+    public static readonly Guid ChecklistSlaSprint4ServiceTempoUtilId = Guid.Parse("70707070-7070-7070-7070-707070707759");
+    public static readonly Guid ChecklistSlaSprint4PrazoPrimeiraRespostaId = Guid.Parse("70707070-7070-7070-7070-707070707760");
+    public static readonly Guid ChecklistSlaSprint4PrazoResolucaoId = Guid.Parse("70707070-7070-7070-7070-707070707761");
+    public static readonly Guid ChecklistSlaSprint4MinutosPrimeiraRespostaId = Guid.Parse("70707070-7070-7070-7070-707070707762");
+    public static readonly Guid ChecklistSlaSprint4MinutosResolucaoId = Guid.Parse("70707070-7070-7070-7070-707070707763");
+    public static readonly Guid ChecklistSlaSprint4EndpointsId = Guid.Parse("70707070-7070-7070-7070-707070707764");
+    public static readonly Guid ChecklistSlaSprint4TelaCalendariosId = Guid.Parse("70707070-7070-7070-7070-707070707765");
+    public static readonly Guid ChecklistSlaSprint4TelaPoliticaId = Guid.Parse("70707070-7070-7070-7070-707070707766");
+    public static readonly Guid ChecklistSlaSprint4DetalheChamadoId = Guid.Parse("70707070-7070-7070-7070-707070707767");
+    public static readonly Guid ChecklistSlaSprint4TestesId = Guid.Parse("70707070-7070-7070-7070-707070707768");
+    public static readonly Guid ChecklistSlaSprint4DocumentacaoId = Guid.Parse("70707070-7070-7070-7070-707070707769");
 
     public static readonly object[] PerfisAcesso =
     [
@@ -269,7 +334,12 @@ public static class SeedData
         (PermissaoRoadmapImplementacoesGerenciarId, "RoadmapImplementacoes.Gerenciar"),
         (PermissaoIntegracoesMicrosoftVisualizarId, "IntegracoesMicrosoft.Visualizar"),
         (PermissaoIntegracoesMicrosoftGerenciarId, "IntegracoesMicrosoft.Gerenciar"),
-        (PermissaoUsuariosRedefinirSenhaId, "Usuarios.RedefinirSenha")
+        (PermissaoUsuariosRedefinirSenhaId, "Usuarios.RedefinirSenha"),
+        (PermissaoSlaVisualizarId, "Sla.Visualizar"),
+        (PermissaoSlaCriarId, "Sla.Criar"),
+        (PermissaoSlaEditarId, "Sla.Editar"),
+        (PermissaoSlaExcluirId, "Sla.Excluir"),
+        (PermissaoSlaAtivarDesativarId, "Sla.AtivarDesativar")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -294,7 +364,8 @@ public static class SeedData
         "Notificacoes.Visualizar",
         "Indicadores.Visualizar",
         "Roadmap.Visualizar",
-        "RoadmapImplementacoes.Visualizar"
+        "RoadmapImplementacoes.Visualizar",
+        "Sla.Visualizar"
     ];
 
     private static readonly string[] CodigosPermissoesSolicitante =
@@ -327,6 +398,117 @@ public static class SeedData
         .ToArray();
 
     public static readonly object[] PerfisAcessoPermissoes = CriarPerfisAcessoPermissoes();
+
+    public static readonly object[] SlaPoliticas =
+    [
+        new
+        {
+            Id = SlaPoliticaPadraoId,
+            Nome = "SLA Padrão",
+            Descricao = "Política inicial de SLA do SGX Sistema de Chamados, usada como base para controle de primeira resposta e resolução dos chamados.",
+            Ordem = 1,
+            CategoriaId = (Guid?)null,
+            DepartamentoId = (Guid?)null,
+            CalendarioCorporativoId = (Guid?)null,
+            UsarHorarioComercial = false,
+            PausarQuandoAguardandoSolicitante = true,
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        }
+    ];
+
+    public static readonly object[] CalendariosCorporativos =
+    [
+        new
+        {
+            Id = CalendarioCorporativoPadraoId,
+            Nome = "Calendário Corporativo Padrão",
+            Descricao = "Calendário inicial para cálculo de SLA em horário comercial.",
+            Padrao = true,
+            TimeZone = "America/Sao_Paulo",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        }
+    ];
+
+    public static readonly object[] HorariosAtendimentoCalendario =
+    [
+        CriarHorarioCalendarioSeed(HorarioCalendarioPadraoSegundaId, DayOfWeek.Monday),
+        CriarHorarioCalendarioSeed(HorarioCalendarioPadraoTercaId, DayOfWeek.Tuesday),
+        CriarHorarioCalendarioSeed(HorarioCalendarioPadraoQuartaId, DayOfWeek.Wednesday),
+        CriarHorarioCalendarioSeed(HorarioCalendarioPadraoQuintaId, DayOfWeek.Thursday),
+        CriarHorarioCalendarioSeed(HorarioCalendarioPadraoSextaId, DayOfWeek.Friday)
+    ];
+
+    public static readonly object[] SlaMetas =
+    [
+        new
+        {
+            Id = SlaMetaPadraoBaixaId,
+            PoliticaSlaId = SlaPoliticaPadraoId,
+            PrioridadeId = PrioridadeBaixaId,
+            TempoPrimeiraRespostaMinutos = 480,
+            TempoResolucaoMinutos = 2880,
+            TempoAtualizacaoMinutos = (int?)null,
+            TempoRespostaSubsequenteMinutos = (int?)null,
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = SlaMetaPadraoMediaId,
+            PoliticaSlaId = SlaPoliticaPadraoId,
+            PrioridadeId = PrioridadeMediaId,
+            TempoPrimeiraRespostaMinutos = 240,
+            TempoResolucaoMinutos = 1440,
+            TempoAtualizacaoMinutos = (int?)null,
+            TempoRespostaSubsequenteMinutos = (int?)null,
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = SlaMetaPadraoAltaId,
+            PoliticaSlaId = SlaPoliticaPadraoId,
+            PrioridadeId = PrioridadeAltaId,
+            TempoPrimeiraRespostaMinutos = 60,
+            TempoResolucaoMinutos = 480,
+            TempoAtualizacaoMinutos = (int?)null,
+            TempoRespostaSubsequenteMinutos = (int?)null,
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = SlaMetaPadraoCriticaId,
+            PoliticaSlaId = SlaPoliticaPadraoId,
+            PrioridadeId = PrioridadeCriticaId,
+            TempoPrimeiraRespostaMinutos = 30,
+            TempoResolucaoMinutos = 240,
+            TempoAtualizacaoMinutos = (int?)null,
+            TempoRespostaSubsequenteMinutos = (int?)null,
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        }
+    ];
 
     public static readonly object[] StatusChamado =
     [
@@ -619,25 +801,26 @@ public static class SeedData
         {
             Id = RoadmapItsmItem05Id,
             Area = "SLA",
-            Categoria = "Operacao",
+            Categoria = "SLA",
+            Objetivo = "Permitir que o SGX Sistema de Chamados controle acordos de nível de serviço para chamados, definindo prazos de primeira resposta, atendimento e resolução conforme prioridade, categoria, departamento, tipo de solicitação e regras institucionais. O SLA deve apoiar gestão operacional, rastreabilidade, cobrança interna, indicadores e melhoria contínua do atendimento.",
             RoadmapCategoriaId = RoadmapCategoriaSlaId,
-            SituacaoAtual = "Estrutura prevista com controle e configuracao",
-            AtencaoTecnica = "Mostrar regra de prazo, pausa, resposta e encerramento",
-            Status = StatusRoadmapItsm.Parcial,
+            SituacaoAtual = "Sprints 1, 2, 3 e 4 implementadas e validadas funcionalmente, com políticas/metas, SLA aplicado aos chamados, alertas, eventos, monitoramento, painel gerencial e calendário corporativo para horário comercial.",
+            AtencaoTecnica = "O SLA não deve ser apenas um campo manual no chamado. Deve existir uma regra centralizada e auditável para cálculo de prazo. O sistema deve considerar prioridade, categoria, departamento responsável, horário útil, feriados, pausas/suspensões, reabertura de chamado e mudança de status. Evitar cálculo duplicado no frontend. A regra principal deve ficar no backend, com persistência dos marcos calculados no chamado para rastreabilidade.",
+            Status = StatusRoadmapItsm.Pendente,
             Prioridade = PrioridadeRoadmapItsm.Alta,
             Impacto = ImpactoRoadmapItsm.Alto,
             Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas,
+            PercentualImplementacao = 100,
+            PendenciasTecnicas = "- Validar cálculo de horário comercial em cenário real com volume institucional.\n- Evoluir calendário por departamento/time quando a governança estiver definida.\n- Evoluir importação automática de feriados nacionais/municipais.\n- Evoluir regras de reabertura para reaproveitamento de prazo remanescente.\n- Refinar política de proximidade do vencimento por canal/time.\n- Implementar alertas/notificações operacionais por SLA, se aplicável.\n- Consolidar trilha de auditoria e relatórios gerenciais de cumprimento.",
+            PendenciasHomologacao = "- Homologar cadastro de política de SLA.\n- Homologar abertura de chamado com cálculo automático de SLA.\n- Homologar SLA por prioridade.\n- Homologar SLA por categoria.\n- Homologar SLA por departamento responsável.\n- Homologar cálculo de vencimento com horário útil.\n- Homologar comportamento em chamado pausado ou aguardando solicitante.\n- Homologar comportamento em chamado reaberto.\n- Homologar exibição do SLA para atendente.\n- Homologar exibição do SLA para administrador/gestor.\n- Homologar filtros de chamados atrasados.\n- Homologar indicadores gerenciais.\n- Registrar evidências formais com prints, data, ambiente e usuário de teste.",
+            EvidenciaImplementacao = "- docs/SLA.md\n- src/SGX.SistemaChamado.Domain/Entities/PoliticaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/MetaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/ChamadoSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/CalendarioCorporativo.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaService.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaCalculator.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaBusinessTimeCalculator.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaPoliciesController.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaCalendarsController.cs\n- tests/SGX.SistemaChamado.Tests/SlaServiceTests.cs",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "O sistema deve permitir cadastrar políticas de SLA e aplicá-las automaticamente aos chamados conforme as regras configuradas. Ao abrir ou atualizar um chamado, o backend deve calcular e persistir os prazos de primeira resposta, atendimento e/ou resolução, considerando prioridade, categoria, departamento, horário útil e regras de pausa/reabertura quando aplicável. O detalhe do chamado deve exibir o status do SLA de forma clara: dentro do prazo, próximo do vencimento, vencido ou suspenso. Administradores e gestores devem conseguir filtrar e acompanhar chamados por situação de SLA. O cálculo deve ser testável, centralizado no backend e validado por testes automatizados.",
+            ProximaAcao = "Executar homologação funcional de ponta a ponta com usuários reais e validar regras de SLA em ambiente publicado, incluindo casos de pausa, reabertura e governança operacional.",
+            Observacao = "Status legado mantido para compatibilidade; o status real deve considerar StatusImplementacao, StatusTecnico e checklist ativo.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 5,
@@ -1072,8 +1255,92 @@ public static class SeedData
         new { Id = ChecklistAutenticacaoTesteLogoutCorporativoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Validar logout corporativo.", Descricao = "Checklist pendente de homologação/governança", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 24, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistAutenticacaoTesteAmbientePublicadoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Validar ambiente publicado/VPS.", Descricao = "Checklist pendente de homologação/governança", Grupo = GrupoRoadmapChecklist.Homologacao, Ordem = 25, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
         new { Id = ChecklistAutenticacaoRevisaoEquipeAzureId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Revisar configuração com equipe responsável pelo Azure.", Descricao = "Checklist pendente de homologação/governança", Grupo = GrupoRoadmapChecklist.Planejamento, Ordem = 26, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
-        new { Id = ChecklistAutenticacaoEvidenciaFormalHomologacaoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Registrar evidências formais de homologação.", Descricao = "Checklist pendente de homologação/governança", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 27, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null }
+        new { Id = ChecklistAutenticacaoEvidenciaFormalHomologacaoId, RoadmapItemId = RoadmapItsmItem04Id, Titulo = "Registrar evidências formais de homologação.", Descricao = "Checklist pendente de homologação/governança", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 27, Concluido = false, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaPoliticaCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Entidade de política de SLA criada.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 1, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaMetasCriadasId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Entidade de metas de SLA criada.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 2, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaMigrationCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Migration das tabelas de SLA criada.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 3, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSeedPadraoCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Seed inicial de SLA padrão criado.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 4, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaDtosCriadosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "DTOs de SLA criados.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 5, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaServiceCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Service de SLA criado.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 6, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaEndpointsCriadosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Endpoints administrativos criados.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 7, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaPermissoesCriadasId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Permissões administrativas de SLA criadas.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 8, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaTelaCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Tela administrativa básica criada.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 9, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaValidacoesCriadasId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Validações de duplicidade e campos obrigatórios criadas.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 10, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaTestesServiceCriadosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Testes automatizados da camada de service criados.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 11, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaTestesEndpointsCriadosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Testes de endpoints administrativos criados.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 12, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaDocumentacaoCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Documentação técnica inicial criada.", Descricao = "Checklist da Sprint 1", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 13, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2TabelaCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Tabela de SLA aplicado ao chamado criada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 14, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2RelacionamentoCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Relacionamento entre chamado e SLA criado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 15, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2ServiceCalculoCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Service de cálculo de SLA criado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 16, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2PoliticaAplicavelId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Política aplicável identificada por prioridade/categoria/departamento.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 17, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2AplicacaoCriacaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "SLA aplicado na criação do chamado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 18, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2PrazoPrimeiraRespostaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Prazo de primeira resposta calculado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 19, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2PrazoResolucaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Prazo de resolução calculado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 20, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2RegistroPrimeiraRespostaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Primeira resposta registrada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 21, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2RegistroResolucaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Resolução registrada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 22, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2PausaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Pausa de SLA preparada ou implementada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 23, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2SituacaoAtualId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Situação atual do SLA calculada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 24, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2DetalheChamadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "SLA exibido no detalhe do chamado.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 25, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2ListagemAdminId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "SLA exibido na listagem administrativa.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 26, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2FiltrosAdminId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Filtros administrativos de SLA criados.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 27, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2DtosAtualizadosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "DTOs de chamado atualizados com resumo de SLA.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 28, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2TestesId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Testes automatizados criados.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 29, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint2DocumentacaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Documentação atualizada.", Descricao = "Checklist da Sprint 2", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 30, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707731"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Configuração de alerta de SLA criada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 31, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707732"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Tela administrativa de configuração de alerta criada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 32, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707733"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Endpoints de configuração de alerta criados.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 33, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707734"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Job de verificação de SLA criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 34, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707735"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Periodicidade configurável por appsettings criada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 35, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707736"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Controle contra notificações/eventos duplicados criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 36, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707737"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Histórico de eventos de SLA criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 37, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707738"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resolução, pausa e retomada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 38, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707739"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Painel de indicadores de SLA criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 39, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707740"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicador de SLA vencido criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 40, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707741"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicador de SLA próximo do vencimento criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 41, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707742"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicador de percentual de cumprimento criado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 42, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707743"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Métrica de tempo médio de primeira resposta criada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 43, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707744"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Métrica de tempo médio de resolução criada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 44, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707745"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicadores por prioridade criados.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 45, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707746"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicadores por categoria criados.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 46, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707747"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Indicadores por departamento criados.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 47, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707748"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Histórico de SLA exibido no detalhe administrativo do chamado.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 48, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707749"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Estrutura preparada para exportação futura.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 49, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707750"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Documentação atualizada.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 50, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = Guid.Parse("70707070-7070-7070-7070-707070707751"), RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Testes automatizados criados.", Descricao = "Checklist da Sprint 3", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 51, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4CalendarioCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Entidade CalendarioCorporativo criada.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 52, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4HorarioCriadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Entidade HorarioAtendimentoCalendario criada.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 53, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4ExcecaoCriadaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Entidade ExcecaoCalendarioCorporativo criada.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 54, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4MigrationsId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Migrations de calendário criadas.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 55, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4SeedPadraoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Seed do calendário padrão criado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 56, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4RelacionamentoPoliticaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Relacionamento entre Política SLA e Calendário criado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 57, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4ServiceAdminId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Service administrativo de calendário criado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 58, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4ServiceTempoUtilId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Service de cálculo de tempo útil criado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 59, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4PrazoPrimeiraRespostaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Cálculo de prazo de primeira resposta usando horário comercial implementado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 60, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4PrazoResolucaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Cálculo de prazo de resolução usando horário comercial implementado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 61, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4MinutosPrimeiraRespostaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Cálculo de minutos úteis de primeira resposta implementado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 62, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4MinutosResolucaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Cálculo de minutos úteis de resolução implementado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 63, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4EndpointsId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Endpoints administrativos de calendário criados.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 64, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4TelaCalendariosId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Tela Admin > SLA > Calendários criada.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 65, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4TelaPoliticaId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Tela de política SLA atualizada com seleção de calendário.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 66, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4DetalheChamadoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Detalhe do chamado mostra tipo de cálculo e calendário usado.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Desenvolvimento, Ordem = 67, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4TestesId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Testes automatizados criados.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Testes, Ordem = 68, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = ChecklistSlaSprint4DocumentacaoId, RoadmapItemId = RoadmapItsmItem05Id, Titulo = "Documentação atualizada.", Descricao = "Checklist da Sprint 4", Grupo = GrupoRoadmapChecklist.Documentacao, Ordem = 69, Concluido = true, Obrigatorio = true, Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null }
     ];
+
+    private static object CriarHorarioCalendarioSeed(Guid id, DayOfWeek diaSemana)
+        => new
+        {
+            Id = id,
+            CalendarioCorporativoId = CalendarioCorporativoPadraoId,
+            DiaSemana = diaSemana,
+            HoraInicio = new TimeOnly(9, 0),
+            HoraFim = new TimeOnly(18, 0),
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        };
 
     private static object[] CriarPerfisAcessoPermissoes()
     {

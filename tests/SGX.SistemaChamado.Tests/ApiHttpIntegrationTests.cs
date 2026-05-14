@@ -505,6 +505,73 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task AdminSlaPoliciesBloqueiaSolicitante()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "solicitante.sla@empresa.com", "Solicitante", "Solicitante");
+
+        var response = await client.GetAsync("/api/admin/sla/policies");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminSlaPoliciesPermiteAtendenteVisualizar()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.sla@empresa.com", "Atendente", "Atendente");
+        _ = await client.GetAsync("/api/me");
+
+        var response = await client.GetAsync("/api/admin/sla/policies");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminSlaPoliciesAdministradorCriaPolitica()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.sla@empresa.com", "Administrador", "Administrador");
+        _ = await client.GetAsync("/api/me");
+
+        var payload = new
+        {
+            nome = "SLA Infraestrutura",
+            descricao = "Politica de SLA para infraestrutura.",
+            ativo = true,
+            ordem = 20,
+            categoriaId = (string?)null,
+            departamentoId = (string?)null,
+            usarHorarioComercial = false,
+            pausarQuandoAguardandoSolicitante = true,
+            metas = new[]
+            {
+                new
+                {
+                    prioridadeId = SeedData.PrioridadeBaixaId,
+                    tempoPrimeiraRespostaMinutos = 480,
+                    tempoResolucaoMinutos = 2880,
+                    tempoAtualizacaoMinutos = (int?)null,
+                    tempoRespostaSubsequenteMinutos = (int?)null,
+                    ativo = true
+                },
+                new
+                {
+                    prioridadeId = SeedData.PrioridadeMediaId,
+                    tempoPrimeiraRespostaMinutos = 240,
+                    tempoResolucaoMinutos = 1440,
+                    tempoAtualizacaoMinutos = (int?)null,
+                    tempoRespostaSubsequenteMinutos = (int?)null,
+                    ativo = true
+                }
+            }
+        };
+
+        var response = await client.PostAsJsonAsync("/api/admin/sla/policies", payload);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminCadastrosPermissoesListaComSucessoParaAtendente()
     {
         using var client = _factory.CreateClient();

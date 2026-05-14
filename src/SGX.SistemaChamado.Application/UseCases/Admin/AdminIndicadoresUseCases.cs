@@ -34,8 +34,8 @@ public sealed class AdminIndicadoresUseCases(
         var totalAguardandoSolicitante = chamados.Count(x => x.Status.Codigo == StatusChamadoEnum.AguardandoSolicitante);
         var totalResolvidosPeriodo = chamados.Count(x => x.Status.Codigo == StatusChamadoEnum.Resolvido);
         var totalEncerradosPeriodo = chamados.Count(x => x.Status.Codigo == StatusChamadoEnum.Encerrado);
-        var totalVencidos = chamados.Count(x => x.SlaControle?.EstaVencido == true);
-        var totalProximosDoVencimento = chamados.Count(x => SlaRules.EstaProximoDoVencimento(x.SlaControle, DateTime.UtcNow));
+        var totalVencidos = chamados.Count(x => SlaRules.CalcularSituacao(x.ChamadoSla, DateTime.UtcNow) is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado);
+        var totalProximosDoVencimento = chamados.Count(x => SlaRules.EstaProximoDoVencimento(x.ChamadoSla, DateTime.UtcNow));
         var totalSemResponsavel = chamados.Count(x => !x.ResponsavelId.HasValue);
 
         return new DashboardAdminResponse
@@ -125,7 +125,7 @@ public sealed class AdminIndicadoresUseCases(
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
             .Include(x => x.Responsavel)
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
             .Where(x => x.Ativo)
             .AsQueryable();
 
@@ -181,19 +181,19 @@ public sealed class AdminIndicadoresUseCases(
 
     private static IndicadoresSlaResponse MapIndicadoresSla(IReadOnlyCollection<Chamado> chamados)
     {
-        var comSla = chamados.Where(x => x.SlaControle is not null).ToArray();
+        var comSla = chamados.Where(x => x.ChamadoSla is not null).ToArray();
         var totalChamados = comSla.Length;
-        var totalVencidos = comSla.Count(x => x.SlaControle!.EstaVencido);
+        var totalVencidos = comSla.Count(x => SlaRules.CalcularSituacao(x.ChamadoSla, DateTime.UtcNow) is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado);
         var totalDentroDoPrazo = totalChamados - totalVencidos;
-        var totalProximos = comSla.Count(x => SlaRules.EstaProximoDoVencimento(x.SlaControle, DateTime.UtcNow));
+        var totalProximos = comSla.Count(x => SlaRules.EstaProximoDoVencimento(x.ChamadoSla, DateTime.UtcNow));
 
         var horasResolucao = comSla
-            .Where(x => x.SlaControle!.ResolvidoEm.HasValue)
+            .Where(x => x.ChamadoSla!.DataResolucao.HasValue)
             .Select(CalcularHorasResolucao)
             .ToArray();
 
         var horasPrimeiraResposta = comSla
-            .Where(x => x.SlaControle!.PrimeiraRespostaEm.HasValue)
+            .Where(x => x.ChamadoSla!.DataPrimeiraResposta.HasValue)
             .Select(CalcularHorasPrimeiraResposta)
             .ToArray();
 
@@ -221,7 +221,7 @@ public sealed class AdminIndicadoresUseCases(
             .Select(grupo =>
             {
                 var resolvidos = grupo
-                    .Where(x => x.SlaControle?.ResolvidoEm.HasValue == true)
+                    .Where(x => x.ChamadoSla?.DataResolucao.HasValue == true)
                     .Select(CalcularHorasResolucao)
                     .ToArray();
 
@@ -231,7 +231,7 @@ public sealed class AdminIndicadoresUseCases(
                     ResponsavelNome = grupo.Key.Nome,
                     TotalAtendidos = grupo.Count(),
                     TotalEncerrados = grupo.Count(x => x.Status.Codigo is StatusChamadoEnum.Encerrado or StatusChamadoEnum.Resolvido),
-                    TotalVencidos = grupo.Count(x => x.SlaControle?.EstaVencido == true),
+                    TotalVencidos = grupo.Count(x => SlaRules.CalcularSituacao(x.ChamadoSla, DateTime.UtcNow) is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado),
                     MediaHorasResolucao = CalcularMedia(resolvidos)
                 };
             })
@@ -242,23 +242,23 @@ public sealed class AdminIndicadoresUseCases(
 
     private static double CalcularHorasResolucao(Chamado chamado)
     {
-        if (chamado.SlaControle?.ResolvidoEm is null)
+        if (chamado.ChamadoSla?.DataResolucao is null)
         {
             return 0;
         }
 
-        var minutos = (chamado.SlaControle.ResolvidoEm.Value - chamado.AbertoEm).TotalMinutes - chamado.SlaControle.TotalMinutosPausado;
+        var minutos = (chamado.ChamadoSla.DataResolucao.Value - chamado.ChamadoSla.DataInicio).TotalMinutes - chamado.ChamadoSla.MinutosPausados;
         return Math.Max(0, minutos) / 60d;
     }
 
     private static double CalcularHorasPrimeiraResposta(Chamado chamado)
     {
-        if (chamado.SlaControle?.PrimeiraRespostaEm is null)
+        if (chamado.ChamadoSla?.DataPrimeiraResposta is null)
         {
             return 0;
         }
 
-        var minutos = (chamado.SlaControle.PrimeiraRespostaEm.Value - chamado.AbertoEm).TotalMinutes - chamado.SlaControle.TotalMinutosPausado;
+        var minutos = (chamado.ChamadoSla.DataPrimeiraResposta.Value - chamado.ChamadoSla.DataInicio).TotalMinutes - chamado.ChamadoSla.MinutosPausados;
         return Math.Max(0, minutos) / 60d;
     }
 

@@ -1319,6 +1319,8 @@ internal static class RoadmapItsmMaps
         StatusTecnicoRoadmapItsm.RequerValidacao => "Requer validação",
         StatusTecnicoRoadmapItsm.RequerCorrecao => "Requer correção",
         StatusTecnicoRoadmapItsm.Bloqueado => "Bloqueado",
+        StatusTecnicoRoadmapItsm.ModelagemInicialEmImplementacao => "Modelagem inicial em implementação",
+        StatusTecnicoRoadmapItsm.AplicacaoEmChamadosEmImplementacao => "Aplicação em chamados em implementação",
         _ => value.ToString()
     };
 

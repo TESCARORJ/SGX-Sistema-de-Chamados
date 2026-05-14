@@ -100,7 +100,8 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
             .Include(x => x.Anexos).ThenInclude(x => x.Usuario)
             .Include(x => x.Historicos).ThenInclude(x => x.Usuario)
-            .Include(x => x.SlaControle)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .FirstAsync(x => x.Id == chamado.Id, cancellationToken);
 
         return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);
