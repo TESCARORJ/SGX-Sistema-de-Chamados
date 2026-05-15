@@ -186,6 +186,19 @@ const menu: MenuItem[] = [
       },
     ],
   },
+  {
+    label: 'Governança',
+    icon: 'fact_check',
+    requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
+    children: [
+      {
+        label: 'Auditoria',
+        icon: 'manage_search',
+        to: '/admin/governanca/auditoria',
+        requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
+      },
+    ],
+  },
 ]
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
@@ -252,6 +265,7 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃ§Ãµes'
   if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃ§Ãµes'
+  if (route.path.startsWith('/admin/governanca/auditoria')) return 'Histórico / Auditoria'
   if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'Documentação ITSM'
   if (route.path.startsWith('/admin/gestao-itsm')) return 'Gestão ITSM'
   if (route.path.startsWith('/admin/roadmap-itsm')) return 'Roadmap ITSM'

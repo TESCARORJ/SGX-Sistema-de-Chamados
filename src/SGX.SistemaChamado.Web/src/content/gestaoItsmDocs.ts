@@ -244,7 +244,124 @@ A homologação deve validar o SGX com usuários, perfis e ambiente representati
 Cada evidência deve conter print, data, usuário, perfil, ambiente, resultado esperado e resultado observado. Pendências encontradas devem ser registradas no roadmap ou em plano de correção.
 `,
   },
-]
+  {
+    id: 'historico-auditoria',
+    titulo: 'Historico / Auditoria',
+    categoria: 'Governança',
+    resumo:
+      'Consulta administrativa de auditoria com filtros, detalhe e indicadores de governanca.',
+    atualizadoEm: '2026-05-14',
+    tags: ['auditoria', 'governanca', 'rastreabilidade', 'historico', 'seguranca', 'itsm'],
+    conteudo: `
+# Historico / Auditoria
+
+O modulo de auditoria do SGX registra eventos de governanca para garantir rastreabilidade real das acoes executadas no sistema e agora possui consulta administrativa dedicada.
+
+## Diferenca entre log tecnico e auditoria
+
+- Log tecnico (ILogger) apoia diagnostico operacional e depuracao.
+- Auditoria de governanca registra quem fez, quando, de onde, em qual modulo e com qual efeito.
+
+## O que as Sprints 1, 2 e 3 entregam
+
+- Sprint 1: estrutura central com entidade \`EventoAuditoria\`, tabela \`eventos_auditoria\`, enums, service centralizado e contexto de requisicao.
+- Sprint 2: aplicacao da auditoria nos modulos criticos com registro de eventos operacionais e administrativos.
+- Sprint 3: consulta administrativa com endpoint de listagem paginada, endpoint de detalhe, dashboard de auditoria, filtros avancados e tela em \`/admin/governanca/auditoria\`.
+
+## Como acessar
+
+- Menu administrativo: Admin > Governanca > Auditoria.
+- Rota principal: \`/admin/governanca/auditoria\`.
+- Documentacao ITSM: \`/admin/gestao-itsm/documentacao\`.
+- Permissao necessaria: \`Auditoria.Visualizar\` (Administrador possui acesso automaticamente).
+
+## Modulos auditados na Sprint 2
+
+- Chamados.
+- Usuarios.
+- Perfis e Permissoes.
+- SLA administrativo (politicas, metas, alertas e calendarios).
+- Autenticacao Corporativa (Microsoft Entra ID / Azure AD).
+- Roadmap ITSM (item e checklist).
+- Gestao ITSM / Documentacao: leitura nao auditada; edicao ainda nao existe no sistema.
+
+## Eventos registrados por modulo
+
+- Chamados: abertura, status, prioridade, categoria, atribuicao, assumir, comentario admin interno/publico, encerramento, reabertura e anexo adicionado.
+- Usuarios: criacao, edicao, ativacao, inativacao, alteracao de perfis e eventos administrativos de senha local.
+- Perfis e Permissoes: criacao/edicao/ativacao/inativacao de perfil e alteracao de permissoes.
+- SLA: criacao/edicao/ativacao/inativacao de politica, alteracao de alerta, criacao/edicao/remoção logica de horario e excecao, criacao/edicao de calendario.
+- Autenticacao Corporativa: sucesso e falha de login Microsoft por tenant/dominio/usuario interno.
+- Roadmap ITSM: criacao/edicao/status de item, criacao/edicao/conclusao/reabertura/inativacao/reativacao/exclusao logica de checklist.
+
+## Filtros da consulta administrativa
+
+- periodo (\`dataInicio\` e \`dataFim\`);
+- usuario (\`usuarioId\` e \`usuarioEmail\`);
+- modulo, entidade e entidadeId;
+- acao e nivel;
+- sucesso/falha;
+- IP de origem;
+- correlacaoId;
+- busca textual (\`texto\`) para descricao e contexto.
+
+## Indicadores na tela
+
+- total de eventos;
+- total de eventos criticos;
+- total de falhas e sucessos;
+- agrupamentos por modulo, acao, usuario e dia;
+- ultimos eventos criticos e ultimas falhas.
+
+## EventoSla x EventoAuditoria
+
+- \`EventoSla\` registra o ciclo operacional de prazo do chamado.
+- \`EventoAuditoria\` registra governanca: quem alterou configuracoes, regras e dados auditaveis.
+- Os dois podem coexistir sem duplicar o mesmo fato operacional.
+
+## Dados armazenados por evento
+
+- identificadores e data/hora do evento;
+- usuario (id/nome/email/login) quando disponivel;
+- origem (IP e User-Agent) quando houver HttpContext;
+- modulo, entidade, entidadeId e acao;
+- descricao funcional da acao;
+- dadosAntes, dadosDepois e metadados em texto/json;
+- nivel, sucesso/falha e mensagem de erro;
+- correlacaoId para agrupar eventos da mesma operacao.
+
+## Antes e depois
+
+- Alteracoes relevantes registram \`dadosAntes\` e \`dadosDepois\`.
+- Para entidades grandes, o registro prioriza campos alterados e metadados essenciais.
+- Comentarios administrativos nao gravam o texto completo; gravam identificador e tamanho.
+
+## Mascaramento de dados sensiveis
+
+- \`AuditoriaDiffHelper\` mascara campos como senha, password, token, jwt, secret, clientSecret, refreshToken, accessToken, connectionString, chave, apiKey, authorization e bearer.
+- Valor mascarado padrao: \`***\`.
+- Auditoria nao persiste senha, hash de senha, JWT, refresh token, client secret ou connection string.
+
+## Uso de correlacao
+
+O \`correlacaoId\` permite associar os eventos da mesma requisicao e apoiar investigacao, rastreio de impacto e homologacao.
+
+## Limitacoes atuais
+
+- exportacao de auditoria (Excel/PDF) ainda nao implementada;
+- sem tela de retencao configuravel de auditoria;
+- sem assinatura/hash da trilha para evidencias criptograficas;
+- sem dashboard avancado de seguranca e alertas proativos.
+
+## Proximas sprints previstas
+
+- exportacao de auditoria (Excel/PDF);
+- retencao configuravel;
+- assinatura/hash da trilha;
+- alertas para eventos criticos;
+- painel avancado de seguranca e integracao com SIEM/Log Analytics.
+`,
+  },]
 
 export function normalizarTextoDocumentoItsm(valor: string): string {
   return valor
@@ -343,3 +460,4 @@ export function markdownItsmParaHtml(markdown: string): string {
 
   return partes.join('\n')
 }
+

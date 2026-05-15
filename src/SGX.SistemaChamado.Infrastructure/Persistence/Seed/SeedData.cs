@@ -51,6 +51,8 @@ public static class SeedData
     public static readonly Guid PermissaoSlaEditarId = Guid.Parse("88888888-8888-8888-8888-888888888838");
     public static readonly Guid PermissaoSlaExcluirId = Guid.Parse("88888888-8888-8888-8888-888888888839");
     public static readonly Guid PermissaoSlaAtivarDesativarId = Guid.Parse("88888888-8888-8888-8888-888888888840");
+    public static readonly Guid PermissaoAuditoriaVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888841");
+    public static readonly Guid PermissaoAuditoriaGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888842");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -339,7 +341,9 @@ public static class SeedData
         (PermissaoSlaCriarId, "Sla.Criar"),
         (PermissaoSlaEditarId, "Sla.Editar"),
         (PermissaoSlaExcluirId, "Sla.Excluir"),
-        (PermissaoSlaAtivarDesativarId, "Sla.AtivarDesativar")
+        (PermissaoSlaAtivarDesativarId, "Sla.AtivarDesativar"),
+        (PermissaoAuditoriaVisualizarId, "Auditoria.Visualizar"),
+        (PermissaoAuditoriaGerenciarId, "Auditoria.Gerenciar")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema

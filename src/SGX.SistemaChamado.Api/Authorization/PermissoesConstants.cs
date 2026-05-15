@@ -23,4 +23,6 @@ public static class PermissoesConstants
     public const string SlaEditar = "Sla.Editar";
     public const string SlaExcluir = "Sla.Excluir";
     public const string SlaAtivarDesativar = "Sla.AtivarDesativar";
+    public const string AuditoriaVisualizar = "Auditoria.Visualizar";
+    public const string AuditoriaGerenciar = "Auditoria.Gerenciar";
 }

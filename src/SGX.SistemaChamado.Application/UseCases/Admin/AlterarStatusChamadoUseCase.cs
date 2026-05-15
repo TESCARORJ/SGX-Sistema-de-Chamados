@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -15,7 +17,8 @@ public sealed class AlterarStatusChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAlterarStatusChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAlterarStatusChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AlterarStatusChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -32,6 +35,9 @@ public sealed class AlterarStatusChamadoUseCase(
 
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Status)
+            .Include(x => x.Prioridade)
+            .Include(x => x.Categoria)
+            .Include(x => x.Responsavel)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
@@ -58,6 +64,32 @@ public sealed class AlterarStatusChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var (dadosAntes, dadosDepois) = AuditoriaDiffHelper.CriarDiff(
+                new { Status = statusAnterior.Nome },
+                new { Status = novoStatus.Nome });
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoId.ToString(),
+                "Status do chamado alterado.",
+                dadosAntes: dadosAntes,
+                dadosDepois: dadosDepois,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "AlteracaoStatus",
+                    resultado: "Sucesso",
+                    observacao: $"Status atual: {atualizado.Status}"),
+                cancellationToken: cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

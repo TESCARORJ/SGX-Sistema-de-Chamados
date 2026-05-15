@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -15,7 +17,8 @@ public sealed class AtribuirChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtribuirChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtribuirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AtribuirChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -36,9 +39,11 @@ public sealed class AtribuirChamadoUseCase(
         }
 
         var chamado = await chamadoRepository.Query()
+            .Include(x => x.Responsavel)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+        var responsavelAnterior = chamado.Responsavel?.Nome;
 
         var responsavel = await usuarioRepository.Query()
             .Include(x => x.UsuarioPerfis)
@@ -71,6 +76,32 @@ public sealed class AtribuirChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var (dadosAntes, dadosDepois) = AuditoriaDiffHelper.CriarDiff(
+                new { Responsavel = responsavelAnterior },
+                new { Responsavel = responsavel.Nome });
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoId.ToString(),
+                "Responsavel do chamado alterado.",
+                dadosAntes: dadosAntes,
+                dadosDepois: dadosDepois,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "AtribuicaoResponsavel",
+                    resultado: "Sucesso",
+                    observacao: $"Responsavel atual: {atualizado.Responsavel?.Nome}"),
+                cancellationToken: cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

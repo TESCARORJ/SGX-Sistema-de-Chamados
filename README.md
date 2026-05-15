@@ -28,6 +28,13 @@ tests/
 - Microsoft Entra ID autentica identidade corporativa.
 - SGX autoriza por perfis e permissões internos (`Administrador`, `Atendente`, `Solicitante`).
 
+## Governanca e auditoria
+
+- Auditoria de governanca persistida em `eventos_auditoria`.
+- Service centralizado de auditoria com contexto de usuario, IP, User-Agent e correlacao.
+- Sprint 2 aplicada em modulos criticos: chamados, usuarios, perfis/permissoes, SLA administrativo, autenticacao corporativa e roadmap ITSM.
+- Sprint 3 com consulta administrativa em `Admin > Governanca > Auditoria` (`/admin/governanca/auditoria`) com filtros, detalhe e indicadores.
+
 ### Provedores suportados
 
 Configuração principal no backend:
@@ -160,6 +167,7 @@ No painel administrativo, a consulta gerencial fica em:
 
 - `Admin > Gestão ITSM > Roadmap` (`/admin/gestao-itsm/roadmap`)
 - `Admin > Gestão ITSM > Documentação` (`/admin/gestao-itsm/documentacao`)
+- `Admin > Governança > Auditoria` (`/admin/governanca/auditoria`)
 - A rota legada `/admin/roadmap-itsm` continua funcionando.
 
 ## Correções recentes - Integração Microsoft e senha por Administrador

@@ -42,6 +42,7 @@ const SlaPoliciesAdminView = () => import('../views/SlaPoliciesAdminView.vue')
 const SlaAlertasAdminView = () => import('../views/SlaAlertasAdminView.vue')
 const SlaDashboardAdminView = () => import('../views/SlaDashboardAdminView.vue')
 const SlaCalendariosAdminView = () => import('../views/SlaCalendariosAdminView.vue')
+const AuditoriaAdminView = () => import('../views/AuditoriaAdminView.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -274,6 +275,15 @@ const routes: RouteRecordRaw[] = [
         path: 'gestao-itsm/documentacao',
         name: 'admin-gestao-itsm-documentacao',
         component: GestaoItsmDocumentacaoView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'governanca/auditoria',
+        name: 'admin-governanca-auditoria',
+        component: AuditoriaAdminView,
         meta: {
           requiresAuth: true,
           perfisPermitidos: ['Administrador', 'Atendente'],

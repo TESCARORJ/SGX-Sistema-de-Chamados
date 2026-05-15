@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
+using System.Text.Json;
 
 namespace SGX.SistemaChamado.Application.UseCases.Admin;
 
@@ -84,7 +86,8 @@ public sealed class ObterPerfilAcessoUseCase(
 public sealed class CriarPerfilAcessoUseCase(
     IRepository<PerfilAcesso> perfilRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : ICriarPerfilAcessoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : ICriarPerfilAcessoUseCase
 {
     public async Task<PerfilAcessoDetalheResponse> ExecutarAsync(CriarPerfilAcessoRequest request, CancellationToken cancellationToken = default)
     {
@@ -101,6 +104,25 @@ public sealed class CriarPerfilAcessoUseCase(
         var perfil = new PerfilAcesso(nome, request.TipoPerfil, request.Descricao, usuarioAtual.Login);
         await perfilRepository.AddAsync(perfil, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarCriacaoAsync(
+                "Perfis e Permissoes",
+                "PerfilAcesso",
+                perfil.Id.ToString(),
+                $"Perfil '{perfil.Nome}' criado.",
+                dadosDepois: JsonSerializer.Serialize(new
+                {
+                    perfil.Id,
+                    perfil.Nome,
+                    TipoPerfil = perfil.TipoPerfil.ToString(),
+                    perfil.Descricao,
+                    perfil.Ativo
+                }),
+                cancellationToken: cancellationToken);
+        }
+
         return ObterPerfilAcessoUseCase.MapDetalhe(perfil);
     }
 }
@@ -108,7 +130,8 @@ public sealed class CriarPerfilAcessoUseCase(
 public sealed class AtualizarPerfilAcessoUseCase(
     IRepository<PerfilAcesso> perfilRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarPerfilAcessoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarPerfilAcessoUseCase
 {
     public async Task<PerfilAcessoDetalheResponse> ExecutarAsync(Guid id, AtualizarPerfilAcessoRequest request, CancellationToken cancellationToken = default)
     {
@@ -122,6 +145,14 @@ public sealed class AtualizarPerfilAcessoUseCase(
 
         var perfil = await perfilRepository.Query().FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Perfil nao encontrado.");
+        var dadosAntes = JsonSerializer.Serialize(new
+        {
+            perfil.Id,
+            perfil.Nome,
+            TipoPerfil = perfil.TipoPerfil.ToString(),
+            perfil.Descricao,
+            perfil.Ativo
+        });
 
         var nome = request.Nome.Trim();
         var existeNome = await perfilRepository.Query().AnyAsync(x => x.Id != id && x.Nome == nome, cancellationToken);
@@ -136,6 +167,26 @@ public sealed class AtualizarPerfilAcessoUseCase(
         perfil.AtualizarAuditoria(usuarioAtual.Login);
         perfilRepository.Update(perfil);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Perfis e Permissoes",
+                "PerfilAcesso",
+                perfil.Id.ToString(),
+                $"Perfil '{perfil.Nome}' atualizado.",
+                dadosAntes: dadosAntes,
+                dadosDepois: JsonSerializer.Serialize(new
+                {
+                    perfil.Id,
+                    perfil.Nome,
+                    TipoPerfil = perfil.TipoPerfil.ToString(),
+                    perfil.Descricao,
+                    perfil.Ativo
+                }),
+                cancellationToken: cancellationToken);
+        }
+
         return ObterPerfilAcessoUseCase.MapDetalhe(perfil);
     }
 }
@@ -144,7 +195,8 @@ public sealed class InativarPerfilAcessoUseCase(
     IRepository<PerfilAcesso> perfilRepository,
     IRepository<Usuario> usuarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IInativarPerfilAcessoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IInativarPerfilAcessoUseCase
 {
     public async Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -184,6 +236,17 @@ public sealed class InativarPerfilAcessoUseCase(
         perfil.Desativar(usuarioAtual.Login);
         perfilRepository.Update(perfil);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarInativacaoAsync(
+                "Perfis e Permissoes",
+                "PerfilAcesso",
+                perfil.Id.ToString(),
+                $"Perfil '{perfil.Nome}' inativado.",
+                cancellationToken: cancellationToken);
+        }
+
         return new AlterarSituacaoCadastroResponse(perfil.Id, false, "Perfil inativado com sucesso.");
     }
 }
@@ -191,7 +254,8 @@ public sealed class InativarPerfilAcessoUseCase(
 public sealed class ReativarPerfilAcessoUseCase(
     IRepository<PerfilAcesso> perfilRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IReativarPerfilAcessoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IReativarPerfilAcessoUseCase
 {
     public async Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -209,6 +273,18 @@ public sealed class ReativarPerfilAcessoUseCase(
         perfil.Ativar(usuarioAtual.Login);
         perfilRepository.Update(perfil);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarAtivacaoAsync(
+                "Perfis e Permissoes",
+                "PerfilAcesso",
+                perfil.Id.ToString(),
+                $"Perfil '{perfil.Nome}' reativado.",
+                cancellationToken: cancellationToken);
+        }
+
         return new AlterarSituacaoCadastroResponse(perfil.Id, true, "Perfil reativado com sucesso.");
     }
 }
+

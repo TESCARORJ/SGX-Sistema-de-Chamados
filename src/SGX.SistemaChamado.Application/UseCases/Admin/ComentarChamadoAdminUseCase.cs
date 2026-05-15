@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -15,7 +17,8 @@ public sealed class ComentarChamadoAdminUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IComentarChamadoAdminUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IComentarChamadoAdminUseCase
 {
     public async Task<ComentarioAdminResponse> ExecutarAsync(Guid chamadoId, ComentarioAdminChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -66,6 +69,38 @@ public sealed class ComentarChamadoAdminUseCase(
         chamadoRepository.Update(chamado);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Chamados",
+                Entidade = "Chamado",
+                EntidadeId = chamadoId.ToString(),
+                Acao = TipoAcaoAuditoria.Edicao,
+                Descricao = request.Interno
+                    ? "Comentario interno registrado."
+                    : "Comentario publico administrativo registrado.",
+                DadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
+                {
+                    ComentarioId = comentario.Id,
+                    comentario.Interno,
+                    TamanhoMensagem = comentario.Mensagem.Length
+                }),
+                Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: chamado.Codigo,
+                    nome: chamado.Titulo,
+                    operacao: request.Interno ? "ComentarioInterno" : "ComentarioPublico",
+                    resultado: "Sucesso",
+                    observacao: $"ComentarioId: {comentario.Id}"),
+                Nivel = NivelAuditoria.Informacao,
+                Sucesso = true
+            }, cancellationToken);
+        }
 
         return new ComentarioAdminResponse(
             comentario.Id,

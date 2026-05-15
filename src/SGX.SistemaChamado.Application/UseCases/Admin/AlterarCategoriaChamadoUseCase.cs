@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -15,7 +17,8 @@ public sealed class AlterarCategoriaChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAlterarCategoriaChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAlterarCategoriaChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AlterarCategoriaChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -31,9 +34,11 @@ public sealed class AlterarCategoriaChamadoUseCase(
         }
 
         var chamado = await chamadoRepository.Query()
+            .Include(x => x.Categoria)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+        var categoriaAnterior = chamado.Categoria?.Nome;
 
         var categoria = await categoriaRepository.Query()
             .AsNoTracking()
@@ -56,6 +61,32 @@ public sealed class AlterarCategoriaChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var (dadosAntes, dadosDepois) = AuditoriaDiffHelper.CriarDiff(
+                new { Categoria = categoriaAnterior, DepartamentoId = chamado.DepartamentoId },
+                new { Categoria = categoria.Nome, categoria.DepartamentoId });
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoId.ToString(),
+                "Categoria do chamado alterada.",
+                dadosAntes: dadosAntes,
+                dadosDepois: dadosDepois,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "AlteracaoCategoria",
+                    resultado: "Sucesso",
+                    observacao: $"Categoria atual: {atualizado.Categoria}"),
+                cancellationToken: cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

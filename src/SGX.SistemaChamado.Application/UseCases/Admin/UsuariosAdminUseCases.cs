@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
+using System.Text.Json;
 
 namespace SGX.SistemaChamado.Application.UseCases.Admin;
 
@@ -133,7 +135,8 @@ public sealed class CriarUsuarioAdminUseCase(
     IRepository<PerfilAcesso> perfilAcessoRepository,
     IRepository<UsuarioPerfilAcesso> usuarioPerfilAcessoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : ICriarUsuarioAdminUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : ICriarUsuarioAdminUseCase
 {
     public async Task<UsuarioAdminDetalheResponse> ExecutarAsync(CriarUsuarioAdminRequest request, CancellationToken cancellationToken = default)
     {
@@ -191,7 +194,31 @@ public sealed class CriarUsuarioAdminUseCase(
             .ThenInclude(x => x.PerfilAcesso)
             .FirstAsync(x => x.Id == usuario.Id, cancellationToken);
 
-        return ObterUsuarioAdminUseCase.MapDetalhe(criado);
+        var response = ObterUsuarioAdminUseCase.MapDetalhe(criado);
+
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = JsonSerializer.Serialize(new
+            {
+                response.Id,
+                response.Nome,
+                response.Email,
+                response.Login,
+                response.Situacao,
+                response.DepartamentoId,
+                Perfis = response.Perfis.Select(x => x.Nome).OrderBy(x => x).ToArray()
+            });
+
+            await auditoriaService.RegistrarCriacaoAsync(
+                "Usuarios",
+                "Usuario",
+                usuario.Id.ToString(),
+                $"Usuario '{response.Email}' criado no modulo de cadastros.",
+                dadosDepois: dadosDepois,
+                cancellationToken: cancellationToken);
+        }
+
+        return response;
     }
 
     internal static string DerivarLogin(string email)
@@ -228,7 +255,8 @@ public sealed class AtualizarUsuarioAdminUseCase(
     IRepository<Usuario> usuarioRepository,
     IRepository<Departamento> departamentoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarUsuarioAdminUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarUsuarioAdminUseCase
 {
     public async Task<UsuarioAdminDetalheResponse> ExecutarAsync(Guid id, AtualizarUsuarioAdminRequest request, CancellationToken cancellationToken = default)
     {
@@ -246,6 +274,15 @@ public sealed class AtualizarUsuarioAdminUseCase(
             .ThenInclude(x => x.PerfilAcesso)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Usuario nao encontrado.");
+        var dadosAntes = JsonSerializer.Serialize(new
+        {
+            usuario.Id,
+            usuario.Nome,
+            usuario.Email,
+            usuario.Login,
+            Situacao = usuario.Situacao.ToString(),
+            usuario.DepartamentoId
+        });
 
         var email = request.Email.Trim().ToLowerInvariant();
         var login = string.IsNullOrWhiteSpace(request.Login)
@@ -289,14 +326,38 @@ public sealed class AtualizarUsuarioAdminUseCase(
             .ThenInclude(x => x.PerfilAcesso)
             .FirstAsync(x => x.Id == id, cancellationToken);
 
-        return ObterUsuarioAdminUseCase.MapDetalhe(atualizado);
+        var response = ObterUsuarioAdminUseCase.MapDetalhe(atualizado);
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = JsonSerializer.Serialize(new
+            {
+                response.Id,
+                response.Nome,
+                response.Email,
+                response.Login,
+                response.Situacao,
+                response.DepartamentoId
+            });
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Usuarios",
+                "Usuario",
+                id.ToString(),
+                $"Usuario '{response.Email}' atualizado no modulo de cadastros.",
+                dadosAntes: dadosAntes,
+                dadosDepois: dadosDepois,
+                cancellationToken: cancellationToken);
+        }
+
+        return response;
     }
 }
 
 public sealed class InativarUsuarioAdminUseCase(
     IRepository<Usuario> usuarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IInativarUsuarioAdminUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IInativarUsuarioAdminUseCase
 {
     public async Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -338,6 +399,17 @@ public sealed class InativarUsuarioAdminUseCase(
         usuarioRepository.Update(usuario);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarInativacaoAsync(
+                "Usuarios",
+                "Usuario",
+                usuario.Id.ToString(),
+                $"Usuario '{usuario.Email}' inativado.",
+                metadados: JsonSerializer.Serialize(new { Situacao = usuario.Situacao.ToString() }),
+                cancellationToken: cancellationToken);
+        }
+
         return new AlterarSituacaoCadastroResponse(usuario.Id, false, "Usuario inativado com sucesso.");
     }
 }
@@ -345,7 +417,8 @@ public sealed class InativarUsuarioAdminUseCase(
 public sealed class ReativarUsuarioAdminUseCase(
     IRepository<Usuario> usuarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IReativarUsuarioAdminUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IReativarUsuarioAdminUseCase
 {
     public async Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -366,6 +439,17 @@ public sealed class ReativarUsuarioAdminUseCase(
         usuarioRepository.Update(usuario);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarAtivacaoAsync(
+                "Usuarios",
+                "Usuario",
+                usuario.Id.ToString(),
+                $"Usuario '{usuario.Email}' reativado.",
+                metadados: JsonSerializer.Serialize(new { Situacao = usuario.Situacao.ToString() }),
+                cancellationToken: cancellationToken);
+        }
+
         return new AlterarSituacaoCadastroResponse(usuario.Id, true, "Usuario reativado com sucesso.");
     }
 }
@@ -375,7 +459,8 @@ public sealed class AlterarPerfisUsuarioUseCase(
     IRepository<PerfilAcesso> perfilAcessoRepository,
     IRepository<UsuarioPerfilAcesso> usuarioPerfilAcessoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAlterarPerfisUsuarioUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAlterarPerfisUsuarioUseCase
 {
     public async Task<UsuarioAdminDetalheResponse> ExecutarAsync(Guid id, AlterarPerfisUsuarioRequest request, CancellationToken cancellationToken = default)
     {
@@ -393,6 +478,11 @@ public sealed class AlterarPerfisUsuarioUseCase(
             .ThenInclude(x => x.PerfilAcesso)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Usuario nao encontrado.");
+        var dadosAntes = JsonSerializer.Serialize(new
+        {
+            UsuarioId = usuario.Id,
+            Perfis = usuario.UsuarioPerfis.Select(x => x.PerfilAcesso.Nome).OrderBy(x => x).ToArray()
+        });
 
         var perfis = await CriarUsuarioAdminUseCase.CarregarPerfisAsync(perfilAcessoRepository, request.PerfilIds, cancellationToken);
         if (perfis.Count == 0)
@@ -443,6 +533,30 @@ public sealed class AlterarPerfisUsuarioUseCase(
             .ThenInclude(x => x.PerfilAcesso)
             .FirstAsync(x => x.Id == id, cancellationToken);
 
-        return ObterUsuarioAdminUseCase.MapDetalhe(atualizado);
+        var response = ObterUsuarioAdminUseCase.MapDetalhe(atualizado);
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = JsonSerializer.Serialize(new
+            {
+                UsuarioId = response.Id,
+                Perfis = response.Perfis.Select(x => x.Nome).OrderBy(x => x).ToArray()
+            });
+
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Usuarios",
+                Entidade = "Usuario",
+                EntidadeId = response.Id.ToString(),
+                Acao = TipoAcaoAuditoria.AlteracaoPermissao,
+                Descricao = $"Perfis do usuario '{response.Email}' alterados.",
+                DadosAntes = dadosAntes,
+                DadosDepois = dadosDepois,
+                Nivel = NivelAuditoria.Informacao,
+                Sucesso = true
+            }, cancellationToken);
+        }
+
+        return response;
     }
 }
+

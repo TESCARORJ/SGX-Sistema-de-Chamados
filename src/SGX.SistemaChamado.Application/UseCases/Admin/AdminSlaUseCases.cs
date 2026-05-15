@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Services.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -90,7 +92,8 @@ public sealed class CriarPoliticaSlaUseCase(
     IRepository<Departamento> departamentoRepository,
     IRepository<CalendarioCorporativo> calendarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : ICriarPoliticaSlaUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : ICriarPoliticaSlaUseCase
 {
     public async Task<PoliticaSlaResponse> ExecutarAsync(CriarPoliticaSlaRequest request, CancellationToken cancellationToken = default)
     {
@@ -151,6 +154,26 @@ public sealed class CriarPoliticaSlaUseCase(
         var politicaCompleta = await PoliticasSlaMapper.CarregarPoliticaPorIdAsync(politicaRepository, politica.Id, cancellationToken)
             ?? throw new InvalidOperationException("Falha ao recarregar a politica de SLA criada.");
 
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarCriacaoAsync(
+                "SLA",
+                "PoliticaSla",
+                politica.Id.ToString(),
+                "Politica de SLA criada.",
+                dadosDepois: PoliticasSlaMapper.SerializarPoliticaAuditoria(politicaCompleta),
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "SLA",
+                    entidade: "PoliticaSla",
+                    entidadeId: politica.Id.ToString(),
+                    codigo: politicaCompleta.Nome,
+                    nome: politicaCompleta.Descricao,
+                    operacao: "CriacaoPoliticaSla",
+                    resultado: "Sucesso"),
+                cancellationToken: cancellationToken);
+        }
+
         return PoliticasSlaMapper.Map(politicaCompleta);
     }
 }
@@ -163,7 +186,8 @@ public sealed class AtualizarPoliticaSlaUseCase(
     IRepository<Departamento> departamentoRepository,
     IRepository<CalendarioCorporativo> calendarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarPoliticaSlaUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarPoliticaSlaUseCase
 {
     public async Task<PoliticaSlaResponse> ExecutarAsync(Guid id, AtualizarPoliticaSlaRequest request, CancellationToken cancellationToken = default)
     {
@@ -179,6 +203,7 @@ public sealed class AtualizarPoliticaSlaUseCase(
             .Include(x => x.Metas)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Politica de SLA nao encontrada.");
+        var dadosAntesPolitica = PoliticasSlaMapper.SerializarPoliticaAuditoria(politica);
 
         await PoliticasSlaMapper.ValidarReferenciasAsync(
             request.CategoriaId,
@@ -262,6 +287,29 @@ public sealed class AtualizarPoliticaSlaUseCase(
         var politicaCompleta = await PoliticasSlaMapper.CarregarPoliticaPorIdAsync(politicaRepository, id, cancellationToken)
             ?? throw new InvalidOperationException("Falha ao recarregar a politica de SLA atualizada.");
 
+        if (auditoriaService is not null)
+        {
+            var dadosDepoisPolitica = PoliticasSlaMapper.SerializarPoliticaAuditoria(politicaCompleta);
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "SLA",
+                "PoliticaSla",
+                id.ToString(),
+                "Politica de SLA atualizada.",
+                dadosAntes: dadosAntesPolitica,
+                dadosDepois: dadosDepoisPolitica,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "SLA",
+                    entidade: "PoliticaSla",
+                    entidadeId: id.ToString(),
+                    codigo: politicaCompleta.Nome,
+                    nome: politicaCompleta.Descricao,
+                    operacao: "AtualizacaoPoliticaSla",
+                    resultado: "Sucesso"),
+                cancellationToken: cancellationToken);
+        }
+
         return PoliticasSlaMapper.Map(politicaCompleta);
     }
 }
@@ -270,7 +318,8 @@ public sealed class AtualizarStatusPoliticaSlaUseCase(
     IRepository<PoliticaSla> politicaRepository,
     IRepository<MetaSla> metaRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarStatusPoliticaSlaUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarStatusPoliticaSlaUseCase
 {
     public async Task<PoliticaSlaResponse> ExecutarAsync(
         Guid id,
@@ -289,6 +338,7 @@ public sealed class AtualizarStatusPoliticaSlaUseCase(
             .Include(x => x.Metas)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Politica de SLA nao encontrada.");
+        var ativoAntes = politica.Ativo;
 
         if (request.Ativo)
         {
@@ -314,6 +364,45 @@ public sealed class AtualizarStatusPoliticaSlaUseCase(
 
         var politicaCompleta = await PoliticasSlaMapper.CarregarPoliticaPorIdAsync(politicaRepository, id, cancellationToken)
             ?? throw new InvalidOperationException("Falha ao recarregar a politica de SLA.");
+
+        if (auditoriaService is not null)
+        {
+            var descricao = request.Ativo
+                ? "Politica de SLA ativada."
+                : "Politica de SLA inativada.";
+
+            var metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                origem: "api",
+                modulo: "SLA",
+                entidade: "PoliticaSla",
+                entidadeId: id.ToString(),
+                codigo: politicaCompleta.Nome,
+                nome: politicaCompleta.Descricao,
+                operacao: request.Ativo ? "AtivacaoPoliticaSla" : "InativacaoPoliticaSla",
+                resultado: "Sucesso",
+                observacao: $"Ativo: {ativoAntes} -> {politicaCompleta.Ativo}");
+
+            if (request.Ativo)
+            {
+                await auditoriaService.RegistrarAtivacaoAsync(
+                    "SLA",
+                    "PoliticaSla",
+                    id.ToString(),
+                    descricao,
+                    metadados,
+                    cancellationToken);
+            }
+            else
+            {
+                await auditoriaService.RegistrarInativacaoAsync(
+                    "SLA",
+                    "PoliticaSla",
+                    id.ToString(),
+                    descricao,
+                    metadados,
+                    cancellationToken);
+            }
+        }
 
         return PoliticasSlaMapper.Map(politicaCompleta);
     }
@@ -367,7 +456,8 @@ public sealed class ObterConfiguracaoAlertaSlaUseCase(
 public sealed class AtualizarConfiguracaoAlertaSlaUseCase(
     IRepository<ConfiguracaoAlertaSla> configuracaoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarConfiguracaoAlertaSlaUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarConfiguracaoAlertaSlaUseCase
 {
     public async Task<ConfiguracaoAlertaSlaResponse> ExecutarAsync(
         AtualizarConfiguracaoAlertaSlaRequest request,
@@ -379,6 +469,15 @@ public sealed class AtualizarConfiguracaoAlertaSlaUseCase(
         var configuracao = await ObterConfiguracaoAlertaSlaUseCase.CarregarConfiguracaoAsync(configuracaoRepository, cancellationToken);
         var nova = configuracao is null;
         configuracao ??= new ConfiguracaoAlertaSla(30, 120, true, false, false, usuarioAtual.Login);
+        var dadosAntes = nova ? null : AuditoriaDiffHelper.SerializarSeguro(new
+        {
+            configuracao.Ativo,
+            configuracao.MinutosAntesVencimentoPrimeiraResposta,
+            configuracao.MinutosAntesVencimentoResolucao,
+            configuracao.NotificarAtendente,
+            configuracao.NotificarGestor,
+            configuracao.NotificarDepartamento
+        });
 
         if (nova)
         {
@@ -396,6 +495,55 @@ public sealed class AtualizarConfiguracaoAlertaSlaUseCase(
 
         configuracaoRepository.Update(configuracao);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
+            {
+                configuracao.Ativo,
+                configuracao.MinutosAntesVencimentoPrimeiraResposta,
+                configuracao.MinutosAntesVencimentoResolucao,
+                configuracao.NotificarAtendente,
+                configuracao.NotificarGestor,
+                configuracao.NotificarDepartamento
+            });
+
+            if (nova)
+            {
+                await auditoriaService.RegistrarCriacaoAsync(
+                    "SLA",
+                    "ConfiguracaoAlertaSla",
+                    configuracao.Id.ToString(),
+                    "Configuracao de alerta de SLA criada.",
+                    dadosDepois: dadosDepois,
+                    metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                        origem: "api",
+                        modulo: "SLA",
+                        entidade: "ConfiguracaoAlertaSla",
+                        entidadeId: configuracao.Id.ToString(),
+                        operacao: "CriacaoConfiguracaoAlertaSla",
+                        resultado: "Sucesso"),
+                    cancellationToken: cancellationToken);
+            }
+            else
+            {
+                await auditoriaService.RegistrarEdicaoAsync(
+                    "SLA",
+                    "ConfiguracaoAlertaSla",
+                    configuracao.Id.ToString(),
+                    "Configuracao de alerta de SLA alterada.",
+                    dadosAntes: dadosAntes,
+                    dadosDepois: dadosDepois,
+                    metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                        origem: "api",
+                        modulo: "SLA",
+                        entidade: "ConfiguracaoAlertaSla",
+                        entidadeId: configuracao.Id.ToString(),
+                        operacao: "AtualizacaoConfiguracaoAlertaSla",
+                        resultado: "Sucesso"),
+                    cancellationToken: cancellationToken);
+            }
+        }
 
         return ObterConfiguracaoAlertaSlaUseCase.MapConfiguracao(configuracao);
     }
@@ -611,6 +759,33 @@ internal static class PoliticasSlaMapper
             .ThenInclude(x => x.Prioridade)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
+
+    public static string? SerializarPoliticaAuditoria(PoliticaSla politica)
+        => AuditoriaDiffHelper.SerializarSeguro(new
+        {
+            politica.Nome,
+            politica.Descricao,
+            politica.Ativo,
+            politica.Ordem,
+            politica.CategoriaId,
+            politica.DepartamentoId,
+            politica.CalendarioCorporativoId,
+            politica.UsarHorarioComercial,
+            politica.PausarQuandoAguardandoSolicitante,
+            Metas = politica.Metas
+                .OrderBy(x => x.PrioridadeId)
+                .Select(x => new
+                {
+                    x.Id,
+                    x.PrioridadeId,
+                    x.TempoPrimeiraRespostaMinutos,
+                    x.TempoResolucaoMinutos,
+                    x.TempoAtualizacaoMinutos,
+                    x.TempoRespostaSubsequenteMinutos,
+                    x.Ativo
+                })
+                .ToArray()
+        });
 
     public static void ValidarDuplicidadePrioridade(IReadOnlyCollection<MetaSlaUpsertRequest> metas)
     {

@@ -34,7 +34,7 @@ Diretriz de seguranca:
 
 ## Em evolucao
 
-- Auditoria avancada de alteracoes de permissoes
+- Historico/Auditoria (Governanca) em desenvolvimento - Sprint 1 da base tecnica iniciada
 - API real de notificacoes
 - Relatorios exportaveis
 - Testes automatizados frontend/e2e
@@ -81,7 +81,40 @@ Diretriz de seguranca:
 | GET /api/me com permissoes | Concluido | Frontend recebe permissoes efetivas |
 | Policies por permissao | Concluido | Backend suporta autorizacao granular |
 | Controle visual por permissao | Concluido | Acoes sao exibidas conforme permissao |
-| Auditoria detalhada | Proxima etapa | Historico avancado de alteracoes |
+| Auditoria detalhada | Em desenvolvimento | Base tecnica com entidade, tabela, service centralizado e eventos iniciais em implantacao |
+
+## Sprint Historico/Auditoria 1 - Base tecnica
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Status da implementacao: Em desenvolvimento
+Status tecnico: Base tecnica em implementacao
+Percentual (checklist Sprint 1): 94% (15 de 16 itens)
+
+Objetivo:
+Criar trilha de auditoria para registrar acoes relevantes executadas no SGX Sistema de Chamados, permitindo rastreabilidade, governanca, analise de alteracoes e apoio a homologacao.
+
+Situacao atual:
+Modulo de auditoria iniciado com estrutura central de eventos auditaveis, service de registro, tabela propria e primeiros eventos do sistema.
+
+Checklist Sprint 1:
+- [x] Entidade EventoAuditoria criada.
+- [x] Enum de acao de auditoria criado.
+- [x] Enum de nivel de auditoria criado.
+- [x] Migration da tabela eventos_auditoria criada.
+- [x] Indices de consulta criados.
+- [x] Service centralizado de auditoria criado.
+- [x] Context provider de auditoria criado.
+- [x] Captura de usuario atual integrada.
+- [x] Captura de IP e User-Agent integrada.
+- [x] Registro de login integrado.
+- [ ] Registro de logout integrado, pois ainda nao existe fluxo controlado de logout no backend.
+- [x] Registro de criacao/edicao/inativacao de usuario integrado.
+- [x] Registro de perfis/permissoes integrado.
+- [x] DTOs de auditoria criados.
+- [x] Testes automatizados criados.
+- [x] Documentacao atualizada em Gestao ITSM.
 
 ## Roadmap ITSM - status real
 
@@ -416,3 +449,98 @@ Pendencias evolutivas:
 - importacao automatica de feriados nacionais, estaduais e municipais;
 - excecoes recorrentes;
 - refinamento de prazo remanescente em reabertura.
+
+## Sprint Historico/Auditoria 2 - Modulos criticos
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Objetivo:
+Aplicar auditoria de governanca aos modulos criticos do SGX para registrar acoes relevantes com contexto, antes/depois e mascaramento de dados sensiveis.
+
+Situacao atual:
+Base tecnica da Sprint 1 mantida e cobertura expandida para chamados, usuarios, perfis/permissoes, SLA administrativo, autenticacao corporativa e roadmap ITSM.
+
+Status da implementacao: Em desenvolvimento
+Status tecnico: Auditoria aplicada aos modulos criticos
+Percentual: calculado por checklist
+
+Checklist Sprint 2:
+- [x] Helper de diff antes/depois criado.
+- [x] Mascaramento de dados sensiveis implementado.
+- [x] Auditoria de abertura de chamado implementada.
+- [x] Auditoria de alteracao de status implementada.
+- [x] Auditoria de alteracao de prioridade implementada.
+- [x] Auditoria de alteracao de categoria implementada.
+- [x] Auditoria de atribuicao de responsavel implementada.
+- [x] Auditoria de assumir chamado implementada.
+- [x] Auditoria de comentarios administrativos implementada.
+- [x] Auditoria de encerramento/resolucao implementada.
+- [x] Auditoria de reabertura implementada.
+- [x] Auditoria de anexos preparada ou implementada.
+- [x] Auditoria de usuarios revisada e complementada.
+- [x] Auditoria de perfis revisada e complementada.
+- [x] Auditoria de permissoes revisada e complementada.
+- [x] Auditoria de politicas de SLA implementada.
+- [x] Auditoria de metas de SLA implementada.
+- [x] Auditoria de calendarios de SLA implementada.
+- [x] Auditoria de horarios de calendario implementada.
+- [x] Auditoria de excecoes de calendario implementada.
+- [x] Auditoria de alertas de SLA implementada.
+- [x] Auditoria de autenticacao corporativa implementada.
+- [x] Auditoria de Roadmap ITSM implementada.
+- [x] Auditoria de documentacao ITSM preparada conforme estrutura atual.
+- [x] Testes automatizados de auditoria dos modulos criticos criados.
+- [x] Documentacao atualizada em Gestao ITSM.
+- [ ] Validacao no banco com cenarios manuais completos pendente de execucao no ambiente.
+
+Pendencias planejadas para Sprint 3:
+- tela administrativa de consulta de auditoria;
+- listagem paginada e filtros avancados;
+- dashboard e exportacao de auditoria.
+
+## Sprint Historico/Auditoria 3 - Consulta administrativa
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Objetivo:
+Permitir consulta administrativa dos eventos de auditoria com filtros avancados, paginacao, detalhe do evento e indicadores de governanca.
+
+Situacao atual:
+Base tecnica da Sprint 1 e cobertura de modulos criticos da Sprint 2 foram consolidadas com camada de consulta e visualizacao administrativa.
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+Percentual: calculado por checklist
+
+Checklist Sprint 3:
+- [x] Endpoints administrativos de auditoria criados.
+- [x] Use cases/services de consulta de auditoria criados.
+- [x] Filtros de auditoria criados.
+- [x] Paginacao de eventos criada.
+- [x] Endpoint de detalhe de evento criado.
+- [x] Endpoint de dashboard de auditoria criado.
+- [x] Permissoes de auditoria criadas e integradas.
+- [x] Menu Governanca > Auditoria criado.
+- [x] Rota /admin/governanca/auditoria criada.
+- [x] Tela administrativa de auditoria criada.
+- [x] Drawer de detalhe criado.
+- [x] Visualizacao de dados antes/depois criada.
+- [x] Indicadores basicos de auditoria criados.
+- [x] Service frontend de auditoria criado.
+- [x] Tipos frontend de auditoria criados.
+- [x] Link entre Auditoria e Gestao ITSM criado.
+- [x] Documentacao em Gestao ITSM atualizada.
+- [x] Testes automatizados backend criados.
+- [x] Build frontend validado.
+- [x] Validacao com eventos reais em eventos_auditoria executada.
+
+Pendencias evolutivas:
+- exportacao Excel/PDF;
+- retencao configuravel de auditoria;
+- assinatura/hash da trilha de auditoria;
+- alertas para eventos criticos;
+- painel avancado de seguranca;
+- integracao com SIEM/Log Analytics;
+- politica de anonimizaçao/LGPD para eventos antigos.

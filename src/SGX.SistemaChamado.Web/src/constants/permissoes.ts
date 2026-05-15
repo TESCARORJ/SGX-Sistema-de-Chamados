@@ -29,6 +29,8 @@
   slaEditar: 'Sla.Editar',
   slaExcluir: 'Sla.Excluir',
   slaAtivarDesativar: 'Sla.AtivarDesativar',
+  auditoriaVisualizar: 'Auditoria.Visualizar',
+  auditoriaGerenciar: 'Auditoria.Gerenciar',
 } as const
 
 export const permissoesCriticas = [

@@ -5,6 +5,8 @@ using SGX.SistemaChamado.Api.Authentication;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Exceptions;
 using SGX.SistemaChamado.Api.Options;
+using SGX.SistemaChamado.Application.Helpers;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -17,7 +19,8 @@ public sealed class UsuarioAtualService(
     IHostEnvironment environment,
     IOptions<AuthOptions> authOptions,
     IOptions<AzureAdOptions> azureAdOptions,
-    IConfiguracaoIntegracaoMicrosoftService configuracaoIntegracaoMicrosoftService) : IUsuarioAtualService
+    IConfiguracaoIntegracaoMicrosoftService configuracaoIntegracaoMicrosoftService,
+    IAuditoriaService? auditoriaService = null) : IUsuarioAtualService
 {
     private const string CacheKey = "sgx.usuario_atual";
     private const string OrigemAutenticacaoMicrosoft = "MicrosoftEntraId";
@@ -50,6 +53,13 @@ public sealed class UsuarioAtualService(
 
         if (string.IsNullOrWhiteSpace(identidade.Email) && string.IsNullOrWhiteSpace(identidade.Login))
         {
+            await RegistrarAutenticacaoCorporativaAsync(
+                false,
+                "Falha de autenticacao corporativa por claims insuficientes.",
+                "Claims de identidade ausentes.",
+                identidadeEmail: identidade.Email,
+                identidadeLogin: identidade.Login,
+                cancellationToken: cancellationToken);
             throw new InvalidOperationException(
                 "Nao foi possivel identificar o usuario autenticado. Claims esperadas: preferred_username, email, upn ou unique_name.");
         }
@@ -58,11 +68,49 @@ public sealed class UsuarioAtualService(
         {
             if (!configuracaoAuthEfetiva.MicrosoftHabilitado)
             {
+                await RegistrarAutenticacaoCorporativaAsync(
+                    false,
+                    "Falha de autenticacao corporativa por provedor Microsoft desabilitado.",
+                    "Conta Microsoft nao permitida para este ambiente.",
+                    identidadeEmail: identidade.Email,
+                    identidadeLogin: identidade.Login,
+                    cancellationToken: cancellationToken);
                 throw new AcessoNegadoException("Conta Microsoft não permitida para este ambiente.");
             }
 
-            ValidarTokenMicrosoftSingleTenant(principal);
-            ValidarDominioPermitido(identidade.Email, configuracaoAuthEfetiva.DominiosPermitidos);
+            try
+            {
+                ValidarTokenMicrosoftSingleTenant(principal);
+            }
+            catch (Exception ex) when (ex is AcessoNegadoException)
+            {
+                await RegistrarAutenticacaoCorporativaAsync(
+                    false,
+                    "Falha de autenticacao corporativa por tenant/token invalido.",
+                    ex.Message,
+                    identidadeEmail: identidade.Email,
+                    identidadeLogin: identidade.Login,
+                    tenantId: ObterClaim(principal, "tid"),
+                    cancellationToken: cancellationToken);
+                throw;
+            }
+
+            try
+            {
+                ValidarDominioPermitido(identidade.Email, configuracaoAuthEfetiva.DominiosPermitidos);
+            }
+            catch (Exception ex) when (ex is AcessoNegadoException)
+            {
+                await RegistrarAutenticacaoCorporativaAsync(
+                    false,
+                    "Falha de autenticacao corporativa por dominio nao permitido.",
+                    ex.Message,
+                    identidadeEmail: identidade.Email,
+                    identidadeLogin: identidade.Login,
+                    tenantId: ObterClaim(principal, "tid"),
+                    cancellationToken: cancellationToken);
+                throw;
+            }
         }
 
         var usuario = await CarregarUsuarioInternoAsync(identidade.Email, identidade.Login, cancellationToken);
@@ -71,6 +119,14 @@ public sealed class UsuarioAtualService(
         {
             if (autenticadoPorLocalSgx || (!autenticadoPorLocalDevelopment && !configuracaoAuthEfetiva.CriarUsuarioAutomaticamente))
             {
+                await RegistrarAutenticacaoCorporativaAsync(
+                    false,
+                    "Falha de autenticacao corporativa por usuario interno nao provisionado.",
+                    "Usuario nao provisionado no SGX Sistema de Chamados.",
+                    identidadeEmail: identidade.Email,
+                    identidadeLogin: identidade.Login,
+                    tenantId: ObterClaim(principal, "tid"),
+                    cancellationToken: cancellationToken);
                 throw new AcessoNegadoException("Usuário não provisionado no SGX Sistema de Chamados.");
             }
 
@@ -80,10 +136,30 @@ public sealed class UsuarioAtualService(
                 identidade.Login,
                 configuracaoAuthEfetiva.PerfilPadraoUsuarioMicrosoft,
                 cancellationToken);
+
+            await RegistrarAutenticacaoCorporativaAsync(
+                true,
+                "Usuario interno criado automaticamente por autenticacao corporativa.",
+                identidadeEmail: usuario.Email,
+                identidadeLogin: usuario.Login,
+                tenantId: ObterClaim(principal, "tid"),
+                usuarioId: usuario.Id,
+                usuarioInterno: usuario.Email,
+                cancellationToken: cancellationToken);
         }
 
         if (!usuario.Ativo || usuario.Situacao != SituacaoUsuario.Ativo)
         {
+            await RegistrarAutenticacaoCorporativaAsync(
+                false,
+                "Falha de autenticacao corporativa para usuario interno inativo.",
+                "Usuario inativo no SGX Sistema de Chamados.",
+                identidadeEmail: identidade.Email,
+                identidadeLogin: identidade.Login,
+                tenantId: ObterClaim(principal, "tid"),
+                usuarioId: usuario.Id,
+                usuarioInterno: usuario.Email,
+                cancellationToken: cancellationToken);
             throw new AcessoNegadoException("Usuário inativo no SGX Sistema de Chamados.");
         }
 
@@ -127,6 +203,20 @@ public sealed class UsuarioAtualService(
             usuario.DeveAlterarSenha);
 
         httpContext.Items[CacheKey] = contexto;
+
+        if (!autenticadoPorLocalDevelopment && !autenticadoPorLocalSgx)
+        {
+            await RegistrarAutenticacaoCorporativaAsync(
+                true,
+                "Login Microsoft Entra ID realizado com sucesso.",
+                identidadeEmail: usuario.Email,
+                identidadeLogin: usuario.Login,
+                tenantId: ObterClaim(principal, "tid"),
+                usuarioId: usuario.Id,
+                usuarioInterno: usuario.Email,
+                cancellationToken: cancellationToken);
+        }
+
         return contexto;
     }
 
@@ -394,4 +484,48 @@ public sealed class UsuarioAtualService(
         string Nome,
         string Email,
         string Login);
+
+    private async Task RegistrarAutenticacaoCorporativaAsync(
+        bool sucesso,
+        string descricao,
+        string? mensagemErro = null,
+        string? identidadeEmail = null,
+        string? identidadeLogin = null,
+        string? tenantId = null,
+        Guid? usuarioId = null,
+        string? usuarioInterno = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (auditoriaService is null)
+        {
+            return;
+        }
+
+        await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+        {
+            Modulo = "Autenticacao Corporativa",
+            Entidade = "Autenticacao",
+            EntidadeId = usuarioId?.ToString(),
+            Acao = TipoAcaoAuditoria.Login,
+            Descricao = descricao,
+            Nivel = sucesso ? NivelAuditoria.Informacao : NivelAuditoria.Alerta,
+            Sucesso = sucesso,
+            MensagemErro = mensagemErro,
+            UsuarioId = usuarioId,
+            UsuarioEmail = identidadeEmail,
+            UsuarioLogin = identidadeLogin,
+            Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                origem: "api",
+                modulo: "Autenticacao Corporativa",
+                entidade: "Autenticacao",
+                entidadeId: usuarioId?.ToString(),
+                codigo: tenantId,
+                nome: identidadeEmail,
+                operacao: "LoginMicrosoft",
+                resultado: sucesso ? "Sucesso" : "Falha",
+                observacao: string.IsNullOrWhiteSpace(usuarioInterno)
+                    ? null
+                    : $"Usuario interno: {usuarioInterno}")
+        }, cancellationToken);
+    }
 }

@@ -1,4 +1,5 @@
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Email;
 using SGX.SistemaChamado.Infrastructure;
 using SGX.SistemaChamado.Worker.Email;
@@ -15,6 +16,7 @@ builder.Logging.AddSimpleConsole(options =>
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<IUsuarioContextoAplicacaoService, WorkerUsuarioContextoAplicacaoService>();
+builder.Services.AddScoped<IAuditoriaContextProvider, WorkerAuditoriaContextProvider>();
 builder.Services.AddSingleton<IEmailImapClient, MailKitEmailImapClient>();
 builder.Services.AddScoped<EmailIngestionService>();
 builder.Services.AddHostedService<Worker>();

@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Application.DTOs.Portal;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
 using SGX.SistemaChamado.Application.Options;
@@ -17,7 +19,8 @@ public sealed class AnexarArquivoChamadoUseCase(
     IArquivoStorageService arquivoStorageService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IOptions<ArquivosOptions> arquivosOptions,
-    IUnitOfWork unitOfWork) : IAnexarArquivoChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAnexarArquivoChamadoUseCase
 {
     private static readonly HashSet<string> ExtensoesPermitidas =
     [
@@ -75,6 +78,37 @@ public sealed class AnexarArquivoChamadoUseCase(
         chamadoRepository.Update(chamado);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Chamados",
+                Entidade = "Chamado",
+                EntidadeId = chamadoId.ToString(),
+                Acao = TipoAcaoAuditoria.Edicao,
+                Descricao = "Anexo adicionado ao chamado.",
+                DadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
+                {
+                    AnexoId = anexo.Id,
+                    anexo.NomeArquivo,
+                    anexo.ContentType,
+                    anexo.TamanhoBytes
+                }),
+                Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: chamado.Codigo,
+                    nome: chamado.Titulo,
+                    operacao: "AnexoAdicionado",
+                    resultado: "Sucesso",
+                    observacao: $"AnexoId: {anexo.Id}"),
+                Nivel = NivelAuditoria.Informacao,
+                Sucesso = true
+            }, cancellationToken);
+        }
 
         return new AnexoChamadoResponse(
             anexo.Id,

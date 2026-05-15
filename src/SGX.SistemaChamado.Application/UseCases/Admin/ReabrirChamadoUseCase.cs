@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -16,7 +18,8 @@ public sealed class ReabrirChamadoUseCase(
     IRepository<ComentarioChamado> comentarioRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IReabrirChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IReabrirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, ReabrirChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -36,6 +39,8 @@ public sealed class ReabrirChamadoUseCase(
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+        var statusAnterior = chamado.Status.Nome;
+        var encerradoAnterior = chamado.EncerradoEm;
 
         var podeReabrir = chamado.EncerradoEm.HasValue ||
             chamado.Status.Codigo is StatusChamadoEnum.Encerrado or StatusChamadoEnum.Resolvido;
@@ -78,6 +83,37 @@ public sealed class ReabrirChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoId.ToString(),
+                "Chamado reaberto.",
+                dadosAntes: AuditoriaDiffHelper.SerializarSeguro(new
+                {
+                    Status = statusAnterior,
+                    EncerradoEm = encerradoAnterior
+                }),
+                dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new
+                {
+                    Status = atualizado.Status,
+                    EncerradoEm = atualizado.EncerradoEm,
+                    TamanhoMensagem = request.Mensagem?.Length ?? 0
+                }),
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "Reabertura",
+                    resultado: "Sucesso",
+                    observacao: $"Status atual: {atualizado.Status}"),
+                cancellationToken: cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

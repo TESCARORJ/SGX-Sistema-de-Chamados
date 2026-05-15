@@ -1,6 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using SGX.SistemaChamado.Api.Contracts.Auth;
 using SGX.SistemaChamado.Api.Exceptions;
 using SGX.SistemaChamado.Api.Options;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -23,18 +25,19 @@ public sealed class AutenticacaoLocalSgxService(
     SGXSistemaChamadoDbContext dbContext,
     IPasswordHasher<Usuario> passwordHasher,
     IOptions<AuthOptions> authOptions,
-    ILogger<AutenticacaoLocalSgxService> logger) : IAutenticacaoLocalSgxService
+    ILogger<AutenticacaoLocalSgxService> logger,
+    IAuditoriaService? auditoriaService = null) : IAutenticacaoLocalSgxService
 {
     private const string OrigemAutenticacaoLocalSgx = "LocalSgx";
     private const string UsuarioTecnico = "auth.local";
-    private const string MensagemCredenciaisInvalidasOuBloqueio = "Credenciais inválidas ou acesso temporariamente bloqueado.";
+    private const string MensagemCredenciaisInvalidasOuBloqueio = "Credenciais inv�lidas ou acesso temporariamente bloqueado.";
 
     public async Task<LocalLoginResponse> LoginAsync(LocalLoginRequest request, CancellationToken cancellationToken = default)
     {
         var options = authOptions.Value;
         if (!options.LoginLocalHabilitado || !options.UsaLoginLocalSgxComoPrincipalOuHibrido())
         {
-            throw new InvalidOperationException("Login local SGX desabilitado pela configuração atual.");
+            throw new InvalidOperationException("Login local SGX desabilitado pela configura��o atual.");
         }
 
         var identificador = NormalizarIdentificador(request.Email);
@@ -42,6 +45,11 @@ public sealed class AutenticacaoLocalSgxService(
 
         if (string.IsNullOrWhiteSpace(identificador) || string.IsNullOrWhiteSpace(senhaInformada))
         {
+            await RegistrarFalhaLoginAsync(
+                "Falha de login local SGX por credenciais ausentes.",
+                MensagemCredenciaisInvalidasOuBloqueio,
+                identificador,
+                cancellationToken);
             throw new UnauthorizedAccessException(MensagemCredenciaisInvalidasOuBloqueio);
         }
 
@@ -52,19 +60,36 @@ public sealed class AutenticacaoLocalSgxService(
 
         if (usuario is null || string.IsNullOrWhiteSpace(usuario.SenhaHashLocal))
         {
-            logger.LogWarning("Falha no login local SGX. Identificador não localizado ou sem senha local.");
+            logger.LogWarning("Falha no login local SGX. Identificador n�o localizado ou sem senha local.");
+            await RegistrarFalhaLoginAsync(
+                "Falha de login local SGX por usuario inexistente ou sem senha local.",
+                MensagemCredenciaisInvalidasOuBloqueio,
+                identificador,
+                cancellationToken);
             throw new UnauthorizedAccessException(MensagemCredenciaisInvalidasOuBloqueio);
         }
 
         if (!usuario.Ativo || usuario.Situacao != SituacaoUsuario.Ativo)
         {
-            throw new AcessoNegadoException("Usuário inativo no SGX Sistema de Chamados.");
+            await RegistrarFalhaLoginAsync(
+                "Falha de login local SGX para usuario inativo.",
+                "Usuario inativo no SGX Sistema de Chamados.",
+                identificador,
+                cancellationToken,
+                usuario);
+            throw new AcessoNegadoException("Usu�rio inativo no SGX Sistema de Chamados.");
         }
 
         var agoraUtc = DateTime.UtcNow;
         if (usuario.BloqueadoAte.HasValue && usuario.BloqueadoAte.Value > agoraUtc)
         {
             logger.LogWarning("Login local SGX bloqueado temporariamente. UsuarioId={UsuarioId}", usuario.Id);
+            await RegistrarFalhaLoginAsync(
+                "Falha de login local SGX por lockout ativo.",
+                MensagemCredenciaisInvalidasOuBloqueio,
+                identificador,
+                cancellationToken,
+                usuario);
             throw new UnauthorizedAccessException(MensagemCredenciaisInvalidasOuBloqueio);
         }
 
@@ -82,13 +107,19 @@ public sealed class AutenticacaoLocalSgxService(
 
             if (usuario.BloqueadoAte.HasValue && usuario.BloqueadoAte.Value > agoraUtc)
             {
-                logger.LogWarning("Usuário bloqueado por tentativas inválidas no login local SGX. UsuarioId={UsuarioId}", usuario.Id);
+                logger.LogWarning("Usu�rio bloqueado por tentativas inv�lidas no login local SGX. UsuarioId={UsuarioId}", usuario.Id);
             }
             else
             {
-                logger.LogWarning("Falha no login local SGX por senha inválida. UsuarioId={UsuarioId}", usuario.Id);
+                logger.LogWarning("Falha no login local SGX por senha inv�lida. UsuarioId={UsuarioId}", usuario.Id);
             }
 
+            await RegistrarFalhaLoginAsync(
+                "Falha de login local SGX por senha invalida.",
+                MensagemCredenciaisInvalidasOuBloqueio,
+                identificador,
+                cancellationToken,
+                usuario);
             throw new UnauthorizedAccessException(MensagemCredenciaisInvalidasOuBloqueio);
         }
 
@@ -100,7 +131,18 @@ public sealed class AutenticacaoLocalSgxService(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Login local SGX concluído com sucesso. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Login local SGX conclu�do com sucesso. UsuarioId={UsuarioId}", usuario.Id);
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarLoginAsync(
+                true,
+                "Login local SGX realizado com sucesso.",
+                usuarioId: usuario.Id,
+                usuarioNome: usuario.Nome,
+                usuarioEmail: usuario.Email,
+                usuarioLogin: usuario.Login,
+                cancellationToken: cancellationToken);
+        }
 
         return GerarRespostaLogin(usuario, options);
     }
@@ -158,4 +200,33 @@ public sealed class AutenticacaoLocalSgxService(
 
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveTexto));
     }
+
+    private Task RegistrarFalhaLoginAsync(
+        string descricao,
+        string mensagemErro,
+        string? identificador,
+        CancellationToken cancellationToken,
+        Usuario? usuario = null)
+    {
+        if (auditoriaService is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return auditoriaService.RegistrarLoginAsync(
+            false,
+            descricao,
+            mensagemErro: mensagemErro,
+            usuarioId: usuario?.Id,
+            usuarioNome: usuario?.Nome,
+            usuarioEmail: usuario?.Email,
+            usuarioLogin: usuario?.Login ?? identificador,
+            metadados: string.IsNullOrWhiteSpace(identificador)
+                ? null
+                : JsonSerializer.Serialize(new { identificador }),
+            cancellationToken: cancellationToken);
+    }
 }
+
+
+

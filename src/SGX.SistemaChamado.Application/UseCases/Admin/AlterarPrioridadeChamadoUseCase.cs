@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -15,7 +17,8 @@ public sealed class AlterarPrioridadeChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAlterarPrioridadeChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAlterarPrioridadeChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AlterarPrioridadeChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -31,9 +34,11 @@ public sealed class AlterarPrioridadeChamadoUseCase(
         }
 
         var chamado = await chamadoRepository.Query()
+            .Include(x => x.Prioridade)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+        var prioridadeAnterior = chamado.Prioridade?.Nome;
 
         var prioridade = await prioridadeRepository.Query()
             .AsNoTracking()
@@ -56,6 +61,32 @@ public sealed class AlterarPrioridadeChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var (dadosAntes, dadosDepois) = AuditoriaDiffHelper.CriarDiff(
+                new { Prioridade = prioridadeAnterior },
+                new { Prioridade = prioridade.Nome });
+
+            await auditoriaService.RegistrarEdicaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoId.ToString(),
+                "Prioridade do chamado alterada.",
+                dadosAntes: dadosAntes,
+                dadosDepois: dadosDepois,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "AlteracaoPrioridade",
+                    resultado: "Sucesso",
+                    observacao: $"Prioridade atual: {atualizado.Prioridade}"),
+                cancellationToken: cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

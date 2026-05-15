@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -16,7 +18,8 @@ public sealed class EncerrarChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IEncerrarChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IEncerrarChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, EncerrarChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -71,6 +74,38 @@ public sealed class EncerrarChamadoUseCase(
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Chamados",
+                Entidade = "Chamado",
+                EntidadeId = chamadoId.ToString(),
+                Acao = TipoAcaoAuditoria.AlteracaoStatus,
+                Descricao = "Chamado encerrado.",
+                DadosAntes = AuditoriaDiffHelper.SerializarSeguro(new { Status = chamado.Status.Nome, EncerradoEm = (DateTime?)null }),
+                DadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
+                {
+                    Status = statusEncerrado.Nome,
+                    chamado.EncerradoEm,
+                    ComentarioInterno = request.ComentarioInterno,
+                    TamanhoSolucao = request.Solucao?.Length ?? 0
+                }),
+                Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoId.ToString(),
+                    codigo: atualizado.Codigo,
+                    nome: atualizado.Titulo,
+                    operacao: "Encerramento",
+                    resultado: "Sucesso",
+                    observacao: $"Status atual: {atualizado.Status}"),
+                Nivel = NivelAuditoria.Informacao,
+                Sucesso = true
+            }, cancellationToken);
+        }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }

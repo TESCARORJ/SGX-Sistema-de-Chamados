@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Services;
 
@@ -113,7 +114,7 @@ public sealed class AuthorizationTests
             [PerfisInternos.Atendente],
             [PermissoesConstants.ChamadosAssumir]));
 
-        var handler = new PermissionAuthorizationHandler(service);
+        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor());
         var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
         var context = CriarContexto(requirement);
 
@@ -136,7 +137,7 @@ public sealed class AuthorizationTests
             [PerfisInternos.Atendente],
             [PermissoesConstants.ChamadosAtribuir]));
 
-        var handler = new PermissionAuthorizationHandler(service);
+        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor());
         var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
         var context = CriarContexto(requirement);
 
@@ -153,6 +154,12 @@ public sealed class AuthorizationTests
 
         return new AuthorizationHandlerContext([requirement], user, resource: null);
     }
+
+    private static IHttpContextAccessor CriarHttpContextAccessor()
+        => new HttpContextAccessor
+        {
+            HttpContext = new DefaultHttpContext()
+        };
 
     private sealed class StubUsuarioAtualService(UsuarioAutenticadoContexto contexto) : IUsuarioAtualService
     {

@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Email;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
@@ -18,6 +20,7 @@ using SGX.SistemaChamado.Application.UseCases.Email;
 using SGX.SistemaChamado.Application.UseCases.Portal;
 using SGX.SistemaChamado.Infrastructure.Persistence;
 using SGX.SistemaChamado.Infrastructure.Repositories;
+using SGX.SistemaChamado.Infrastructure.Services;
 using SGX.SistemaChamado.Infrastructure.Storage;
 
 namespace SGX.SistemaChamado.Infrastructure;
@@ -42,6 +45,8 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.TryAddScoped<IAuditoriaContextProvider, AuditoriaContextProviderNulo>();
+        services.AddScoped<IAuditoriaService, AuditoriaService>();
         services.AddScoped<IArquivoStorageService, LocalArquivoStorageService>();
         services.AddScoped<ICodigoChamadoService, CodigoChamadoService>();
         services.AddScoped<IEmailCorrelationService, EmailCorrelationService>();
@@ -63,6 +68,9 @@ public static class DependencyInjection
         services.AddScoped<IAnexarArquivoChamadoUseCase, AnexarArquivoChamadoUseCase>();
         services.AddScoped<IObterPortalContextoUseCase, ObterPortalContextoUseCase>();
         services.AddScoped<IObterAdminContextoUseCase, ObterAdminContextoUseCase>();
+        services.AddScoped<IListarEventosAuditoriaUseCase, ListarEventosAuditoriaUseCase>();
+        services.AddScoped<IObterEventoAuditoriaUseCase, ObterEventoAuditoriaUseCase>();
+        services.AddScoped<IObterDashboardAuditoriaUseCase, ObterDashboardAuditoriaUseCase>();
         services.AddScoped<IListarChamadosAdminUseCase, ListarChamadosAdminUseCase>();
         services.AddScoped<IDetalharChamadoAdminUseCase, DetalharChamadoAdminUseCase>();
         services.AddScoped<IAssumirChamadoUseCase, AssumirChamadoUseCase>();

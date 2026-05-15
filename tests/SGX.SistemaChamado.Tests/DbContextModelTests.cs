@@ -23,6 +23,7 @@ public sealed class DbContextModelTests
         var roadmapChecklistEntity = context.Model.FindEntityType(typeof(RoadmapChecklistItem));
         var permissaoEntity = context.Model.FindEntityType(typeof(PermissaoSistema));
         var perfilPermissaoEntity = context.Model.FindEntityType(typeof(PerfilAcessoPermissao));
+        var eventoAuditoriaEntity = context.Model.FindEntityType(typeof(EventoAuditoria));
 
         Assert.NotNull(chamadoEntity);
         Assert.NotNull(usuarioEntity);
@@ -32,6 +33,7 @@ public sealed class DbContextModelTests
         Assert.NotNull(roadmapChecklistEntity);
         Assert.NotNull(permissaoEntity);
         Assert.NotNull(perfilPermissaoEntity);
+        Assert.NotNull(eventoAuditoriaEntity);
         Assert.Equal("chamados", chamadoEntity!.GetTableName());
         Assert.Equal("usuarios", usuarioEntity!.GetTableName());
         Assert.Equal("roadmap_itsm_itens", roadmapEntity!.GetTableName());
@@ -40,10 +42,24 @@ public sealed class DbContextModelTests
         Assert.Equal("roadmap_checklist_itens", roadmapChecklistEntity!.GetTableName());
         Assert.Equal("permissoes_sistema", permissaoEntity!.GetTableName());
         Assert.Equal("perfis_acesso_permissoes", perfilPermissaoEntity!.GetTableName());
+        Assert.Equal("eventos_auditoria", eventoAuditoriaEntity!.GetTableName());
 
         var indiceCodigoPermissao = permissaoEntity.GetIndexes()
             .FirstOrDefault(x => x.GetDatabaseName() == "ux_permissoes_sistema_codigo");
         Assert.NotNull(indiceCodigoPermissao);
         Assert.True(indiceCodigoPermissao!.IsUnique);
+
+        var indicesAuditoria = eventoAuditoriaEntity.GetIndexes()
+            .Select(x => x.GetDatabaseName())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        Assert.Contains("ix_eventos_auditoria_data_evento", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_usuario_id", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_usuario_email", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_modulo", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_entidade", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_entidade_id", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_acao", indicesAuditoria);
+        Assert.Contains("ix_eventos_auditoria_correlacao_id", indicesAuditoria);
     }
 }

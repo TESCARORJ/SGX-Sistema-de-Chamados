@@ -1,9 +1,11 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Api.Contracts.Admin;
 using SGX.SistemaChamado.Api.Contracts.Auth;
 using SGX.SistemaChamado.Api.Options;
+using SGX.SistemaChamado.Application.Helpers;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -40,7 +42,8 @@ public sealed class GestaoSenhaLocalSgxService(
     IPoliticaSenhaService politicaSenhaService,
     IOptions<AuthOptions> authOptions,
     ITokenRecuperacaoSenhaService tokenRecuperacaoSenhaService,
-    ILogger<GestaoSenhaLocalSgxService> logger) : IGestaoSenhaLocalSgxService
+    ILogger<GestaoSenhaLocalSgxService> logger,
+    IAuditoriaService? auditoriaService = null) : IGestaoSenhaLocalSgxService
 {
     private const string UsuarioTecnicoAlteracao = "auth.local.alteracao";
     private const string UsuarioTecnicoRecuperacao = "auth.local.recuperacao";
@@ -60,16 +63,16 @@ public sealed class GestaoSenhaLocalSgxService(
 
         var usuario = await dbContext.Usuarios
             .FirstOrDefaultAsync(x => x.Id == usuarioId, cancellationToken)
-            ?? throw new UnauthorizedAccessException("Autenticação inválida.");
+            ?? throw new UnauthorizedAccessException("Autenticacao invalida.");
 
         if (!usuario.Ativo || usuario.Situacao != SituacaoUsuario.Ativo)
         {
-            throw new InvalidOperationException("Usuário inativo.");
+            throw new InvalidOperationException("Usuario inativo.");
         }
 
         if (string.IsNullOrWhiteSpace(usuario.SenhaHashLocal))
         {
-            throw new InvalidOperationException("Usuário não possui senha local SGX configurada.");
+            throw new InvalidOperationException("Usuario nao possui senha local SGX configurada.");
         }
 
         var senhaAtual = request.SenhaAtual ?? string.Empty;
@@ -78,20 +81,20 @@ public sealed class GestaoSenhaLocalSgxService(
 
         if (!string.Equals(novaSenha, confirmacao, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Confirmação da nova senha divergente.");
+            throw new InvalidOperationException("Confirmacao da nova senha divergente.");
         }
 
         var verificacaoSenhaAtual = passwordHasher.VerifyHashedPassword(usuario, usuario.SenhaHashLocal, senhaAtual);
         if (verificacaoSenhaAtual == PasswordVerificationResult.Failed)
         {
-            logger.LogWarning("Falha na alteração de senha local por senha atual inválida. UsuarioId={UsuarioId}", usuario.Id);
+            logger.LogWarning("Falha na alteracao de senha local por senha atual invalida. UsuarioId={UsuarioId}", usuario.Id);
             throw new UnauthorizedAccessException(MensagemCredenciaisInvalidas);
         }
 
         var validacao = politicaSenhaService.ValidarNovaSenha(usuario, novaSenha);
         if (!validacao.Valida)
         {
-            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha inválida.");
+            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha invalida.");
         }
 
         usuario.DefinirSenhaHashLocal(passwordHasher.HashPassword(usuario, novaSenha), UsuarioTecnicoAlteracao);
@@ -99,7 +102,12 @@ public sealed class GestaoSenhaLocalSgxService(
         usuario.LimparLockout(UsuarioTecnicoAlteracao);
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Troca de senha local concluída. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Troca de senha local concluida. UsuarioId={UsuarioId}", usuario.Id);
+        await RegistrarAuditoriaSenhaAsync(
+            usuario,
+            "Troca de senha local realizada pelo proprio usuario.",
+            "AlteracaoSenha",
+            cancellationToken);
 
         return new MensagemAuthResponse("Senha alterada com sucesso.");
     }
@@ -126,7 +134,7 @@ public sealed class GestaoSenhaLocalSgxService(
 
         if (usuario is null || !usuario.Ativo || usuario.Situacao != SituacaoUsuario.Ativo || string.IsNullOrWhiteSpace(usuario.SenhaHashLocal))
         {
-            logger.LogInformation("Solicitação de recuperação de senha local recebida para identificador não elegível.");
+            logger.LogInformation("Solicitacao de recuperacao de senha local recebida para identificador nao elegivel.");
             return new MensagemAuthResponse(MensagemRecuperacaoGenerica);
         }
 
@@ -154,7 +162,12 @@ public sealed class GestaoSenhaLocalSgxService(
             cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Solicitação de recuperação de senha local registrada. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Solicitacao de recuperacao de senha local registrada. UsuarioId={UsuarioId}", usuario.Id);
+        await RegistrarAuditoriaSenhaAsync(
+            usuario,
+            "Solicitacao de recuperacao de senha local registrada.",
+            "SolicitacaoRecuperacaoSenha",
+            cancellationToken);
 
         return new MensagemAuthResponse(MensagemRecuperacaoGenerica);
     }
@@ -165,20 +178,20 @@ public sealed class GestaoSenhaLocalSgxService(
     {
         if (request is null)
         {
-            throw new UnauthorizedAccessException("Solicitação de redefinição inválida.");
+            throw new UnauthorizedAccessException("Solicitacao de redefinicao invalida.");
         }
 
         var token = (request.Token ?? string.Empty).Trim();
         if (string.IsNullOrWhiteSpace(token))
         {
-            throw new UnauthorizedAccessException("Solicitação de redefinição inválida.");
+            throw new UnauthorizedAccessException("Solicitacao de redefinicao invalida.");
         }
 
         var novaSenha = request.NovaSenha ?? string.Empty;
         var confirmacaoNovaSenha = request.ConfirmacaoNovaSenha ?? string.Empty;
         if (!string.Equals(novaSenha, confirmacaoNovaSenha, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Confirmação da nova senha divergente.");
+            throw new InvalidOperationException("Confirmacao da nova senha divergente.");
         }
 
         var tokenHash = tokenRecuperacaoSenhaService.CalcularHash(token);
@@ -188,19 +201,19 @@ public sealed class GestaoSenhaLocalSgxService(
 
         if (registroToken is null || registroToken.EstaUtilizado() || registroToken.EstaExpirado(DateTime.UtcNow))
         {
-            throw new UnauthorizedAccessException("Token inválido ou expirado.");
+            throw new UnauthorizedAccessException("Token invalido ou expirado.");
         }
 
         var usuario = registroToken.Usuario;
         if (!usuario.Ativo || usuario.Situacao != SituacaoUsuario.Ativo)
         {
-            throw new InvalidOperationException("Usuário inativo.");
+            throw new InvalidOperationException("Usuario inativo.");
         }
 
         var validacao = politicaSenhaService.ValidarNovaSenha(usuario, novaSenha);
         if (!validacao.Valida)
         {
-            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha inválida.");
+            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha invalida.");
         }
 
         usuario.DefinirSenhaHashLocal(passwordHasher.HashPassword(usuario, novaSenha), UsuarioTecnicoRecuperacao);
@@ -209,7 +222,12 @@ public sealed class GestaoSenhaLocalSgxService(
         registroToken.MarcarUtilizado(DateTime.UtcNow, UsuarioTecnicoRecuperacao);
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Redefinição de senha local concluída. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Redefinicao de senha local concluida. UsuarioId={UsuarioId}", usuario.Id);
+        await RegistrarAuditoriaSenhaAsync(
+            usuario,
+            "Senha local redefinida por fluxo de recuperacao.",
+            "RedefinicaoSenhaRecuperacao",
+            cancellationToken);
 
         return new MensagemAuthResponse("Senha redefinida com sucesso.");
     }
@@ -222,24 +240,24 @@ public sealed class GestaoSenhaLocalSgxService(
     {
         if (request is null)
         {
-            throw new ArgumentException("Payload de redefinição de senha inválido.");
+            throw new ArgumentException("Payload de redefinicao de senha invalido.");
         }
 
         var novaSenha = request.NovaSenha ?? string.Empty;
         var confirmarNovaSenha = request.ConfirmarNovaSenha ?? string.Empty;
         if (!string.Equals(novaSenha, confirmarNovaSenha, StringComparison.Ordinal))
         {
-            throw new InvalidOperationException("Confirmação da nova senha divergente.");
+            throw new InvalidOperationException("Confirmacao da nova senha divergente.");
         }
 
         var usuario = await dbContext.Usuarios
             .FirstOrDefaultAsync(x => x.Id == usuarioId, cancellationToken)
-            ?? throw new KeyNotFoundException("Usuário não encontrado.");
+            ?? throw new KeyNotFoundException("Usuario nao encontrado.");
 
         var validacao = politicaSenhaService.ValidarNovaSenha(usuario, novaSenha);
         if (!validacao.Valida)
         {
-            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha inválida.");
+            throw new InvalidOperationException(validacao.Motivo ?? "Nova senha invalida.");
         }
 
         var usuarioTecnico = string.IsNullOrWhiteSpace(usuarioResponsavel)
@@ -256,7 +274,49 @@ public sealed class GestaoSenhaLocalSgxService(
             usuario.Id,
             string.IsNullOrWhiteSpace(usuarioResponsavel) ? "nao-informado" : usuarioResponsavel.Trim());
 
+        await RegistrarAuditoriaSenhaAsync(
+            usuario,
+            "Senha local redefinida por administrador.",
+            "RedefinicaoSenhaAdministrador",
+            cancellationToken,
+            observacao: string.IsNullOrWhiteSpace(usuarioResponsavel)
+                ? "Responsavel: nao-informado"
+                : $"Responsavel: {usuarioResponsavel.Trim()}");
+
         return new MensagemAuthResponse("Senha redefinida com sucesso.");
     }
 
+    private Task RegistrarAuditoriaSenhaAsync(
+        Usuario usuarioAfetado,
+        string descricao,
+        string operacao,
+        CancellationToken cancellationToken,
+        string? observacao = null)
+    {
+        if (auditoriaService is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+        {
+            Modulo = "Usuarios",
+            Entidade = "Usuario",
+            EntidadeId = usuarioAfetado.Id.ToString(),
+            Acao = TipoAcaoAuditoria.Edicao,
+            Descricao = descricao,
+            Nivel = NivelAuditoria.Informacao,
+            Sucesso = true,
+            Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
+                origem: "api",
+                modulo: "Usuarios",
+                entidade: "Usuario",
+                entidadeId: usuarioAfetado.Id.ToString(),
+                codigo: usuarioAfetado.Login,
+                nome: usuarioAfetado.Email,
+                operacao: operacao,
+                resultado: "Sucesso",
+                observacao: observacao)
+        }, cancellationToken);
+    }
 }

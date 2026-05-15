@@ -14,6 +14,7 @@ using SGX.SistemaChamado.Api.Options;
 using SGX.SistemaChamado.Api.Services;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Options;
 using SGX.SistemaChamado.Application.Validators;
 using SGX.SistemaChamado.Infrastructure;
@@ -51,6 +52,7 @@ public static class ServiceCollectionExtensions
             .Validate(options => options.IntervalMinutes > 0, "IntervalMinutes deve ser maior que zero.");
 
         services.AddHttpContextAccessor();
+        services.AddScoped<IAuditoriaContextProvider, AuditoriaContextProvider>();
         services.AddScoped<IUsuarioAtualService, UsuarioAtualService>();
         services.AddScoped<IUsuarioContextoAplicacaoService, UsuarioContextoAplicacaoService>();
         services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();

@@ -215,6 +215,39 @@ Pendencias evolutivas:
 - Exportar documentacao em PDF.
 - Vincular documentos diretamente aos itens do roadmap.
 
+## Sprint Historico/Auditoria 1 - Governanca
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Objetivo:
+Criar trilha de auditoria para registrar acoes relevantes executadas no SGX Sistema de Chamados, permitindo rastreabilidade, governanca, analise de alteracoes e apoio a homologacao.
+
+Situacao atual:
+Modulo de auditoria iniciado com estrutura central de eventos auditaveis, service de registro, tabela propria e primeiros eventos do sistema.
+
+Status da implementacao: Em desenvolvimento
+Status tecnico: Base tecnica em implementacao
+Percentual (checklist Sprint 1): 94% (15 de 16 itens)
+
+Checklist Sprint 1:
+- [x] Entidade EventoAuditoria criada.
+- [x] Enum de acao de auditoria criado.
+- [x] Enum de nivel de auditoria criado.
+- [x] Migration da tabela eventos_auditoria criada.
+- [x] Indices de consulta criados.
+- [x] Service centralizado de auditoria criado.
+- [x] Context provider de auditoria criado.
+- [x] Captura de usuario atual integrada.
+- [x] Captura de IP e User-Agent integrada.
+- [x] Registro de login integrado.
+- [ ] Registro de logout integrado, pois ainda nao existe fluxo controlado de logout no backend.
+- [x] Registro de criacao/edicao/inativacao de usuario integrado.
+- [x] Registro de perfis/permissoes integrado.
+- [x] DTOs de auditoria criados.
+- [x] Testes automatizados criados.
+- [x] Documentacao atualizada em Gestao ITSM.
+
 ## Sprint Portal 3 - Abertura de chamado pelo portal
 
 Area: Abertura de chamado pelo portal
@@ -907,3 +940,97 @@ Pendências:
 - importação automática de feriados;
 - exceções recorrentes;
 - regra avançada de prazo remanescente em reabertura.
+
+## Sprint Historico/Auditoria 2 - Governanca
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Objetivo:
+Registrar acoes relevantes executadas no SGX Sistema de Chamados, permitindo rastreabilidade, governanca, analise de alteracoes, auditoria operacional e apoio a homologacao.
+
+Situacao atual:
+Base tecnica de auditoria criada na Sprint 1. Sprint 2 aplica auditoria aos modulos criticos do sistema, incluindo chamados, usuarios, perfis/permissoes, SLA, autenticacao corporativa e roadmap ITSM.
+
+Status da implementacao: Em desenvolvimento
+Status tecnico: Auditoria aplicada aos modulos criticos
+Percentual: calculado por checklist.
+
+Checklist Sprint 2:
+- [x] Helper de diff antes/depois criado.
+- [x] Mascaramento de dados sensiveis implementado.
+- [x] Auditoria de abertura de chamado implementada.
+- [x] Auditoria de alteracao de status implementada.
+- [x] Auditoria de alteracao de prioridade implementada.
+- [x] Auditoria de alteracao de categoria implementada.
+- [x] Auditoria de atribuicao de responsavel implementada.
+- [x] Auditoria de assumir chamado implementada.
+- [x] Auditoria de comentarios administrativos implementada.
+- [x] Auditoria de encerramento/resolucao implementada.
+- [x] Auditoria de reabertura implementada.
+- [x] Auditoria de anexos preparada ou implementada.
+- [x] Auditoria de usuarios revisada e complementada.
+- [x] Auditoria de perfis revisada e complementada.
+- [x] Auditoria de permissoes revisada e complementada.
+- [x] Auditoria de politicas de SLA implementada.
+- [x] Auditoria de metas de SLA implementada.
+- [x] Auditoria de calendarios de SLA implementada.
+- [x] Auditoria de horarios de calendario implementada.
+- [x] Auditoria de excecoes de calendario implementada.
+- [x] Auditoria de alertas de SLA implementada.
+- [x] Auditoria de autenticacao corporativa implementada.
+- [x] Auditoria de Roadmap ITSM implementada.
+- [x] Auditoria de documentacao ITSM preparada conforme estrutura atual.
+- [x] Testes automatizados de auditoria dos modulos criticos criados.
+- [x] Documentacao atualizada em Gestao ITSM.
+- [ ] Validacao no banco com cenarios manuais completos pendente de execucao no ambiente.
+
+Observacao:
+- leitura da documentacao ITSM nao e auditada na Sprint 2 por ser conteudo estatico;
+- edicao/publicacao de documentacao ainda nao existe no sistema e fica para evolucao futura.
+
+## Sprint Historico/Auditoria 3 - Governanca
+
+Area: Historico/Auditoria
+Categoria: Governanca
+
+Objetivo:
+Permitir que administradores e gestores consultem eventos de auditoria no painel administrativo, com filtros avancados, paginacao, detalhe e indicadores.
+
+Situacao atual:
+Base tecnica da Sprint 1 e auditoria em modulos criticos da Sprint 2 evoluiram para consulta administrativa funcional na Sprint 3.
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+Percentual: calculado por checklist.
+
+Checklist Sprint 3:
+- [x] Endpoints administrativos de auditoria criados.
+- [x] Use cases/services de consulta de auditoria criados.
+- [x] Filtros de auditoria criados.
+- [x] Paginacao de eventos criada.
+- [x] Endpoint de detalhe de evento criado.
+- [x] Endpoint de dashboard de auditoria criado.
+- [x] Permissoes de auditoria criadas ou integradas.
+- [x] Menu Governanca > Auditoria criado.
+- [x] Rota /admin/governanca/auditoria criada.
+- [x] Tela administrativa de auditoria criada.
+- [x] Modal/drawer de detalhe criado.
+- [x] Visualizacao de dados antes/depois criada.
+- [x] Indicadores basicos de auditoria criados.
+- [x] Service frontend de auditoria criado.
+- [x] Tipos frontend de auditoria criados.
+- [x] Link entre Auditoria e Gestao ITSM criado.
+- [x] Documentacao em Gestao ITSM atualizada.
+- [x] Testes automatizados backend criados.
+- [x] Build frontend validado.
+- [x] Validacao com eventos reais em eventos_auditoria executada.
+
+Pendencias evolutivas:
+- Exportacao Excel/PDF.
+- Retencao configuravel de auditoria.
+- Assinatura/hash da trilha de auditoria.
+- Alertas para eventos criticos.
+- Painel avancado de seguranca.
+- Integracao com SIEM/Log Analytics.
+- Politica de anonimizaçao/LGPD para eventos antigos.

@@ -35,6 +35,7 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<RoadmapChecklistItem> RoadmapChecklistItens => Set<RoadmapChecklistItem>();
     public DbSet<RoadmapImplementacaoFutura> RoadmapImplementacoesFuturas => Set<RoadmapImplementacaoFutura>();
     public DbSet<TokenRecuperacaoSenha> TokensRecuperacaoSenha => Set<TokenRecuperacaoSenha>();
+    public DbSet<EventoAuditoria> EventosAuditoria => Set<EventoAuditoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

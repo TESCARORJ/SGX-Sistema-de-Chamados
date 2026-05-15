@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Domain.Entities;
+using SGX.SistemaChamado.Domain.Enums;
+using System.Text.Json;
 
 namespace SGX.SistemaChamado.Application.UseCases.Admin;
 
@@ -93,7 +96,8 @@ public sealed class AtualizarPermissoesPerfilUseCase(
     IRepository<PermissaoSistema> permissaoRepository,
     IRepository<PerfilAcessoPermissao> perfilPermissaoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAtualizarPermissoesPerfilUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAtualizarPermissoesPerfilUseCase
 {
     public async Task<PerfilPermissoesResponse> ExecutarAsync(Guid perfilId, AtualizarPermissoesPerfilRequest request, CancellationToken cancellationToken = default)
     {
@@ -110,6 +114,17 @@ public sealed class AtualizarPermissoesPerfilUseCase(
             .ThenInclude(x => x.PermissaoSistema)
             .FirstOrDefaultAsync(x => x.Id == perfilId, cancellationToken)
             ?? throw new KeyNotFoundException("Perfil nao encontrado.");
+        var dadosAntes = JsonSerializer.Serialize(new
+        {
+            PerfilId = perfil.Id,
+            PerfilNome = perfil.Nome,
+            Permissoes = perfil.PerfilPermissoes
+                .Where(x => x.PermissaoSistema.Ativo)
+                .Select(x => x.PermissaoSistema.Codigo)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToArray()
+        });
 
         var codigosDesejados = (request.CodigosPermissoes ?? [])
             .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -178,6 +193,29 @@ public sealed class AtualizarPermissoesPerfilUseCase(
             .ThenBy(x => x.Acao)
             .ToArray();
 
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = JsonSerializer.Serialize(new
+            {
+                PerfilId = perfilAtualizado.Id,
+                PerfilNome = perfilAtualizado.Nome,
+                Permissoes = permissoesVinculadas.Select(x => x.Codigo).OrderBy(x => x).ToArray()
+            });
+
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Perfis e Permissoes",
+                Entidade = "PerfilAcesso",
+                EntidadeId = perfilAtualizado.Id.ToString(),
+                Acao = TipoAcaoAuditoria.AlteracaoPermissao,
+                Descricao = $"Permissoes do perfil '{perfilAtualizado.Nome}' atualizadas.",
+                DadosAntes = dadosAntes,
+                DadosDepois = dadosDepois,
+                Nivel = NivelAuditoria.Informacao,
+                Sucesso = true
+            }, cancellationToken);
+        }
+
         return new PerfilPermissoesResponse(
             perfilAtualizado.Id,
             perfilAtualizado.Nome,
@@ -218,3 +256,4 @@ public sealed class ObterPermissoesUsuarioAtualUseCase(
             .ToArray();
     }
 }
+

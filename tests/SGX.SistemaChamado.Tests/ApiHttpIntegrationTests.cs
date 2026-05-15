@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence;
 using SGX.SistemaChamado.Infrastructure.Persistence.Seed;
@@ -238,6 +239,56 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         var response = await client.GetAsync("/api/admin/integracoes/email/logs");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminAuditoriaBloqueiaSolicitante()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "solicitante.auditoria@empresa.com", "Solicitante", "Solicitante");
+
+        var response = await client.GetAsync("/api/admin/auditoria/eventos");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminAuditoriaAtendenteSemPermissaoNaoVisualiza()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.auditoria@empresa.com", "Atendente", "Atendente");
+        _ = await client.GetAsync("/api/me");
+
+        var response = await client.GetAsync("/api/admin/auditoria/eventos");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminAuditoriaAdministradorVisualizaListagemEDashboard()
+    {
+        await SeedEventoAuditoriaApiAsync();
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.auditoria@empresa.com", "Administrador", "Administrador");
+        _ = await client.GetAsync("/api/me");
+
+        var listagem = await client.GetAsync("/api/admin/auditoria/eventos?modulo=Chamados&pagina=1&tamanhoPagina=10");
+        var dashboard = await client.GetAsync("/api/admin/auditoria/dashboard?modulo=Chamados");
+
+        Assert.Equal(HttpStatusCode.OK, listagem.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, dashboard.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminAuditoriaDetalheInexistenteRetornaNotFound()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.auditoria.notfound@empresa.com", "Administrador", "Administrador");
+        _ = await client.GetAsync("/api/me");
+
+        var response = await client.GetAsync($"/api/admin/auditoria/eventos/{Guid.NewGuid()}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [Fact]
@@ -763,5 +814,34 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
             criarUsuarioAutomaticamente = true,
             perfilPadraoUsuarioMicrosoft = "Solicitante"
         };
+    }
+
+    private async Task SeedEventoAuditoriaApiAsync(CancellationToken cancellationToken = default)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+
+        dbContext.EventosAuditoria.Add(new EventoAuditoria(
+            DateTime.UtcNow,
+            Guid.NewGuid(),
+            "Admin Auditoria",
+            "admin.auditoria@empresa.com",
+            "admin.auditoria@empresa.com",
+            "127.0.0.1",
+            "integration-test",
+            "Chamados",
+            "Chamado",
+            "SGX-INT-1",
+            TipoAcaoAuditoria.AlteracaoStatus,
+            "Status do chamado alterado em teste de integração.",
+            "{\"statusAnterior\":\"Aberto\"}",
+            "{\"statusNovo\":\"EmAtendimento\"}",
+            "{\"origem\":\"api\"}",
+            NivelAuditoria.Informacao,
+            true,
+            null,
+            "corr-int-1"));
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

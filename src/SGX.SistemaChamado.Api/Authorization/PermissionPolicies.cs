@@ -25,4 +25,6 @@ public static class PermissionPolicies
     public const string SlaEditar = Prefixo + PermissoesConstants.SlaEditar;
     public const string SlaExcluir = Prefixo + PermissoesConstants.SlaExcluir;
     public const string SlaAtivarDesativar = Prefixo + PermissoesConstants.SlaAtivarDesativar;
+    public const string AuditoriaVisualizar = Prefixo + PermissoesConstants.AuditoriaVisualizar;
+    public const string AuditoriaGerenciar = Prefixo + PermissoesConstants.AuditoriaGerenciar;
 }

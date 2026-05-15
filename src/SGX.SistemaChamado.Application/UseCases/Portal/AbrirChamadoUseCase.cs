@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Portal;
+using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
@@ -19,7 +21,8 @@ public sealed class AbrirChamadoUseCase(
     ISlaService slaService,
     ICodigoChamadoService codigoChamadoService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
-    IUnitOfWork unitOfWork) : IAbrirChamadoUseCase
+    IUnitOfWork unitOfWork,
+    IAuditoriaService? auditoriaService = null) : IAbrirChamadoUseCase
 {
     private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
 
@@ -103,6 +106,39 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
             .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .FirstAsync(x => x.Id == chamado.Id, cancellationToken);
+
+        if (auditoriaService is not null)
+        {
+            var dadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
+            {
+                chamadoCriado.Id,
+                chamadoCriado.Codigo,
+                chamadoCriado.Titulo,
+                Status = chamadoCriado.Status.Nome,
+                Prioridade = chamadoCriado.Prioridade.Nome,
+                Categoria = chamadoCriado.Categoria.Nome,
+                chamadoCriado.DepartamentoId,
+                SolicitanteId = chamadoCriado.SolicitanteId
+            });
+
+            await auditoriaService.RegistrarCriacaoAsync(
+                "Chamados",
+                "Chamado",
+                chamadoCriado.Id.ToString(),
+                "Chamado aberto.",
+                dadosDepois: dadosDepois,
+                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                    origem: "api",
+                    modulo: "Chamados",
+                    entidade: "Chamado",
+                    entidadeId: chamadoCriado.Id.ToString(),
+                    codigo: chamadoCriado.Codigo,
+                    nome: chamadoCriado.Titulo,
+                    operacao: "Abertura",
+                    resultado: "Sucesso",
+                    observacao: "Abertura via portal"),
+                cancellationToken: cancellationToken);
+        }
 
         return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);
     }
