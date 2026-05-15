@@ -205,12 +205,7 @@ public sealed class DevelopmentSeedService(
             return false;
         }
 
-        if (!string.Equals(email, emailAdminInicialProtegido, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return usuario.UsuarioPerfis.Any(x => x.PerfilAcesso.TipoPerfil == TipoPerfil.Administrador);
+        return string.Equals(email, emailAdminInicialProtegido, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool EhUsuarioDemonstrativoAntigo(Usuario usuario, string email)

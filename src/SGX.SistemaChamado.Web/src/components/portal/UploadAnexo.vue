@@ -13,7 +13,7 @@ const props = withDefaults(
     loading: false,
     titulo: 'Anexar arquivo',
     multiple: true,
-    extensoesPermitidas: () => ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.doc', '.docx', '.xls', '.xlsx'],
+    extensoesPermitidas: () => ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.csv', '.zip', '.doc', '.docx', '.xls', '.xlsx'],
     tamanhoMaximoBytes: null,
   }
 )

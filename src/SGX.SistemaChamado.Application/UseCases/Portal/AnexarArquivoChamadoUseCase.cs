@@ -22,11 +22,6 @@ public sealed class AnexarArquivoChamadoUseCase(
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null) : IAnexarArquivoChamadoUseCase
 {
-    private static readonly HashSet<string> ExtensoesPermitidas =
-    [
-        ".pdf", ".png", ".jpg", ".jpeg", ".txt", ".doc", ".docx", ".xls", ".xlsx"
-    ];
-
     public async Task<AnexoChamadoResponse> ExecutarAsync(Guid chamadoId, UploadAnexoChamadoRequest request, CancellationToken cancellationToken = default)
     {
         if (chamadoId == Guid.Empty)
@@ -44,10 +39,12 @@ public sealed class AnexarArquivoChamadoUseCase(
             throw new UnauthorizedAccessException("Acesso negado ao chamado solicitado.");
         }
 
-        ValidarAnexo(request);
-
-        var extensao = Path.GetExtension(request.NomeArquivo).ToLowerInvariant();
-        var nomeFisico = $"{Guid.NewGuid():N}{extensao}";
+        var (nomeOriginalSeguro, extensao) = AnexoAtendimentoHelper.ValidarUpload(
+            request.NomeArquivo,
+            request.ContentType,
+            request.TamanhoBytes,
+            arquivosOptions.Value);
+        var nomeFisico = AnexoAtendimentoHelper.GerarNomeFisicoSeguro(extensao);
 
         var resultadoStorage = await arquivoStorageService.SalvarAsync(
             new ArquivoStorageRequest(nomeFisico, request.Conteudo),
@@ -55,7 +52,7 @@ public sealed class AnexarArquivoChamadoUseCase(
 
         var anexo = new AnexoChamado(
             chamadoId,
-            request.NomeArquivo,
+            nomeOriginalSeguro,
             nomeFisico,
             request.ContentType,
             request.TamanhoBytes,
@@ -118,50 +115,5 @@ public sealed class AnexarArquivoChamadoUseCase(
             anexo.CriadoEm,
             anexo.UsuarioId,
             usuarioAtual.Nome);
-    }
-
-    private void ValidarAnexo(UploadAnexoChamadoRequest request)
-    {
-        var options = arquivosOptions.Value;
-
-        if (request.TamanhoBytes <= 0)
-        {
-            throw new InvalidOperationException("Arquivo invalido: tamanho deve ser maior que zero.");
-        }
-
-        if (request.TamanhoBytes > options.TamanhoMaximoBytes)
-        {
-            throw new InvalidOperationException($"Arquivo excede o limite maximo de {options.TamanhoMaximoBytes} bytes.");
-        }
-
-        if (string.IsNullOrWhiteSpace(request.NomeArquivo))
-        {
-            throw new InvalidOperationException("Nome do arquivo obrigatorio.");
-        }
-
-        var nomeArquivo = Path.GetFileName(request.NomeArquivo);
-        if (!string.Equals(nomeArquivo, request.NomeArquivo, StringComparison.Ordinal))
-        {
-            throw new InvalidOperationException("Nome de arquivo invalido.");
-        }
-
-        var extensao = Path.GetExtension(nomeArquivo).ToLowerInvariant();
-        if (!ExtensoesPermitidas.Contains(extensao))
-        {
-            throw new InvalidOperationException("Extensao de arquivo nao permitida.");
-        }
-
-        var contentType = (request.ContentType ?? string.Empty).Trim().ToLowerInvariant();
-        var mediaType = contentType.Split(';', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .FirstOrDefault() ?? string.Empty;
-        var contentTypesPermitidos = options.ContentTypesPermitidos
-            .Select(x => x.Trim().ToLowerInvariant())
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var isOctetStream = string.Equals(mediaType, "application/octet-stream", StringComparison.OrdinalIgnoreCase);
-        if (!contentTypesPermitidos.Contains(mediaType) && !isOctetStream)
-        {
-            throw new InvalidOperationException("Content type nao permitido.");
-        }
     }
 }

@@ -9,7 +9,7 @@ public sealed class ComentarioChamadoRequestValidator : AbstractValidator<Coment
     {
         RuleFor(x => x.Mensagem)
             .NotEmpty().WithMessage("Mensagem obrigatoria.")
-            .MaximumLength(3000).WithMessage("Mensagem deve ter no maximo 3000 caracteres.")
+            .MaximumLength(4000).WithMessage("Mensagem deve ter no maximo 4000 caracteres.")
             .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage("Mensagem nao pode ser vazia.");
     }
 }

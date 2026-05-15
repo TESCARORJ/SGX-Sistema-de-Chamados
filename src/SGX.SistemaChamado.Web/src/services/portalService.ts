@@ -48,9 +48,6 @@ export const portalService = {
     return httpClient.post<AnexoChamado>(`/api/portal/chamados/${id}/anexos`, form)
   },
 
-  removerAnexo: (id: string, anexoId: string) =>
-    httpClient.delete<void>(`/api/portal/chamados/${id}/anexos/${anexoId}`),
-
   obterPortalContexto: () => httpClient.get<PortalContextoResponse>('/api/portal/contexto'),
   abrirChamado: (payload: CriarChamadoRequest) =>
     httpClient.post<ChamadoCriadoResponse>('/api/portal/chamados', payload),

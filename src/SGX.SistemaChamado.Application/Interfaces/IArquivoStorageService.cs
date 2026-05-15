@@ -11,5 +11,6 @@ public sealed record ArquivoStorageResult(
 public interface IArquivoStorageService
 {
     Task<ArquivoStorageResult> SalvarAsync(ArquivoStorageRequest request, CancellationToken cancellationToken = default);
+    Task<Stream> AbrirLeituraAsync(string caminhoRelativo, CancellationToken cancellationToken = default);
     Task RemoverAsync(string caminhoRelativo, CancellationToken cancellationToken = default);
 }

@@ -1,11 +1,11 @@
-﻿using FluentValidation;
-using SGX.SistemaChamado.Application.DTOs.Admin;
+using FluentValidation;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 
 namespace SGX.SistemaChamado.Application.Validators;
 
-public sealed class ComentarioAdminChamadoRequestValidator : AbstractValidator<ComentarioAdminChamadoRequest>
+public sealed class CriarComentarioChamadoRequestValidator : AbstractValidator<CriarComentarioChamadoRequest>
 {
-    public ComentarioAdminChamadoRequestValidator()
+    public CriarComentarioChamadoRequestValidator()
     {
         RuleFor(x => x.Mensagem)
             .NotEmpty().WithMessage("Mensagem obrigatoria.")

@@ -81,6 +81,71 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
   return (await response.json()) as T
 }
 
+function extrairNomeArquivo(contentDisposition: string | null): string | null {
+  if (!contentDisposition) {
+    return null
+  }
+
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i)
+  if (utf8Match?.[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1]).replace(/["']/g, '')
+    } catch {
+      return utf8Match[1].replace(/["']/g, '')
+    }
+  }
+
+  const asciiMatch = contentDisposition.match(/filename=\"?([^\";]+)\"?/i)
+  return asciiMatch?.[1] ? asciiMatch[1].replace(/["']/g, '') : null
+}
+
+async function requestFile(path: string, method: HttpMethod): Promise<{ blob: Blob; nomeArquivo: string | null; contentType: string | null }> {
+  const headers: HeadersInit = {}
+
+  if (bearerToken) {
+    headers.Authorization = `Bearer ${bearerToken}`
+  }
+
+  if (!import.meta.env.PROD && devHeaders) {
+    Object.assign(headers, devHeaders)
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+  })
+
+  if (response.status === 401) {
+    if (!authRedirectSuppressed) {
+      redirectTo('/login')
+    }
+
+    throw new HttpRequestError(401, 'Acesso não autenticado (401).')
+  }
+
+  if (response.status === 403) {
+    if (!authRedirectSuppressed) {
+      redirectTo('/acesso-negado')
+    }
+
+    throw new HttpRequestError(403, 'Acesso negado (403).')
+  }
+
+  if (!response.ok) {
+    const message = await response.text()
+    throw new HttpRequestError(
+      response.status,
+      `HTTP ${response.status}: ${message || 'Erro ao processar requisição.'}`
+    )
+  }
+
+  return {
+    blob: await response.blob(),
+    nomeArquivo: extrairNomeArquivo(response.headers.get('content-disposition')),
+    contentType: response.headers.get('content-type'),
+  }
+}
+
 export function setHttpAuthToken(token: string | null): void {
   bearerToken = token
 }
@@ -99,5 +164,6 @@ export const httpClient = {
   put: <T>(path: string, body?: unknown) => request<T>(path, 'PUT', body),
   patch: <T>(path: string, body?: unknown) => request<T>(path, 'PATCH', body),
   delete: <T>(path: string) => request<T>(path, 'DELETE'),
+  getFile: (path: string) => requestFile(path, 'GET'),
 }
 

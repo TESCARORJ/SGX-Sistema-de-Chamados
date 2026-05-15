@@ -1034,3 +1034,87 @@ Pendencias evolutivas:
 - Painel avancado de seguranca.
 - Integracao com SIEM/Log Analytics.
 - Politica de anonimizaçao/LGPD para eventos antigos.
+
+## Sprint Comentarios no Atendimento - Conclusao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Checklist da sprint:
+- [x] API `GET /api/chamados/{chamadoId}/comentarios` criada/ajustada.
+- [x] API `POST /api/chamados/{chamadoId}/comentarios` criada/ajustada.
+- [x] Regras por perfil (Administrador, Atendente, Solicitante) aplicadas.
+- [x] Solicitante bloqueado para comentario interno.
+- [x] Solicitante sem visao de comentario interno.
+- [x] Ordenacao cronologica crescente aplicada.
+- [x] Validacao de mensagem obrigatoria e limite de 4000 caracteres.
+- [x] Frontend de detalhe do chamado com envio de comentarios atualizado.
+- [x] Testes automatizados backend/frontend executados.
+- [x] Migration incremental aplicada com alteracoes reais.
+- [x] Documentacao do modulo de atendimento atualizada.
+
+Evidencias:
+- `docs/ATENDIMENTO.md`
+- `src/SGX.SistemaChamado.Api/Controllers/ChamadosController.cs`
+- `src/SGX.SistemaChamado.Application/UseCases/Chamados/ComentariosChamadoUseCases.cs`
+- `src/SGX.SistemaChamado.Web/src/views/DetalheChamadoView.vue`
+
+## Sprint Anexos no Atendimento - Conclusao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Checklist da sprint:
+- [x] `GET /api/chamados/{chamadoId}/anexos`
+- [x] `POST /api/chamados/{chamadoId}/anexos`
+- [x] `GET /api/chamados/{chamadoId}/anexos/{anexoId}/download`
+- [x] validacoes de seguranca de upload implementadas
+- [x] controle de acesso por perfil e por chamado aplicado
+- [x] caminho fisico e nome armazenado nao expostos na API
+- [x] upload/listagem/download refletidos no frontend de detalhe
+- [x] testes backend e frontend executados
+- [x] build frontend executado
+- [x] **nenhum endpoint DELETE de anexo exposto**
+- [x] **nenhum botao de exclusao de anexo criado**
+
+Regra de rastreabilidade aplicada:
+- Anexos enviados permanecem como evidencia do atendimento e nao possuem fluxo de exclusao.
+
+Evidencias:
+- `docs/ATENDIMENTO.md`
+- `src/SGX.SistemaChamado.Api/Controllers/ChamadosController.cs`
+- `src/SGX.SistemaChamado.Application/UseCases/Chamados/AnexosChamadoUseCases.cs`
+- `src/SGX.SistemaChamado.Web/src/views/DetalheChamadoView.vue`
+
+## Sprint Historico e Linha do Tempo do Atendimento - Conclusao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Checklist da sprint:
+- [x] `GET /api/chamados/{chamadoId}/linha-do-tempo`
+- [x] linha do tempo consolidada com abertura, comentarios, anexos e historico
+- [x] visibilidade por perfil aplicada (`Administrador`, `Atendente`, `Solicitante`)
+- [x] solicitante sem comentarios internos e sem eventos internos sensiveis
+- [x] evento de anexo na timeline com download
+- [x] sem exposicao de `Caminho` e `NomeArquivoArmazenado`
+- [x] atualizacao de timeline apos comentario e upload de anexo
+- [x] sem endpoint DELETE de anexo
+- [x] sem botao de exclusao de anexo
+- [x] testes backend/frontend executados
+- [x] build frontend executado
+
+Evidencias:
+- `docs/ATENDIMENTO.md`
+- `src/SGX.SistemaChamado.Api/Controllers/ChamadosController.cs`
+- `src/SGX.SistemaChamado.Application/UseCases/Chamados/LinhaTempoChamadoUseCases.cs`
+- `src/SGX.SistemaChamado.Web/src/views/DetalheChamadoView.vue`

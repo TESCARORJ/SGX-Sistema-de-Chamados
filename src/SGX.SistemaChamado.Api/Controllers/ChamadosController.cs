@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Services;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.DTOs;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -22,7 +24,14 @@ public sealed class ChamadosController(
     IUnitOfWork unitOfWork,
     SGX.SistemaChamado.Application.Interfaces.ICodigoChamadoService codigoChamadoService,
     IValidator<CriarChamadoDto> validator,
-    IUsuarioAtualService usuarioAtualService) : ControllerBase
+    IUsuarioAtualService usuarioAtualService,
+    IValidator<CriarComentarioChamadoRequest> comentarioValidator,
+    IListarComentariosChamadoUseCase listarComentariosChamadoUseCase,
+    IAdicionarComentarioChamadoUseCase adicionarComentarioChamadoUseCase,
+    IListarLinhaTempoChamadoUseCase listarLinhaTempoChamadoUseCase,
+    IListarAnexosChamadoUseCase listarAnexosChamadoUseCase,
+    IAdicionarAnexoChamadoUseCase adicionarAnexoChamadoUseCase,
+    IBaixarAnexoChamadoUseCase baixarAnexoChamadoUseCase) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.AdminOuAtendente)]
@@ -191,5 +200,150 @@ public sealed class ChamadosController(
             chamado.AtualizadoPor,
             chamado.Ativo
         });
+    }
+
+    [HttpGet("{chamadoId:guid}/comentarios")]
+    public async Task<IActionResult> ListarComentarios(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await listarComentariosChamadoUseCase.ExecutarAsync(chamadoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("{chamadoId:guid}/comentarios")]
+    public async Task<IActionResult> AdicionarComentario(Guid chamadoId, [FromBody] CriarComentarioChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var validation = await comentarioValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        }
+
+        try
+        {
+            var response = await adicionarComentarioChamadoUseCase.ExecutarAsync(chamadoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("{chamadoId:guid}/linha-do-tempo")]
+    public async Task<IActionResult> ListarLinhaDoTempo(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await listarLinhaTempoChamadoUseCase.ExecutarAsync(chamadoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("{chamadoId:guid}/anexos")]
+    public async Task<IActionResult> ListarAnexos(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await listarAnexosChamadoUseCase.ExecutarAsync(chamadoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("{chamadoId:guid}/anexos")]
+    public async Task<IActionResult> AdicionarAnexo(Guid chamadoId, [FromForm] IFormFile? arquivo, CancellationToken cancellationToken)
+    {
+        if (arquivo is null)
+        {
+            return BadRequest(new { mensagem = "Arquivo obrigatorio." });
+        }
+
+        if (arquivo.Length <= 0)
+        {
+            return BadRequest(new { mensagem = "Arquivo invalido: tamanho deve ser maior que zero." });
+        }
+
+        await using var stream = arquivo.OpenReadStream();
+        var request = new CriarAnexoChamadoRequest
+        {
+            NomeArquivo = arquivo.FileName,
+            ContentType = arquivo.ContentType,
+            TamanhoBytes = arquivo.Length,
+            Conteudo = stream
+        };
+
+        try
+        {
+            var response = await adicionarAnexoChamadoUseCase.ExecutarAsync(chamadoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("{chamadoId:guid}/anexos/{anexoId:guid}/download")]
+    public async Task<IActionResult> BaixarAnexo(Guid chamadoId, Guid anexoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await baixarAnexoChamadoUseCase.ExecutarAsync(chamadoId, anexoId, cancellationToken);
+            return File(response.Conteudo, response.ContentType, response.NomeArquivo);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new { mensagem = "Arquivo fisico nao encontrado." });
+        }
     }
 }

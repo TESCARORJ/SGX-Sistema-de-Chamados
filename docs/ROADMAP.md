@@ -544,3 +544,60 @@ Pendencias evolutivas:
 - painel avancado de seguranca;
 - integracao com SIEM/Log Analytics;
 - politica de anonimizaçao/LGPD para eventos antigos.
+
+## Sprint Comentarios no Atendimento - Atualizacao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Entregas tecnicas confirmadas:
+- endpoint unificado `GET /api/chamados/{chamadoId}/comentarios`;
+- endpoint unificado `POST /api/chamados/{chamadoId}/comentarios`;
+- regras por perfil para comentario publico/interno;
+- bloqueio de comentario interno para `Solicitante`;
+- visibilidade de comentario interno apenas para `Administrador` e `Atendente`;
+- validacao de mensagem obrigatoria e limite de 4000 caracteres;
+- ordenacao cronologica crescente de comentarios;
+- frontend do detalhe do chamado com secao `Atendimento / Comentarios`, envio e marcacao de comentario interno por perfil;
+- migration incremental com ajuste de `mensagem` para 4000 e indice por `criado_em`;
+- testes automatizados da sprint adicionados e executados.
+
+## Sprint Anexos no Atendimento - Atualizacao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Entregas tecnicas confirmadas:
+- endpoints unificados de anexos em `/api/chamados` para listar, enviar e baixar;
+- validacao de arquivo obrigatorio, nao vazio, tamanho maximo, extensao permitida e extensao bloqueada;
+- nome fisico seguro com identificador aleatorio e extensao normalizada;
+- download com validacao de acesso ao chamado antes da abertura de arquivo;
+- retorno de `404` para arquivo fisico inexistente sem exposicao de caminho interno;
+- listagem sem exposicao de `Caminho` e `NomeArquivoArmazenado`;
+- frontend de detalhe do chamado atualizado para upload/listagem/download de anexos;
+- nenhum endpoint DELETE de anexo publicado;
+- nenhum botao de exclusao de anexo na interface.
+
+## Sprint Historico e Linha do Tempo do Atendimento - Atualizacao
+
+Area: Atendimento
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo
+
+Entregas tecnicas confirmadas:
+- endpoint `GET /api/chamados/{chamadoId}/linha-do-tempo` criado;
+- consolidacao de abertura, comentarios, anexos e historico em visao unica;
+- filtro por perfil aplicado na linha do tempo (interno/publico);
+- solicitante sem visualizacao de comentario interno e eventos internos administrativos;
+- timeline atualizada apos envio de comentario e upload de anexo;
+- evento de anexo na timeline com download e sem exposicao de caminho/nome fisico;
+- sem criacao de endpoint DELETE de anexo;
+- sem criacao de botao de exclusao de anexo.

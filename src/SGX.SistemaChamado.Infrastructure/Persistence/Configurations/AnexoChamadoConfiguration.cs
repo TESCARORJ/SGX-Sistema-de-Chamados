@@ -25,6 +25,15 @@ public sealed class AnexoChamadoConfiguration : IEntityTypeConfiguration<AnexoCh
         builder.Property(x => x.AtualizadoPor).HasColumnName("atualizado_por").HasMaxLength(120);
         builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
 
+        builder.HasIndex(x => x.ChamadoId).HasDatabaseName("IX_anexos_chamado_chamado_id");
+        builder.HasIndex(x => x.UsuarioId).HasDatabaseName("IX_anexos_chamado_usuario_id");
+        builder.HasIndex(x => x.CriadoEm).HasDatabaseName("IX_anexos_chamado_criado_em");
+
+        builder.HasOne(x => x.Chamado)
+            .WithMany(x => x.Anexos)
+            .HasForeignKey(x => x.ChamadoId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         builder.HasOne(x => x.Usuario)
             .WithMany()
             .HasForeignKey(x => x.UsuarioId)

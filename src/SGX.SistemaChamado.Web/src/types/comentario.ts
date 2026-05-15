@@ -3,6 +3,6 @@ export interface ComentarioChamado {
   usuarioId: string
   usuario: string
   mensagem: string
-  interno?: boolean
+  interno: boolean
   criadoEm: string
 }

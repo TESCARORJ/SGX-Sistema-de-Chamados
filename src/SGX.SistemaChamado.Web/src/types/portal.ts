@@ -163,4 +163,5 @@ export type CriarChamadoPortalPayload = CriarChamadoRequest
 
 export interface ComentarChamadoPayload {
   mensagem: string
+  interno?: boolean
 }

@@ -159,12 +159,4 @@ public sealed class PortalController(
         }
     }
 
-    [HttpDelete("chamados/{id:guid}/anexos/{anexoId:guid}")]
-    public IActionResult RemoverAnexo(Guid id, Guid anexoId)
-    {
-        return StatusCode(StatusCodes.Status405MethodNotAllowed, new
-        {
-            mensagem = "Remocao de anexo nao habilitada nesta sprint por regra de seguranca."
-        });
-    }
 }

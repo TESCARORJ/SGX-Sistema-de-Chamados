@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Email;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
@@ -16,6 +17,7 @@ using SGX.SistemaChamado.Application.Services.Email;
 using SGX.SistemaChamado.Application.Services.Sla;
 using SGX.SistemaChamado.Application.UseCases;
 using SGX.SistemaChamado.Application.UseCases.Admin;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Application.UseCases.Email;
 using SGX.SistemaChamado.Application.UseCases.Portal;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -61,6 +63,12 @@ public static class DependencyInjection
         services.AddScoped<ISlaMonitoringService, SlaMonitoringService>();
 
         services.AddScoped<IApiInfoUseCase, ApiInfoUseCase>();
+        services.AddScoped<IListarAnexosChamadoUseCase, ListarAnexosChamadoUseCase>();
+        services.AddScoped<IAdicionarAnexoChamadoUseCase, AdicionarAnexoChamadoUseCase>();
+        services.AddScoped<IBaixarAnexoChamadoUseCase, BaixarAnexoChamadoUseCase>();
+        services.AddScoped<IListarComentariosChamadoUseCase, ListarComentariosChamadoUseCase>();
+        services.AddScoped<IAdicionarComentarioChamadoUseCase, AdicionarComentarioChamadoUseCase>();
+        services.AddScoped<IListarLinhaTempoChamadoUseCase, ListarLinhaTempoChamadoUseCase>();
         services.AddScoped<IAbrirChamadoUseCase, AbrirChamadoUseCase>();
         services.AddScoped<IListarMeusChamadosUseCase, ListarMeusChamadosUseCase>();
         services.AddScoped<IDetalharMeuChamadoUseCase, DetalharMeuChamadoUseCase>();

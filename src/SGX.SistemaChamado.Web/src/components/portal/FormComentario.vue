@@ -4,17 +4,20 @@ import { ref } from 'vue'
 const props = withDefaults(
   defineProps<{
     loading?: boolean
+    podeComentarInterno?: boolean
   }>(),
   {
     loading: false,
+    podeComentarInterno: false,
   }
 )
 
 const emit = defineEmits<{
-  submit: [mensagem: string]
+  submit: [payload: { mensagem: string; interno: boolean }]
 }>()
 
 const mensagem = ref('')
+const interno = ref(false)
 
 function enviar(): void {
   const texto = mensagem.value.trim()
@@ -22,8 +25,9 @@ function enviar(): void {
     return
   }
 
-  emit('submit', texto)
+  emit('submit', { mensagem: texto, interno: props.podeComentarInterno ? interno.value : false })
   mensagem.value = ''
+  interno.value = false
 }
 </script>
 
@@ -34,11 +38,18 @@ function enviar(): void {
       type="textarea"
       outlined
       autogrow
-      maxlength="2000"
+      maxlength="4000"
       counter
       label="Novo comentário"
       :disable="props.loading"
       :rules="[(v) => !!String(v || '').trim() || 'Informe um comentário']"
+    />
+
+    <q-toggle
+      v-if="props.podeComentarInterno"
+      v-model="interno"
+      label="Comentário interno"
+      :disable="props.loading"
     />
 
     <div class="row justify-end">

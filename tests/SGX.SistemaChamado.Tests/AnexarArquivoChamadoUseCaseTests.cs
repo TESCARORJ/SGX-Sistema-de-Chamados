@@ -153,7 +153,7 @@ public sealed class AnexarArquivoChamadoUseCaseTests
     }
 
     [Fact]
-    public async Task DeveRejeitarNomeDeArquivoComPathTraversal()
+    public async Task DeveSanitizarNomeDeArquivoComPathTraversal()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
         var dados = await SeedDados(context);
@@ -161,13 +161,15 @@ public sealed class AnexarArquivoChamadoUseCaseTests
         var useCase = CriarUseCase(context, dados.UsuarioContexto, storage);
         var stream = new MemoryStream([1, 2, 3]);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.ChamadoProprio.Id, new UploadAnexoChamadoRequest
+        var response = await useCase.ExecutarAsync(dados.ChamadoProprio.Id, new UploadAnexoChamadoRequest
         {
             NomeArquivo = "..\\..\\passwd.txt",
             ContentType = "text/plain",
             TamanhoBytes = stream.Length,
             Conteudo = stream
-        }));
+        });
+
+        Assert.Equal("passwd.txt", response.NomeArquivo);
     }
 
     private static AnexarArquivoChamadoUseCase CriarUseCase(

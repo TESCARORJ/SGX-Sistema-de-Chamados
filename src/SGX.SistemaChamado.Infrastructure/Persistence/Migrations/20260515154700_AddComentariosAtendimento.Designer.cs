@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260515154700_AddComentariosAtendimento")]
+    partial class AddComentariosAtendimento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,14 +93,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChamadoId")
-                        .HasDatabaseName("IX_anexos_chamado_chamado_id");
+                    b.HasIndex("ChamadoId");
 
-                    b.HasIndex("CriadoEm")
-                        .HasDatabaseName("IX_anexos_chamado_criado_em");
-
-                    b.HasIndex("UsuarioId")
-                        .HasDatabaseName("IX_anexos_chamado_usuario_id");
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("anexos_chamado", (string)null);
                 });

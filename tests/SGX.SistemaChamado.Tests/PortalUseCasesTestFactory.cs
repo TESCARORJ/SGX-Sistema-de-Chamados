@@ -29,12 +29,32 @@ internal static class PortalUseCasesTestFactory
         {
             DiretorioAnexos = "storage/anexos-testes",
             TamanhoMaximoBytes = 10 * 1024 * 1024,
+            ExtensoesPermitidas =
+            [
+                ".pdf",
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".txt",
+                ".csv",
+                ".zip",
+                ".doc",
+                ".docx",
+                ".xls",
+                ".xlsx"
+            ],
+            ExtensoesBloqueadas =
+            [
+                ".exe", ".bat", ".cmd", ".ps1", ".sh", ".js", ".vbs", ".msi", ".dll", ".scr", ".com", ".jar", ".hta", ".reg"
+            ],
             ContentTypesPermitidos =
             [
                 "application/pdf",
                 "image/png",
                 "image/jpeg",
                 "text/plain",
+                "text/csv",
+                "application/zip",
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 "application/vnd.ms-excel",
@@ -68,11 +88,28 @@ internal sealed class FakeUsuarioContextoAplicacaoService(UsuarioContextoAplicac
 internal sealed class FakeArquivoStorageService : IArquivoStorageService
 {
     public readonly List<ArquivoStorageRequest> Salvos = [];
+    public readonly Dictionary<string, byte[]> Arquivos = new(StringComparer.OrdinalIgnoreCase);
 
     public Task<ArquivoStorageResult> SalvarAsync(ArquivoStorageRequest request, CancellationToken cancellationToken = default)
     {
         Salvos.Add(request);
-        return Task.FromResult(new ArquivoStorageResult($"storage/anexos-testes/{request.NomeFisico}", request.NomeFisico));
+        using var memory = new MemoryStream();
+        request.Conteudo.Position = 0;
+        request.Conteudo.CopyTo(memory);
+        var caminho = $"storage/anexos-testes/{request.NomeFisico}";
+        Arquivos[caminho] = memory.ToArray();
+        return Task.FromResult(new ArquivoStorageResult(caminho, request.NomeFisico));
+    }
+
+    public Task<Stream> AbrirLeituraAsync(string caminhoRelativo, CancellationToken cancellationToken = default)
+    {
+        if (!Arquivos.TryGetValue(caminhoRelativo, out var bytes))
+        {
+            throw new FileNotFoundException("Arquivo fisico nao encontrado.");
+        }
+
+        Stream stream = new MemoryStream(bytes, writable: false);
+        return Task.FromResult(stream);
     }
 
     public Task RemoverAsync(string caminhoRelativo, CancellationToken cancellationToken = default)
