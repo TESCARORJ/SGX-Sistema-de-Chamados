@@ -8,6 +8,8 @@ public sealed class PrioridadeChamado : AuditableEntity
     public string Nome { get; private set; } = string.Empty;
     public PrioridadeChamadoEnum Nivel { get; private set; }
     public string? Descricao { get; private set; }
+    public int Peso { get; private set; }
+    public string? Cor { get; private set; } = "#1976D2";
     public int PrazoPrimeiraRespostaHoras { get; private set; }
     public int PrazoResolucaoHoras { get; private set; }
 
@@ -29,6 +31,7 @@ public sealed class PrioridadeChamado : AuditableEntity
         DefinirNome(nome);
         Nivel = nivel;
         DefinirDescricao(descricao);
+        DefinirPesoECor((int)nivel, ObterCorPadrao(nivel));
         DefinirPrazos(prazoPrimeiraRespostaHoras, prazoResolucaoHoras);
         DefinirCriacao(criadoPor);
     }
@@ -64,9 +67,31 @@ public sealed class PrioridadeChamado : AuditableEntity
         PrazoResolucaoHoras = prazoResolucaoHoras;
     }
 
+    public void DefinirPesoECor(int peso, string? cor)
+    {
+        if (peso <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(peso), "O peso da prioridade deve ser maior que zero.");
+        }
+
+        Peso = peso;
+        Cor = string.IsNullOrWhiteSpace(cor) ? null : cor.Trim().ToUpperInvariant();
+    }
+
     public void DefinirNivel(PrioridadeChamadoEnum nivel, string atualizadoPor)
     {
         Nivel = nivel;
+        DefinirPesoECor((int)nivel, ObterCorPadrao(nivel));
         AtualizarAuditoria(atualizadoPor);
     }
+
+    private static string ObterCorPadrao(PrioridadeChamadoEnum nivel)
+        => nivel switch
+        {
+            PrioridadeChamadoEnum.Baixa => "#2E7D32",
+            PrioridadeChamadoEnum.Media => "#F9A825",
+            PrioridadeChamadoEnum.Alta => "#EF6C00",
+            PrioridadeChamadoEnum.Critica => "#C62828",
+            _ => "#1976D2"
+        };
 }

@@ -34,6 +34,7 @@ Diretriz de seguranca:
 
 ## Em evolucao
 
+- Cadastros Administrativos (Sprints 1 a 6) implementado funcionalmente, com integracao aos chamados, seed inicial consolidado e documentacao de fechamento
 - Historico/Auditoria (Governanca) implementado funcionalmente - Sprints 1, 2 e 3 consolidadas com checklist 63/63
 - API real de notificacoes
 - Relatorios exportaveis
@@ -450,6 +451,169 @@ Pendencias evolutivas:
 - excecoes recorrentes;
 - refinamento de prazo remanescente em reabertura.
 
+## Sprint Cadastros Administrativos 1 - Base tecnica
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Entregas da sprint:
+- estrutura de entidades administrativas consolidada;
+- `SubcategoriaChamado` criada e vinculada em `CategoriaChamado`;
+- `TipoSolicitacao` criado;
+- `LocalUnidade` criado com `Endereco`;
+- `PrioridadeChamado` evoluida com `Peso` e `Cor`;
+- `DbSet` e mapeamentos Fluent API adicionados;
+- migration `AddCadastrosAdministrativosSprint1` criada e aplicada.
+
+Checklist Sprint 1:
+- [x] Criar entidade Departamento
+- [x] Criar entidade CategoriaChamado
+- [x] Criar entidade SubcategoriaChamado
+- [x] Criar entidade PrioridadeChamado
+- [x] Criar entidade TipoSolicitacao
+- [x] Criar entidade LocalUnidade
+- [x] Adicionar DbSet no DbContext
+- [x] Criar configuracoes Fluent API
+- [x] Definir relacionamento CategoriaChamado x SubcategoriaChamado
+- [x] Criar migration inicial dos cadastros administrativos
+- [x] Atualizar banco de dados
+- [x] Criar `docs/CADASTROS-ADMINISTRATIVOS.md`
+- [x] Atualizar `docs/ROADMAP.md`
+- [x] Atualizar `docs/ROADMAP-ITSM.md`
+
+Pendencias evolutivas:
+- criar CRUD administrativo para tipos de solicitacao e locais/unidades;
+- vincular subcategoria/tipo/local no fluxo de abertura e tratamento de chamados;
+- ampliar testes automatizados cobrindo novos cadastros.
+
+## Sprint Cadastros Administrativos 2 - Backend CRUD (Departamentos, Categorias e Subcategorias)
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Implementar CRUD administrativo de departamentos, categorias e subcategorias com validacoes de duplicidade, vinculo categoria/subcategoria, ativacao/inativacao e preservacao historica.
+
+Entregas da sprint:
+- CRUD de departamentos consolidado com listagem, busca e filtro de status;
+- CRUD de categorias consolidado com listagem, busca e filtro de status;
+- CRUD de subcategorias implementado com listagem geral e listagem por categoria;
+- rotas administrativas expostas em `api/admin` e mantidas em `api/admin/cadastros` para compatibilidade;
+- `DELETE` alinhado para inativacao logica;
+- validacao de duplicidade por nome dentro da categoria para subcategorias;
+- validacao obrigatoria de categoria existente para criar/atualizar subcategoria;
+- testes automatizados de use case ampliados para cobrir sprint 2.
+
+Checklist Sprint 2:
+- [x] DTOs para subcategorias
+- [x] Services/use cases para subcategorias
+- [x] Endpoints administrativos para subcategorias
+- [x] Endpoints `DELETE`/`PATCH` para ativacao e inativacao
+- [x] Validacao de duplicidade para departamentos
+- [x] Validacao de duplicidade para categorias
+- [x] Validacao de vinculo categoria/subcategoria
+- [x] Listagem com busca e filtro por status
+- [x] Testes automatizados de departamentos/categorias/subcategorias
+- [x] Documentacao de cadastros atualizada
+- [x] Roadmaps atualizados
+
+Pendencias evolutivas:
+- CRUD administrativo de tipos de solicitacao;
+- CRUD administrativo de locais/unidades;
+- integracao desses cadastros no fluxo de abertura/gestao de chamados.
+
+## Sprint Cadastros Administrativos 3 - Backend CRUD (Prioridades, Tipos de Solicitacao e Locais/Unidades)
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Implementar os CRUDs administrativos complementares para priorizacao, classificacao ITSM e localizacao dos chamados.
+
+Entregas da sprint:
+- CRUD de prioridades com regras de duplicidade por nome, peso obrigatorio maior que zero e cor opcional em formato hexadecimal;
+- CRUD de tipos de solicitacao com duplicidade por nome, ativacao/inativacao e preservacao historica;
+- CRUD de locais/unidades com duplicidade por nome, endereco opcional, ativacao/inativacao e preservacao historica;
+- endpoints de `DELETE` convertidos para inativacao logica;
+- aliases legados mantidos em `api/admin/cadastros/*`;
+- testes automatizados de use case e HTTP ampliados para os tres cadastros.
+
+Checklist Sprint 3:
+- [x] DTOs de PrioridadeChamado
+- [x] DTOs de TipoSolicitacao
+- [x] DTOs de LocalUnidade
+- [x] Use Cases / Services de PrioridadeChamado
+- [x] Use Cases / Services de TipoSolicitacao
+- [x] Use Cases / Services de LocalUnidade
+- [x] Validators
+- [x] Controllers administrativos
+- [x] Endpoints REST
+- [x] Validacao de duplicidade
+- [x] Validacao de peso da prioridade
+- [x] Ativacao e inativacao
+- [x] Listagem com busca e filtro por status
+- [x] Testes automatizados
+- [x] Atualizacao da documentacao
+- [x] Atualizacao dos roadmaps
+
+Pendencias evolutivas:
+- integrar `TipoSolicitacao` e `LocalUnidade` no fluxo de abertura/edicao de chamado;
+- evoluir regras de ordenacao/priorizacao de SLA considerando `Peso` como fonte principal;
+- homologacao funcional com usuarios-chave dos cadastros administrativos.
+
+## Sprint Cadastros Administrativos 4 - Frontend Administrativo dos Cadastros
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Criar as telas administrativas para manutencao de departamentos, categorias, subcategorias, prioridades, tipos de solicitacao e locais/unidades no menu `Admin > Cadastros`.
+
+Entregas da sprint:
+- menu de cadastros expandido com subcategorias, tipos de solicitacao e locais/unidades;
+- rotas frontend criadas para listagem e detalhe dos tres novos cadastros;
+- telas de listagem com busca por nome, filtro por status e paginacao;
+- acoes diretas de editar, inativar e reativar com confirmacao;
+- formularios com validacao obrigatoria:
+  - nome obrigatorio em todos os cadastros;
+  - categoria obrigatoria para subcategoria;
+  - peso obrigatorio e maior que zero para prioridade;
+  - cor opcional de prioridade com validacao `#RRGGBB`;
+- service de cadastros administrativos atualizado para consumir `api/admin/*` como base preferencial.
+
+Checklist Sprint 4:
+- [x] Menu Admin > Cadastros criado/atualizado
+- [x] Tela Departamentos
+- [x] Tela Categorias
+- [x] Tela Subcategorias
+- [x] Tela Prioridades
+- [x] Tela Tipos de Solicitacao
+- [x] Tela Locais / Unidades
+- [x] Services de API frontend criados/atualizados
+- [x] Rotas frontend criadas
+- [x] Busca e filtro por status
+- [x] Acoes de criar, editar, ativar e inativar
+- [x] Feedback de sucesso e erro
+- [x] Estados de carregamento e lista vazia
+- [x] Documentacao atualizada
+
+Pendencias evolutivas:
+- homologacao funcional com usuarios administrativos;
+- testes frontend E2E para o fluxo completo de cadastros;
+- integracao de tipo/local/subcategoria no fluxo de abertura e edicao de chamados (fora desta sprint).
+
 ## Sprint Historico/Auditoria 2 - Modulos criticos
 
 Area: Historico/Auditoria
@@ -601,3 +765,144 @@ Entregas tecnicas confirmadas:
 - evento de anexo na timeline com download e sem exposicao de caminho/nome fisico;
 - sem criacao de endpoint DELETE de anexo;
 - sem criacao de botao de exclusao de anexo.
+
+## Item Roadmap ITSM - Comentarios e Anexos
+
+Area: Atendimento
+Nome do item: Comentarios e anexos
+
+Status consolidado:
+- StatusImplementacao: Implementado funcionalmente
+- StatusTecnico: Completo
+- PercentualImplementacao: 100%
+- Situacao atual: Implementado
+- Avaliacao: Aprovado
+
+Pendencias:
+- tecnicas: nenhuma pendencia bloqueante;
+- homologacao: validar formalmente em ambiente de homologacao com usuarios reais, caso ainda nao exista evidencia formal.
+
+Regras de negocio mantidas:
+- comentarios internos restritos a Administrador/Atendente;
+- anexos salvos no atendimento nao podem ser excluidos por nenhum perfil;
+- nao existe endpoint DELETE de anexo;
+- nao existe botao de exclusao de anexo.
+
+## Sprint Cadastros Administrativos 5 - Integracao com Chamados
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Integrar departamentos, categorias, subcategorias, prioridades, tipos de solicitacao e locais/unidades ao fluxo real de chamados, com uso de ativos em novas operacoes e preservacao historica.
+
+Checklist Sprint 5:
+- [x] Modelo atual de `Chamado` analisado antes de alterar
+- [x] Campos antigos preservados
+- [x] Viculos faltantes adicionados (`SubcategoriaId`, `TipoSolicitacaoId`, `LocalUnidadeId`)
+- [x] Migration incremental criada (`Sprint5IntegracaoCadastrosChamados`)
+- [x] DTOs de criacao/edicao/detalhe/listagem atualizados
+- [x] Use cases de abertura e administracao atualizados
+- [x] Validacao de subcategoria por categoria aplicada
+- [x] Regra de ativos para novas selecoes aplicada
+- [x] Regras historicas para inativos preservadas
+- [x] Endpoints operacionais de cadastros ativos publicados
+- [x] Filtros administrativos de chamados ampliados
+- [x] Frontend de abertura e detalhe atualizado
+- [x] Testes backend atualizados
+
+Comandos de validacao executados:
+- `dotnet build SGX.SistemaChamado.sln -c Release`
+- `dotnet test tests/SGX.SistemaChamado.Tests/SGX.SistemaChamado.Tests.csproj -c Release`
+- `npm.cmd run build` (em `src/SGX.SistemaChamado.Web`)
+
+Pendencias evolutivas:
+- ampliar testes frontend automatizados para fluxo completo de abertura/triagem com novos campos;
+- avaliar separacao futura entre `DepartamentoSolicitanteId` e `DepartamentoResponsavelId`.
+
+## Sprint Cadastros Administrativos 6 - Seed Inicial, Testes e Fechamento
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Consolidar o modulo com seed inicial idempotente, reforco de testes e fechamento documental para validacao funcional.
+
+Checklist Sprint 6:
+- [x] seed inicial dos principais cadastros consolidado
+- [x] comportamento sem duplicidade validado
+- [x] testes backend revisados e ampliados
+- [x] validacao de endpoints operacionais com somente ativos
+- [x] validacao de subcategorias ativas filtradas por categoria
+- [x] documentacao final atualizada
+- [x] roadmap atualizado com fechamento da sprint
+
+Decisao tecnica aplicada:
+- seed inicial mantido no fluxo de `DevelopmentSeedService` para validacao funcional local/homologacao tecnica;
+- prioridades consolidadas com peso/cor padrao da sprint (`Baixa` `#22C55E`, `Media` `#EAB308`, `Alta` `#F97316`, `Critica` `#EF4444`);
+- subcategorias minimas por categoria adicionadas com vinculo consistente;
+- cadastros existentes nao sao sobrescritos e nao ha reativacao automatica de inativos.
+
+Pendencias evolutivas:
+- evoluir para uma estrategia opcional/configuravel de seed institucional por ambiente;
+- ampliar testes frontend automatizados para fluxos completos de abertura/triagem.
+
+## Sprint Cadastros Administrativos 7 - Checklist Funcional e Homologacao
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Concluir validacao funcional do modulo de cadastros administrativos no ciclo de chamados, com ajustes finos e registro de evidencias tecnicas.
+
+Checklist Sprint 7:
+- [x] validacao tecnica de CRUD administrativo por cadastro
+- [x] validacao de busca por nome e filtros por status (`Ativo`, `Inativo`, `Todos`)
+- [x] validacao de abertura de chamado com cadastros ativos
+- [x] validacao de subcategoria por categoria e bloqueio de inconsistencias
+- [x] validacao de bloqueio de registros inativos em novas operacoes
+- [x] validacao de preservacao historica de chamados com cadastro inativo vinculado
+- [x] validacao de filtros administrativos por cadastros no modulo de chamados
+- [x] validacao de detalhe portal/admin com nomes de cadastros vinculados
+- [x] ajustes finos em testes e validadores
+- [x] documentacao de homologacao atualizada
+
+Pendencias evolutivas:
+- homologacao manual com evidencias visuais formais por tela em ambiente institucional;
+- consolidacao de suite frontend automatizada/E2E para cobertura visual ponta a ponta.
+
+## Sprint Cadastros Administrativos 8 - Consolidacao ITSM e Checklist de Homologacao
+
+Area: Cadastros Administrativos
+Categoria: Cadastros
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Completo com pendencias evolutivas
+
+Objetivo:
+Consolidar a governanca documental do modulo de cadastros administrativos e formalizar o checklist de homologacao para validacao institucional.
+
+Checklist Sprint 8:
+- [x] documento ITSM especifico dos cadastros administrativos criado
+- [x] checklist de homologacao funcional criado
+- [x] documentacao de cadastros atualizada com o fechamento da sprint
+- [x] roadmap geral atualizado
+- [x] roadmap ITSM atualizado
+
+Evidencias documentais:
+- `docs/ITSM-CADASTROS-ADMINISTRATIVOS.md`
+- `docs/CHECKLIST-HOMOLOGACAO-CADASTROS.md`
+- `docs/CADASTROS-ADMINISTRATIVOS.md`
+
+Pendencias evolutivas:
+- execucao manual do checklist em ambiente de homologacao com usuarios reais;
+- formalizacao de aceite funcional e registro de evidencias visuais.

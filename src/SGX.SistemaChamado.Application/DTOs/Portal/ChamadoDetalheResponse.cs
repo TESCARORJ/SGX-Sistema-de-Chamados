@@ -59,7 +59,16 @@ public sealed class ChamadoDetalheResponse
     public string Status { get; init; } = string.Empty;
     public string Prioridade { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
+    public string? Subcategoria { get; init; }
+    public string? TipoSolicitacao { get; init; }
+    public string? LocalUnidade { get; init; }
     public string? Departamento { get; init; }
+    public Guid CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid PrioridadeId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
+    public Guid? DepartamentoId { get; init; }
     public string Solicitante { get; init; } = string.Empty;
     public string? Responsavel { get; init; }
     public DateTime AbertoEm { get; init; }

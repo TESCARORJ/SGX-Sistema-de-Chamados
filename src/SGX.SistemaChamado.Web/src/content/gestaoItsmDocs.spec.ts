@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+﻿import { describe, expect, it } from 'vitest'
 import {
   documentosItsm,
   filtrarDocumentosItsm,
@@ -15,6 +15,7 @@ describe('gestaoItsmDocs', () => {
     expect(titulos).toContain('Autenticação Corporativa')
     expect(titulos).toContain('Configuração Azure AD / Microsoft Entra ID')
     expect(titulos).toContain('Checklist de Homologação')
+    expect(titulos).toContain('Comentarios e Anexos no Atendimento')
   })
 
   it('deve filtrar documentos por busca ignorando acentos e caixa', () => {

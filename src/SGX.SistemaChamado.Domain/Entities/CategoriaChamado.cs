@@ -9,6 +9,7 @@ public sealed class CategoriaChamado : AuditableEntity
     public Guid? DepartamentoId { get; private set; }
 
     public Departamento? Departamento { get; private set; }
+    public ICollection<SubcategoriaChamado> Subcategorias { get; private set; } = [];
     public ICollection<Chamado> Chamados { get; private set; } = [];
     public ICollection<SlaConfiguracao> SlaConfiguracoes { get; private set; } = [];
 

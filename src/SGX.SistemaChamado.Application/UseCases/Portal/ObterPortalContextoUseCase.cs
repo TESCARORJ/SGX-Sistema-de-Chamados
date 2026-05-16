@@ -12,7 +12,10 @@ namespace SGX.SistemaChamado.Application.UseCases.Portal;
 public sealed class ObterPortalContextoUseCase(
     IRepository<Departamento> departamentoRepository,
     IRepository<CategoriaChamado> categoriaRepository,
+    IRepository<SubcategoriaChamado> subcategoriaRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
+    IRepository<TipoSolicitacao> tipoSolicitacaoRepository,
+    IRepository<LocalUnidade> localUnidadeRepository,
     IRepository<StatusChamado> statusRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IOptions<ArquivosOptions> arquivosOptions) : IObterPortalContextoUseCase
@@ -35,11 +38,32 @@ public sealed class ObterPortalContextoUseCase(
             .Select(x => new CategoriaPortalResponse(x.Id, x.Nome, x.DepartamentoId))
             .ToListAsync(cancellationToken);
 
+        var subcategorias = await subcategoriaRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new SubcategoriaPortalResponse(x.Id, x.CategoriaChamadoId, x.Nome))
+            .ToListAsync(cancellationToken);
+
         var prioridades = await prioridadeRepository.Query()
             .AsNoTracking()
             .Where(x => x.Ativo)
             .OrderBy(x => x.Nivel)
             .Select(x => new PrioridadePortalResponse(x.Id, x.Nome, (int)x.Nivel))
+            .ToListAsync(cancellationToken);
+
+        var tiposSolicitacao = await tipoSolicitacaoRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new TipoSolicitacaoPortalResponse(x.Id, x.Nome))
+            .ToListAsync(cancellationToken);
+
+        var locaisUnidade = await localUnidadeRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new LocalUnidadePortalResponse(x.Id, x.Nome))
             .ToListAsync(cancellationToken);
 
         var status = await statusRepository.Query()
@@ -56,7 +80,10 @@ public sealed class ObterPortalContextoUseCase(
             Usuario = new UsuarioPortalResponse(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, usuario.Perfis),
             Departamentos = departamentos,
             Categorias = categorias,
+            Subcategorias = subcategorias,
             Prioridades = prioridades,
+            TiposSolicitacao = tiposSolicitacao,
+            LocaisUnidade = locaisUnidade,
             Status = status,
             ConfiguracaoAnexos = configuracaoAnexos
         };

@@ -4,6 +4,8 @@ public static class PermissionPolicies
 {
     public const string Prefixo = "Permissao:";
 
+    public const string CadastrosVisualizar = Prefixo + PermissoesConstants.CadastrosVisualizar;
+    public const string CadastrosGerenciar = Prefixo + PermissoesConstants.CadastrosGerenciar;
     public const string UsuariosGerenciar = Prefixo + PermissoesConstants.UsuariosGerenciar;
     public const string UsuariosAlterarPerfis = Prefixo + PermissoesConstants.UsuariosAlterarPerfis;
     public const string PerfisGerenciar = Prefixo + PermissoesConstants.PerfisGerenciar;

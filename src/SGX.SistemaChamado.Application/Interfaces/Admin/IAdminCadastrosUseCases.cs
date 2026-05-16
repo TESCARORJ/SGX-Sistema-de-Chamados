@@ -147,6 +147,41 @@ public interface IReativarCategoriaUseCase
     Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
 }
 
+public interface IListarSubcategoriasAdminUseCase
+{
+    Task<PagedResultResponse<SubcategoriaChamadoResumoResponse>> ExecutarAsync(FiltroCadastroRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IListarSubcategoriasPorCategoriaUseCase
+{
+    Task<IReadOnlyCollection<SubcategoriaChamadoResumoResponse>> ExecutarAsync(Guid categoriaId, bool? ativo = true, CancellationToken cancellationToken = default);
+}
+
+public interface IObterSubcategoriaAdminUseCase
+{
+    Task<SubcategoriaChamadoDetalheResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface ICriarSubcategoriaUseCase
+{
+    Task<SubcategoriaChamadoDetalheResponse> ExecutarAsync(CriarSubcategoriaChamadoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarSubcategoriaUseCase
+{
+    Task<SubcategoriaChamadoDetalheResponse> ExecutarAsync(Guid id, AtualizarSubcategoriaChamadoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IInativarSubcategoriaUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface IReativarSubcategoriaUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
 public interface IListarPrioridadesAdminUseCase
 {
     Task<PagedResultResponse<PrioridadeChamadoResumoResponse>> ExecutarAsync(FiltroCadastroRequest request, CancellationToken cancellationToken = default);
@@ -173,6 +208,66 @@ public interface IInativarPrioridadeUseCase
 }
 
 public interface IReativarPrioridadeUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface IListarTiposSolicitacaoAdminUseCase
+{
+    Task<PagedResultResponse<TipoSolicitacaoResumoResponse>> ExecutarAsync(FiltroCadastroRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IObterTipoSolicitacaoAdminUseCase
+{
+    Task<TipoSolicitacaoDetalheResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface ICriarTipoSolicitacaoUseCase
+{
+    Task<TipoSolicitacaoDetalheResponse> ExecutarAsync(CriarTipoSolicitacaoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarTipoSolicitacaoUseCase
+{
+    Task<TipoSolicitacaoDetalheResponse> ExecutarAsync(Guid id, AtualizarTipoSolicitacaoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IInativarTipoSolicitacaoUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface IReativarTipoSolicitacaoUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface IListarLocaisUnidadeAdminUseCase
+{
+    Task<PagedResultResponse<LocalUnidadeResumoResponse>> ExecutarAsync(FiltroCadastroRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IObterLocalUnidadeAdminUseCase
+{
+    Task<LocalUnidadeDetalheResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface ICriarLocalUnidadeUseCase
+{
+    Task<LocalUnidadeDetalheResponse> ExecutarAsync(CriarLocalUnidadeRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarLocalUnidadeUseCase
+{
+    Task<LocalUnidadeDetalheResponse> ExecutarAsync(Guid id, AtualizarLocalUnidadeRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IInativarLocalUnidadeUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface IReativarLocalUnidadeUseCase
 {
     Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
 }

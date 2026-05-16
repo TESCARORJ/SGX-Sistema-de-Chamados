@@ -22,6 +22,9 @@ public sealed class DetalharChamadoAdminUseCaseTests
         Assert.Equal("Portal", response.Origem);
         Assert.Equal("Aberto", response.Status);
         Assert.Equal(dados.Solicitante.Nome, response.Solicitante.Nome);
+        Assert.Equal("Acesso", response.Subcategoria);
+        Assert.Equal("Incidente", response.TipoSolicitacao);
+        Assert.Equal("Matriz", response.LocalUnidade);
         Assert.Contains(response.Historico, item => item.Descricao == "Chamado criado pelo portal");
         Assert.Contains(response.Anexos, item => item.NomeArquivo == "evidencia.pdf");
     }
@@ -31,7 +34,29 @@ public sealed class DetalharChamadoAdminUseCaseTests
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "admin.det@empresa.com", TipoPerfil.Administrador);
         var solicitante = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante", "sol.det@empresa.com", TipoPerfil.Solicitante);
         var categoria = await AdminUseCasesTestFactory.CriarCategoriaAsync(context, "Infra");
-        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante, categoria, StatusChamadoEnum.Aberto, null, "DET");
+        var subcategoria = new SubcategoriaChamado(categoria.Id, "Acesso", null, "teste");
+        var tipoSolicitacao = new TipoSolicitacao("Incidente", null, "teste");
+        var localUnidade = new LocalUnidade("Matriz", null, null, "teste");
+        context.SubcategoriasChamado.Add(subcategoria);
+        context.TiposSolicitacao.Add(tipoSolicitacao);
+        context.LocaisUnidade.Add(localUnidade);
+        await context.SaveChangesAsync();
+
+        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(
+            context,
+            solicitante,
+            categoria,
+            StatusChamadoEnum.Aberto,
+            null,
+            "DET",
+            subcategoriaId: subcategoria.Id,
+            tipoSolicitacaoId: tipoSolicitacao.Id,
+            localUnidadeId: localUnidade.Id);
+
+        subcategoria.Desativar("teste");
+        tipoSolicitacao.Desativar("teste");
+        localUnidade.Desativar("teste");
+        await context.SaveChangesAsync();
 
         var historicoCriacao = new HistoricoChamado(
             chamado.Id,

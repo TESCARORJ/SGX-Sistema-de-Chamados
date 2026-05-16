@@ -289,6 +289,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("encerrado_em");
 
+                    b.Property<Guid?>("LocalUnidadeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("local_unidade_id");
+
                     b.Property<int>("Origem")
                         .HasColumnType("integer")
                         .HasColumnName("origem");
@@ -309,6 +313,14 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("status_id");
 
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subcategoria_id");
+
+                    b.Property<Guid?>("TipoSolicitacaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tipo_solicitacao_id");
+
                     b.Property<string>("Titulo")
                         .IsRequired()
                         .HasMaxLength(180)
@@ -325,6 +337,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("DepartamentoId");
 
+                    b.HasIndex("LocalUnidadeId");
+
                     b.HasIndex("PrioridadeId");
 
                     b.HasIndex("ResponsavelId");
@@ -332,6 +346,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("SolicitanteId");
 
                     b.HasIndex("StatusId");
+
+                    b.HasIndex("SubcategoriaId");
+
+                    b.HasIndex("TipoSolicitacaoId");
 
                     b.ToTable("chamados", (string)null);
                 });
@@ -1070,6 +1088,61 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             HoraFim = new TimeOnly(18, 0, 0),
                             HoraInicio = new TimeOnly(9, 0, 0)
                         });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.LocalUnidade", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Endereco")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("endereco");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_locais_unidade_nome");
+
+                    b.ToTable("locais_unidade", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.LogIntegracaoEmail", b =>
@@ -2611,6 +2684,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("atualizado_por");
 
+                    b.Property<string>("Cor")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("cor");
+
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("criado_em");
@@ -2636,6 +2714,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("nome");
 
+                    b.Property<int>("Peso")
+                        .HasColumnType("integer")
+                        .HasColumnName("peso");
+
                     b.Property<int>("PrazoPrimeiraRespostaHoras")
                         .HasColumnType("integer")
                         .HasColumnName("prazo_primeira_resposta_horas");
@@ -2647,8 +2729,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Nivel")
-                        .IsUnique()
-                        .HasDatabaseName("ux_prioridades_chamado_nivel");
+                        .HasDatabaseName("ix_prioridades_chamado_nivel");
 
                     b.ToTable("prioridades_chamado", (string)null);
 
@@ -2657,11 +2738,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("55555555-5555-5555-5555-555555555551"),
                             Ativo = true,
+                            Cor = "#2E7D32",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Impacto baixo.",
                             Nivel = 1,
                             Nome = "Baixa",
+                            Peso = 1,
                             PrazoPrimeiraRespostaHoras = 8,
                             PrazoResolucaoHoras = 48
                         },
@@ -2669,11 +2752,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("55555555-5555-5555-5555-555555555552"),
                             Ativo = true,
+                            Cor = "#F9A825",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Impacto moderado.",
                             Nivel = 2,
                             Nome = "Media",
+                            Peso = 2,
                             PrazoPrimeiraRespostaHoras = 4,
                             PrazoResolucaoHoras = 24
                         },
@@ -2681,11 +2766,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("55555555-5555-5555-5555-555555555553"),
                             Ativo = true,
+                            Cor = "#EF6C00",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Impacto alto.",
                             Nivel = 3,
                             Nome = "Alta",
+                            Peso = 3,
                             PrazoPrimeiraRespostaHoras = 2,
                             PrazoResolucaoHoras = 8
                         },
@@ -2693,11 +2780,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("55555555-5555-5555-5555-555555555554"),
                             Ativo = true,
+                            Cor = "#C62828",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Impacto critico.",
                             Nivel = 4,
                             Nome = "Critica",
+                            Peso = 4,
                             PrazoPrimeiraRespostaHoras = 1,
                             PrazoResolucaoHoras = 4
                         });
@@ -6273,6 +6362,594 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 63,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
                             Titulo = "Validação com eventos reais em eventos_auditoria executada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000001"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 1,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Endpoint GET de comentarios criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000002"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Endpoint POST de comentarios criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000003"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Comentario publico permitido para Administrador, Atendente e Solicitante."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000004"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Comentario interno permitido somente para Administrador e Atendente."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000005"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Solicitante impedido de criar comentario interno."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000006"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Solicitante impedido de visualizar comentario interno."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000007"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Validacao de mensagem obrigatoria implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000008"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Limite de 4000 caracteres implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000009"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Ordenacao cronologica implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000010"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Tela de detalhe do chamado atualizada com comentarios."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000011"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Testes backend de comentarios aprovados."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000012"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Testes frontend/build de comentarios aprovados."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000013"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Documentacao de comentarios atualizada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000014"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Endpoint GET de anexos criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000015"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Endpoint POST de anexos criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000016"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Endpoint de download de anexo criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000017"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Upload de anexo por perfil implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000018"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Listagem de anexo por perfil implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000019"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Download de anexo por perfil implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000020"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Validacao de arquivo vazio implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000021"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Validacao de tamanho maximo implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000022"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Validacao de extensao permitida implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000023"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Bloqueio de extensoes perigosas implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000024"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Storage seguro implementado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000025"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Protecao contra path traversal implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000026"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "API nao expoe caminho fisico."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000027"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "API nao expoe nome fisico armazenado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000028"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Nenhum endpoint DELETE de anexo foi criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000029"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Nenhum botao de exclusao de anexo foi criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000030"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Exclusao logica/fisica de anexos nao foi implementada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000031"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Tela de detalhe do chamado atualizada com anexos."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000032"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Testes backend de anexos aprovados."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000033"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Testes frontend/build de anexos aprovados."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000034"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 34,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Documentacao de anexos atualizada."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000035"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 35,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "docs/ATENDIMENTO.md atualizado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000036"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 36,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "docs/ROADMAP.md atualizado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000037"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 37,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "docs/ROADMAP-ITSM.md atualizado."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000038"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 38,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Migrations de comentarios e anexos registradas."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000039"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 39,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Evidencias de testes registradas."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000040"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 40,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Percentual atualizado para 100%."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000041"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 41,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Status final ajustado para Implementado funcionalmente."
+                        },
+                        new
+                        {
+                            Id = new Guid("72727272-7272-7272-7272-000000000042"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Checklist de Comentarios e Anexos",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 42,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777707"),
+                            Titulo = "Avaliacao final ajustada para Aprovado."
                         });
                 });
 
@@ -6692,21 +7369,28 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777707"),
                             Area = "Comentarios e anexos",
-                            AtencaoTecnica = "Testar upload, download, visibilidade publica/interna",
+                            AtencaoTecnica = "Comentarios internos restritos a Administrador/Atendente. Anexos devem permanecer como evidencia permanente, sem endpoint DELETE e sem exclusao logica/fisica.",
                             Ativo = true,
-                            Categoria = "Operacao",
+                            Categoria = "Atendimento",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Decisao = 4,
+                            CriterioAceite = "Administrador, Atendente e Solicitante conseguem interagir no atendimento conforme regras de perfil; comentario interno fica restrito; anexos sao enviados/listados/baixados com seguranca; anexos nao podem ser excluidos por nenhum perfil apos upload.",
+                            Decisao = 2,
+                            EvidenciaImplementacao = "- docs/ATENDIMENTO.md\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md\n- GET /api/chamados/{chamadoId}/comentarios\n- POST /api/chamados/{chamadoId}/comentarios\n- GET /api/chamados/{chamadoId}/anexos\n- POST /api/chamados/{chamadoId}/anexos\n- GET /api/chamados/{chamadoId}/anexos/{anexoId}/download\n- tests/SGX.SistemaChamado.Tests/ComentariosChamadoUseCasesTests.cs\n- tests/SGX.SistemaChamado.Tests/AnexosChamadoUseCasesTests.cs\n- src/SGX.SistemaChamado.Web/src/services/chamadosService.spec.ts\n- src/SGX.SistemaChamado.Web/src/views/DetalheChamadoView.anexos.spec.ts",
                             Impacto = 1,
+                            Objetivo = "Permitir comentarios e anexos no atendimento com regras por perfil, seguranca no upload/download e rastreabilidade, mantendo anexos como evidencia permanente sem exclusao.",
+                            Observacao = "Checklist consolidado em 100% para comentarios e anexos. Regra de negocio mantida: anexos salvos nao podem ser excluidos.",
                             Ordem = 7,
-                            PercentualImplementacao = 0,
+                            PendenciasHomologacao = "Validar em ambiente de homologacao com usuarios reais, caso ainda nao exista validacao formal registrada.",
+                            PendenciasTecnicas = "Nenhuma pendencia bloqueante.",
+                            PercentualImplementacao = 100,
                             Prioridade = 1,
+                            ProximaAcao = "Consolidar evidencias formais de homologacao com usuarios reais por perfil.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666602"),
-                            SituacaoAtual = "Previsto",
-                            Status = 2,
-                            StatusImplementacao = 0,
-                            StatusTecnico = 0
+                            SituacaoAtual = "Implementado",
+                            Status = 1,
+                            StatusImplementacao = 3,
+                            StatusTecnico = 2
                         },
                         new
                         {
@@ -7130,6 +7814,110 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CategoriaChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_chamado_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaChamadoId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_subcategorias_chamado_categoria_nome");
+
+                    b.ToTable("subcategorias_chamado", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TipoSolicitacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_tipos_solicitacao_nome");
+
+                    b.ToTable("tipos_solicitacao", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TokenRecuperacaoSenha", b =>
                 {
                     b.Property<Guid>("Id")
@@ -7378,6 +8166,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasForeignKey("DepartamentoId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.LocalUnidade", "LocalUnidade")
+                        .WithMany("Chamados")
+                        .HasForeignKey("LocalUnidadeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", "Prioridade")
                         .WithMany("Chamados")
                         .HasForeignKey("PrioridadeId")
@@ -7401,9 +8194,21 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", "Subcategoria")
+                        .WithMany("Chamados")
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.TipoSolicitacao", "TipoSolicitacao")
+                        .WithMany("Chamados")
+                        .HasForeignKey("TipoSolicitacaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Categoria");
 
                     b.Navigation("Departamento");
+
+                    b.Navigation("LocalUnidade");
 
                     b.Navigation("Prioridade");
 
@@ -7412,6 +8217,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Solicitante");
 
                     b.Navigation("Status");
+
+                    b.Navigation("Subcategoria");
+
+                    b.Navigation("TipoSolicitacao");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
@@ -7672,6 +8481,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Chamado");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", "CategoriaChamado")
+                        .WithMany("Subcategorias")
+                        .HasForeignKey("CategoriaChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CategoriaChamado");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TokenRecuperacaoSenha", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Usuario")
@@ -7724,6 +8544,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Chamados");
 
                     b.Navigation("SlaConfiguracoes");
+
+                    b.Navigation("Subcategorias");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Chamado", b =>
@@ -7750,6 +8572,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("SlaConfiguracoes");
 
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.LocalUnidade", b =>
+                {
+                    b.Navigation("Chamados");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", b =>
@@ -7789,6 +8616,16 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.StatusChamado", b =>
+                {
+                    b.Navigation("Chamados");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", b =>
+                {
+                    b.Navigation("Chamados");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TipoSolicitacao", b =>
                 {
                     b.Navigation("Chamados");
                 });

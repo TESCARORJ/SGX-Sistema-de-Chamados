@@ -25,5 +25,10 @@ public sealed class CategoriaChamadoConfiguration : IEntityTypeConfiguration<Cat
             .WithMany(x => x.Categorias)
             .HasForeignKey(x => x.DepartamentoId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(x => x.Subcategorias)
+            .WithOne(x => x.CategoriaChamado)
+            .HasForeignKey(x => x.CategoriaChamadoId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

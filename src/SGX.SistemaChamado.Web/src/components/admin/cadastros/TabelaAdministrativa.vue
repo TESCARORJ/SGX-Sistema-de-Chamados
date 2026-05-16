@@ -38,6 +38,15 @@ const $q = useQuasar()
       </q-td>
     </template>
 
+    <template #body-cell-cor="slotProps">
+      <q-td :props="slotProps">
+        <div class="row items-center q-gutter-sm">
+          <q-badge rounded :style="{ backgroundColor: slotProps.value || '#cbd5e1' }">&nbsp;</q-badge>
+          <span>{{ slotProps.value || '-' }}</span>
+        </div>
+      </q-td>
+    </template>
+
     <template #body-cell-sensivel="slotProps">
       <q-td :props="slotProps">
         <q-badge :color="slotProps.row.sensivel ? 'warning' : 'grey-6'" text-color="white">

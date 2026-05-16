@@ -42,7 +42,10 @@ internal static class AdminUseCasesTestFactory
         StatusChamadoEnum status,
         Guid? prioridadeId = null,
         string sufixoCodigo = "001",
-        string criadoPor = "teste")
+        string criadoPor = "teste",
+        Guid? subcategoriaId = null,
+        Guid? tipoSolicitacaoId = null,
+        Guid? localUnidadeId = null)
     {
         var prioridade = prioridadeId.HasValue
             ? await context.PrioridadesChamado.FirstAsync(x => x.Id == prioridadeId.Value)
@@ -60,7 +63,10 @@ internal static class AdminUseCasesTestFactory
             statusEntidade.Id,
             OrigemChamado.Portal,
             criadoPor,
-            categoria.DepartamentoId);
+            categoria.DepartamentoId,
+            subcategoriaId,
+            tipoSolicitacaoId,
+            localUnidadeId);
 
         context.Chamados.Add(chamado);
         await context.SaveChangesAsync();

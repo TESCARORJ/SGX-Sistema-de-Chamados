@@ -12,7 +12,10 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<PerfilAcessoPermissao> PerfisAcessoPermissoes => Set<PerfilAcessoPermissao>();
     public DbSet<Departamento> Departamentos => Set<Departamento>();
     public DbSet<CategoriaChamado> CategoriasChamado => Set<CategoriaChamado>();
+    public DbSet<SubcategoriaChamado> SubcategoriasChamado => Set<SubcategoriaChamado>();
     public DbSet<PrioridadeChamado> PrioridadesChamado => Set<PrioridadeChamado>();
+    public DbSet<TipoSolicitacao> TiposSolicitacao => Set<TipoSolicitacao>();
+    public DbSet<LocalUnidade> LocaisUnidade => Set<LocalUnidade>();
     public DbSet<StatusChamado> StatusChamado => Set<StatusChamado>();
     public DbSet<Chamado> Chamados => Set<Chamado>();
     public DbSet<HistoricoChamado> HistoricosChamado => Set<HistoricoChamado>();

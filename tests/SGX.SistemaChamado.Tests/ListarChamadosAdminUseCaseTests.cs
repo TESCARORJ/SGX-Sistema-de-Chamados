@@ -69,6 +69,51 @@ public sealed class ListarChamadosAdminUseCaseTests
     }
 
     [Fact]
+    public async Task AplicaFiltroPorSubcategoria()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { SubcategoriaId = dados.SubcategoriaInfraId });
+
+        Assert.All(response.Items, x => Assert.Equal("Acesso", x.Subcategoria));
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorTipoSolicitacao()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { TipoSolicitacaoId = dados.TipoSolicitacaoIncidenteId });
+
+        Assert.All(response.Items, x => Assert.Equal("Incidente", x.TipoSolicitacao));
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorLocalUnidade()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { LocalUnidadeId = dados.LocalUnidadeMatrizId });
+
+        Assert.All(response.Items, x => Assert.Equal("Matriz", x.LocalUnidade));
+    }
+
+    [Fact]
     public async Task AplicaPaginacao()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
@@ -99,7 +144,7 @@ public sealed class ListarChamadosAdminUseCaseTests
         Assert.Contains(response.Items, item => item.Codigo == "CH-ADMIN-001");
     }
 
-    private static async Task<(UsuarioContextoAplicacao AtendenteContexto, Guid StatusEmAtendimentoId, Guid PrioridadeAltaId, Guid CategoriaInfraId)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    private static async Task<(UsuarioContextoAplicacao AtendenteContexto, Guid StatusEmAtendimentoId, Guid PrioridadeAltaId, Guid CategoriaInfraId, Guid SubcategoriaInfraId, Guid TipoSolicitacaoIncidenteId, Guid LocalUnidadeMatrizId)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
         var atendente = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Atendente", "aten@empresa.com", TipoPerfil.Atendente);
         var solicitante1 = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante 1", "sol1@empresa.com", TipoPerfil.Solicitante);
@@ -107,10 +152,38 @@ public sealed class ListarChamadosAdminUseCaseTests
 
         var categoriaInfra = await AdminUseCasesTestFactory.CriarCategoriaAsync(context, "Infra");
         var categoriaSistemas = await AdminUseCasesTestFactory.CriarCategoriaAsync(context, "Sistemas");
+        var subcategoriaInfra = new SubcategoriaChamado(categoriaInfra.Id, "Acesso", null, "teste");
+        var subcategoriaSistemas = new SubcategoriaChamado(categoriaSistemas.Id, "ERP", null, "teste");
+        var tipoIncidente = new TipoSolicitacao("Incidente", null, "teste");
+        var tipoMelhoria = new TipoSolicitacao("Melhoria", null, "teste");
+        var localMatriz = new LocalUnidade("Matriz", null, null, "teste");
+        var localFilial = new LocalUnidade("Filial", null, null, "teste");
+        context.SubcategoriasChamado.AddRange(subcategoriaInfra, subcategoriaSistemas);
+        context.TiposSolicitacao.AddRange(tipoIncidente, tipoMelhoria);
+        context.LocaisUnidade.AddRange(localMatriz, localFilial);
+        await context.SaveChangesAsync();
 
         var prioridadeAlta = context.PrioridadesChamado.First(x => x.Nome == "Alta");
-        _ = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante1, categoriaInfra, StatusChamadoEnum.EmAtendimento, prioridadeAlta.Id, "001");
-        _ = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante2, categoriaSistemas, StatusChamadoEnum.Aberto, null, "002");
+        _ = await AdminUseCasesTestFactory.CriarChamadoAsync(
+            context,
+            solicitante1,
+            categoriaInfra,
+            StatusChamadoEnum.EmAtendimento,
+            prioridadeAlta.Id,
+            "001",
+            subcategoriaId: subcategoriaInfra.Id,
+            tipoSolicitacaoId: tipoIncidente.Id,
+            localUnidadeId: localMatriz.Id);
+        _ = await AdminUseCasesTestFactory.CriarChamadoAsync(
+            context,
+            solicitante2,
+            categoriaSistemas,
+            StatusChamadoEnum.Aberto,
+            null,
+            "002",
+            subcategoriaId: subcategoriaSistemas.Id,
+            tipoSolicitacaoId: tipoMelhoria.Id,
+            localUnidadeId: localFilial.Id);
 
         var statusEmAtendimento = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
 
@@ -118,7 +191,10 @@ public sealed class ListarChamadosAdminUseCaseTests
             AdminUseCasesTestFactory.Contexto(atendente, "Atendente"),
             statusEmAtendimento.Id,
             prioridadeAlta.Id,
-            categoriaInfra.Id);
+            categoriaInfra.Id,
+            subcategoriaInfra.Id,
+            tipoIncidente.Id,
+            localMatriz.Id);
     }
 }
 

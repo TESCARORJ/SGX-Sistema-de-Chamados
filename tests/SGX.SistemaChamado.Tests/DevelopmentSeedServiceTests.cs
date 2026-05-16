@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Text;
 using SGX.SistemaChamado.Api.Options;
 using SGX.SistemaChamado.Api.Services;
 using SGX.SistemaChamado.Domain.Entities;
@@ -11,6 +13,7 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 
 namespace SGX.SistemaChamado.Tests;
 
+[Collection("EnvironmentVariables")]
 public sealed class DevelopmentSeedServiceTests
 {
     private const string UsuarioTecnicoTeste = "teste.seed";
@@ -218,6 +221,113 @@ public sealed class DevelopmentSeedServiceTests
         }
     }
 
+    [Fact]
+    public async Task SeedGaranteCadastrosIniciaisSemDuplicidade()
+    {
+        await using var dbContext = CriarContexto();
+        var service = CriarService(dbContext);
+
+        await service.SeedAsync();
+        await service.SeedAsync();
+
+        var departamentos = await dbContext.Departamentos.AsNoTracking().ToListAsync();
+        var categorias = await dbContext.CategoriasChamado.AsNoTracking().ToListAsync();
+        var subcategorias = await dbContext.SubcategoriasChamado
+            .AsNoTracking()
+            .Include(x => x.CategoriaChamado)
+            .ToListAsync();
+        var prioridades = await dbContext.PrioridadesChamado.AsNoTracking().ToListAsync();
+        var tipos = await dbContext.TiposSolicitacao.AsNoTracking().ToListAsync();
+        var locais = await dbContext.LocaisUnidade.AsNoTracking().ToListAsync();
+
+        var departamentosEsperados = new[]
+        {
+            "Tecnologia da Informacao",
+            "Recursos Humanos",
+            "Financeiro",
+            "Juridico",
+            "Atendimento",
+            "Infraestrutura"
+        };
+
+        var categoriasEsperadas = new[]
+        {
+            "Hardware",
+            "Software",
+            "Rede",
+            "Sistema",
+            "Acesso",
+            "E-mail",
+            "Impressora",
+            "Telefonia",
+            "Solicitacao Administrativa",
+            "Suporte Tecnico"
+        };
+
+        var subcategoriasEsperadas = new Dictionary<string, string[]>
+        {
+            ["Hardware"] = ["Computador", "Notebook", "Monitor", "Teclado / Mouse"],
+            ["Software"] = ["Instalacao", "Erro no sistema", "Atualizacao"],
+            ["Rede"] = ["Internet", "Wi-Fi", "Cabeamento"],
+            ["Sistema"] = ["Erro de acesso", "Erro de operacao", "Lentidao"],
+            ["Acesso"] = ["Criacao de usuario", "Reset de senha", "Permissao de acesso"],
+            ["E-mail"] = ["Criacao de conta", "Problema de envio/recebimento", "Configuracao"],
+            ["Impressora"] = ["Instalacao", "Falha de impressao", "Toner"],
+            ["Telefonia"] = ["Ramal", "Aparelho", "Ligacao externa"],
+            ["Solicitacao Administrativa"] = ["Apoio operacional", "Solicitacao interna"]
+        };
+
+        var tiposEsperados = new[]
+        {
+            "Incidente",
+            "Solicitacao de Servico",
+            "Duvida",
+            "Melhoria",
+            "Problema Recorrente"
+        };
+
+        var locaisEsperados = new[]
+        {
+            "Sede",
+            "Filial",
+            "Inspetoria",
+            "Datacenter",
+            "Almoxarifado",
+            "Atendimento Externo"
+        };
+
+        AssertNomesSemDuplicidadeComEsperados(departamentos.Select(x => x.Nome), departamentosEsperados);
+        AssertNomesSemDuplicidadeComEsperados(categorias.Select(x => x.Nome), categoriasEsperadas);
+        AssertSubcategoriasEsperadas(subcategorias, subcategoriasEsperadas);
+        AssertPrioridadesEsperadas(prioridades);
+        AssertNomesSemDuplicidadeComEsperados(tipos.Select(x => x.Nome), tiposEsperados);
+        AssertNomesSemDuplicidadeComEsperados(locais.Select(x => x.Nome), locaisEsperados);
+    }
+
+    [Fact]
+    public async Task SeedNaoDuplicaQuandoJaExisteCadastroComVariacaoDeAcentuacao()
+    {
+        await using var dbContext = CriarContexto();
+        await dbContext.Departamentos.AddAsync(new Departamento("Jurídico", "JUR", null, UsuarioTecnicoTeste));
+        await dbContext.CategoriasChamado.AddAsync(new CategoriaChamado("Solicitação Administrativa", null, null, UsuarioTecnicoTeste));
+        await dbContext.TiposSolicitacao.AddAsync(new TipoSolicitacao("Dúvida", null, UsuarioTecnicoTeste));
+        await dbContext.LocaisUnidade.AddAsync(new LocalUnidade("Datacenter", null, null, UsuarioTecnicoTeste));
+        await dbContext.SaveChangesAsync();
+
+        var service = CriarService(dbContext);
+        await service.SeedAsync();
+
+        var departamentos = await dbContext.Departamentos.AsNoTracking().ToListAsync();
+        var categorias = await dbContext.CategoriasChamado.AsNoTracking().ToListAsync();
+        var tipos = await dbContext.TiposSolicitacao.AsNoTracking().ToListAsync();
+        var locais = await dbContext.LocaisUnidade.AsNoTracking().ToListAsync();
+
+        _ = Assert.Single(departamentos, x => NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto("Juridico"));
+        _ = Assert.Single(categorias, x => NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto("Solicitacao Administrativa"));
+        _ = Assert.Single(tipos, x => NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto("Duvida"));
+        _ = Assert.Single(locais, x => NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto("Datacenter"));
+    }
+
     private static async Task<Dictionary<TipoPerfil, PerfilAcesso>> CarregarPerfisAsync(SGXSistemaChamadoDbContext dbContext)
     {
         return await dbContext.PerfisAcesso
@@ -271,6 +381,113 @@ public sealed class DevelopmentSeedServiceTests
             authOptions,
             new PasswordHasher<Usuario>(),
             NullLogger<DevelopmentSeedService>.Instance);
+    }
+
+    private static void AssertNomesSemDuplicidadeComEsperados(IEnumerable<string> nomesAtuais, IEnumerable<string> nomesEsperados)
+    {
+        var nomesNormalizadosAtuais = nomesAtuais
+            .Select(NormalizarChaveTexto)
+            .ToArray();
+
+        var duplicados = nomesNormalizadosAtuais
+            .GroupBy(x => x)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToArray();
+
+        Assert.Empty(duplicados);
+
+        var conjuntoAtual = nomesNormalizadosAtuais.ToHashSet(StringComparer.Ordinal);
+        foreach (var esperado in nomesEsperados)
+        {
+            Assert.Contains(NormalizarChaveTexto(esperado), conjuntoAtual);
+        }
+    }
+
+    private static void AssertSubcategoriasEsperadas(
+        IEnumerable<SubcategoriaChamado> subcategorias,
+        IReadOnlyDictionary<string, string[]> esperadoPorCategoria)
+    {
+        var agrupado = subcategorias
+            .Where(x => x.CategoriaChamado is not null)
+            .GroupBy(x => NormalizarChaveTexto(x.CategoriaChamado.Nome))
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => NormalizarChaveTexto(x.Nome)).ToArray());
+
+        foreach (var item in esperadoPorCategoria)
+        {
+            var chaveCategoria = NormalizarChaveTexto(item.Key);
+            Assert.True(agrupado.TryGetValue(chaveCategoria, out var subcategoriasCategoria));
+            Assert.NotNull(subcategoriasCategoria);
+
+            var subcategoriasDuplicadas = subcategoriasCategoria!
+                .GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToArray();
+
+            Assert.Empty(subcategoriasDuplicadas);
+
+            var conjuntoSubcategorias = subcategoriasCategoria.ToHashSet(StringComparer.Ordinal);
+            foreach (var nomeEsperado in item.Value)
+            {
+                Assert.Contains(NormalizarChaveTexto(nomeEsperado), conjuntoSubcategorias);
+            }
+        }
+    }
+
+    private static void AssertPrioridadesEsperadas(IEnumerable<PrioridadeChamado> prioridades)
+    {
+        static string Cor(string valor) => valor.Trim().ToUpperInvariant();
+
+        var baixa = Assert.Single(prioridades, x => x.Nivel == PrioridadeChamadoEnum.Baixa);
+        Assert.Equal(1, baixa.Peso);
+        Assert.Equal(Cor("#22C55E"), Cor(baixa.Cor ?? string.Empty));
+
+        var media = Assert.Single(prioridades, x => x.Nivel == PrioridadeChamadoEnum.Media);
+        Assert.Equal(2, media.Peso);
+        Assert.Equal(Cor("#EAB308"), Cor(media.Cor ?? string.Empty));
+
+        var alta = Assert.Single(prioridades, x => x.Nivel == PrioridadeChamadoEnum.Alta);
+        Assert.Equal(3, alta.Peso);
+        Assert.Equal(Cor("#F97316"), Cor(alta.Cor ?? string.Empty));
+
+        var critica = Assert.Single(prioridades, x => x.Nivel == PrioridadeChamadoEnum.Critica);
+        Assert.Equal(4, critica.Peso);
+        Assert.Equal(Cor("#EF4444"), Cor(critica.Cor ?? string.Empty));
+    }
+
+    private static string NormalizarChaveTexto(string? valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor))
+        {
+            return string.Empty;
+        }
+
+        var texto = valor.Trim().Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder(texto.Length);
+
+        foreach (var caractere in texto)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(caractere) == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            if (char.IsLetterOrDigit(caractere))
+            {
+                builder.Append(char.ToLowerInvariant(caractere));
+                continue;
+            }
+
+            if (char.IsWhiteSpace(caractere))
+            {
+                builder.Append(' ');
+            }
+        }
+
+        return string.Join(' ', builder.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries));
     }
 
     private sealed class FakeEnvironment : Microsoft.Extensions.Hosting.IHostEnvironment

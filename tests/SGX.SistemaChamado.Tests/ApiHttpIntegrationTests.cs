@@ -219,6 +219,176 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task AdminCadastrosAliasDeveListarDepartamentos()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.cad.alias@empresa.com", "Administrador", "Administrador");
+
+        var response = await client.GetAsync("/api/admin/departamentos");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminSubcategoriasCrudComDeleteLogicoEPatchAtivar()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.subcat@empresa.com", "Administrador", "Administrador");
+
+        var categoriaResponse = await client.PostAsJsonAsync("/api/admin/categorias", new
+        {
+            nome = $"Categoria API {Guid.NewGuid():N}",
+            descricao = "Categoria para teste de subcategoria"
+        });
+        Assert.Equal(HttpStatusCode.OK, categoriaResponse.StatusCode);
+        var categoriaId = await ObterGuidDaRespostaAsync(categoriaResponse, "id");
+
+        var criarSubcategoriaResponse = await client.PostAsJsonAsync("/api/admin/subcategorias", new
+        {
+            categoriaChamadoId = categoriaId,
+            nome = "Subcategoria API",
+            descricao = "Subcategoria de teste"
+        });
+        Assert.Equal(HttpStatusCode.OK, criarSubcategoriaResponse.StatusCode);
+        var subcategoriaId = await ObterGuidDaRespostaAsync(criarSubcategoriaResponse, "id");
+
+        var listagemCategoriaAtiva = await client.GetAsync($"/api/admin/categorias/{categoriaId}/subcategorias?ativo=true");
+        Assert.Equal(HttpStatusCode.OK, listagemCategoriaAtiva.StatusCode);
+        var listagemAtivaAntesDelete = await listagemCategoriaAtiva.Content.ReadAsStringAsync();
+        Assert.Contains(subcategoriaId.ToString(), listagemAtivaAntesDelete, StringComparison.OrdinalIgnoreCase);
+
+        var deleteResponse = await client.DeleteAsync($"/api/admin/subcategorias/{subcategoriaId}");
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+
+        var listagemCategoriaAposDelete = await client.GetAsync($"/api/admin/categorias/{categoriaId}/subcategorias?ativo=true");
+        Assert.Equal(HttpStatusCode.OK, listagemCategoriaAposDelete.StatusCode);
+        var listagemAtivaAposDelete = await listagemCategoriaAposDelete.Content.ReadAsStringAsync();
+        Assert.DoesNotContain(subcategoriaId.ToString(), listagemAtivaAposDelete, StringComparison.OrdinalIgnoreCase);
+
+        var ativarResponse = await client.PatchAsync($"/api/admin/subcategorias/{subcategoriaId}/ativar", null);
+        Assert.Equal(HttpStatusCode.OK, ativarResponse.StatusCode);
+
+        var listagemCategoriaAposAtivar = await client.GetAsync($"/api/admin/categorias/{categoriaId}/subcategorias?ativo=true");
+        Assert.Equal(HttpStatusCode.OK, listagemCategoriaAposAtivar.StatusCode);
+        var listagemAtivaAposAtivar = await listagemCategoriaAposAtivar.Content.ReadAsStringAsync();
+        Assert.Contains(subcategoriaId.ToString(), listagemAtivaAposAtivar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AdminPrioridadesCrudComAliasesEPatchAtivar()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.prioridades@empresa.com", "Administrador", "Administrador");
+
+        var nome = $"Prioridade API {Guid.NewGuid():N}";
+        var criarResponse = await client.PostAsJsonAsync("/api/admin/prioridades", new
+        {
+            nome,
+            descricao = "Prioridade para teste HTTP",
+            peso = 15,
+            cor = "#FF5500"
+        });
+        Assert.Equal(HttpStatusCode.OK, criarResponse.StatusCode);
+        var prioridadeId = await ObterGuidDaRespostaAsync(criarResponse, "id");
+
+        var listagemAlias = await client.GetAsync($"/api/admin/cadastros/prioridades?texto={Uri.EscapeDataString(nome)}");
+        Assert.Equal(HttpStatusCode.OK, listagemAlias.StatusCode);
+        var payloadAlias = await listagemAlias.Content.ReadAsStringAsync();
+        Assert.Contains(prioridadeId.ToString(), payloadAlias, StringComparison.OrdinalIgnoreCase);
+
+        var deleteResponse = await client.DeleteAsync($"/api/admin/prioridades/{prioridadeId}");
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+
+        var ativosAposDelete = await client.GetAsync($"/api/admin/prioridades?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposDelete.StatusCode);
+        var payloadAtivosAposDelete = await ativosAposDelete.Content.ReadAsStringAsync();
+        Assert.DoesNotContain(prioridadeId.ToString(), payloadAtivosAposDelete, StringComparison.OrdinalIgnoreCase);
+
+        var ativarResponse = await client.PatchAsync($"/api/admin/prioridades/{prioridadeId}/ativar", null);
+        Assert.Equal(HttpStatusCode.OK, ativarResponse.StatusCode);
+
+        var ativosAposAtivar = await client.GetAsync($"/api/admin/prioridades?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposAtivar.StatusCode);
+        var payloadAtivosAposAtivar = await ativosAposAtivar.Content.ReadAsStringAsync();
+        Assert.Contains(prioridadeId.ToString(), payloadAtivosAposAtivar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AdminTiposSolicitacaoCrudComAliasesEPatchAtivar()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.tipos@empresa.com", "Administrador", "Administrador");
+
+        var nome = $"Tipo API {Guid.NewGuid():N}";
+        var criarResponse = await client.PostAsJsonAsync("/api/admin/tipos-solicitacao", new
+        {
+            nome,
+            descricao = "Tipo para teste HTTP"
+        });
+        Assert.Equal(HttpStatusCode.OK, criarResponse.StatusCode);
+        var tipoId = await ObterGuidDaRespostaAsync(criarResponse, "id");
+
+        var listagemAlias = await client.GetAsync($"/api/admin/cadastros/tipos-solicitacao?texto={Uri.EscapeDataString(nome)}");
+        Assert.Equal(HttpStatusCode.OK, listagemAlias.StatusCode);
+        var payloadAlias = await listagemAlias.Content.ReadAsStringAsync();
+        Assert.Contains(tipoId.ToString(), payloadAlias, StringComparison.OrdinalIgnoreCase);
+
+        var deleteResponse = await client.DeleteAsync($"/api/admin/tipos-solicitacao/{tipoId}");
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+
+        var ativosAposDelete = await client.GetAsync($"/api/admin/tipos-solicitacao?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposDelete.StatusCode);
+        var payloadAtivosAposDelete = await ativosAposDelete.Content.ReadAsStringAsync();
+        Assert.DoesNotContain(tipoId.ToString(), payloadAtivosAposDelete, StringComparison.OrdinalIgnoreCase);
+
+        var ativarResponse = await client.PatchAsync($"/api/admin/tipos-solicitacao/{tipoId}/ativar", null);
+        Assert.Equal(HttpStatusCode.OK, ativarResponse.StatusCode);
+
+        var ativosAposAtivar = await client.GetAsync($"/api/admin/tipos-solicitacao?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposAtivar.StatusCode);
+        var payloadAtivosAposAtivar = await ativosAposAtivar.Content.ReadAsStringAsync();
+        Assert.Contains(tipoId.ToString(), payloadAtivosAposAtivar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AdminLocaisUnidadeCrudComAliasesEPatchAtivar()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.locais@empresa.com", "Administrador", "Administrador");
+
+        var nome = $"Local API {Guid.NewGuid():N}";
+        var criarResponse = await client.PostAsJsonAsync("/api/admin/locais", new
+        {
+            nome,
+            descricao = "Local para teste HTTP",
+            endereco = "Rua Teste, 123"
+        });
+        Assert.Equal(HttpStatusCode.OK, criarResponse.StatusCode);
+        var localId = await ObterGuidDaRespostaAsync(criarResponse, "id");
+
+        var listagemAlias = await client.GetAsync($"/api/admin/cadastros/locais?texto={Uri.EscapeDataString(nome)}");
+        Assert.Equal(HttpStatusCode.OK, listagemAlias.StatusCode);
+        var payloadAlias = await listagemAlias.Content.ReadAsStringAsync();
+        Assert.Contains(localId.ToString(), payloadAlias, StringComparison.OrdinalIgnoreCase);
+
+        var deleteResponse = await client.DeleteAsync($"/api/admin/locais/{localId}");
+        Assert.Equal(HttpStatusCode.OK, deleteResponse.StatusCode);
+
+        var ativosAposDelete = await client.GetAsync($"/api/admin/locais?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposDelete.StatusCode);
+        var payloadAtivosAposDelete = await ativosAposDelete.Content.ReadAsStringAsync();
+        Assert.DoesNotContain(localId.ToString(), payloadAtivosAposDelete, StringComparison.OrdinalIgnoreCase);
+
+        var ativarResponse = await client.PatchAsync($"/api/admin/locais/{localId}/ativar", null);
+        Assert.Equal(HttpStatusCode.OK, ativarResponse.StatusCode);
+
+        var ativosAposAtivar = await client.GetAsync($"/api/admin/locais?texto={Uri.EscapeDataString(nome)}&ativo=true");
+        Assert.Equal(HttpStatusCode.OK, ativosAposAtivar.StatusCode);
+        var payloadAtivosAposAtivar = await ativosAposAtivar.Content.ReadAsStringAsync();
+        Assert.Contains(localId.ToString(), payloadAtivosAposAtivar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task AdminIntegracaoEmailLogsBloqueiaSolicitante()
     {
         using var client = _factory.CreateClient();
@@ -722,6 +892,60 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task CadastrosOperacionaisRetornamSomenteRegistrosAtivos()
+    {
+        var dados = await SeedCadastrosOperacionaisAsync();
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "solicitante.cad.operacional@empresa.com", "Solicitante", "Solicitante");
+
+        var departamentos = await client.GetAsync("/api/cadastros/departamentos/ativos");
+        var categorias = await client.GetAsync("/api/cadastros/categorias/ativas");
+        var prioridades = await client.GetAsync("/api/cadastros/prioridades/ativas");
+        var tipos = await client.GetAsync("/api/cadastros/tipos-solicitacao/ativos");
+        var locais = await client.GetAsync("/api/cadastros/locais/ativos");
+
+        Assert.Equal(HttpStatusCode.OK, departamentos.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, categorias.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, prioridades.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, tipos.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, locais.StatusCode);
+
+        var payloadDepartamentos = await departamentos.Content.ReadAsStringAsync();
+        var payloadCategorias = await categorias.Content.ReadAsStringAsync();
+        var payloadPrioridades = await prioridades.Content.ReadAsStringAsync();
+        var payloadTipos = await tipos.Content.ReadAsStringAsync();
+        var payloadLocais = await locais.Content.ReadAsStringAsync();
+
+        Assert.Contains(dados.DepartamentoAtivoId.ToString(), payloadDepartamentos, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.DepartamentoInativoId.ToString(), payloadDepartamentos, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(dados.CategoriaAtivaId.ToString(), payloadCategorias, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.CategoriaInativaId.ToString(), payloadCategorias, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(SeedData.PrioridadeBaixaId.ToString(), payloadPrioridades, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.PrioridadeInativaId.ToString(), payloadPrioridades, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(dados.TipoAtivoId.ToString(), payloadTipos, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.TipoInativoId.ToString(), payloadTipos, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(dados.LocalAtivoId.ToString(), payloadLocais, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.LocalInativoId.ToString(), payloadLocais, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CadastrosOperacionaisSubcategoriasAtivasSaoFiltradasPorCategoria()
+    {
+        var dados = await SeedCadastrosOperacionaisAsync();
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "solicitante.subcat.operacional@empresa.com", "Solicitante", "Solicitante");
+
+        var response = await client.GetAsync($"/api/cadastros/categorias/{dados.CategoriaAtivaId}/subcategorias/ativas");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains(dados.SubcategoriaAtivaId.ToString(), payload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.SubcategoriaInativaId.ToString(), payload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(dados.SubcategoriaOutraCategoriaId.ToString(), payload, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task HealthRetornaOk()
     {
         using var client = _factory.CreateClient();
@@ -786,6 +1010,15 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
             : null;
     }
 
+    private static async Task<Guid> ObterGuidDaRespostaAsync(HttpResponseMessage response, string campo)
+    {
+        var payload = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(payload);
+        var valor = json.RootElement.GetProperty(campo).GetString();
+        Assert.False(string.IsNullOrWhiteSpace(valor));
+        return Guid.Parse(valor!);
+    }
+
     private static object CriarPayloadMicrosoftValido(
         bool habilitado = true,
         string provedorPrincipal = "MicrosoftEntraId",
@@ -816,6 +1049,59 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         };
     }
 
+    private async Task<CadastrosOperacionaisSeed> SeedCadastrosOperacionaisAsync(CancellationToken cancellationToken = default)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+
+        var departamentoAtivo = new Departamento($"Departamento Operacional Ativo {Guid.NewGuid():N}", $"DOA{Random.Shared.Next(100, 999)}", null, "integration-test");
+        var departamentoInativo = new Departamento($"Departamento Operacional Inativo {Guid.NewGuid():N}", $"DOI{Random.Shared.Next(100, 999)}", null, "integration-test");
+        departamentoInativo.Desativar("integration-test");
+
+        var categoriaAtiva = new CategoriaChamado($"Categoria Operacional Ativa {Guid.NewGuid():N}", null, departamentoAtivo.Id, "integration-test");
+        var categoriaInativa = new CategoriaChamado($"Categoria Operacional Inativa {Guid.NewGuid():N}", null, departamentoAtivo.Id, "integration-test");
+        categoriaInativa.Desativar("integration-test");
+        var categoriaSecundaria = new CategoriaChamado($"Categoria Operacional Secundaria {Guid.NewGuid():N}", null, departamentoAtivo.Id, "integration-test");
+
+        var subcategoriaAtiva = new SubcategoriaChamado(categoriaAtiva.Id, $"Subcategoria Operacional Ativa {Guid.NewGuid():N}", null, "integration-test");
+        var subcategoriaInativa = new SubcategoriaChamado(categoriaAtiva.Id, $"Subcategoria Operacional Inativa {Guid.NewGuid():N}", null, "integration-test");
+        subcategoriaInativa.Desativar("integration-test");
+        var subcategoriaOutraCategoria = new SubcategoriaChamado(categoriaSecundaria.Id, $"Subcategoria Operacional Outra Categoria {Guid.NewGuid():N}", null, "integration-test");
+
+        var prioridadeInativa = new PrioridadeChamado($"Prioridade Operacional Inativa {Guid.NewGuid():N}", PrioridadeChamadoEnum.Critica, null, 1, 4, "integration-test");
+        prioridadeInativa.Desativar("integration-test");
+
+        var tipoAtivo = new TipoSolicitacao($"Tipo Operacional Ativo {Guid.NewGuid():N}", null, "integration-test");
+        var tipoInativo = new TipoSolicitacao($"Tipo Operacional Inativo {Guid.NewGuid():N}", null, "integration-test");
+        tipoInativo.Desativar("integration-test");
+
+        var localAtivo = new LocalUnidade($"Local Operacional Ativo {Guid.NewGuid():N}", null, null, "integration-test");
+        var localInativo = new LocalUnidade($"Local Operacional Inativo {Guid.NewGuid():N}", null, null, "integration-test");
+        localInativo.Desativar("integration-test");
+
+        await dbContext.Departamentos.AddRangeAsync([departamentoAtivo, departamentoInativo], cancellationToken);
+        await dbContext.CategoriasChamado.AddRangeAsync([categoriaAtiva, categoriaInativa, categoriaSecundaria], cancellationToken);
+        await dbContext.SubcategoriasChamado.AddRangeAsync([subcategoriaAtiva, subcategoriaInativa, subcategoriaOutraCategoria], cancellationToken);
+        await dbContext.PrioridadesChamado.AddAsync(prioridadeInativa, cancellationToken);
+        await dbContext.TiposSolicitacao.AddRangeAsync([tipoAtivo, tipoInativo], cancellationToken);
+        await dbContext.LocaisUnidade.AddRangeAsync([localAtivo, localInativo], cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return new CadastrosOperacionaisSeed(
+            departamentoAtivo.Id,
+            departamentoInativo.Id,
+            categoriaAtiva.Id,
+            categoriaInativa.Id,
+            subcategoriaAtiva.Id,
+            subcategoriaInativa.Id,
+            subcategoriaOutraCategoria.Id,
+            prioridadeInativa.Id,
+            tipoAtivo.Id,
+            tipoInativo.Id,
+            localAtivo.Id,
+            localInativo.Id);
+    }
+
     private async Task SeedEventoAuditoriaApiAsync(CancellationToken cancellationToken = default)
     {
         using var scope = _factory.Services.CreateScope();
@@ -844,4 +1130,18 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    private sealed record CadastrosOperacionaisSeed(
+        Guid DepartamentoAtivoId,
+        Guid DepartamentoInativoId,
+        Guid CategoriaAtivaId,
+        Guid CategoriaInativaId,
+        Guid SubcategoriaAtivaId,
+        Guid SubcategoriaInativaId,
+        Guid SubcategoriaOutraCategoriaId,
+        Guid PrioridadeInativaId,
+        Guid TipoAtivoId,
+        Guid TipoInativoId,
+        Guid LocalAtivoId,
+        Guid LocalInativoId);
 }

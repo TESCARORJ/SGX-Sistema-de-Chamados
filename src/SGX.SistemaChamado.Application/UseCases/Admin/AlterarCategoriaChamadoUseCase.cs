@@ -14,6 +14,10 @@ namespace SGX.SistemaChamado.Application.UseCases.Admin;
 public sealed class AlterarCategoriaChamadoUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<CategoriaChamado> categoriaRepository,
+    IRepository<SubcategoriaChamado> subcategoriaRepository,
+    IRepository<TipoSolicitacao> tipoSolicitacaoRepository,
+    IRepository<LocalUnidade> localUnidadeRepository,
+    IRepository<Departamento> departamentoRepository,
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
@@ -35,17 +39,72 @@ public sealed class AlterarCategoriaChamadoUseCase(
 
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Categoria)
+            .Include(x => x.Subcategoria)
+            .Include(x => x.TipoSolicitacao)
+            .Include(x => x.LocalUnidade)
+            .Include(x => x.Departamento)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var categoriaAnterior = chamado.Categoria?.Nome;
+        var subcategoriaAnterior = chamado.Subcategoria?.Nome;
+        var tipoSolicitacaoAnterior = chamado.TipoSolicitacao?.Nome;
+        var localUnidadeAnterior = chamado.LocalUnidade?.Nome;
+        var departamentoAnterior = chamado.Departamento?.Nome;
 
         var categoria = await categoriaRepository.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.CategoriaId && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Categoria informada nao encontrada ou inativa.");
 
-        chamado.AlterarCategoria(categoria.Id, categoria.DepartamentoId, usuario.Login);
+        var departamentoId = request.DepartamentoId ?? categoria.DepartamentoId;
+        if (departamentoId.HasValue)
+        {
+            _ = await departamentoRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == departamentoId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Departamento informado nao encontrado ou inativo.");
+        }
+
+        Guid? subcategoriaId = null;
+        if (request.SubcategoriaId.HasValue)
+        {
+            var subcategoria = await subcategoriaRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.SubcategoriaId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Subcategoria informada nao encontrada ou inativa.");
+
+            if (subcategoria.CategoriaChamadoId != categoria.Id)
+            {
+                throw new InvalidOperationException("A subcategoria selecionada nao pertence a categoria informada.");
+            }
+
+            subcategoriaId = subcategoria.Id;
+        }
+
+        if (request.TipoSolicitacaoId.HasValue)
+        {
+            _ = await tipoSolicitacaoRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.TipoSolicitacaoId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Tipo de solicitacao informado nao encontrado ou inativo.");
+        }
+
+        if (request.LocalUnidadeId.HasValue)
+        {
+            _ = await localUnidadeRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.LocalUnidadeId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Local/unidade informado nao encontrado ou inativo.");
+        }
+
+        chamado.AlterarCategoria(categoria.Id, departamentoId, usuario.Login);
+        chamado.AlterarClassificacaoOperacional(
+            subcategoriaId,
+            request.TipoSolicitacaoId,
+            request.LocalUnidadeId,
+            departamentoId,
+            usuario.Login);
         await slaService.AplicarMudancaCategoriaAsync(chamado, usuario.Login, DateTime.UtcNow, cancellationToken);
         chamadoRepository.Update(chamado);
 
@@ -65,8 +124,22 @@ public sealed class AlterarCategoriaChamadoUseCase(
         if (auditoriaService is not null)
         {
             var (dadosAntes, dadosDepois) = AuditoriaDiffHelper.CriarDiff(
-                new { Categoria = categoriaAnterior, DepartamentoId = chamado.DepartamentoId },
-                new { Categoria = categoria.Nome, categoria.DepartamentoId });
+                new
+                {
+                    Categoria = categoriaAnterior,
+                    Subcategoria = subcategoriaAnterior,
+                    TipoSolicitacao = tipoSolicitacaoAnterior,
+                    LocalUnidade = localUnidadeAnterior,
+                    Departamento = departamentoAnterior
+                },
+                new
+                {
+                    Categoria = atualizado.Categoria,
+                    atualizado.Subcategoria,
+                    atualizado.TipoSolicitacao,
+                    atualizado.LocalUnidade,
+                    atualizado.Departamento
+                });
 
             await auditoriaService.RegistrarEdicaoAsync(
                 "Chamados",

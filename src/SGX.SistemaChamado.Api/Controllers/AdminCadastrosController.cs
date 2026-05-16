@@ -11,6 +11,7 @@ namespace SGX.SistemaChamado.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/cadastros")]
+[Route("api/admin")]
 [Authorize(Policy = Policies.AdminOuAtendente)]
 public sealed class AdminCadastrosController(
     IListarUsuariosAdminUseCase listarUsuariosUseCase,
@@ -43,12 +44,31 @@ public sealed class AdminCadastrosController(
     IAtualizarCategoriaUseCase atualizarCategoriaUseCase,
     IInativarCategoriaUseCase inativarCategoriaUseCase,
     IReativarCategoriaUseCase reativarCategoriaUseCase,
+    IListarSubcategoriasAdminUseCase listarSubcategoriasUseCase,
+    IListarSubcategoriasPorCategoriaUseCase listarSubcategoriasPorCategoriaUseCase,
+    IObterSubcategoriaAdminUseCase obterSubcategoriaUseCase,
+    ICriarSubcategoriaUseCase criarSubcategoriaUseCase,
+    IAtualizarSubcategoriaUseCase atualizarSubcategoriaUseCase,
+    IInativarSubcategoriaUseCase inativarSubcategoriaUseCase,
+    IReativarSubcategoriaUseCase reativarSubcategoriaUseCase,
     IListarPrioridadesAdminUseCase listarPrioridadesUseCase,
     IObterPrioridadeAdminUseCase obterPrioridadeUseCase,
     ICriarPrioridadeUseCase criarPrioridadeUseCase,
     IAtualizarPrioridadeUseCase atualizarPrioridadeUseCase,
     IInativarPrioridadeUseCase inativarPrioridadeUseCase,
     IReativarPrioridadeUseCase reativarPrioridadeUseCase,
+    IListarTiposSolicitacaoAdminUseCase listarTiposSolicitacaoUseCase,
+    IObterTipoSolicitacaoAdminUseCase obterTipoSolicitacaoUseCase,
+    ICriarTipoSolicitacaoUseCase criarTipoSolicitacaoUseCase,
+    IAtualizarTipoSolicitacaoUseCase atualizarTipoSolicitacaoUseCase,
+    IInativarTipoSolicitacaoUseCase inativarTipoSolicitacaoUseCase,
+    IReativarTipoSolicitacaoUseCase reativarTipoSolicitacaoUseCase,
+    IListarLocaisUnidadeAdminUseCase listarLocaisUnidadeUseCase,
+    IObterLocalUnidadeAdminUseCase obterLocalUnidadeUseCase,
+    ICriarLocalUnidadeUseCase criarLocalUnidadeUseCase,
+    IAtualizarLocalUnidadeUseCase atualizarLocalUnidadeUseCase,
+    IInativarLocalUnidadeUseCase inativarLocalUnidadeUseCase,
+    IReativarLocalUnidadeUseCase reativarLocalUnidadeUseCase,
     IListarStatusAdminUseCase listarStatusUseCase,
     IObterStatusAdminUseCase obterStatusUseCase,
     ICriarStatusUseCase criarStatusUseCase,
@@ -66,8 +86,14 @@ public sealed class AdminCadastrosController(
     IValidator<AtualizarDepartamentoRequest> atualizarDepartamentoValidator,
     IValidator<CriarCategoriaChamadoRequest> criarCategoriaValidator,
     IValidator<AtualizarCategoriaChamadoRequest> atualizarCategoriaValidator,
+    IValidator<CriarSubcategoriaChamadoRequest> criarSubcategoriaValidator,
+    IValidator<AtualizarSubcategoriaChamadoRequest> atualizarSubcategoriaValidator,
     IValidator<CriarPrioridadeChamadoRequest> criarPrioridadeValidator,
     IValidator<AtualizarPrioridadeChamadoRequest> atualizarPrioridadeValidator,
+    IValidator<CriarTipoSolicitacaoRequest> criarTipoSolicitacaoValidator,
+    IValidator<AtualizarTipoSolicitacaoRequest> atualizarTipoSolicitacaoValidator,
+    IValidator<CriarLocalUnidadeRequest> criarLocalUnidadeValidator,
+    IValidator<AtualizarLocalUnidadeRequest> atualizarLocalUnidadeValidator,
     IValidator<CriarStatusChamadoRequest> criarStatusValidator,
     IValidator<AtualizarStatusChamadoRequest> atualizarStatusValidator) : ControllerBase
 {
@@ -276,6 +302,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("departamentos")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> CriarDepartamento([FromBody] CriarDepartamentoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarDepartamentoValidator, request, cancellationToken);
@@ -289,6 +316,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("departamentos/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> AtualizarDepartamento(Guid id, [FromBody] AtualizarDepartamentoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarDepartamentoValidator, request, cancellationToken);
@@ -301,12 +329,17 @@ public sealed class AdminCadastrosController(
     }
 
     [HttpPost("departamentos/{id:guid}/inativar")]
+    [HttpPatch("departamentos/{id:guid}/inativar")]
+    [HttpDelete("departamentos/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> InativarDepartamento(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarDepartamentoUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("departamentos/{id:guid}/reativar")]
+    [HttpPatch("departamentos/{id:guid}/ativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> ReativarDepartamento(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarDepartamentoUseCase.ExecutarAsync(id, cancellationToken));
 
@@ -328,6 +361,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("categorias")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> CriarCategoria([FromBody] CriarCategoriaChamadoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarCategoriaValidator, request, cancellationToken);
@@ -341,6 +375,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("categorias/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> AtualizarCategoria(Guid id, [FromBody] AtualizarCategoriaChamadoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarCategoriaValidator, request, cancellationToken);
@@ -353,14 +388,85 @@ public sealed class AdminCadastrosController(
     }
 
     [HttpPost("categorias/{id:guid}/inativar")]
+    [HttpPatch("categorias/{id:guid}/inativar")]
+    [HttpDelete("categorias/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> InativarCategoria(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarCategoriaUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("categorias/{id:guid}/reativar")]
+    [HttpPatch("categorias/{id:guid}/ativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> ReativarCategoria(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarCategoriaUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpGet("subcategorias")]
+    public async Task<IActionResult> ListarSubcategorias([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(filtroValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => listarSubcategoriasUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpGet("subcategorias/{id:guid}")]
+    public Task<IActionResult> ObterSubcategoria(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => obterSubcategoriaUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpGet("categorias/{categoriaId:guid}/subcategorias")]
+    public Task<IActionResult> ListarSubcategoriasPorCategoria(
+        Guid categoriaId,
+        [FromQuery] bool? ativo,
+        CancellationToken cancellationToken)
+        => ExecutarAsync(() => listarSubcategoriasPorCategoriaUseCase.ExecutarAsync(categoriaId, ativo, cancellationToken));
+
+    [HttpPost("subcategorias")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> CriarSubcategoria([FromBody] CriarSubcategoriaChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(criarSubcategoriaValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => criarSubcategoriaUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpPut("subcategorias/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> AtualizarSubcategoria(Guid id, [FromBody] AtualizarSubcategoriaChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(atualizarSubcategoriaValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => atualizarSubcategoriaUseCase.ExecutarAsync(id, request, cancellationToken));
+    }
+
+    [HttpPost("subcategorias/{id:guid}/inativar")]
+    [HttpPatch("subcategorias/{id:guid}/inativar")]
+    [HttpDelete("subcategorias/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> InativarSubcategoria(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => inativarSubcategoriaUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("subcategorias/{id:guid}/reativar")]
+    [HttpPatch("subcategorias/{id:guid}/ativar")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> ReativarSubcategoria(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => reativarSubcategoriaUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpGet("prioridades")]
     public async Task<IActionResult> ListarPrioridades([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)
@@ -380,6 +486,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPost("prioridades")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> CriarPrioridade([FromBody] CriarPrioridadeChamadoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(criarPrioridadeValidator, request, cancellationToken);
@@ -393,6 +500,7 @@ public sealed class AdminCadastrosController(
 
     [HttpPut("prioridades/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public async Task<IActionResult> AtualizarPrioridade(Guid id, [FromBody] AtualizarPrioridadeChamadoRequest request, CancellationToken cancellationToken)
     {
         var badRequest = await ValidarAsync(atualizarPrioridadeValidator, request, cancellationToken);
@@ -405,14 +513,137 @@ public sealed class AdminCadastrosController(
     }
 
     [HttpPost("prioridades/{id:guid}/inativar")]
+    [HttpPatch("prioridades/{id:guid}/inativar")]
+    [HttpDelete("prioridades/{id:guid}")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> InativarPrioridade(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => inativarPrioridadeUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpPost("prioridades/{id:guid}/reativar")]
+    [HttpPatch("prioridades/{id:guid}/ativar")]
     [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
     public Task<IActionResult> ReativarPrioridade(Guid id, CancellationToken cancellationToken)
         => ExecutarAsync(() => reativarPrioridadeUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpGet("tipos-solicitacao")]
+    public async Task<IActionResult> ListarTiposSolicitacao([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(filtroValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => listarTiposSolicitacaoUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpGet("tipos-solicitacao/{id:guid}")]
+    public Task<IActionResult> ObterTipoSolicitacao(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => obterTipoSolicitacaoUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("tipos-solicitacao")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> CriarTipoSolicitacao([FromBody] CriarTipoSolicitacaoRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(criarTipoSolicitacaoValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => criarTipoSolicitacaoUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpPut("tipos-solicitacao/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> AtualizarTipoSolicitacao(Guid id, [FromBody] AtualizarTipoSolicitacaoRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(atualizarTipoSolicitacaoValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => atualizarTipoSolicitacaoUseCase.ExecutarAsync(id, request, cancellationToken));
+    }
+
+    [HttpPost("tipos-solicitacao/{id:guid}/inativar")]
+    [HttpPatch("tipos-solicitacao/{id:guid}/inativar")]
+    [HttpDelete("tipos-solicitacao/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> InativarTipoSolicitacao(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => inativarTipoSolicitacaoUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("tipos-solicitacao/{id:guid}/reativar")]
+    [HttpPatch("tipos-solicitacao/{id:guid}/ativar")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> ReativarTipoSolicitacao(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => reativarTipoSolicitacaoUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpGet("locais")]
+    public async Task<IActionResult> ListarLocaisUnidade([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(filtroValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => listarLocaisUnidadeUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpGet("locais/{id:guid}")]
+    public Task<IActionResult> ObterLocalUnidade(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => obterLocalUnidadeUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("locais")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> CriarLocalUnidade([FromBody] CriarLocalUnidadeRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(criarLocalUnidadeValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => criarLocalUnidadeUseCase.ExecutarAsync(request, cancellationToken));
+    }
+
+    [HttpPut("locais/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public async Task<IActionResult> AtualizarLocalUnidade(Guid id, [FromBody] AtualizarLocalUnidadeRequest request, CancellationToken cancellationToken)
+    {
+        var badRequest = await ValidarAsync(atualizarLocalUnidadeValidator, request, cancellationToken);
+        if (badRequest is not null)
+        {
+            return badRequest;
+        }
+
+        return await ExecutarAsync(() => atualizarLocalUnidadeUseCase.ExecutarAsync(id, request, cancellationToken));
+    }
+
+    [HttpPost("locais/{id:guid}/inativar")]
+    [HttpPatch("locais/{id:guid}/inativar")]
+    [HttpDelete("locais/{id:guid}")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> InativarLocalUnidade(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => inativarLocalUnidadeUseCase.ExecutarAsync(id, cancellationToken));
+
+    [HttpPost("locais/{id:guid}/reativar")]
+    [HttpPatch("locais/{id:guid}/ativar")]
+    [Authorize(Policy = Policies.Administrador)]
+    [Authorize(Policy = PermissionPolicies.CadastrosGerenciar)]
+    public Task<IActionResult> ReativarLocalUnidade(Guid id, CancellationToken cancellationToken)
+        => ExecutarAsync(() => reativarLocalUnidadeUseCase.ExecutarAsync(id, cancellationToken));
 
     [HttpGet("status")]
     public async Task<IActionResult> ListarStatus([FromQuery] FiltroCadastroRequest request, CancellationToken cancellationToken)

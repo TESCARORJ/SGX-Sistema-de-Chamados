@@ -1,4 +1,4 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { reactive, watch } from 'vue'
 import type { AdminContextoResponse, FiltroChamadosAdmin } from '../../types/admin'
 
@@ -29,6 +29,32 @@ watch(
   { immediate: true }
 )
 
+function opcoesSubcategorias() {
+  const categoriaSelecionada = filtros.categoriaId
+  const subcategorias = props.contexto?.subcategorias ?? []
+
+  return subcategorias
+    .filter((subcategoria) => !categoriaSelecionada || subcategoria.categoriaChamadoId === categoriaSelecionada)
+    .map((subcategoria) => ({ label: subcategoria.nome, value: subcategoria.id }))
+}
+
+function onCategoriaChange(): void {
+  const categoriaSelecionada = filtros.categoriaId
+  if (!categoriaSelecionada) {
+    filtros.subcategoriaId = undefined
+    return
+  }
+
+  const pertenceACategoria = (props.contexto?.subcategorias ?? []).some(
+    (subcategoria) =>
+      subcategoria.id === filtros.subcategoriaId && subcategoria.categoriaChamadoId === categoriaSelecionada
+  )
+
+  if (!pertenceACategoria) {
+    filtros.subcategoriaId = undefined
+  }
+}
+
 function aplicar(): void {
   filtros.pagina = 1
   emit('filtrar', { ...filtros })
@@ -38,6 +64,9 @@ function limpar(): void {
   filtros.statusId = undefined
   filtros.prioridadeId = undefined
   filtros.categoriaId = undefined
+  filtros.subcategoriaId = undefined
+  filtros.tipoSolicitacaoId = undefined
+  filtros.localUnidadeId = undefined
   filtros.departamentoId = undefined
   filtros.responsavelId = undefined
   filtros.solicitanteId = undefined
@@ -58,7 +87,7 @@ function limpar(): void {
 <template>
   <q-form class="row q-col-gutter-sm" @submit.prevent="aplicar">
     <div class="col-12 col-md-3">
-      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
+      <q-input v-model="filtros.texto" outlined label="Texto" placeholder="CÃ³digo, tÃ­tulo ou descriÃ§Ã£o" />
     </div>
 
     <div class="col-12 col-md-3">
@@ -94,6 +123,43 @@ function limpar(): void {
         clearable
         outlined
         label="Categoria"
+        @update:model-value="onCategoriaChange"
+      />
+    </div>
+
+    <div class="col-12 col-md-3">
+      <q-select
+        v-model="filtros.subcategoriaId"
+        :options="opcoesSubcategorias()"
+        emit-value
+        map-options
+        clearable
+        outlined
+        label="Subcategoria"
+      />
+    </div>
+
+    <div class="col-12 col-md-3">
+      <q-select
+        v-model="filtros.tipoSolicitacaoId"
+        :options="props.contexto?.tiposSolicitacao.map((t) => ({ label: t.nome, value: t.id })) ?? []"
+        emit-value
+        map-options
+        clearable
+        outlined
+        label="Tipo de solicitaÃ§Ã£o"
+      />
+    </div>
+
+    <div class="col-12 col-md-3">
+      <q-select
+        v-model="filtros.localUnidadeId"
+        :options="props.contexto?.locaisUnidade.map((l) => ({ label: l.nome, value: l.id })) ?? []"
+        emit-value
+        map-options
+        clearable
+        outlined
+        label="Local / Unidade"
       />
     </div>
 
@@ -117,7 +183,7 @@ function limpar(): void {
         map-options
         clearable
         outlined
-        label="Responsável"
+        label="ResponsÃ¡vel"
       />
     </div>
 
@@ -126,11 +192,11 @@ function limpar(): void {
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataInicio" type="date" outlined label="Período inicial" />
+      <q-input v-model="filtros.dataInicio" type="date" outlined label="PerÃ­odo inicial" />
     </div>
 
     <div class="col-12 col-md-2">
-      <q-input v-model="filtros.dataFim" type="date" outlined label="Período final" />
+      <q-input v-model="filtros.dataFim" type="date" outlined label="PerÃ­odo final" />
     </div>
 
     <div class="col-12 col-md-3">
@@ -138,9 +204,9 @@ function limpar(): void {
         v-model="filtros.slaSituacao"
         :options="[
           { label: 'Todos', value: undefined },
-          { label: 'Não aplicável', value: 'NaoAplicavel' },
+          { label: 'NÃ£o aplicÃ¡vel', value: 'NaoAplicavel' },
           { label: 'Dentro do prazo', value: 'DentroDoPrazo' },
-          { label: 'Próximo do vencimento', value: 'ProximoDoVencimento' },
+          { label: 'PrÃ³ximo do vencimento', value: 'ProximoDoVencimento' },
           { label: 'Vencido', value: 'Vencido' },
           { label: 'Cumprido', value: 'Cumprido' },
           { label: 'Violado', value: 'Violado' },
@@ -149,7 +215,7 @@ function limpar(): void {
         emit-value
         map-options
         outlined
-        label="Situação SLA"
+        label="SituaÃ§Ã£o SLA"
       />
     </div>
 
@@ -157,10 +223,10 @@ function limpar(): void {
       <q-select
         v-model="filtros.ordenarPor"
         :options="[
-          { label: 'Atualização', value: 'atualizadoEm' },
+          { label: 'AtualizaÃ§Ã£o', value: 'atualizadoEm' },
           { label: 'Abertura', value: 'abertoEm' },
-          { label: 'Código', value: 'codigo' },
-          { label: 'Título', value: 'titulo' },
+          { label: 'CÃ³digo', value: 'codigo' },
+          { label: 'TÃ­tulo', value: 'titulo' },
         ]"
         emit-value
         map-options
@@ -179,7 +245,7 @@ function limpar(): void {
         emit-value
         map-options
         outlined
-        label="Direção"
+        label="DireÃ§Ã£o"
       />
     </div>
 

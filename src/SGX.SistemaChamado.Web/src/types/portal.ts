@@ -30,10 +30,26 @@ export interface CategoriaPortal {
   departamentoId: string | null
 }
 
+export interface SubcategoriaPortal {
+  id: string
+  categoriaChamadoId: string
+  nome: string
+}
+
 export interface PrioridadePortal {
   id: string
   nome: string
   nivel: number
+}
+
+export interface TipoSolicitacaoPortal {
+  id: string
+  nome: string
+}
+
+export interface LocalUnidadePortal {
+  id: string
+  nome: string
 }
 
 export interface StatusPortal {
@@ -46,7 +62,10 @@ export interface PortalContextoResponse {
   usuario: PortalUsuarioContexto
   departamentos: DepartamentoPortal[]
   categorias: CategoriaPortal[]
+  subcategorias: SubcategoriaPortal[]
   prioridades: PrioridadePortal[]
+  tiposSolicitacao: TipoSolicitacaoPortal[]
+  locaisUnidade: LocalUnidadePortal[]
   status: StatusPortal[]
   configuracaoAnexos?: {
     tiposPermitidos: string[]
@@ -73,7 +92,16 @@ export interface ChamadoResumoPortal {
   status: string
   prioridade: string
   categoria: string
+  subcategoria: string | null
+  tipoSolicitacao: string | null
+  localUnidade: string | null
   departamento: string | null
+  categoriaId: string
+  subcategoriaId: string | null
+  prioridadeId: string
+  tipoSolicitacaoId: string | null
+  localUnidadeId: string | null
+  departamentoId: string | null
   abertoEm: string
   atualizadoEm: string | null
   slaVencido: boolean
@@ -139,7 +167,16 @@ export interface ChamadoDetalhePortal {
   status: string
   prioridade: string
   categoria: string
+  subcategoria: string | null
+  tipoSolicitacao: string | null
+  localUnidade: string | null
   departamento: string | null
+  categoriaId: string
+  subcategoriaId: string | null
+  prioridadeId: string
+  tipoSolicitacaoId: string | null
+  localUnidadeId: string | null
+  departamentoId: string | null
   solicitante: string
   responsavel: string | null
   abertoEm: string
@@ -155,7 +192,10 @@ export interface CriarChamadoRequest {
   descricao: string
   departamentoId?: string
   categoriaId: string
+  subcategoriaId?: string
   prioridadeId: string
+  tipoSolicitacaoId?: string
+  localUnidadeId?: string
 }
 
 export type ChamadoCriadoResponse = ChamadoDetalhePortal

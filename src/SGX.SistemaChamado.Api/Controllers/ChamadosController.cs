@@ -50,7 +50,10 @@ public sealed class ChamadosController(
                 x.ResponsavelId,
                 x.DepartamentoId,
                 x.CategoriaId,
+                x.SubcategoriaId,
                 x.PrioridadeId,
+                x.TipoSolicitacaoId,
+                x.LocalUnidadeId,
                 x.StatusId,
                 x.Origem,
                 x.AbertoEm,
@@ -95,7 +98,10 @@ public sealed class ChamadosController(
                 x.ResponsavelId,
                 x.DepartamentoId,
                 x.CategoriaId,
+                x.SubcategoriaId,
                 x.PrioridadeId,
+                x.TipoSolicitacaoId,
+                x.LocalUnidadeId,
                 x.StatusId,
                 x.Origem,
                 x.AbertoEm,
@@ -155,6 +161,53 @@ public sealed class ChamadosController(
             return BadRequest(new { mensagem = "Prioridade nao encontrada ou inativa." });
         }
 
+        if (request.SubcategoriaId.HasValue)
+        {
+            var subcategoria = await dbContext.SubcategoriasChamado
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.SubcategoriaId.Value && x.Ativo, cancellationToken);
+
+            if (subcategoria is null)
+            {
+                return BadRequest(new { mensagem = "Subcategoria nao encontrada ou inativa." });
+            }
+
+            if (subcategoria.CategoriaChamadoId != request.CategoriaId)
+            {
+                return BadRequest(new { mensagem = "A subcategoria selecionada nao pertence a categoria informada." });
+            }
+        }
+
+        if (request.TipoSolicitacaoId.HasValue)
+        {
+            var existeTipoSolicitacao = await dbContext.TiposSolicitacao
+                .AnyAsync(x => x.Id == request.TipoSolicitacaoId.Value && x.Ativo, cancellationToken);
+            if (!existeTipoSolicitacao)
+            {
+                return BadRequest(new { mensagem = "Tipo de solicitacao nao encontrado ou inativo." });
+            }
+        }
+
+        if (request.LocalUnidadeId.HasValue)
+        {
+            var existeLocalUnidade = await dbContext.LocaisUnidade
+                .AnyAsync(x => x.Id == request.LocalUnidadeId.Value && x.Ativo, cancellationToken);
+            if (!existeLocalUnidade)
+            {
+                return BadRequest(new { mensagem = "Local/unidade nao encontrado ou inativo." });
+            }
+        }
+
+        if (request.DepartamentoId.HasValue)
+        {
+            var existeDepartamento = await dbContext.Departamentos
+                .AnyAsync(x => x.Id == request.DepartamentoId.Value && x.Ativo, cancellationToken);
+            if (!existeDepartamento)
+            {
+                return BadRequest(new { mensagem = "Departamento nao encontrado ou inativo." });
+            }
+        }
+
         var origem = request.Origem switch
         {
             "Portal" => OrigemChamado.Portal,
@@ -174,7 +227,10 @@ public sealed class ChamadosController(
             SeedData.StatusAbertoId,
             origem,
             usuarioAtual.Login,
-            request.DepartamentoId);
+            request.DepartamentoId,
+            request.SubcategoriaId,
+            request.TipoSolicitacaoId,
+            request.LocalUnidadeId);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -189,7 +245,10 @@ public sealed class ChamadosController(
             chamado.ResponsavelId,
             chamado.DepartamentoId,
             chamado.CategoriaId,
+            chamado.SubcategoriaId,
             chamado.PrioridadeId,
+            chamado.TipoSolicitacaoId,
+            chamado.LocalUnidadeId,
             chamado.StatusId,
             chamado.Origem,
             chamado.AbertoEm,

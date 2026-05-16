@@ -5,19 +5,20 @@ namespace SGX.SistemaChamado.Application.Validators;
 
 public sealed class CriarPrioridadeChamadoRequestValidator : AbstractValidator<CriarPrioridadeChamadoRequest>
 {
+    private const string CorHexRegex = "^#[0-9A-Fa-f]{6}$";
+
     public CriarPrioridadeChamadoRequestValidator()
     {
         RuleFor(x => x.Nome)
             .NotEmpty().WithMessage("Nome obrigatorio.")
             .MaximumLength(120);
 
-        RuleFor(x => x.Nivel)
-            .InclusiveBetween(1, 4).WithMessage("Nivel deve estar entre 1 e 4.");
+        RuleFor(x => x.Peso)
+            .GreaterThan(0).WithMessage("Peso deve ser maior que zero.");
 
-        RuleFor(x => x.PrazoPrimeiraRespostaHoras)
-            .GreaterThanOrEqualTo(0).WithMessage("Prazo de primeira resposta nao pode ser negativo.");
-
-        RuleFor(x => x.PrazoResolucaoHoras)
-            .GreaterThanOrEqualTo(0).WithMessage("Prazo de resolucao nao pode ser negativo.");
+        RuleFor(x => x.Cor)
+            .Matches(CorHexRegex)
+            .When(x => !string.IsNullOrWhiteSpace(x.Cor))
+            .WithMessage("Cor deve estar no formato hexadecimal #RRGGBB.");
     }
 }

@@ -10,6 +10,7 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 
 namespace SGX.SistemaChamado.Tests;
 
+[Collection("EnvironmentVariables")]
 public sealed class AdministradorInicialServiceTests
 {
     private const string VariavelEmail = "SGX_ADMIN_INICIAL_EMAIL";

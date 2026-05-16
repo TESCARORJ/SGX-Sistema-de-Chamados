@@ -12,11 +12,13 @@ public sealed class FiltroCadastroRequestValidator : AbstractValidator<FiltroCad
         "login",
         "sigla",
         "nivel",
+        "peso",
         "codigo",
         "chave",
         "situacao",
         "ativo",
         "departamento",
+        "categoria",
         "criadoEm"
     ];
 

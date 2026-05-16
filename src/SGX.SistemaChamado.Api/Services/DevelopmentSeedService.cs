@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Globalization;
+using System.Text;
 using SGX.SistemaChamado.Api.Options;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -75,6 +77,70 @@ public sealed class DevelopmentSeedService(
         ".portal@"
     ];
 
+    private static readonly CadastroDepartamentoDef[] DepartamentosIniciais =
+    [
+        new("Tecnologia da Informacao", "TI", "Departamento de tecnologia da informacao."),
+        new("Recursos Humanos", "RH", "Departamento de recursos humanos."),
+        new("Financeiro", "FIN", "Departamento financeiro."),
+        new("Juridico", "JUR", "Departamento juridico."),
+        new("Atendimento", "ATD", "Departamento de atendimento."),
+        new("Infraestrutura", "INF", "Departamento de infraestrutura.")
+    ];
+
+    private static readonly string[] CategoriasIniciais =
+    [
+        "Hardware",
+        "Software",
+        "Rede",
+        "Sistema",
+        "Acesso",
+        "E-mail",
+        "Impressora",
+        "Telefonia",
+        "Solicitacao Administrativa"
+    ];
+
+    private static readonly string[] TiposSolicitacaoIniciais =
+    [
+        "Incidente",
+        "Solicitacao de Servico",
+        "Duvida",
+        "Melhoria",
+        "Problema Recorrente"
+    ];
+
+    private static readonly string[] LocaisUnidadeIniciais =
+    [
+        "Sede",
+        "Filial",
+        "Inspetoria",
+        "Datacenter",
+        "Almoxarifado",
+        "Atendimento Externo"
+    ];
+
+    private static readonly CadastroPrioridadeDef[] PrioridadesIniciais =
+    [
+        new("Baixa", PrioridadeChamadoEnum.Baixa, 1, "#22C55E", 8, 48),
+        new("Media", PrioridadeChamadoEnum.Media, 2, "#EAB308", 4, 24),
+        new("Alta", PrioridadeChamadoEnum.Alta, 3, "#F97316", 2, 8),
+        new("Critica", PrioridadeChamadoEnum.Critica, 4, "#EF4444", 1, 4)
+    ];
+
+    private static readonly IReadOnlyDictionary<string, string[]> SubcategoriasIniciaisPorCategoria =
+        new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Hardware"] = ["Computador", "Notebook", "Monitor", "Teclado / Mouse"],
+            ["Software"] = ["Instalacao", "Erro no sistema", "Atualizacao"],
+            ["Rede"] = ["Internet", "Wi-Fi", "Cabeamento"],
+            ["Sistema"] = ["Erro de acesso", "Erro de operacao", "Lentidao"],
+            ["Acesso"] = ["Criacao de usuario", "Reset de senha", "Permissao de acesso"],
+            ["E-mail"] = ["Criacao de conta", "Problema de envio/recebimento", "Configuracao"],
+            ["Impressora"] = ["Instalacao", "Falha de impressao", "Toner"],
+            ["Telefonia"] = ["Ramal", "Aparelho", "Ligacao externa"],
+            ["Solicitacao Administrativa"] = ["Apoio operacional", "Solicitacao interna"]
+        };
+
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         if (!environment.IsDevelopment())
@@ -82,8 +148,13 @@ public sealed class DevelopmentSeedService(
             return;
         }
 
-        var departamento = await GarantirDepartamentoAsync(cancellationToken);
-        await GarantirCategoriaAsync(departamento.Id, cancellationToken);
+        var departamentos = await GarantirDepartamentosIniciaisAsync(cancellationToken);
+        var departamentoTecnologia = departamentos.First(x => x.Sigla == "TI");
+        var categorias = await GarantirCategoriasIniciaisAsync(departamentoTecnologia.Id, cancellationToken);
+        await GarantirSubcategoriasIniciaisAsync(categorias, cancellationToken);
+        await GarantirPrioridadesIniciaisAsync(cancellationToken);
+        await GarantirTiposSolicitacaoIniciaisAsync(cancellationToken);
+        await GarantirLocaisUnidadeIniciaisAsync(cancellationToken);
 
         var perfis = await dbContext.PerfisAcesso
             .Where(x => x.Ativo)
@@ -150,7 +221,7 @@ public sealed class DevelopmentSeedService(
                     usuarioDemo.Email,
                     usuarioDemo.Email,
                     UsuarioTecnico,
-                    departamento.Id);
+                    departamentoTecnologia.Id);
 
                 await dbContext.Usuarios.AddAsync(usuario, cancellationToken);
                 usuariosRelacionados.Add(usuario);
@@ -160,7 +231,7 @@ public sealed class DevelopmentSeedService(
                 usuario.DefinirNome(usuarioDemo.Nome);
                 usuario.DefinirEmail(usuarioDemo.Email);
                 usuario.DefinirLogin(usuarioDemo.Email);
-                usuario.DefinirDepartamento(departamento.Id, UsuarioTecnico);
+                usuario.DefinirDepartamento(departamentoTecnologia.Id, UsuarioTecnico);
                 if (!usuario.Ativo)
                 {
                     usuario.Ativar(UsuarioTecnico);
@@ -284,45 +355,232 @@ public sealed class DevelopmentSeedService(
         return NormalizarEmail(email);
     }
 
-    private async Task<Departamento> GarantirDepartamentoAsync(CancellationToken cancellationToken)
+    private async Task<List<Departamento>> GarantirDepartamentosIniciaisAsync(CancellationToken cancellationToken)
     {
-        var departamento = await dbContext.Departamentos
-            .FirstOrDefaultAsync(x => x.Ativo && x.Sigla == "TI", cancellationToken);
+        var departamentosExistentes = await dbContext.Departamentos
+            .ToListAsync(cancellationToken);
 
-        if (departamento is not null)
+        var departamentosCriados = new List<Departamento>();
+        foreach (var definicao in DepartamentosIniciais)
         {
-            return departamento;
+            var chaveNome = NormalizarChaveTexto(definicao.Nome);
+            var existente = departamentosExistentes.FirstOrDefault(x =>
+                NormalizarChaveTexto(x.Nome) == chaveNome
+                || string.Equals(x.Sigla, definicao.Sigla, StringComparison.OrdinalIgnoreCase));
+
+            if (existente is not null)
+            {
+                continue;
+            }
+
+            var departamento = new Departamento(
+                definicao.Nome,
+                definicao.Sigla,
+                definicao.Descricao,
+                UsuarioTecnico);
+
+            await dbContext.Departamentos.AddAsync(departamento, cancellationToken);
+            departamentosCriados.Add(departamento);
+            departamentosExistentes.Add(departamento);
         }
 
-        departamento = new Departamento(
-            "Tecnologia da Informacao",
-            "TI",
-            "Departamento de suporte tecnico interno.",
-            UsuarioTecnico);
+        if (departamentosCriados.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
 
-        await dbContext.Departamentos.AddAsync(departamento, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return departamento;
+        return departamentosExistentes;
     }
 
-    private async Task GarantirCategoriaAsync(Guid departamentoId, CancellationToken cancellationToken)
+    private async Task<List<CategoriaChamado>> GarantirCategoriasIniciaisAsync(Guid departamentoId, CancellationToken cancellationToken)
     {
-        var categoria = await dbContext.CategoriasChamado
-            .FirstOrDefaultAsync(x => x.Ativo && x.Nome == "Suporte Tecnico", cancellationToken);
+        var categoriasExistentes = await dbContext.CategoriasChamado
+            .ToListAsync(cancellationToken);
 
-        if (categoria is not null)
+        var categoriasCriadas = new List<CategoriaChamado>();
+        foreach (var nomeCategoria in CategoriasIniciais)
         {
-            return;
+            var chaveNome = NormalizarChaveTexto(nomeCategoria);
+            var existente = categoriasExistentes.FirstOrDefault(x => NormalizarChaveTexto(x.Nome) == chaveNome);
+            if (existente is not null)
+            {
+                continue;
+            }
+
+            var categoria = new CategoriaChamado(
+                nomeCategoria,
+                null,
+                departamentoId,
+                UsuarioTecnico);
+
+            await dbContext.CategoriasChamado.AddAsync(categoria, cancellationToken);
+            categoriasCriadas.Add(categoria);
+            categoriasExistentes.Add(categoria);
         }
 
-        categoria = new CategoriaChamado(
-            "Suporte Tecnico",
-            "Categoria inicial para atendimento tecnico interno.",
-            departamentoId,
-            UsuarioTecnico);
+        var suporteTecnicoExistente = categoriasExistentes.FirstOrDefault(x => NormalizarChaveTexto(x.Nome) == "suporte tecnico");
+        if (suporteTecnicoExistente is null)
+        {
+            var suporteTecnico = new CategoriaChamado(
+                "Suporte Tecnico",
+                "Categoria inicial para atendimento tecnico interno.",
+                departamentoId,
+                UsuarioTecnico);
 
-        await dbContext.CategoriasChamado.AddAsync(categoria, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.CategoriasChamado.AddAsync(suporteTecnico, cancellationToken);
+            categoriasCriadas.Add(suporteTecnico);
+        }
+
+        if (categoriasCriadas.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        return categoriasExistentes;
+    }
+
+    private async Task GarantirSubcategoriasIniciaisAsync(IReadOnlyCollection<CategoriaChamado> categorias, CancellationToken cancellationToken)
+    {
+        var subcategoriasExistentes = await dbContext.SubcategoriasChamado
+            .ToListAsync(cancellationToken);
+
+        var subcategoriasCriadas = new List<SubcategoriaChamado>();
+        foreach (var item in SubcategoriasIniciaisPorCategoria)
+        {
+            var chaveCategoria = NormalizarChaveTexto(item.Key);
+            var categoria = categorias.FirstOrDefault(x => NormalizarChaveTexto(x.Nome) == chaveCategoria);
+            if (categoria is null)
+            {
+                continue;
+            }
+
+            foreach (var nomeSubcategoria in item.Value)
+            {
+                var chaveSubcategoria = NormalizarChaveTexto(nomeSubcategoria);
+                var existente = subcategoriasExistentes.FirstOrDefault(x =>
+                    x.CategoriaChamadoId == categoria.Id
+                    && NormalizarChaveTexto(x.Nome) == chaveSubcategoria);
+
+                if (existente is not null)
+                {
+                    continue;
+                }
+
+                var subcategoria = new SubcategoriaChamado(categoria.Id, nomeSubcategoria, null, UsuarioTecnico);
+                await dbContext.SubcategoriasChamado.AddAsync(subcategoria, cancellationToken);
+                subcategoriasCriadas.Add(subcategoria);
+                subcategoriasExistentes.Add(subcategoria);
+            }
+        }
+
+        if (subcategoriasCriadas.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task GarantirPrioridadesIniciaisAsync(CancellationToken cancellationToken)
+    {
+        var prioridadesExistentes = await dbContext.PrioridadesChamado
+            .ToListAsync(cancellationToken);
+
+        var alterouPrioridade = false;
+        foreach (var definicao in PrioridadesIniciais)
+        {
+            var prioridade = prioridadesExistentes.FirstOrDefault(x =>
+                x.Nivel == definicao.Nivel
+                || NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto(definicao.Nome));
+
+            if (prioridade is null)
+            {
+                prioridade = new PrioridadeChamado(
+                    definicao.Nome,
+                    definicao.Nivel,
+                    null,
+                    definicao.PrazoPrimeiraRespostaHoras,
+                    definicao.PrazoResolucaoHoras,
+                    UsuarioTecnico);
+
+                prioridade.DefinirPesoECor(definicao.Peso, definicao.Cor);
+                await dbContext.PrioridadesChamado.AddAsync(prioridade, cancellationToken);
+                prioridadesExistentes.Add(prioridade);
+                alterouPrioridade = true;
+                continue;
+            }
+
+            var pesoAtual = prioridade.Peso;
+            var corAtual = prioridade.Cor?.Trim().ToUpperInvariant();
+            var corEsperada = definicao.Cor.Trim().ToUpperInvariant();
+            var deveAtualizar = pesoAtual != definicao.Peso || !string.Equals(corAtual, corEsperada, StringComparison.Ordinal);
+
+            if (!deveAtualizar)
+            {
+                continue;
+            }
+
+            prioridade.DefinirPesoECor(definicao.Peso, definicao.Cor);
+            prioridade.AtualizarAuditoria(UsuarioTecnico);
+            alterouPrioridade = true;
+        }
+
+        if (alterouPrioridade)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task GarantirTiposSolicitacaoIniciaisAsync(CancellationToken cancellationToken)
+    {
+        var tiposExistentes = await dbContext.TiposSolicitacao
+            .ToListAsync(cancellationToken);
+
+        var tiposCriados = new List<TipoSolicitacao>();
+        foreach (var nomeTipo in TiposSolicitacaoIniciais)
+        {
+            var chaveNome = NormalizarChaveTexto(nomeTipo);
+            var existente = tiposExistentes.FirstOrDefault(x => NormalizarChaveTexto(x.Nome) == chaveNome);
+            if (existente is not null)
+            {
+                continue;
+            }
+
+            var tipo = new TipoSolicitacao(nomeTipo, null, UsuarioTecnico);
+            await dbContext.TiposSolicitacao.AddAsync(tipo, cancellationToken);
+            tiposCriados.Add(tipo);
+            tiposExistentes.Add(tipo);
+        }
+
+        if (tiposCriados.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private async Task GarantirLocaisUnidadeIniciaisAsync(CancellationToken cancellationToken)
+    {
+        var locaisExistentes = await dbContext.LocaisUnidade
+            .ToListAsync(cancellationToken);
+
+        var locaisCriados = new List<LocalUnidade>();
+        foreach (var nomeLocal in LocaisUnidadeIniciais)
+        {
+            var chaveNome = NormalizarChaveTexto(nomeLocal);
+            var existente = locaisExistentes.FirstOrDefault(x => NormalizarChaveTexto(x.Nome) == chaveNome);
+            if (existente is not null)
+            {
+                continue;
+            }
+
+            var local = new LocalUnidade(nomeLocal, null, null, UsuarioTecnico);
+            await dbContext.LocaisUnidade.AddAsync(local, cancellationToken);
+            locaisCriados.Add(local);
+            locaisExistentes.Add(local);
+        }
+
+        if (locaisCriados.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private void AplicarSenhaLocalSeConfigurada(Usuario usuario)
@@ -341,5 +599,45 @@ public sealed class DevelopmentSeedService(
         usuario.DefinirSenhaHashLocal(passwordHasher.HashPassword(usuario, senhaAdminLocal), UsuarioTecnico);
     }
 
+    private static string NormalizarChaveTexto(string? valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor))
+        {
+            return string.Empty;
+        }
+
+        var texto = valor.Trim().Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder(texto.Length);
+
+        foreach (var caractere in texto)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(caractere) == UnicodeCategory.NonSpacingMark)
+            {
+                continue;
+            }
+
+            if (char.IsLetterOrDigit(caractere))
+            {
+                builder.Append(char.ToLowerInvariant(caractere));
+                continue;
+            }
+
+            if (char.IsWhiteSpace(caractere))
+            {
+                builder.Append(' ');
+            }
+        }
+
+        return string.Join(' ', builder.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private sealed record CadastroDepartamentoDef(string Nome, string Sigla, string Descricao);
+    private sealed record CadastroPrioridadeDef(
+        string Nome,
+        PrioridadeChamadoEnum Nivel,
+        int Peso,
+        string Cor,
+        int PrazoPrimeiraRespostaHoras,
+        int PrazoResolucaoHoras);
     private sealed record UsuarioDemoDef(string Nome, string Email, TipoPerfil Perfil);
 }

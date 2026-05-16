@@ -100,6 +100,9 @@ public sealed class DetalharMeuChamadoUseCaseTests
         var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
 
         Assert.Equal("Chamado Proprio", response.Titulo);
+        Assert.Equal("Acesso", response.Subcategoria);
+        Assert.Equal("Incidente", response.TipoSolicitacao);
+        Assert.Equal("Matriz", response.LocalUnidade);
         Assert.NotEmpty(response.Historico);
         Assert.Single(response.Anexos);
         Assert.Single(response.Comentarios);
@@ -111,16 +114,22 @@ public sealed class DetalharMeuChamadoUseCaseTests
         var prioridade = context.PrioridadesChamado.First();
         var status = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Aberto);
         var categoria = new CategoriaChamado("Categoria", null, null, "teste");
+        var subcategoria = new SubcategoriaChamado(categoria.Id, "Acesso", null, "teste");
+        var tipoSolicitacao = new TipoSolicitacao("Incidente", null, "teste");
+        var localUnidade = new LocalUnidade("Matriz", null, null, "teste");
 
         var solicitante = new Usuario("Usuario Solicitante", "solicitante@empresa.com", "solicitante", "teste");
         var outro = new Usuario("Outro Usuario", "outro@empresa.com", "outro", "teste");
 
         context.CategoriasChamado.Add(categoria);
+        context.SubcategoriasChamado.Add(subcategoria);
+        context.TiposSolicitacao.Add(tipoSolicitacao);
+        context.LocaisUnidade.Add(localUnidade);
         context.Usuarios.AddRange(solicitante, outro);
         await context.SaveChangesAsync();
 
-        var chamadoSolicitante = new Chamado("CH-PROP", "Chamado Proprio", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste");
-        var chamadoOutro = new Chamado("CH-OUTRO", "Chamado Outro", "Descricao", outro.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste");
+        var chamadoSolicitante = new Chamado("CH-PROP", "Chamado Proprio", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", null, subcategoria.Id, tipoSolicitacao.Id, localUnidade.Id);
+        var chamadoOutro = new Chamado("CH-OUTRO", "Chamado Outro", "Descricao", outro.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", null, subcategoria.Id, tipoSolicitacao.Id, localUnidade.Id);
         context.Chamados.AddRange(chamadoSolicitante, chamadoOutro);
         await context.SaveChangesAsync();
 

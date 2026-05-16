@@ -2,6 +2,8 @@
 
 public static class PermissoesConstants
 {
+    public const string CadastrosVisualizar = "Cadastros.Visualizar";
+    public const string CadastrosGerenciar = "Cadastros.Gerenciar";
     public const string UsuariosGerenciar = "Usuarios.Gerenciar";
     public const string UsuariosAlterarPerfis = "Usuarios.AlterarPerfis";
     public const string PerfisGerenciar = "Perfis.Gerenciar";

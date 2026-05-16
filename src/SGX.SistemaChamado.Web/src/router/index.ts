@@ -28,8 +28,14 @@ const DepartamentosAdminView = () => import('../views/DepartamentosAdminView.vue
 const DepartamentoDetalheView = () => import('../views/DepartamentoDetalheView.vue')
 const CategoriasAdminView = () => import('../views/CategoriasAdminView.vue')
 const CategoriaDetalheView = () => import('../views/CategoriaDetalheView.vue')
+const SubcategoriasAdminView = () => import('../views/SubcategoriasAdminView.vue')
+const SubcategoriaDetalheView = () => import('../views/SubcategoriaDetalheView.vue')
 const PrioridadesAdminView = () => import('../views/PrioridadesAdminView.vue')
 const PrioridadeDetalheView = () => import('../views/PrioridadeDetalheView.vue')
+const TiposSolicitacaoAdminView = () => import('../views/TiposSolicitacaoAdminView.vue')
+const TipoSolicitacaoDetalheView = () => import('../views/TipoSolicitacaoDetalheView.vue')
+const LocaisUnidadesAdminView = () => import('../views/LocaisUnidadesAdminView.vue')
+const LocalUnidadeDetalheView = () => import('../views/LocalUnidadeDetalheView.vue')
 const StatusAdminView = () => import('../views/StatusAdminView.vue')
 const StatusDetalheView = () => import('../views/StatusDetalheView.vue')
 const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
@@ -186,6 +192,16 @@ const routes: RouteRecordRaw[] = [
         component: CategoriaDetalheView,
       },
       {
+        path: 'cadastros/subcategorias',
+        name: 'admin-cadastros-subcategorias',
+        component: SubcategoriasAdminView,
+      },
+      {
+        path: 'cadastros/subcategorias/:id',
+        name: 'admin-cadastros-subcategorias-detalhe',
+        component: SubcategoriaDetalheView,
+      },
+      {
         path: 'cadastros/prioridades',
         name: 'admin-cadastros-prioridades',
         component: PrioridadesAdminView,
@@ -194,6 +210,26 @@ const routes: RouteRecordRaw[] = [
         path: 'cadastros/prioridades/:id',
         name: 'admin-cadastros-prioridades-detalhe',
         component: PrioridadeDetalheView,
+      },
+      {
+        path: 'cadastros/tipos-solicitacao',
+        name: 'admin-cadastros-tipos-solicitacao',
+        component: TiposSolicitacaoAdminView,
+      },
+      {
+        path: 'cadastros/tipos-solicitacao/:id',
+        name: 'admin-cadastros-tipos-solicitacao-detalhe',
+        component: TipoSolicitacaoDetalheView,
+      },
+      {
+        path: 'cadastros/locais',
+        name: 'admin-cadastros-locais',
+        component: LocaisUnidadesAdminView,
+      },
+      {
+        path: 'cadastros/locais/:id',
+        name: 'admin-cadastros-locais-detalhe',
+        component: LocalUnidadeDetalheView,
       },
       {
         path: 'cadastros/status',

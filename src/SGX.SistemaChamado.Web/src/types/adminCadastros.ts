@@ -145,13 +145,33 @@ export interface CriarCategoriaChamadoRequest {
 
 export interface AtualizarCategoriaChamadoRequest extends CriarCategoriaChamadoRequest {}
 
+export interface SubcategoriaChamadoResumoResponse {
+  id: string
+  categoriaChamadoId: string
+  categoriaNome: string
+  nome: string
+  ativo: boolean
+}
+
+export interface SubcategoriaChamadoDetalheResponse extends SubcategoriaChamadoResumoResponse {
+  descricao: string | null
+}
+
+export interface CriarSubcategoriaChamadoRequest {
+  categoriaChamadoId: string
+  nome: string
+  descricao?: string | null
+}
+
+export interface AtualizarSubcategoriaChamadoRequest extends CriarSubcategoriaChamadoRequest {}
+
 export interface PrioridadeChamadoResumoResponse {
   id: string
   nome: string
-  nivel: number
   descricao: string | null
-  prazoPrimeiraRespostaHoras: number
-  prazoResolucaoHoras: number
+  peso: number
+  cor: string | null
+  nivel?: number
   ativo: boolean
 }
 
@@ -159,13 +179,48 @@ export interface PrioridadeChamadoDetalheResponse extends PrioridadeChamadoResum
 
 export interface CriarPrioridadeChamadoRequest {
   nome: string
-  nivel: number
   descricao?: string | null
-  prazoPrimeiraRespostaHoras: number
-  prazoResolucaoHoras: number
+  peso: number
+  cor?: string | null
 }
 
 export interface AtualizarPrioridadeChamadoRequest extends CriarPrioridadeChamadoRequest {}
+
+export interface TipoSolicitacaoResumoResponse {
+  id: string
+  nome: string
+  ativo: boolean
+}
+
+export interface TipoSolicitacaoDetalheResponse extends TipoSolicitacaoResumoResponse {
+  descricao: string | null
+}
+
+export interface CriarTipoSolicitacaoRequest {
+  nome: string
+  descricao?: string | null
+}
+
+export interface AtualizarTipoSolicitacaoRequest extends CriarTipoSolicitacaoRequest {}
+
+export interface LocalUnidadeResumoResponse {
+  id: string
+  nome: string
+  ativo: boolean
+}
+
+export interface LocalUnidadeDetalheResponse extends LocalUnidadeResumoResponse {
+  descricao: string | null
+  endereco: string | null
+}
+
+export interface CriarLocalUnidadeRequest {
+  nome: string
+  descricao?: string | null
+  endereco?: string | null
+}
+
+export interface AtualizarLocalUnidadeRequest extends CriarLocalUnidadeRequest {}
 
 export interface StatusChamadoResumoResponse {
   id: string

@@ -31,10 +31,26 @@ export interface CategoriaAdmin {
   departamentoId: string | null
 }
 
+export interface SubcategoriaAdmin {
+  id: string
+  categoriaChamadoId: string
+  nome: string
+}
+
 export interface PrioridadeAdmin {
   id: string
   nome: string
   nivel: number
+}
+
+export interface TipoSolicitacaoAdmin {
+  id: string
+  nome: string
+}
+
+export interface LocalUnidadeAdmin {
+  id: string
+  nome: string
 }
 
 export interface StatusAdmin {
@@ -54,7 +70,10 @@ export interface AdminContextoResponse {
   usuario: AdminUsuarioContexto
   departamentos: DepartamentoAdmin[]
   categorias: CategoriaAdmin[]
+  subcategorias: SubcategoriaAdmin[]
   prioridades: PrioridadeAdmin[]
+  tiposSolicitacao: TipoSolicitacaoAdmin[]
+  locaisUnidade: LocalUnidadeAdmin[]
   status: StatusAdmin[]
   atendentes: AtendenteResumo[]
 }
@@ -63,6 +82,9 @@ export interface FiltroChamadosAdmin {
   statusId?: string
   prioridadeId?: string
   categoriaId?: string
+  subcategoriaId?: string
+  tipoSolicitacaoId?: string
+  localUnidadeId?: string
   departamentoId?: string
   responsavelId?: string
   solicitanteId?: string
@@ -87,7 +109,16 @@ export interface ChamadoAdminResumo {
   status: string
   prioridade: string
   categoria: string
+  subcategoria: string | null
+  tipoSolicitacao: string | null
+  localUnidade: string | null
   departamento: string | null
+  categoriaId: string
+  subcategoriaId: string | null
+  prioridadeId: string
+  tipoSolicitacaoId: string | null
+  localUnidadeId: string | null
+  departamentoId: string | null
   abertoEm: string
   atualizadoEm: string | null
   encerradoEm: string | null
@@ -172,7 +203,16 @@ export interface ChamadoAdminDetalhe {
   status: string
   prioridade: string
   categoria: string
+  subcategoria: string | null
+  tipoSolicitacao: string | null
+  localUnidade: string | null
   departamento: string | null
+  categoriaId: string
+  subcategoriaId: string | null
+  prioridadeId: string
+  tipoSolicitacaoId: string | null
+  localUnidadeId: string | null
+  departamentoId: string | null
   origem: string
   abertoEm: string
   encerradoEm: string | null
@@ -197,6 +237,10 @@ export interface AlterarPrioridadeChamadoPayload {
 
 export interface AlterarCategoriaChamadoPayload {
   categoriaId: string
+  subcategoriaId?: string
+  tipoSolicitacaoId?: string
+  localUnidadeId?: string
+  departamentoId?: string
 }
 
 export interface ComentarioAdminChamadoPayload {

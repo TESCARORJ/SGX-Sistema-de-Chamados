@@ -7,6 +7,9 @@ public sealed class FiltroChamadosAdminRequest
     public Guid? StatusId { get; init; }
     public Guid? PrioridadeId { get; init; }
     public Guid? CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
     public Guid? ResponsavelId { get; init; }
     public Guid? SolicitanteId { get; init; }
@@ -39,6 +42,10 @@ public sealed class AlterarPrioridadeChamadoRequest
 public sealed class AlterarCategoriaChamadoRequest
 {
     public Guid CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
+    public Guid? DepartamentoId { get; init; }
 }
 
 public sealed class ComentarioAdminChamadoRequest

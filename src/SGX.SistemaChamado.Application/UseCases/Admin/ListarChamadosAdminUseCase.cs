@@ -28,6 +28,9 @@ public sealed class ListarChamadosAdminUseCase(
             .Include(x => x.Status)
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
+            .Include(x => x.Subcategoria)
+            .Include(x => x.TipoSolicitacao)
+            .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
             .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
             .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
@@ -47,6 +50,21 @@ public sealed class ListarChamadosAdminUseCase(
         if (request.CategoriaId.HasValue)
         {
             query = query.Where(x => x.CategoriaId == request.CategoriaId.Value);
+        }
+
+        if (request.SubcategoriaId.HasValue)
+        {
+            query = query.Where(x => x.SubcategoriaId == request.SubcategoriaId.Value);
+        }
+
+        if (request.TipoSolicitacaoId.HasValue)
+        {
+            query = query.Where(x => x.TipoSolicitacaoId == request.TipoSolicitacaoId.Value);
+        }
+
+        if (request.LocalUnidadeId.HasValue)
+        {
+            query = query.Where(x => x.LocalUnidadeId == request.LocalUnidadeId.Value);
         }
 
         if (request.DepartamentoId.HasValue)

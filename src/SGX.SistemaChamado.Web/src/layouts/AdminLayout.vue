@@ -118,9 +118,27 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.cadastrosVisualizar],
       },
       {
+        label: 'Subcategorias',
+        icon: 'account_tree',
+        to: '/admin/cadastros/subcategorias',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
         label: 'Prioridades',
         icon: 'priority_high',
         to: '/admin/cadastros/prioridades',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
+        label: 'Tipos de Solicitacao',
+        icon: 'sell',
+        to: '/admin/cadastros/tipos-solicitacao',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+      },
+      {
+        label: 'Locais / Unidades',
+        icon: 'location_city',
+        to: '/admin/cadastros/locais',
         requiredAnyPermissions: [permissoes.cadastrosVisualizar],
       },
       {

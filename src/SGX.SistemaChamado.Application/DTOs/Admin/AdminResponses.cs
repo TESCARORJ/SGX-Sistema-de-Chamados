@@ -18,7 +18,10 @@ public sealed record AtendenteResumoResponse(
 
 public sealed record DepartamentoAdminResponse(Guid Id, string Nome, string Sigla);
 public sealed record CategoriaAdminResponse(Guid Id, string Nome, Guid? DepartamentoId);
+public sealed record SubcategoriaAdminResponse(Guid Id, Guid CategoriaChamadoId, string Nome);
 public sealed record PrioridadeAdminResponse(Guid Id, string Nome, int Nivel);
+public sealed record TipoSolicitacaoAdminResponse(Guid Id, string Nome);
+public sealed record LocalUnidadeAdminResponse(Guid Id, string Nome);
 public sealed record StatusAdminResponse(Guid Id, string Nome, int Codigo);
 
 public sealed class AdminContextoResponse
@@ -26,7 +29,10 @@ public sealed class AdminContextoResponse
     public AdminUsuarioContextoResponse Usuario { get; init; } = default!;
     public IReadOnlyCollection<DepartamentoAdminResponse> Departamentos { get; init; } = [];
     public IReadOnlyCollection<CategoriaAdminResponse> Categorias { get; init; } = [];
+    public IReadOnlyCollection<SubcategoriaAdminResponse> Subcategorias { get; init; } = [];
     public IReadOnlyCollection<PrioridadeAdminResponse> Prioridades { get; init; } = [];
+    public IReadOnlyCollection<TipoSolicitacaoAdminResponse> TiposSolicitacao { get; init; } = [];
+    public IReadOnlyCollection<LocalUnidadeAdminResponse> LocaisUnidade { get; init; } = [];
     public IReadOnlyCollection<StatusAdminResponse> Status { get; init; } = [];
     public IReadOnlyCollection<AtendenteResumoResponse> Atendentes { get; init; } = [];
 }
@@ -42,7 +48,16 @@ public sealed class ChamadoAdminResumoResponse
     public string Status { get; init; } = string.Empty;
     public string Prioridade { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
+    public string? Subcategoria { get; init; }
+    public string? TipoSolicitacao { get; init; }
+    public string? LocalUnidade { get; init; }
     public string? Departamento { get; init; }
+    public Guid CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid PrioridadeId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
+    public Guid? DepartamentoId { get; init; }
     public DateTime AbertoEm { get; init; }
     public DateTime? AtualizadoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }
@@ -140,7 +155,16 @@ public sealed class ChamadoAdminDetalheResponse
     public string Status { get; init; } = string.Empty;
     public string Prioridade { get; init; } = string.Empty;
     public string Categoria { get; init; } = string.Empty;
+    public string? Subcategoria { get; init; }
+    public string? TipoSolicitacao { get; init; }
+    public string? LocalUnidade { get; init; }
     public string? Departamento { get; init; }
+    public Guid CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid PrioridadeId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
+    public Guid? DepartamentoId { get; init; }
     public string Origem { get; init; } = string.Empty;
     public DateTime AbertoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }

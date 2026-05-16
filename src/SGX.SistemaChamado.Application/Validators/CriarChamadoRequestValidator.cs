@@ -20,5 +20,21 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
 
         RuleFor(x => x.PrioridadeId)
             .NotEmpty().WithMessage("Prioridade obrigatoria.");
+
+        RuleFor(x => x.SubcategoriaId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Subcategoria invalida.");
+
+        RuleFor(x => x.TipoSolicitacaoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Tipo de solicitacao invalido.");
+
+        RuleFor(x => x.LocalUnidadeId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Local/unidade invalido.");
+
+        RuleFor(x => x.DepartamentoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Departamento invalido.");
     }
 }

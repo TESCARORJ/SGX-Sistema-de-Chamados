@@ -139,6 +139,14 @@ Response `200`:
 - interface de detalhe permite upload/download e nao mostra exclusao;
 - nenhum endpoint DELETE de anexo exposto.
 
+## Registro de implementacao consolidada
+
+- Sprint Comentarios no Atendimento: concluida.
+- Sprint Anexos no Atendimento: concluida.
+- Migration de comentarios: `AddComentariosAtendimento`.
+- Migration de anexos: `AddAnexosAtendimento`.
+- Resultado consolidado: item de roadmap "Comentarios e anexos" atualizado para implementado funcionalmente, tecnico completo e 100%.
+
 ## Linha do Tempo do Atendimento
 
 Objetivo:
@@ -209,3 +217,137 @@ Exemplo de retorno:
   ]
 }
 ```
+
+## Comentarios e Anexos no Atendimento
+
+Resumo:
+- O modulo de Atendimento permite que usuarios autorizados interajam dentro do chamado por meio de comentarios e anexos.
+- A funcionalidade centraliza a comunicacao, registra evidencias e melhora a rastreabilidade do ciclo de vida do chamado.
+
+Perfis envolvidos:
+- Administrador
+- Atendente
+- Solicitante
+
+Status consolidado:
+- StatusImplementacao: Implementado funcionalmente
+- StatusTecnico: Completo
+- PercentualImplementacao: 100%
+- Avaliacao: Aprovado
+- Pendencia bloqueante: nenhuma
+
+Regras de comentarios:
+- Administrador cria e visualiza comentarios publicos e internos.
+- Atendente cria e visualiza comentarios publicos e internos.
+- Solicitante cria apenas comentarios publicos.
+- Solicitante visualiza apenas comentarios publicos.
+- Solicitante nao pode criar comentario interno.
+- Solicitante nao pode visualizar comentario interno.
+- Comentario vazio e rejeitado.
+- Comentario tem limite maximo de 4000 caracteres.
+- Comentarios sao exibidos em ordem cronologica.
+
+Endpoints de comentarios:
+- `GET /api/chamados/{chamadoId}/comentarios`
+- `POST /api/chamados/{chamadoId}/comentarios`
+
+Regras de anexos:
+- Administrador, Atendente e Solicitante podem anexar arquivos em chamados permitidos.
+- Solicitante so pode anexar, listar e baixar anexos dos proprios chamados.
+- Administrador pode listar e baixar anexos de qualquer chamado.
+- Atendente pode listar e baixar anexos de chamados acessiveis para atendimento.
+- Upload rejeita arquivo vazio.
+- Upload valida tamanho maximo.
+- Upload valida extensoes permitidas.
+- Upload bloqueia extensoes perigosas.
+- Download respeita permissao de acesso ao chamado.
+- API nao expoe caminho fisico do arquivo.
+- API nao expoe nome fisico armazenado.
+- Storage possui protecao contra path traversal.
+- Anexo salvo nao pode ser excluido por nenhum perfil.
+
+Regra obrigatoria sobre exclusao de anexos:
+- Apos upload, nenhum perfil pode excluir anexos.
+- Nao existe endpoint DELETE de anexos.
+- Nao existe botao de exclusao no frontend.
+- Nao existe exclusao logica ou fisica de anexos.
+- Justificativa: anexos fazem parte da rastreabilidade e podem servir como evidencia do atendimento.
+
+Endpoints de anexos:
+- `GET /api/chamados/{chamadoId}/anexos`
+- `POST /api/chamados/{chamadoId}/anexos`
+- `GET /api/chamados/{chamadoId}/anexos/{anexoId}/download`
+
+Configuracao de arquivos:
+- Regras de upload sao controladas por `ArquivosOptions` e `appsettings`.
+
+```json
+"Arquivos": {
+  "DiretorioBase": "storage/anexos",
+  "TamanhoMaximoBytes": 10485760,
+  "ExtensoesPermitidas": [ ".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv", ".zip" ],
+  "ExtensoesBloqueadas": [ ".exe", ".bat", ".cmd", ".ps1", ".sh", ".js", ".vbs", ".msi", ".dll", ".scr", ".com", ".jar", ".hta", ".reg" ]
+}
+```
+
+Evidencias tecnicas:
+- Comentarios:
+- Migration: `20260515154700_AddComentariosAtendimento`
+- Endpoints: `GET /api/chamados/{chamadoId}/comentarios` e `POST /api/chamados/{chamadoId}/comentarios`
+- Testes backend aprovados
+- Testes frontend aprovados
+- Build frontend aprovado
+- Anexos:
+- Migration: `20260515161320_AddAnexosAtendimento`
+- Endpoints: `GET /api/chamados/{chamadoId}/anexos`, `POST /api/chamados/{chamadoId}/anexos`, `GET /api/chamados/{chamadoId}/anexos/{anexoId}/download`
+- Testes backend aprovados
+- Testes frontend aprovados
+- Build frontend aprovado
+
+Resultados de validacao:
+- `dotnet test` aprovado
+- `npm.cmd run test:unit` aprovado
+- `npm.cmd run build` aprovado
+
+Checklist da documentacao
+
+Comentarios:
+- [x] Endpoint de listagem de comentarios criado.
+- [x] Endpoint de criacao de comentario criado.
+- [x] Comentario publico implementado.
+- [x] Comentario interno implementado.
+- [x] Solicitante impedido de criar comentario interno.
+- [x] Solicitante impedido de visualizar comentario interno.
+- [x] Validacao de mensagem obrigatoria implementada.
+- [x] Limite de 4000 caracteres implementado.
+- [x] Ordenacao cronologica implementada.
+- [x] Tela de detalhe do chamado atualizada.
+- [x] Testes de comentarios aprovados.
+
+Anexos:
+- [x] Endpoint de listagem de anexos criado.
+- [x] Endpoint de upload de anexos criado.
+- [x] Endpoint de download de anexos criado.
+- [x] Upload com validacao de arquivo vazio implementado.
+- [x] Upload com validacao de tamanho implementado.
+- [x] Upload com validacao de extensao implementado.
+- [x] Bloqueio de extensoes perigosas implementado.
+- [x] Storage seguro implementado.
+- [x] Protecao contra path traversal implementada.
+- [x] Download com permissao implementado.
+- [x] API sem exposicao de caminho fisico.
+- [x] API sem exposicao de nome fisico armazenado.
+- [x] Exclusao de anexos bloqueada para todos os perfis.
+- [x] Nenhum endpoint DELETE de anexos criado.
+- [x] Nenhum botao de exclusao criado.
+- [x] Testes de anexos aprovados.
+
+Governanca:
+- [x] docs/ATENDIMENTO.md atualizado.
+- [x] docs/ROADMAP.md atualizado.
+- [x] docs/ROADMAP-ITSM.md atualizado.
+- [x] Documentacao ITSM atualizada.
+- [x] Evidencias de testes registradas.
+- [x] Status atualizado para Implementado funcionalmente.
+- [x] Percentual atualizado para 100%.
+- [x] Avaliacao atualizada para Aprovado.

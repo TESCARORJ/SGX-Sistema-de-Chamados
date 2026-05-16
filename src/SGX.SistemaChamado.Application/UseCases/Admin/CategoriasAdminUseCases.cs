@@ -100,10 +100,10 @@ public sealed class CriarCategoriaUseCase(
         }
 
         var duplicado = await categoriaRepository.Query()
-            .AnyAsync(x => x.Nome == nome && x.DepartamentoId == request.DepartamentoId, cancellationToken);
+            .AnyAsync(x => x.Nome == nome, cancellationToken);
         if (duplicado)
         {
-            throw new InvalidOperationException("Ja existe categoria com este nome no mesmo departamento.");
+            throw new InvalidOperationException("Ja existe categoria com este nome.");
         }
 
         var categoria = new CategoriaChamado(nome, request.Descricao, request.DepartamentoId, usuarioAtual.Login);
@@ -144,10 +144,10 @@ public sealed class AtualizarCategoriaUseCase(
         }
 
         var duplicado = await categoriaRepository.Query()
-            .AnyAsync(x => x.Id != id && x.Nome == nome && x.DepartamentoId == request.DepartamentoId, cancellationToken);
+            .AnyAsync(x => x.Id != id && x.Nome == nome, cancellationToken);
         if (duplicado)
         {
-            throw new InvalidOperationException("Ja existe categoria com este nome no mesmo departamento.");
+            throw new InvalidOperationException("Ja existe categoria com este nome.");
         }
 
         categoria.DefinirNome(nome);

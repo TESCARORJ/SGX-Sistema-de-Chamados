@@ -259,6 +259,10 @@ onMounted(carregar)
               <q-item-label>{{ detalhe.categoria }}</q-item-label>
             </q-item-section>
             <q-item-section>
+              <q-item-label caption>Subcategoria</q-item-label>
+              <q-item-label>{{ detalhe.subcategoria || 'Não informada' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
               <q-item-label caption>Departamento</q-item-label>
               <q-item-label>{{ detalhe.departamento || 'Não informado' }}</q-item-label>
             </q-item-section>
@@ -276,6 +280,14 @@ onMounted(carregar)
             <q-item-section>
               <q-item-label caption>Aberto em</q-item-label>
               <q-item-label>{{ formatarData(detalhe.abertoEm) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Tipo de solicitação</q-item-label>
+              <q-item-label>{{ detalhe.tipoSolicitacao || 'Não informado' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Local / Unidade</q-item-label>
+              <q-item-label>{{ detalhe.localUnidade || 'Não informado' }}</q-item-label>
             </q-item-section>
           </q-item>
 

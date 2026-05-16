@@ -30,10 +30,10 @@ public sealed class ListarPrioridadesAdminUseCase(
         }
 
         var desc = AdminCadastrosHelpers.DirecaoDesc(request.DirecaoOrdenacao);
-        query = (request.OrdenarPor ?? "nivel").Trim().ToLowerInvariant() switch
+        query = (request.OrdenarPor ?? "peso").Trim().ToLowerInvariant() switch
         {
             "nome" => desc ? query.OrderByDescending(x => x.Nome) : query.OrderBy(x => x.Nome),
-            _ => desc ? query.OrderByDescending(x => x.Nivel) : query.OrderBy(x => x.Nivel)
+            _ => desc ? query.OrderByDescending(x => x.Peso) : query.OrderBy(x => x.Peso)
         };
 
         var (pagina, tamanho) = AdminCadastrosHelpers.NormalizarPaginacao(request);
@@ -50,7 +50,7 @@ public sealed class ListarPrioridadesAdminUseCase(
     }
 
     private static PrioridadeChamadoResumoResponse MapResumo(PrioridadeChamado x)
-        => new(x.Id, x.Nome, (int)x.Nivel, x.Descricao, x.PrazoPrimeiraRespostaHoras, x.PrazoResolucaoHoras, x.Ativo);
+        => new(x.Id, x.Nome, x.Descricao, x.Peso, x.Cor, x.Ativo);
 }
 
 public sealed class ObterPrioridadeAdminUseCase(
@@ -73,10 +73,9 @@ public sealed class ObterPrioridadeAdminUseCase(
         return new PrioridadeChamadoDetalheResponse(
             prioridade.Id,
             prioridade.Nome,
-            (int)prioridade.Nivel,
             prioridade.Descricao,
-            prioridade.PrazoPrimeiraRespostaHoras,
-            prioridade.PrazoResolucaoHoras,
+            prioridade.Peso,
+            prioridade.Cor,
             prioridade.Ativo);
     }
 }
@@ -91,30 +90,30 @@ public sealed class CriarPrioridadeUseCase(
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
         AdminCadastrosHelpers.GarantirAdministrador(usuarioAtual);
 
-        if (!Enum.IsDefined(typeof(PrioridadeChamadoEnum), request.Nivel))
-        {
-            throw new InvalidOperationException("Nivel de prioridade invalido.");
-        }
-
         var nome = request.Nome.Trim();
         var duplicado = await prioridadeRepository.Query()
-            .AnyAsync(x => x.Nome == nome || (int)x.Nivel == request.Nivel, cancellationToken);
+            .AnyAsync(x => x.Nome == nome, cancellationToken);
         if (duplicado)
         {
-            throw new InvalidOperationException("Ja existe prioridade com mesmo nome ou nivel.");
+            throw new InvalidOperationException("Ja existe prioridade com este nome.");
         }
+
+        var nivel = PrioridadesAdminRules.ResolverNivelPorPeso(request.Peso);
+        var (prazoPrimeiraRespostaHoras, prazoResolucaoHoras) = PrioridadesAdminRules.ResolverPrazosPadrao(nivel);
 
         var prioridade = new PrioridadeChamado(
             nome,
-            (PrioridadeChamadoEnum)request.Nivel,
+            nivel,
             request.Descricao,
-            request.PrazoPrimeiraRespostaHoras,
-            request.PrazoResolucaoHoras,
+            prazoPrimeiraRespostaHoras,
+            prazoResolucaoHoras,
             usuarioAtual.Login);
 
+        prioridade.DefinirPesoECor(request.Peso, request.Cor);
+        prioridade.DefinirDescricao(request.Descricao);
         await prioridadeRepository.AddAsync(prioridade, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return new PrioridadeChamadoDetalheResponse(prioridade.Id, prioridade.Nome, (int)prioridade.Nivel, prioridade.Descricao, prioridade.PrazoPrimeiraRespostaHoras, prioridade.PrazoResolucaoHoras, prioridade.Ativo);
+        return new PrioridadeChamadoDetalheResponse(prioridade.Id, prioridade.Nome, prioridade.Descricao, prioridade.Peso, prioridade.Cor, prioridade.Ativo);
     }
 }
 
@@ -133,31 +132,26 @@ public sealed class AtualizarPrioridadeUseCase(
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
         AdminCadastrosHelpers.GarantirAdministrador(usuarioAtual);
 
-        if (!Enum.IsDefined(typeof(PrioridadeChamadoEnum), request.Nivel))
-        {
-            throw new InvalidOperationException("Nivel de prioridade invalido.");
-        }
-
         var prioridade = await prioridadeRepository.Query().FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Prioridade nao encontrada.");
 
         var nome = request.Nome.Trim();
         var duplicado = await prioridadeRepository.Query()
-            .AnyAsync(x => x.Id != id && (x.Nome == nome || (int)x.Nivel == request.Nivel), cancellationToken);
+            .AnyAsync(x => x.Id != id && x.Nome == nome, cancellationToken);
         if (duplicado)
         {
-            throw new InvalidOperationException("Ja existe prioridade com mesmo nome ou nivel.");
+            throw new InvalidOperationException("Ja existe prioridade com este nome.");
         }
 
         prioridade.DefinirNome(nome);
-        prioridade.DefinirNivel((PrioridadeChamadoEnum)request.Nivel, usuarioAtual.Login);
+        prioridade.DefinirNivel(PrioridadesAdminRules.ResolverNivelPorPeso(request.Peso), usuarioAtual.Login);
+        prioridade.DefinirPesoECor(request.Peso, request.Cor);
         prioridade.DefinirDescricao(request.Descricao);
-        prioridade.DefinirPrazos(request.PrazoPrimeiraRespostaHoras, request.PrazoResolucaoHoras);
         prioridade.AtualizarAuditoria(usuarioAtual.Login);
         prioridadeRepository.Update(prioridade);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new PrioridadeChamadoDetalheResponse(prioridade.Id, prioridade.Nome, (int)prioridade.Nivel, prioridade.Descricao, prioridade.PrazoPrimeiraRespostaHoras, prioridade.PrazoResolucaoHoras, prioridade.Ativo);
+        return new PrioridadeChamadoDetalheResponse(prioridade.Id, prioridade.Nome, prioridade.Descricao, prioridade.Peso, prioridade.Cor, prioridade.Ativo);
     }
 }
 
@@ -209,4 +203,26 @@ public sealed class ReativarPrioridadeUseCase(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return new AlterarSituacaoCadastroResponse(prioridade.Id, true, "Prioridade reativada com sucesso.");
     }
+}
+
+internal static class PrioridadesAdminRules
+{
+    public static PrioridadeChamadoEnum ResolverNivelPorPeso(int peso)
+        => peso switch
+        {
+            <= 1 => PrioridadeChamadoEnum.Baixa,
+            2 => PrioridadeChamadoEnum.Media,
+            3 => PrioridadeChamadoEnum.Alta,
+            _ => PrioridadeChamadoEnum.Critica
+        };
+
+    public static (int prazoPrimeiraRespostaHoras, int prazoResolucaoHoras) ResolverPrazosPadrao(PrioridadeChamadoEnum nivel)
+        => nivel switch
+        {
+            PrioridadeChamadoEnum.Baixa => (8, 48),
+            PrioridadeChamadoEnum.Media => (4, 24),
+            PrioridadeChamadoEnum.Alta => (2, 8),
+            PrioridadeChamadoEnum.Critica => (1, 4),
+            _ => (4, 24)
+        };
 }

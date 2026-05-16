@@ -24,6 +24,18 @@ public sealed class CriarChamadoDtoValidator : AbstractValidator<CriarChamadoDto
         RuleFor(x => x.PrioridadeId)
             .NotEqual(Guid.Empty);
 
+        RuleFor(x => x.SubcategoriaId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty);
+
+        RuleFor(x => x.TipoSolicitacaoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty);
+
+        RuleFor(x => x.LocalUnidadeId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty);
+
+        RuleFor(x => x.DepartamentoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty);
+
         RuleFor(x => x.Origem)
             .NotEmpty()
             .Must(origem => origem is "Portal" or "Email" or "Admin")

@@ -2,11 +2,13 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { QTableColumn } from 'quasar'
+import { useQuasar } from 'quasar'
 import CampoAtivoInativo from '../../components/admin/cadastros/CampoAtivoInativo.vue'
 import CampoBuscaCadastro from '../../components/admin/cadastros/CampoBuscaCadastro.vue'
 import PaginacaoTabela from '../../components/admin/cadastros/PaginacaoTabela.vue'
 import TabelaAdministrativa from '../../components/admin/cadastros/TabelaAdministrativa.vue'
 import AppSectionCard from '../../components/ui/AppSectionCard.vue'
+import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
@@ -18,7 +20,17 @@ import { usuariosAdminService } from '../../services/usuariosAdminService'
 import { useAuthStore } from '../../stores/authStore'
 import type { FiltroCadastroRequest, PagedResultResponse } from '../../types/adminCadastros'
 
-type Entidade = 'usuarios' | 'perfis' | 'departamentos' | 'categorias' | 'prioridades' | 'status' | 'parametros'
+type Entidade =
+  | 'usuarios'
+  | 'perfis'
+  | 'departamentos'
+  | 'categorias'
+  | 'subcategorias'
+  | 'prioridades'
+  | 'tipos-solicitacao'
+  | 'locais'
+  | 'status'
+  | 'parametros'
 
 const props = defineProps<{
   titulo: string
@@ -29,6 +41,7 @@ const props = defineProps<{
 
 const router = useRouter()
 const authStore = useAuthStore()
+const $q = useQuasar()
 
 const loading = ref(false)
 const erro = ref<string | null>(null)
@@ -38,6 +51,9 @@ const pagina = ref(1)
 const tamanhoPagina = ref(20)
 const total = ref(0)
 const rows = ref<unknown[]>([])
+const dialogoSituacaoAberto = ref(false)
+const atualizandoSituacao = ref(false)
+const registroSelecionado = ref<{ id: string; ativo: boolean; nome?: string } | null>(null)
 
 const isAdmin = computed(() => authStore.usuario?.perfis.includes('Administrador') ?? false)
 const temRegistros = computed(() => rows.value.length > 0)
@@ -66,6 +82,30 @@ const podeDetalhar = computed(() => {
       return true
   }
 })
+const podeAlterarSituacao = computed(() => {
+  switch (props.entidade) {
+    case 'usuarios':
+      return authStore.possuiPermissao(permissoes.usuariosGerenciar)
+    case 'perfis':
+      return authStore.possuiPermissao(permissoes.perfisGerenciar)
+    case 'parametros':
+      return authStore.possuiPermissao(permissoes.parametrosGerenciar)
+    default:
+      return isAdmin.value
+  }
+})
+const acaoSituacaoLabel = computed(() =>
+  registroSelecionado.value?.ativo ? 'Inativar' : 'Reativar'
+)
+const tituloConfirmacaoSituacao = computed(() =>
+  registroSelecionado.value?.ativo ? 'Confirmar inativação' : 'Confirmar reativação'
+)
+const mensagemConfirmacaoSituacao = computed(() => {
+  const nome = registroSelecionado.value?.nome ? ` "${registroSelecionado.value.nome}"` : ''
+  return registroSelecionado.value?.ativo
+    ? `Deseja realmente inativar o registro${nome}?`
+    : `Deseja realmente reativar o registro${nome}?`
+})
 
 function montarFiltro(): FiltroCadastroRequest {
   return {
@@ -86,8 +126,14 @@ async function listarComServico(filtro: FiltroCadastroRequest): Promise<PagedRes
       return cadastrosAdminService.listarDepartamentos(filtro)
     case 'categorias':
       return cadastrosAdminService.listarCategorias(filtro)
+    case 'subcategorias':
+      return cadastrosAdminService.listarSubcategorias(filtro)
     case 'prioridades':
       return cadastrosAdminService.listarPrioridades(filtro)
+    case 'tipos-solicitacao':
+      return cadastrosAdminService.listarTiposSolicitacao(filtro)
+    case 'locais':
+      return cadastrosAdminService.listarLocaisUnidade(filtro)
     case 'status':
       return cadastrosAdminService.listarStatus(filtro)
     case 'parametros':
@@ -144,6 +190,104 @@ function atualizarTamanhoPagina(value: number): void {
   tamanhoPagina.value = value
   pagina.value = 1
   void carregar()
+}
+
+function abrirConfirmacaoSituacao(row: unknown): void {
+  const registro = row as { id?: string; ativo?: boolean; nome?: string }
+  if (!registro.id || typeof registro.ativo !== 'boolean' || !podeAlterarSituacao.value) {
+    return
+  }
+
+  registroSelecionado.value = {
+    id: registro.id,
+    ativo: registro.ativo,
+    nome: registro.nome,
+  }
+  dialogoSituacaoAberto.value = true
+}
+
+async function alterarSituacao(): Promise<void> {
+  if (!registroSelecionado.value) {
+    return
+  }
+
+  atualizandoSituacao.value = true
+  erro.value = null
+
+  try {
+    const { id, ativo } = registroSelecionado.value
+    if (ativo) {
+      await inativarEntidade(id)
+    } else {
+      await reativarEntidade(id)
+    }
+
+    $q.notify({
+      type: 'positive',
+      message: ativo ? 'Registro inativado com sucesso.' : 'Registro reativado com sucesso.',
+    })
+    dialogoSituacaoAberto.value = false
+    registroSelecionado.value = null
+    await carregar()
+  } catch (error) {
+    erro.value = error instanceof Error ? error.message : 'Não foi possível alterar a situação do cadastro.'
+    $q.notify({
+      type: 'negative',
+      message: erro.value,
+    })
+  } finally {
+    atualizandoSituacao.value = false
+  }
+}
+
+async function inativarEntidade(id: string): Promise<void> {
+  switch (props.entidade) {
+    case 'usuarios':
+      return usuariosAdminService.inativar(id)
+    case 'perfis':
+      return cadastrosAdminService.inativarPerfil(id)
+    case 'departamentos':
+      return cadastrosAdminService.inativarDepartamento(id)
+    case 'categorias':
+      return cadastrosAdminService.inativarCategoria(id)
+    case 'subcategorias':
+      return cadastrosAdminService.inativarSubcategoria(id)
+    case 'prioridades':
+      return cadastrosAdminService.inativarPrioridade(id)
+    case 'tipos-solicitacao':
+      return cadastrosAdminService.inativarTipoSolicitacao(id)
+    case 'locais':
+      return cadastrosAdminService.inativarLocalUnidade(id)
+    case 'status':
+      return cadastrosAdminService.inativarStatus(id)
+    case 'parametros':
+      return parametrosSistemaService.inativar(id)
+  }
+}
+
+async function reativarEntidade(id: string): Promise<void> {
+  switch (props.entidade) {
+    case 'usuarios':
+      return usuariosAdminService.reativar(id)
+    case 'perfis':
+      return cadastrosAdminService.reativarPerfil(id)
+    case 'departamentos':
+      return cadastrosAdminService.reativarDepartamento(id)
+    case 'categorias':
+      return cadastrosAdminService.reativarCategoria(id)
+    case 'subcategorias':
+      return cadastrosAdminService.reativarSubcategoria(id)
+    case 'prioridades':
+      return cadastrosAdminService.reativarPrioridade(id)
+    case 'tipos-solicitacao':
+      return cadastrosAdminService.reativarTipoSolicitacao(id)
+    case 'locais':
+      return cadastrosAdminService.reativarLocalUnidade(id)
+    case 'status':
+      return cadastrosAdminService.reativarStatus(id)
+    case 'parametros':
+      return parametrosSistemaService.reativar(id)
+  }
 }
 
 onMounted(() => {
@@ -222,7 +366,16 @@ onMounted(() => {
     <AppSectionCard v-else :titulo="titulo" subtitulo="Resultados da listagem administrativa">
       <TabelaAdministrativa :title="titulo" :rows="rows" :columns="colunas" :loading="loading">
         <template #acoes="{ row }">
-          <q-btn v-if="podeDetalhar" flat dense icon="visibility" label="Detalhar" @click="abrirDetalhe(row)" />
+          <q-btn v-if="podeDetalhar" flat dense icon="edit" label="Editar" @click="abrirDetalhe(row)" />
+          <q-btn
+            v-if="podeAlterarSituacao"
+            flat
+            dense
+            :icon="row.ativo ? 'block' : 'check_circle'"
+            :label="row.ativo ? 'Inativar' : 'Reativar'"
+            :color="row.ativo ? 'negative' : 'positive'"
+            @click="abrirConfirmacaoSituacao(row)"
+          />
         </template>
       </TabelaAdministrativa>
 
@@ -237,5 +390,15 @@ onMounted(() => {
         @update:tamanho-pagina="atualizarTamanhoPagina"
       />
     </AppSectionCard>
+
+    <ConfirmDialog
+      v-model="dialogoSituacaoAberto"
+      :titulo="tituloConfirmacaoSituacao"
+      :mensagem="mensagemConfirmacaoSituacao"
+      :color="registroSelecionado?.ativo ? 'negative' : 'positive'"
+      :confirmar-label="acaoSituacaoLabel"
+      :loading="atualizandoSituacao"
+      @confirm="alterarSituacao"
+    />
   </q-page>
 </template>

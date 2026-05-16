@@ -361,7 +361,158 @@ O \`correlacaoId\` permite associar os eventos da mesma requisicao e apoiar inve
 - alertas para eventos criticos;
 - painel avancado de seguranca e integracao com SIEM/Log Analytics.
 `,
-  },]
+  },
+  {
+    id: 'comentarios-anexos-atendimento',
+    titulo: 'Comentarios e Anexos no Atendimento',
+    categoria: 'Service Desk',
+    resumo:
+      'Entrega funcional do atendimento com comentarios e anexos por perfil, validacoes de seguranca e rastreabilidade.',
+    atualizadoEm: '2026-05-15',
+    tags: [
+      'atendimento',
+      'comentarios',
+      'anexos',
+      'service desk',
+      'rastreabilidade',
+      'seguranca',
+      'itsm',
+      'roadmap',
+    ],
+    conteudo: `
+# Comentarios e Anexos no Atendimento
+
+O modulo de Atendimento permite que usuarios autorizados interajam no chamado por comentarios e anexos, centralizando comunicacao e evidencias do atendimento.
+
+## Area e status consolidado
+
+- Area: Atendimento
+- Item: Comentarios e anexos
+- StatusImplementacao: Implementado funcionalmente
+- StatusTecnico: Completo
+- PercentualImplementacao: 100%
+- Avaliacao: Aprovado
+- Pendencia bloqueante: Nenhuma
+
+## Perfis envolvidos
+
+- Administrador
+- Atendente
+- Solicitante
+
+## Regras de comentarios
+
+- Administrador cria e visualiza comentarios publicos e internos.
+- Atendente cria e visualiza comentarios publicos e internos.
+- Solicitante cria apenas comentarios publicos.
+- Solicitante visualiza apenas comentarios publicos.
+- Solicitante nao pode criar comentario interno.
+- Solicitante nao pode visualizar comentario interno.
+- Comentario vazio e rejeitado.
+- Limite maximo de 4000 caracteres.
+- Ordenacao cronologica dos comentarios.
+
+## Endpoints de comentarios
+
+- \`GET /api/chamados/{chamadoId}/comentarios\`
+- \`POST /api/chamados/{chamadoId}/comentarios\`
+
+## Regras de anexos
+
+- Administrador, Atendente e Solicitante podem anexar arquivos em chamados permitidos.
+- Solicitante so pode anexar, listar e baixar anexos dos proprios chamados.
+- Administrador pode listar e baixar anexos de qualquer chamado.
+- Atendente pode listar e baixar anexos de chamados acessiveis para atendimento.
+- Upload rejeita arquivo vazio.
+- Upload valida tamanho maximo.
+- Upload valida extensoes permitidas.
+- Upload bloqueia extensoes perigosas.
+- Download valida acesso ao chamado antes da abertura do arquivo.
+- API nao expoe caminho fisico.
+- API nao expoe nome fisico armazenado.
+- Storage protegido contra path traversal.
+
+## Regra obrigatoria de rastreabilidade
+
+- Anexo salvo nao pode ser excluido por nenhum perfil.
+- Nao existe endpoint DELETE de anexos.
+- Nao existe botao de exclusao de anexo no frontend.
+- Nao existe exclusao logica ou fisica de anexos.
+- Justificativa: anexos compoem evidencia do atendimento.
+
+## Endpoints de anexos
+
+- \`GET /api/chamados/{chamadoId}/anexos\`
+- \`POST /api/chamados/{chamadoId}/anexos\`
+- \`GET /api/chamados/{chamadoId}/anexos/{anexoId}/download\`
+
+## Extensoes permitidas
+
+- \`.pdf\`
+- \`.png\`
+- \`.jpg\`
+- \`.jpeg\`
+- \`.doc\`
+- \`.docx\`
+- \`.xls\`
+- \`.xlsx\`
+- \`.txt\`
+- \`.csv\`
+- \`.zip\`
+
+## Extensoes bloqueadas
+
+- \`.exe\`
+- \`.bat\`
+- \`.cmd\`
+- \`.ps1\`
+- \`.sh\`
+- \`.js\`
+- \`.vbs\`
+- \`.msi\`
+- \`.dll\`
+- \`.scr\`
+- \`.com\`
+- \`.jar\`
+- \`.hta\`
+- \`.reg\`
+
+## Configuracao de arquivos
+
+As regras de upload sao controladas por \`ArquivosOptions\` e \`appsettings\`.
+
+\`\`\`json
+"Arquivos": {
+  "DiretorioBase": "storage/anexos",
+  "TamanhoMaximoBytes": 10485760,
+  "ExtensoesPermitidas": [ ".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".xls", ".xlsx", ".txt", ".csv", ".zip" ],
+  "ExtensoesBloqueadas": [ ".exe", ".bat", ".cmd", ".ps1", ".sh", ".js", ".vbs", ".msi", ".dll", ".scr", ".com", ".jar", ".hta", ".reg" ]
+}
+\`\`\`
+
+## Evidencias tecnicas
+
+Comentarios:
+- Migration: \`20260515154700_AddComentariosAtendimento\`
+- Endpoints: \`GET /api/chamados/{chamadoId}/comentarios\`, \`POST /api/chamados/{chamadoId}/comentarios\`
+- Testes backend aprovados
+- Testes frontend aprovados
+- Build frontend aprovado
+
+Anexos:
+- Migration: \`20260515161320_AddAnexosAtendimento\`
+- Endpoints: \`GET /api/chamados/{chamadoId}/anexos\`, \`POST /api/chamados/{chamadoId}/anexos\`, \`GET /api/chamados/{chamadoId}/anexos/{anexoId}/download\`
+- Testes backend aprovados
+- Testes frontend aprovados
+- Build frontend aprovado
+
+Resultados de validacao:
+- \`dotnet test\` aprovado
+- \`npm.cmd run test:unit\` aprovado
+- \`npm.cmd run build\` aprovado
+`,
+  },
+]
 
 export function normalizarTextoDocumentoItsm(valor: string): string {
   return valor

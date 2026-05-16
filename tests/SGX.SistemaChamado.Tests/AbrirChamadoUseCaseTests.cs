@@ -19,7 +19,10 @@ public sealed class AbrirChamadoUseCaseTests
         var useCase = new AbrirChamadoUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            PortalUseCasesTestFactory.Repo<SubcategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
+            PortalUseCasesTestFactory.Repo<TipoSolicitacao>(context),
+            PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
@@ -39,6 +42,113 @@ public sealed class AbrirChamadoUseCaseTests
 
         Assert.Equal(dados.Usuario.Id, context.Chamados.Single().SolicitanteId);
         Assert.Equal("Portal nao autentica", response.Titulo);
+    }
+
+    [Fact]
+    public async Task DeveCriarChamadoComSubcategoriaTipoELocalAtivos()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro no sistema de notas",
+            Descricao = "Usuario sem acesso ao modulo.",
+            CategoriaId = dados.Categoria.Id,
+            SubcategoriaId = dados.Subcategoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            TipoSolicitacaoId = dados.TipoSolicitacao.Id,
+            LocalUnidadeId = dados.LocalUnidade.Id
+        });
+
+        var chamadoCriado = context.Chamados.Single();
+        Assert.Equal(dados.Subcategoria.Id, chamadoCriado.SubcategoriaId);
+        Assert.Equal(dados.TipoSolicitacao.Id, chamadoCriado.TipoSolicitacaoId);
+        Assert.Equal(dados.LocalUnidade.Id, chamadoCriado.LocalUnidadeId);
+        Assert.Equal(dados.Subcategoria.Nome, response.Subcategoria);
+        Assert.Equal(dados.TipoSolicitacao.Nome, response.TipoSolicitacao);
+        Assert.Equal(dados.LocalUnidade.Nome, response.LocalUnidade);
+    }
+
+    [Fact]
+    public async Task DeveRejeitarSubcategoriaDeOutraCategoria()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var categoriaSecundaria = new CategoriaChamado("Rede", null, dados.Departamento.Id, "teste");
+        var subcategoriaOutra = new SubcategoriaChamado(categoriaSecundaria.Id, "Wi-Fi", null, "teste");
+        context.CategoriasChamado.Add(categoriaSecundaria);
+        context.SubcategoriasChamado.Add(subcategoriaOutra);
+        await context.SaveChangesAsync();
+
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            SubcategoriaId = subcategoriaOutra.Id,
+            PrioridadeId = dados.Prioridade.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveRejeitarSubcategoriaInativa()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        dados.Subcategoria.Desativar("teste");
+        await context.SaveChangesAsync();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            SubcategoriaId = dados.Subcategoria.Id,
+            PrioridadeId = dados.Prioridade.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveRejeitarTipoSolicitacaoInativo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        dados.TipoSolicitacao.Desativar("teste");
+        await context.SaveChangesAsync();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            TipoSolicitacaoId = dados.TipoSolicitacao.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveRejeitarLocalUnidadeInativo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        dados.LocalUnidade.Desativar("teste");
+        await context.SaveChangesAsync();
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Erro",
+            Descricao = "Descricao valida",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            LocalUnidadeId = dados.LocalUnidade.Id
+        }));
     }
 
     [Fact]
@@ -168,7 +278,10 @@ public sealed class AbrirChamadoUseCaseTests
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            PortalUseCasesTestFactory.Repo<SubcategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
+            PortalUseCasesTestFactory.Repo<TipoSolicitacao>(context),
+            PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
@@ -177,14 +290,20 @@ public sealed class AbrirChamadoUseCaseTests
             new FakeUsuarioContextoAplicacaoService(usuario),
             PortalUseCasesTestFactory.Uow(context));
 
-    private static async Task<(Usuario Usuario, UsuarioContextoAplicacao UsuarioContexto, Departamento Departamento, CategoriaChamado Categoria, PrioridadeChamado Prioridade)> SeedBasico(SGXSistemaChamadoDbContext context)
+    private static async Task<(Usuario Usuario, UsuarioContextoAplicacao UsuarioContexto, Departamento Departamento, CategoriaChamado Categoria, SubcategoriaChamado Subcategoria, PrioridadeChamado Prioridade, TipoSolicitacao TipoSolicitacao, LocalUnidade LocalUnidade)> SeedBasico(SGXSistemaChamadoDbContext context)
     {
         var departamento = new Departamento("Tecnologia da Informacao", "TI", null, "teste");
         var categoria = new CategoriaChamado("Suporte Tecnico", null, departamento.Id, "teste");
+        var subcategoria = new SubcategoriaChamado(categoria.Id, "Acesso", null, "teste");
+        var tipoSolicitacao = new TipoSolicitacao("Incidente", null, "teste");
+        var localUnidade = new LocalUnidade("Matriz", null, "Endereco", "teste");
         var usuario = new Usuario("Solicitante Teste", "solicitante@empresa.com", "solicitante", "teste", departamento.Id);
 
         context.Departamentos.Add(departamento);
         context.CategoriasChamado.Add(categoria);
+        context.SubcategoriasChamado.Add(subcategoria);
+        context.TiposSolicitacao.Add(tipoSolicitacao);
+        context.LocaisUnidade.Add(localUnidade);
         context.Usuarios.Add(usuario);
         await context.SaveChangesAsync();
 
@@ -195,6 +314,9 @@ public sealed class AbrirChamadoUseCaseTests
             new UsuarioContextoAplicacao(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, ["Solicitante"]),
             departamento,
             categoria,
-            prioridade);
+            subcategoria,
+            prioridade,
+            tipoSolicitacao,
+            localUnidade);
     }
 }

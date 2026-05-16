@@ -14,13 +14,24 @@ import { parametrosSistemaService } from '../../services/parametrosSistemaServic
 import { usuariosAdminService } from '../../services/usuariosAdminService'
 import { useAuthStore } from '../../stores/authStore'
 import type {
+  CategoriaChamadoResumoResponse,
   DepartamentoResumoResponse,
   PerfilAcessoResumoResponse,
   PerfilPermissoes,
   PermissaoSistema,
 } from '../../types/adminCadastros'
 
-type Entidade = 'usuarios' | 'perfis' | 'departamentos' | 'categorias' | 'prioridades' | 'status' | 'parametros'
+type Entidade =
+  | 'usuarios'
+  | 'perfis'
+  | 'departamentos'
+  | 'categorias'
+  | 'subcategorias'
+  | 'prioridades'
+  | 'tipos-solicitacao'
+  | 'locais'
+  | 'status'
+  | 'parametros'
 
 const props = defineProps<{
   titulo: string
@@ -55,6 +66,7 @@ const redefinirSenhaDeveAlterar = ref(true)
 
 const perfis = ref<PerfilAcessoResumoResponse[]>([])
 const departamentos = ref<DepartamentoResumoResponse[]>([])
+const categorias = ref<CategoriaChamadoResumoResponse[]>([])
 
 const idParam = computed(() => String(route.params.id ?? 'novo'))
 const isNovo = computed(() => idParam.value === 'novo')
@@ -130,10 +142,11 @@ const form = reactive({
   departamentoId: null as string | null,
   perfilIds: [] as string[],
   sigla: '',
+  categoriaChamadoId: null as string | null,
   descricao: '',
-  nivel: 1,
-  prazoPrimeiraRespostaHoras: 0,
-  prazoResolucaoHoras: 0,
+  peso: 1,
+  cor: '',
+  endereco: '',
   codigo: 1,
   ehStatusFinal: false,
   pausaSla: false,
@@ -147,13 +160,6 @@ const opcoesSituacao = [
   { label: 'Ativo', value: 1 },
   { label: 'Inativo', value: 2 },
   { label: 'Bloqueado', value: 3 },
-]
-
-const opcoesNivel = [
-  { label: 'Baixa', value: 1 },
-  { label: 'MÃ©dia', value: 2 },
-  { label: 'Alta', value: 3 },
-  { label: 'CrÃ­tica', value: 4 },
 ]
 
 const opcoesCodigoStatus = [
@@ -191,8 +197,17 @@ const regraEmail = (valor: string): true | string => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor) ? true : 'Informe um e-mail vÃ¡lido.'
 }
 
-const regraNumeroNaoNegativo = (valor: number): true | string =>
-  Number(valor) >= 0 ? true : 'Informe um valor maior ou igual a zero.'
+const regraPesoPositivo = (valor: number): true | string =>
+  Number(valor) > 0 ? true : 'Informe um peso maior que zero.'
+
+const regraCorHex = (valor: string): true | string => {
+  const cor = valor.trim()
+  if (!cor) {
+    return true
+  }
+
+  return /^#[0-9A-Fa-f]{6}$/.test(cor) ? true : 'Informe uma cor no formato #RRGGBB.'
+}
 
 function mapModuloLabel(modulo: string): string {
   const mapa: Record<string, string> = {
@@ -223,10 +238,11 @@ function resetarFormulario(): void {
   form.departamentoId = null
   form.perfilIds = []
   form.sigla = ''
+  form.categoriaChamadoId = null
   form.descricao = ''
-  form.nivel = 1
-  form.prazoPrimeiraRespostaHoras = 0
-  form.prazoResolucaoHoras = 0
+  form.peso = 1
+  form.cor = ''
+  form.endereco = ''
   form.codigo = 1
   form.ehStatusFinal = false
   form.pausaSla = false
@@ -239,6 +255,7 @@ function resetarFormulario(): void {
 async function carregarAuxiliares(): Promise<void> {
   perfis.value = []
   departamentos.value = []
+  categorias.value = []
 
   if (props.entidade === 'usuarios') {
     const [perfisResponse, departamentosResponse] = await Promise.all([
@@ -252,6 +269,11 @@ async function carregarAuxiliares(): Promise<void> {
   if (props.entidade === 'categorias') {
     const departamentosResponse = await cadastrosAdminService.listarDepartamentos({ ativo: true, tamanhoPagina: 100 })
     departamentos.value = departamentosResponse.items
+  }
+
+  if (props.entidade === 'subcategorias') {
+    const categoriasResponse = await cadastrosAdminService.listarCategorias({ ativo: true, tamanhoPagina: 100 })
+    categorias.value = categoriasResponse.items
   }
 }
 
@@ -305,14 +327,36 @@ async function carregarDetalhe(): Promise<void> {
       registroAtivo.value = categoria.ativo
       break
     }
+    case 'subcategorias': {
+      const subcategoria = await cadastrosAdminService.obterSubcategoriaPorId(idParam.value)
+      form.nome = subcategoria.nome
+      form.descricao = subcategoria.descricao ?? ''
+      form.categoriaChamadoId = subcategoria.categoriaChamadoId
+      registroAtivo.value = subcategoria.ativo
+      break
+    }
     case 'prioridades': {
       const prioridade = await cadastrosAdminService.obterPrioridadePorId(idParam.value)
       form.nome = prioridade.nome
       form.descricao = prioridade.descricao ?? ''
-      form.nivel = prioridade.nivel
-      form.prazoPrimeiraRespostaHoras = prioridade.prazoPrimeiraRespostaHoras
-      form.prazoResolucaoHoras = prioridade.prazoResolucaoHoras
+      form.peso = prioridade.peso
+      form.cor = prioridade.cor ?? ''
       registroAtivo.value = prioridade.ativo
+      break
+    }
+    case 'tipos-solicitacao': {
+      const tipoSolicitacao = await cadastrosAdminService.obterTipoSolicitacaoPorId(idParam.value)
+      form.nome = tipoSolicitacao.nome
+      form.descricao = tipoSolicitacao.descricao ?? ''
+      registroAtivo.value = tipoSolicitacao.ativo
+      break
+    }
+    case 'locais': {
+      const localUnidade = await cadastrosAdminService.obterLocalUnidadePorId(idParam.value)
+      form.nome = localUnidade.nome
+      form.descricao = localUnidade.descricao ?? ''
+      form.endereco = localUnidade.endereco ?? ''
+      registroAtivo.value = localUnidade.ativo
       break
     }
     case 'status': {
@@ -492,23 +536,67 @@ async function salvar(): Promise<void> {
           })
         }
         break
+      case 'subcategorias':
+        if (isNovo.value) {
+          const created = await cadastrosAdminService.criarSubcategoria({
+            categoriaChamadoId: form.categoriaChamadoId!,
+            nome: form.nome,
+            descricao: form.descricao || null,
+          })
+          await router.replace(`${props.listPath}/${created.id}`)
+        } else {
+          await cadastrosAdminService.atualizarSubcategoria(idParam.value, {
+            categoriaChamadoId: form.categoriaChamadoId!,
+            nome: form.nome,
+            descricao: form.descricao || null,
+          })
+        }
+        break
       case 'prioridades':
         if (isNovo.value) {
           const created = await cadastrosAdminService.criarPrioridade({
             nome: form.nome,
             descricao: form.descricao || null,
-            nivel: form.nivel,
-            prazoPrimeiraRespostaHoras: form.prazoPrimeiraRespostaHoras,
-            prazoResolucaoHoras: form.prazoResolucaoHoras,
+            peso: form.peso,
+            cor: form.cor || null,
           })
           await router.replace(`${props.listPath}/${created.id}`)
         } else {
           await cadastrosAdminService.atualizarPrioridade(idParam.value, {
             nome: form.nome,
             descricao: form.descricao || null,
-            nivel: form.nivel,
-            prazoPrimeiraRespostaHoras: form.prazoPrimeiraRespostaHoras,
-            prazoResolucaoHoras: form.prazoResolucaoHoras,
+            peso: form.peso,
+            cor: form.cor || null,
+          })
+        }
+        break
+      case 'tipos-solicitacao':
+        if (isNovo.value) {
+          const created = await cadastrosAdminService.criarTipoSolicitacao({
+            nome: form.nome,
+            descricao: form.descricao || null,
+          })
+          await router.replace(`${props.listPath}/${created.id}`)
+        } else {
+          await cadastrosAdminService.atualizarTipoSolicitacao(idParam.value, {
+            nome: form.nome,
+            descricao: form.descricao || null,
+          })
+        }
+        break
+      case 'locais':
+        if (isNovo.value) {
+          const created = await cadastrosAdminService.criarLocalUnidade({
+            nome: form.nome,
+            descricao: form.descricao || null,
+            endereco: form.endereco || null,
+          })
+          await router.replace(`${props.listPath}/${created.id}`)
+        } else {
+          await cadastrosAdminService.atualizarLocalUnidade(idParam.value, {
+            nome: form.nome,
+            descricao: form.descricao || null,
+            endereco: form.endereco || null,
           })
         }
         break
@@ -579,8 +667,17 @@ async function inativar(): Promise<void> {
       case 'categorias':
         await cadastrosAdminService.inativarCategoria(idParam.value)
         break
+      case 'subcategorias':
+        await cadastrosAdminService.inativarSubcategoria(idParam.value)
+        break
       case 'prioridades':
         await cadastrosAdminService.inativarPrioridade(idParam.value)
+        break
+      case 'tipos-solicitacao':
+        await cadastrosAdminService.inativarTipoSolicitacao(idParam.value)
+        break
+      case 'locais':
+        await cadastrosAdminService.inativarLocalUnidade(idParam.value)
         break
       case 'status':
         await cadastrosAdminService.inativarStatus(idParam.value)
@@ -618,8 +715,17 @@ async function reativar(): Promise<void> {
       case 'categorias':
         await cadastrosAdminService.reativarCategoria(idParam.value)
         break
+      case 'subcategorias':
+        await cadastrosAdminService.reativarSubcategoria(idParam.value)
+        break
       case 'prioridades':
         await cadastrosAdminService.reativarPrioridade(idParam.value)
+        break
+      case 'tipos-solicitacao':
+        await cadastrosAdminService.reativarTipoSolicitacao(idParam.value)
+        break
+      case 'locais':
+        await cadastrosAdminService.reativarLocalUnidade(idParam.value)
         break
       case 'status':
         await cadastrosAdminService.reativarStatus(idParam.value)
@@ -858,7 +964,6 @@ watch(
                 type="textarea"
                 label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
-                :rules="[regraObrigatoria]"
               />
             </div>
           </template>
@@ -878,7 +983,6 @@ watch(
                 :disable="somenteLeitura"
                 :options="departamentos.map((item) => ({ label: `${item.sigla} - ${item.nome}`, value: item.id }))"
                 label="Departamento"
-                :rules="[regraObrigatoria]"
               />
             </div>
             <div class="col-12">
@@ -889,7 +993,35 @@ watch(
                 type="textarea"
                 label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
+              />
+            </div>
+          </template>
+
+          <template v-if="entidade === 'subcategorias'">
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.categoriaChamadoId"
+                outlined
+                dense
+                emit-value
+                map-options
+                :disable="somenteLeitura"
+                :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+                label="Categoria"
                 :rules="[regraObrigatoria]"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="DescriÃ§Ã£o"
+                :readonly="somenteLeitura"
               />
             </div>
           </template>
@@ -899,38 +1031,76 @@ watch(
               <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
             </div>
             <div class="col-12 col-md-3">
-              <q-select
-                v-model="form.nivel"
+              <q-input
+                v-model.number="form.peso"
                 outlined
                 dense
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="opcoesNivel"
-                label="NÃ­vel"
-                :rules="[regraObrigatoria]"
+                type="number"
+                min="1"
+                label="Peso"
+                :readonly="somenteLeitura"
+                :rules="[regraPesoPositivo]"
               />
             </div>
             <div class="col-12 col-md-3">
               <q-input
-                v-model.number="form.prazoPrimeiraRespostaHoras"
+                v-model="form.cor"
                 outlined
                 dense
-                type="number"
-                label="Prazo 1a resposta (h)"
+                label="Cor (#RRGGBB)"
                 :readonly="somenteLeitura"
-                :rules="[regraNumeroNaoNegativo]"
+                :rules="[regraCorHex]"
               />
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-2">
+              <q-chip
+                square
+                dense
+                class="full-width justify-center"
+                :style="{ backgroundColor: form.cor || '#e2e8f0', color: '#0f172a' }"
+              >
+                {{ form.cor || 'Sem cor' }}
+              </q-chip>
+            </div>
+            <div class="col-12">
               <q-input
-                v-model.number="form.prazoResolucaoHoras"
+                v-model="form.descricao"
                 outlined
                 dense
-                type="number"
-                label="Prazo resoluÃ§Ã£o (h)"
+                type="textarea"
+                label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
-                :rules="[regraNumeroNaoNegativo]"
+              />
+            </div>
+          </template>
+
+          <template v-if="entidade === 'tipos-solicitacao'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.descricao"
+                outlined
+                dense
+                type="textarea"
+                label="DescriÃ§Ã£o"
+                :readonly="somenteLeitura"
+              />
+            </div>
+          </template>
+
+          <template v-if="entidade === 'locais'">
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+            </div>
+            <div class="col-12">
+              <q-input
+                v-model="form.endereco"
+                outlined
+                dense
+                label="EndereÃ§o"
+                :readonly="somenteLeitura"
               />
             </div>
             <div class="col-12">
@@ -941,7 +1111,6 @@ watch(
                 type="textarea"
                 label="DescriÃ§Ã£o"
                 :readonly="somenteLeitura"
-                :rules="[regraObrigatoria]"
               />
             </div>
           </template>

@@ -214,16 +214,22 @@ async function alterarPrioridade(prioridadeId: string): Promise<void> {
   }
 }
 
-async function alterarCategoria(categoriaId: string): Promise<void> {
+async function alterarCategoria(payload: {
+  categoriaId: string
+  subcategoriaId?: string
+  tipoSolicitacaoId?: string
+  localUnidadeId?: string
+  departamentoId?: string
+}): Promise<void> {
   if (!detalhe.value) return
 
   processing.value = true
   erro.value = null
 
   try {
-    detalhe.value = await adminService.alterarCategoria(detalhe.value.id, { categoriaId })
+    detalhe.value = await adminService.alterarCategoria(detalhe.value.id, payload)
     showCategoria.value = false
-    registrarSucesso('Categoria alterada com sucesso.')
+    registrarSucesso('Classificação alterada com sucesso.')
   } catch (error) {
     registrarErro(error, 'Não foi possível concluir a ação.')
   } finally {
@@ -331,6 +337,10 @@ onMounted(carregar)
               <q-item-label>{{ detalhe.categoria }}</q-item-label>
             </q-item-section>
             <q-item-section>
+              <q-item-label caption>Subcategoria</q-item-label>
+              <q-item-label>{{ detalhe.subcategoria || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
               <q-item-label caption>Departamento</q-item-label>
               <q-item-label>{{ detalhe.departamento || '-' }}</q-item-label>
             </q-item-section>
@@ -352,6 +362,14 @@ onMounted(carregar)
             <q-item-section>
               <q-item-label caption>Aberto em</q-item-label>
               <q-item-label>{{ formatarData(detalhe.abertoEm) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Tipo de solicitação</q-item-label>
+              <q-item-label>{{ detalhe.tipoSolicitacao || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Local / Unidade</q-item-label>
+              <q-item-label>{{ detalhe.localUnidade || '-' }}</q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label caption>Atualizado em</q-item-label>
@@ -569,6 +587,17 @@ onMounted(carregar)
     <ModalAlterarCategoria
       v-model="showCategoria"
       :categorias="contexto?.categorias ?? []"
+      :subcategorias="contexto?.subcategorias ?? []"
+      :tipos-solicitacao="contexto?.tiposSolicitacao ?? []"
+      :locais-unidade="contexto?.locaisUnidade ?? []"
+      :departamentos="contexto?.departamentos ?? []"
+      :valores-iniciais="{
+        categoriaId: detalhe?.categoriaId ?? null,
+        subcategoriaId: detalhe?.subcategoriaId ?? null,
+        tipoSolicitacaoId: detalhe?.tipoSolicitacaoId ?? null,
+        localUnidadeId: detalhe?.localUnidadeId ?? null,
+        departamentoId: detalhe?.departamentoId ?? null,
+      }"
       :loading="processing"
       @confirmar="alterarCategoria"
     />

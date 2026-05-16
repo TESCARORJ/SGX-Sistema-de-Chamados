@@ -71,6 +71,120 @@ public sealed class CategoriasAdminUseCaseTests
     }
 
     [Fact]
+    public async Task AtualizaCategoria()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var (admin, departamento) = await SeedAsync(context);
+        var categoria = new CategoriaChamado("Atendimento", null, departamento.Id, "teste");
+        context.CategoriasChamado.Add(categoria);
+        await context.SaveChangesAsync();
+
+        var useCase = new AtualizarCategoriaUseCase(
+            PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            PortalUseCasesTestFactory.Repo<Departamento>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")),
+            PortalUseCasesTestFactory.Uow(context));
+
+        var response = await useCase.ExecutarAsync(categoria.Id, new AtualizarCategoriaChamadoRequest
+        {
+            Nome = "Atendimento Premium",
+            Descricao = "Atualizada",
+            DepartamentoId = departamento.Id
+        });
+
+        Assert.Equal("Atendimento Premium", response.Nome);
+    }
+
+    [Fact]
+    public async Task ReativaCategoria()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var (admin, departamento) = await SeedAsync(context);
+        var categoria = new CategoriaChamado("Reativar", null, departamento.Id, "teste");
+        categoria.Desativar("teste");
+        context.CategoriasChamado.Add(categoria);
+        await context.SaveChangesAsync();
+
+        var useCase = new ReativarCategoriaUseCase(
+            PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")),
+            PortalUseCasesTestFactory.Uow(context));
+
+        var response = await useCase.ExecutarAsync(categoria.Id);
+        Assert.True(response.Ativo);
+    }
+
+    [Fact]
+    public async Task ListaCategoriasComBuscaEFiltroAtivo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var (admin, departamento) = await SeedAsync(context);
+        var ativa = new CategoriaChamado("Rede Corporativa", null, departamento.Id, "teste");
+        var inativa = new CategoriaChamado("Rede Legada", null, departamento.Id, "teste");
+        inativa.Desativar("teste");
+        context.CategoriasChamado.AddRange(ativa, inativa);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarCategoriasAdminUseCase(
+            PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest
+        {
+            Texto = "Rede",
+            Ativo = true,
+            OrdenarPor = "nome",
+            DirecaoOrdenacao = "asc"
+        });
+
+        Assert.Single(response.Items);
+        Assert.Equal("Rede Corporativa", response.Items.Single().Nome);
+    }
+
+    [Fact]
+    public async Task ListaCategoriasComFiltroInativo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var (admin, departamento) = await SeedAsync(context);
+        var ativa = new CategoriaChamado("Infra Ativa", null, departamento.Id, "teste");
+        var inativa = new CategoriaChamado("Infra Inativa", null, departamento.Id, "teste");
+        inativa.Desativar("teste");
+        context.CategoriasChamado.AddRange(ativa, inativa);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarCategoriasAdminUseCase(
+            PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest { Ativo = false });
+
+        Assert.Single(response.Items);
+        Assert.Equal("Infra Inativa", response.Items.Single().Nome);
+        Assert.False(response.Items.Single().Ativo);
+    }
+
+    [Fact]
+    public async Task ListaCategoriasSemFiltroRetornaAtivosEInativos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var (admin, departamento) = await SeedAsync(context);
+        var ativa = new CategoriaChamado("Aplicacao Ativa", null, departamento.Id, "teste");
+        var inativa = new CategoriaChamado("Aplicacao Inativa", null, departamento.Id, "teste");
+        inativa.Desativar("teste");
+        context.CategoriasChamado.AddRange(ativa, inativa);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarCategoriasAdminUseCase(
+            PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest());
+
+        Assert.Contains(response.Items, x => x.Nome == "Aplicacao Ativa");
+        Assert.Contains(response.Items, x => x.Nome == "Aplicacao Inativa");
+    }
+
+    [Fact]
     public async Task CategoriaInativaNaoApareceNoContextoDoPortal()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
@@ -89,7 +203,10 @@ public sealed class CategoriasAdminUseCaseTests
         var useCase = new ObterPortalContextoUseCase(
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
+            PortalUseCasesTestFactory.Repo<SubcategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
+            PortalUseCasesTestFactory.Repo<TipoSolicitacao>(context),
+            PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante")),
             PortalUseCasesTestFactory.ArquivosOptionsPadrao);

@@ -4,9 +4,9 @@ import CadastroListaBaseView from './admin-cadastros/CadastroListaBaseView.vue'
 
 const colunas: QTableColumn[] = [
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left', sortable: true },
-  { name: 'nivel', label: 'Nível', field: 'nivel', align: 'left', sortable: true },
-  { name: 'prazoPrimeiraRespostaHoras', label: 'Prazo 1ª resposta (h)', field: 'prazoPrimeiraRespostaHoras', align: 'left', sortable: true },
-  { name: 'prazoResolucaoHoras', label: 'Prazo resolução (h)', field: 'prazoResolucaoHoras', align: 'left', sortable: true },
+  { name: 'peso', label: 'Peso', field: 'peso', align: 'left', sortable: true },
+  { name: 'cor', label: 'Cor', field: 'cor', align: 'left' },
+  { name: 'descricao', label: 'Descrição', field: (row) => row.descricao || '-', align: 'left' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center', sortable: true },
   { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
 ]

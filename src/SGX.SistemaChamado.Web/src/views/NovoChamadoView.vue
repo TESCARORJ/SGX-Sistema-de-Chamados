@@ -9,7 +9,14 @@ import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { portalService } from '../services/portalService'
-import type { CategoriaPortal, DepartamentoPortal, PrioridadePortal } from '../types/portal'
+import type {
+  CategoriaPortal,
+  DepartamentoPortal,
+  LocalUnidadePortal,
+  PrioridadePortal,
+  SubcategoriaPortal,
+  TipoSolicitacaoPortal,
+} from '../types/portal'
 
 const EXTENSOES_PADRAO = ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.doc', '.docx', '.xls', '.xlsx']
 
@@ -36,7 +43,10 @@ const erroAnexo = ref<string | null>(null)
 
 const departamentos = ref<DepartamentoPortal[]>([])
 const categorias = ref<CategoriaPortal[]>([])
+const subcategorias = ref<SubcategoriaPortal[]>([])
 const prioridades = ref<PrioridadePortal[]>([])
+const tiposSolicitacao = ref<TipoSolicitacaoPortal[]>([])
+const locaisUnidade = ref<LocalUnidadePortal[]>([])
 
 const anexosPendentes = ref<File[]>([])
 const extensoesPermitidas = ref<string[]>(EXTENSOES_PADRAO)
@@ -47,7 +57,10 @@ const form = reactive({
   descricao: '',
   departamentoId: null as string | null,
   categoriaId: null as string | null,
+  subcategoriaId: null as string | null,
   prioridadeId: null as string | null,
+  tipoSolicitacaoId: null as string | null,
+  localUnidadeId: null as string | null,
 })
 
 const exibirDepartamento = computed(() => departamentos.value.length > 0)
@@ -70,6 +83,34 @@ const opcoesCategoria = computed(() => {
 })
 
 const opcoesPrioridade = computed(() => prioridades.value.map((item) => ({ label: item.nome, value: item.id })))
+const opcoesTipoSolicitacao = computed(() =>
+  tiposSolicitacao.value.map((item) => ({ label: item.nome, value: item.id }))
+)
+const opcoesLocalUnidade = computed(() => locaisUnidade.value.map((item) => ({ label: item.nome, value: item.id })))
+const opcoesSubcategoria = computed(() => {
+  if (!form.categoriaId) {
+    return []
+  }
+
+  return subcategorias.value
+    .filter((item) => item.categoriaChamadoId === form.categoriaId)
+    .map((item) => ({ label: item.nome, value: item.id }))
+})
+
+function onCategoriaChanged(): void {
+  if (!form.categoriaId) {
+    form.subcategoriaId = null
+    return
+  }
+
+  const subcategoriaValida = subcategorias.value.some(
+    (item) => item.id === form.subcategoriaId && item.categoriaChamadoId === form.categoriaId
+  )
+
+  if (!subcategoriaValida) {
+    form.subcategoriaId = null
+  }
+}
 
 function normalizarExtensoesPorContentType(contentTypes: string[]): string[] {
   const extensoes = new Set<string>()
@@ -92,7 +133,10 @@ async function carregarContexto(): Promise<void> {
     const contexto = await portalService.getPortalContexto()
     departamentos.value = contexto.departamentos
     categorias.value = contexto.categorias
+    subcategorias.value = contexto.subcategorias
     prioridades.value = contexto.prioridades
+    tiposSolicitacao.value = contexto.tiposSolicitacao
+    locaisUnidade.value = contexto.locaisUnidade
 
     const tiposPermitidos = contexto.configuracaoAnexos?.tiposPermitidos ?? []
     extensoesPermitidas.value = normalizarExtensoesPorContentType(tiposPermitidos)
@@ -137,7 +181,10 @@ async function salvar(): Promise<void> {
       descricao: form.descricao.trim(),
       departamentoId: exibirDepartamento.value ? (form.departamentoId ?? undefined) : undefined,
       categoriaId: form.categoriaId!,
+      subcategoriaId: form.subcategoriaId ?? undefined,
       prioridadeId: form.prioridadeId!,
+      tipoSolicitacaoId: form.tipoSolicitacaoId ?? undefined,
+      localUnidadeId: form.localUnidadeId ?? undefined,
     })
 
     let anexosComFalha = 0
@@ -241,6 +288,20 @@ onMounted(carregarContexto)
                 label="Categoria *"
                 :options="opcoesCategoria"
                 :rules="[(v) => !!v || 'Categoria obrigatória']"
+                @update:model-value="onCategoriaChanged"
+              />
+            </div>
+
+            <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
+              <q-select
+                v-model="form.subcategoriaId"
+                outlined
+                emit-value
+                map-options
+                clearable
+                label="Subcategoria"
+                :options="opcoesSubcategoria"
+                :disable="!form.categoriaId"
               />
             </div>
 
@@ -253,6 +314,32 @@ onMounted(carregarContexto)
                 label="Prioridade *"
                 :options="opcoesPrioridade"
                 :rules="[(v) => !!v || 'Prioridade obrigatória']"
+              />
+            </div>
+          </div>
+
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.tipoSolicitacaoId"
+                outlined
+                emit-value
+                map-options
+                clearable
+                label="Tipo de solicitação"
+                :options="opcoesTipoSolicitacao"
+              />
+            </div>
+
+            <div class="col-12 col-md-6">
+              <q-select
+                v-model="form.localUnidadeId"
+                outlined
+                emit-value
+                map-options
+                clearable
+                label="Local / Unidade"
+                :options="opcoesLocalUnidade"
               />
             </div>
           </div>

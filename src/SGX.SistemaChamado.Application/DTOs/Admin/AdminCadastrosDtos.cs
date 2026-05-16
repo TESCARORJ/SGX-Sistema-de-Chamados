@@ -138,24 +138,81 @@ public sealed class AtualizarCategoriaChamadoRequest
     public Guid? DepartamentoId { get; init; }
 }
 
-public sealed record PrioridadeChamadoResumoResponse(Guid Id, string Nome, int Nivel, string? Descricao, int PrazoPrimeiraRespostaHoras, int PrazoResolucaoHoras, bool Ativo);
-public sealed record PrioridadeChamadoDetalheResponse(Guid Id, string Nome, int Nivel, string? Descricao, int PrazoPrimeiraRespostaHoras, int PrazoResolucaoHoras, bool Ativo);
+public sealed record SubcategoriaChamadoResumoResponse(
+    Guid Id,
+    Guid CategoriaChamadoId,
+    string CategoriaNome,
+    string Nome,
+    bool Ativo);
+
+public sealed record SubcategoriaChamadoDetalheResponse(
+    Guid Id,
+    Guid CategoriaChamadoId,
+    string CategoriaNome,
+    string Nome,
+    string? Descricao,
+    bool Ativo);
+
+public sealed class CriarSubcategoriaChamadoRequest
+{
+    public Guid CategoriaChamadoId { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+}
+
+public sealed class AtualizarSubcategoriaChamadoRequest
+{
+    public Guid CategoriaChamadoId { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+}
+
+public sealed record PrioridadeChamadoResumoResponse(Guid Id, string Nome, string? Descricao, int Peso, string? Cor, bool Ativo);
+public sealed record PrioridadeChamadoDetalheResponse(Guid Id, string Nome, string? Descricao, int Peso, string? Cor, bool Ativo);
 public sealed class CriarPrioridadeChamadoRequest
 {
     public string Nome { get; init; } = string.Empty;
-    public int Nivel { get; init; }
     public string? Descricao { get; init; }
-    public int PrazoPrimeiraRespostaHoras { get; init; }
-    public int PrazoResolucaoHoras { get; init; }
+    public int Peso { get; init; }
+    public string? Cor { get; init; }
 }
 
 public sealed class AtualizarPrioridadeChamadoRequest
 {
     public string Nome { get; init; } = string.Empty;
-    public int Nivel { get; init; }
     public string? Descricao { get; init; }
-    public int PrazoPrimeiraRespostaHoras { get; init; }
-    public int PrazoResolucaoHoras { get; init; }
+    public int Peso { get; init; }
+    public string? Cor { get; init; }
+}
+
+public sealed record TipoSolicitacaoResumoResponse(Guid Id, string Nome, bool Ativo);
+public sealed record TipoSolicitacaoDetalheResponse(Guid Id, string Nome, string? Descricao, bool Ativo);
+public sealed class CriarTipoSolicitacaoRequest
+{
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+}
+
+public sealed class AtualizarTipoSolicitacaoRequest
+{
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+}
+
+public sealed record LocalUnidadeResumoResponse(Guid Id, string Nome, bool Ativo);
+public sealed record LocalUnidadeDetalheResponse(Guid Id, string Nome, string? Descricao, string? Endereco, bool Ativo);
+public sealed class CriarLocalUnidadeRequest
+{
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+    public string? Endereco { get; init; }
+}
+
+public sealed class AtualizarLocalUnidadeRequest
+{
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+    public string? Endereco { get; init; }
 }
 
 public sealed record StatusChamadoResumoResponse(Guid Id, string Nome, int Codigo, string? Descricao, bool EhStatusFinal, bool PausaSla, bool Ativo);

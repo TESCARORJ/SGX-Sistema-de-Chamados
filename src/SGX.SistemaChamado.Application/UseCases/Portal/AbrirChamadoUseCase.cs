@@ -14,7 +14,10 @@ namespace SGX.SistemaChamado.Application.UseCases.Portal;
 public sealed class AbrirChamadoUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<CategoriaChamado> categoriaRepository,
+    IRepository<SubcategoriaChamado> subcategoriaRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
+    IRepository<TipoSolicitacao> tipoSolicitacaoRepository,
+    IRepository<LocalUnidade> localUnidadeRepository,
     IRepository<Departamento> departamentoRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
@@ -52,6 +55,36 @@ public sealed class AbrirChamadoUseCase(
             .FirstOrDefaultAsync(x => x.Id == request.PrioridadeId && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Prioridade nao encontrada ou inativa.");
 
+        SubcategoriaChamado? subcategoria = null;
+        if (request.SubcategoriaId.HasValue)
+        {
+            subcategoria = await subcategoriaRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.SubcategoriaId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Subcategoria nao encontrada ou inativa.");
+
+            if (subcategoria.CategoriaChamadoId != categoria.Id)
+            {
+                throw new InvalidOperationException("A subcategoria selecionada nao pertence a categoria informada.");
+            }
+        }
+
+        if (request.TipoSolicitacaoId.HasValue)
+        {
+            _ = await tipoSolicitacaoRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.TipoSolicitacaoId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Tipo de solicitacao nao encontrado ou inativo.");
+        }
+
+        if (request.LocalUnidadeId.HasValue)
+        {
+            _ = await localUnidadeRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.LocalUnidadeId.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Local/unidade nao encontrado ou inativo.");
+        }
+
         if (request.DepartamentoId.HasValue)
         {
             _ = await departamentoRepository.Query()
@@ -76,7 +109,10 @@ public sealed class AbrirChamadoUseCase(
             statusAberto.Id,
             OrigemChamado.Portal,
             usuarioAtual.Login,
-            request.DepartamentoId);
+            request.DepartamentoId,
+            subcategoria?.Id,
+            request.TipoSolicitacaoId,
+            request.LocalUnidadeId);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
@@ -97,6 +133,9 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.Status)
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
+            .Include(x => x.Subcategoria)
+            .Include(x => x.TipoSolicitacao)
+            .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
             .Include(x => x.Solicitante)
             .Include(x => x.Responsavel)
@@ -117,6 +156,9 @@ public sealed class AbrirChamadoUseCase(
                 Status = chamadoCriado.Status.Nome,
                 Prioridade = chamadoCriado.Prioridade.Nome,
                 Categoria = chamadoCriado.Categoria.Nome,
+                Subcategoria = chamadoCriado.Subcategoria?.Nome,
+                TipoSolicitacao = chamadoCriado.TipoSolicitacao?.Nome,
+                LocalUnidade = chamadoCriado.LocalUnidade?.Nome,
                 chamadoCriado.DepartamentoId,
                 SolicitanteId = chamadoCriado.SolicitanteId
             });

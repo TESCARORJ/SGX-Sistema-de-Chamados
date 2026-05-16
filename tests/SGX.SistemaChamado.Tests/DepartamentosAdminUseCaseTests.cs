@@ -92,6 +92,77 @@ public sealed class DepartamentosAdminUseCaseTests
         Assert.True(response.Ativo);
     }
 
+    [Fact]
+    public async Task ListaDepartamentosComBuscaEFiltroAtivo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "dep6.admin@empresa.com", TipoPerfil.Administrador);
+        var departamentoAtivo = new Departamento("Financeiro Corporativo", "FIN", null, "teste");
+        var departamentoInativo = new Departamento("Financeiro Legado", "FLG", null, "teste");
+        departamentoInativo.Desativar("teste");
+        context.Departamentos.AddRange(departamentoAtivo, departamentoInativo);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarDepartamentosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Departamento>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest
+        {
+            Texto = "Financeiro",
+            Ativo = true,
+            OrdenarPor = "nome",
+            DirecaoOrdenacao = "asc"
+        });
+
+        Assert.Single(response.Items);
+        Assert.Equal("Financeiro Corporativo", response.Items.Single().Nome);
+        Assert.True(response.Items.Single().Ativo);
+    }
+
+    [Fact]
+    public async Task ListaDepartamentosComFiltroInativo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "dep7.admin@empresa.com", TipoPerfil.Administrador);
+        var ativo = new Departamento("Operacoes Ativo", "OPA", null, "teste");
+        var inativo = new Departamento("Operacoes Inativo", "OPI", null, "teste");
+        inativo.Desativar("teste");
+        context.Departamentos.AddRange(ativo, inativo);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarDepartamentosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Departamento>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest { Ativo = false });
+
+        Assert.Single(response.Items);
+        Assert.Equal("Operacoes Inativo", response.Items.Single().Nome);
+        Assert.False(response.Items.Single().Ativo);
+    }
+
+    [Fact]
+    public async Task ListaDepartamentosSemFiltroRetornaAtivosEInativos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "dep8.admin@empresa.com", TipoPerfil.Administrador);
+        var ativo = new Departamento("Juridico Ativo", "JAT", null, "teste");
+        var inativo = new Departamento("Juridico Inativo", "JIN", null, "teste");
+        inativo.Desativar("teste");
+        context.Departamentos.AddRange(ativo, inativo);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarDepartamentosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Departamento>(context),
+            new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")));
+
+        var response = await useCase.ExecutarAsync(new FiltroCadastroRequest());
+
+        Assert.Contains(response.Items, x => x.Nome == "Juridico Ativo");
+        Assert.Contains(response.Items, x => x.Nome == "Juridico Inativo");
+    }
+
     private static CriarDepartamentoUseCase CriarCriarUseCase(SGXSistemaChamadoDbContext context, Usuario admin)
         => new(
             PortalUseCasesTestFactory.Repo<Departamento>(context),

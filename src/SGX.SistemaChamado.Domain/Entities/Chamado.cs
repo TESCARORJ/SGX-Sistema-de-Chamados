@@ -12,7 +12,10 @@ public sealed class Chamado : AuditableEntity
     public Guid? ResponsavelId { get; private set; }
     public Guid? DepartamentoId { get; private set; }
     public Guid CategoriaId { get; private set; }
+    public Guid? SubcategoriaId { get; private set; }
     public Guid PrioridadeId { get; private set; }
+    public Guid? TipoSolicitacaoId { get; private set; }
+    public Guid? LocalUnidadeId { get; private set; }
     public Guid StatusId { get; private set; }
     public OrigemChamado Origem { get; private set; }
     public DateTime AbertoEm { get; private set; }
@@ -22,7 +25,10 @@ public sealed class Chamado : AuditableEntity
     public Usuario? Responsavel { get; private set; }
     public Departamento? Departamento { get; private set; }
     public CategoriaChamado Categoria { get; private set; } = default!;
+    public SubcategoriaChamado? Subcategoria { get; private set; }
     public PrioridadeChamado Prioridade { get; private set; } = default!;
+    public TipoSolicitacao? TipoSolicitacao { get; private set; }
+    public LocalUnidade? LocalUnidade { get; private set; }
     public StatusChamado Status { get; private set; } = default!;
     public ICollection<HistoricoChamado> Historicos { get; private set; } = [];
     public ICollection<ComentarioChamado> Comentarios { get; private set; } = [];
@@ -45,7 +51,10 @@ public sealed class Chamado : AuditableEntity
         Guid statusId,
         OrigemChamado origem,
         string criadoPor,
-        Guid? departamentoId = null)
+        Guid? departamentoId = null,
+        Guid? subcategoriaId = null,
+        Guid? tipoSolicitacaoId = null,
+        Guid? localUnidadeId = null)
     {
         DefinirCodigo(codigo);
         DefinirTitulo(titulo);
@@ -77,6 +86,9 @@ public sealed class Chamado : AuditableEntity
         StatusId = statusId;
         Origem = origem;
         DepartamentoId = departamentoId;
+        SubcategoriaId = subcategoriaId;
+        TipoSolicitacaoId = tipoSolicitacaoId;
+        LocalUnidadeId = localUnidadeId;
         AbertoEm = DateTime.UtcNow;
         DefinirCriacao(criadoPor);
     }
@@ -152,6 +164,41 @@ public sealed class Chamado : AuditableEntity
         }
 
         CategoriaId = categoriaId;
+        DepartamentoId = departamentoId;
+        SubcategoriaId = null;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void AlterarClassificacaoOperacional(
+        Guid? subcategoriaId,
+        Guid? tipoSolicitacaoId,
+        Guid? localUnidadeId,
+        Guid? departamentoId,
+        string atualizadoPor)
+    {
+        if (subcategoriaId == Guid.Empty)
+        {
+            throw new ArgumentException("A subcategoria informada e invalida.", nameof(subcategoriaId));
+        }
+
+        if (tipoSolicitacaoId == Guid.Empty)
+        {
+            throw new ArgumentException("O tipo de solicitacao informado e invalido.", nameof(tipoSolicitacaoId));
+        }
+
+        if (localUnidadeId == Guid.Empty)
+        {
+            throw new ArgumentException("O local/unidade informado e invalido.", nameof(localUnidadeId));
+        }
+
+        if (departamentoId == Guid.Empty)
+        {
+            throw new ArgumentException("O departamento informado e invalido.", nameof(departamentoId));
+        }
+
+        SubcategoriaId = subcategoriaId;
+        TipoSolicitacaoId = tipoSolicitacaoId;
+        LocalUnidadeId = localUnidadeId;
         DepartamentoId = departamentoId;
         AtualizarAuditoria(atualizadoPor);
     }

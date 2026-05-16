@@ -11,7 +11,10 @@ namespace SGX.SistemaChamado.Application.UseCases.Admin;
 public sealed class ObterAdminContextoUseCase(
     IRepository<Departamento> departamentoRepository,
     IRepository<CategoriaChamado> categoriaRepository,
+    IRepository<SubcategoriaChamado> subcategoriaRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
+    IRepository<TipoSolicitacao> tipoSolicitacaoRepository,
+    IRepository<LocalUnidade> localUnidadeRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<Usuario> usuarioRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService) : IObterAdminContextoUseCase
@@ -39,11 +42,32 @@ public sealed class ObterAdminContextoUseCase(
             .Select(x => new CategoriaAdminResponse(x.Id, x.Nome, x.DepartamentoId))
             .ToListAsync(cancellationToken);
 
+        var subcategorias = await subcategoriaRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new SubcategoriaAdminResponse(x.Id, x.CategoriaChamadoId, x.Nome))
+            .ToListAsync(cancellationToken);
+
         var prioridades = await prioridadeRepository.Query()
             .AsNoTracking()
             .Where(x => x.Ativo)
             .OrderBy(x => x.Nivel)
             .Select(x => new PrioridadeAdminResponse(x.Id, x.Nome, (int)x.Nivel))
+            .ToListAsync(cancellationToken);
+
+        var tiposSolicitacao = await tipoSolicitacaoRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new TipoSolicitacaoAdminResponse(x.Id, x.Nome))
+            .ToListAsync(cancellationToken);
+
+        var locaisUnidade = await localUnidadeRepository.Query()
+            .AsNoTracking()
+            .Where(x => x.Ativo)
+            .OrderBy(x => x.Nome)
+            .Select(x => new LocalUnidadeAdminResponse(x.Id, x.Nome))
             .ToListAsync(cancellationToken);
 
         var status = await statusRepository.Query()
@@ -91,7 +115,10 @@ public sealed class ObterAdminContextoUseCase(
                 permissoes),
             Departamentos = departamentos,
             Categorias = categorias,
+            Subcategorias = subcategorias,
             Prioridades = prioridades,
+            TiposSolicitacao = tiposSolicitacao,
+            LocaisUnidade = locaisUnidade,
             Status = status,
             Atendentes = atendentesResponse
         };

@@ -16,6 +16,8 @@ public sealed class PrioridadeChamadoConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(120).IsRequired();
         builder.Property(x => x.Nivel).HasColumnName("nivel").HasConversion<int>().IsRequired();
         builder.Property(x => x.Descricao).HasColumnName("descricao").HasMaxLength(500);
+        builder.Property(x => x.Peso).HasColumnName("peso").IsRequired();
+        builder.Property(x => x.Cor).HasColumnName("cor").HasMaxLength(20);
         builder.Property(x => x.PrazoPrimeiraRespostaHoras).HasColumnName("prazo_primeira_resposta_horas").IsRequired();
         builder.Property(x => x.PrazoResolucaoHoras).HasColumnName("prazo_resolucao_horas").IsRequired();
         builder.Property(x => x.CriadoEm).HasColumnName("criado_em").IsRequired();
@@ -24,7 +26,7 @@ public sealed class PrioridadeChamadoConfiguration : IEntityTypeConfiguration<Pr
         builder.Property(x => x.AtualizadoPor).HasColumnName("atualizado_por").HasMaxLength(120);
         builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
 
-        builder.HasIndex(x => x.Nivel).IsUnique().HasDatabaseName("ux_prioridades_chamado_nivel");
+        builder.HasIndex(x => x.Nivel).HasDatabaseName("ix_prioridades_chamado_nivel");
 
         builder.HasData(SeedData.PrioridadesChamado);
     }

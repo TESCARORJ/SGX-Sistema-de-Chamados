@@ -1,0 +1,26 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SGX.SistemaChamado.Domain.Entities;
+
+namespace SGX.SistemaChamado.Infrastructure.Persistence.Configurations;
+
+public sealed class LocalUnidadeConfiguration : IEntityTypeConfiguration<LocalUnidade>
+{
+    public void Configure(EntityTypeBuilder<LocalUnidade> builder)
+    {
+        builder.ToTable("locais_unidade");
+        builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.Nome).HasColumnName("nome").HasMaxLength(180).IsRequired();
+        builder.Property(x => x.Descricao).HasColumnName("descricao").HasMaxLength(500);
+        builder.Property(x => x.Endereco).HasColumnName("endereco").HasMaxLength(500);
+        builder.Property(x => x.CriadoEm).HasColumnName("criado_em").IsRequired();
+        builder.Property(x => x.CriadoPor).HasColumnName("criado_por").HasMaxLength(120).IsRequired();
+        builder.Property(x => x.AtualizadoEm).HasColumnName("atualizado_em");
+        builder.Property(x => x.AtualizadoPor).HasColumnName("atualizado_por").HasMaxLength(120);
+        builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
+
+        builder.HasIndex(x => x.Nome).IsUnique().HasDatabaseName("ux_locais_unidade_nome");
+    }
+}
