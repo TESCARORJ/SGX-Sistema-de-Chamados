@@ -1428,3 +1428,115 @@ Evidencias documentais:
 Pendencias evolutivas:
 - execucao manual do checklist em ambiente de homologacao com usuarios reais;
 - formalizacao de aceite funcional e registro de evidencias visuais.
+
+## Cadastros Administrativos no Roadmap ITSM
+
+Area:
+- Cadastros administrativos
+
+Categoria:
+- Cadastros
+
+Ordem:
+- 8
+
+Objetivo:
+Disponibilizar cadastros administrativos parametrizaveis para apoiar a classificacao, priorizacao, organizacao, triagem, filtros, historico e evolucao ITSM do sistema de chamados. O modulo deve contemplar departamentos, categorias, subcategorias, prioridades, tipos de solicitacao, locais/unidades e demais cadastros estruturais necessarios para a operacao do service desk.
+
+Situacao atual:
+Modulo de Cadastros Administrativos implementado e validado funcionalmente em nivel tecnico. Backend, frontend administrativo, integracao com abertura/gestao de chamados, seed inicial e validacao funcional foram concluidos. A homologacao institucional/manual com evidencias formais permanece pendente.
+
+Apoio ITSM direto:
+- Classificacao de chamados.
+- Triagem.
+- Priorizacao.
+- Historico.
+- Filtros administrativos.
+- Futuro catalogo de servicos.
+- Futuro SLA avancado.
+- Relatorios por categoria, prioridade e localidade.
+- Gestao de conhecimento.
+
+Atencao tecnica:
+Verificar se todos os cadastros permitirao ativacao/inativacao sem exclusao fisica, evitando perda de historico em chamados antigos. Validar quais cadastros serao parametrizaveis pela area administrativa e se o status do chamado permanecera como fluxo controlado do sistema ou se sera tratado futuramente como cadastro configuravel. Priorizar inativacao logica, validacao de duplicidade, uso apenas de registros ativos em novas operacoes e preservacao historica.
+
+Status da implementacao:
+- Fluxo funcional validado
+
+Status tecnico:
+- Aguardando homologacao institucional
+
+Percentual (%):
+- 90
+
+Checklist:
+- 7/8 concluidos
+- [x] Criar documentacao ITSM.
+- [x] Criar checklist de homologacao.
+- [x] Implementar backend dos cadastros.
+- [x] Implementar frontend administrativo.
+- [x] Integrar cadastros com abertura de chamados.
+- [x] Criar seed inicial.
+- [x] Validar fluxo funcional.
+- [ ] Homologar em ambiente institucional.
+
+Pendencias tecnicas:
+- Nao ha pendencias tecnicas bloqueantes identificadas para o modulo.
+- Manter como evolucao futura a cobertura frontend E2E completa.
+- Avaliar futuramente se status de chamado continuara como fluxo controlado ou se sera parametrizado em cadastro proprio.
+
+Pendencias de homologacao:
+- Executar homologacao institucional/manual.
+- Coletar evidencias formais de tela.
+- Registrar responsavel pela homologacao.
+- Registrar data da homologacao.
+- Registrar ambiente utilizado.
+- Registrar resultado final: aprovado, aprovado com ressalvas ou reprovado.
+
+Evidencia da implementacao:
+Documentacao criada:
+- `docs/ITSM-CADASTROS-ADMINISTRATIVOS.md`
+- `docs/CHECKLIST-HOMOLOGACAO-CADASTROS.md`
+
+Documentacao atualizada:
+- `docs/CADASTROS-ADMINISTRATIVOS.md`
+- `docs/ROADMAP.md`
+- `docs/ROADMAP-ITSM.md`
+
+Validacoes tecnicas:
+- Backend dos cadastros implementado e validado.
+- Frontend administrativo implementado e validado.
+- Integracao com abertura e gestao de chamados validada.
+- Seed inicial validado.
+- Fluxo funcional validado.
+- dotnet build OK.
+- dotnet test OK com 420 testes aprovados.
+- npm build OK.
+
+Homologacao institucional (Item 8) - situacao real:
+- roteiro formal de homologacao manual registrado em `docs/CHECKLIST-HOMOLOGACAO-CADASTROS.md`;
+- evidencias obrigatorias (prints, responsavel, data, ambiente e resultado) documentadas;
+- sem evidencias institucionais anexadas nesta etapa, status mantido em `90%` e `7/8`.
+
+Somente arquivos `docs/*.md` foram alterados nesta etapa.
+
+Data de conclusao tecnica:
+- (deixar em branco)
+
+Data de homologacao:
+- (deixar em branco)
+
+Criterio de aceite:
+- Documentacao ITSM criada.
+- Checklist de homologacao criado.
+- Backend dos cadastros implementado e validado.
+- Frontend administrativo implementado e validado.
+- Cadastros integrados ao fluxo de abertura e gestao de chamados.
+- Seed inicial criado e validado.
+- Fluxo funcional validado tecnicamente.
+- Registros ativos usados em novas operacoes.
+- Registros inativos preservados para historico.
+- Homologacao institucional pendente como aceite formal final.
+
+Proxima acao:
+Executar homologacao institucional/manual com evidencias formais, incluindo prints das telas administrativas, abertura de chamado com cadastros, detalhe do chamado, filtros administrativos, responsavel, data, ambiente e resultado da validacao.
