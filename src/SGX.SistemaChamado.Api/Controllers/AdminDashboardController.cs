@@ -20,26 +20,32 @@ public sealed class AdminDashboardController(
     IValidator<FiltroIndicadoresRequest> filtroValidator) : ControllerBase
 {
     [HttpGet("dashboard")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterDashboard([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterDashboardAdminUseCase.ExecutarAsync(request, cancellationToken));
 
     [HttpGet("indicadores/chamados-por-status")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterChamadosPorStatus([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterChamadosPorStatusUseCase.ExecutarAsync(request, cancellationToken));
 
     [HttpGet("indicadores/chamados-por-prioridade")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterChamadosPorPrioridade([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterChamadosPorPrioridadeUseCase.ExecutarAsync(request, cancellationToken));
 
     [HttpGet("indicadores/chamados-por-categoria")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterChamadosPorCategoria([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterChamadosPorCategoriaUseCase.ExecutarAsync(request, cancellationToken));
 
     [HttpGet("indicadores/sla")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterIndicadoresSla([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterIndicadoresSlaUseCase.ExecutarAsync(request, cancellationToken));
 
     [HttpGet("indicadores/produtividade")]
+    [Authorize(Policy = PermissionPolicies.DashboardVisualizar)]
     public Task<IActionResult> ObterProdutividade([FromQuery] FiltroIndicadoresRequest request, CancellationToken cancellationToken)
         => ExecutarComValidacaoAsync(request, cancellationToken, () => obterProdutividadeUseCase.ExecutarAsync(request, cancellationToken));
 

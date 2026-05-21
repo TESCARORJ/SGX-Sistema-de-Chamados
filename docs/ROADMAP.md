@@ -1007,3 +1007,114 @@ Criterio de aceite:
 
 Proxima acao:
 Executar homologacao institucional/manual com evidencias formais, incluindo prints das telas administrativas, abertura de chamado com cadastros, detalhe do chamado, filtros administrativos, responsavel, data, ambiente e resultado da validacao.
+
+## Item de roadmap - Dashboard / Gestão
+
+Area:
+- Dashboard
+
+Categoria:
+- Gestão
+
+Ordem:
+- 9
+
+Objetivo:
+Disponibilizar uma visão gerencial da operação de chamados, permitindo que administradores e atendentes acompanhem em tempo real os principais indicadores do service desk, incluindo volume de chamados abertos, em atendimento, aguardando solicitante, resolvidos no período, chamados sem responsável, riscos de SLA, distribuição por status, prioridade, categoria, produtividade por atendente e situação da integração de e-mail.
+
+Situacao atual:
+Dashboard administrativo implementado funcionalmente no backend e frontend. A API disponibiliza indicadores consolidados, filtros por período e contexto administrativo. A interface apresenta cards gerenciais, gráficos/listagens por status, prioridade e categoria, indicadores de SLA, produtividade por atendente, fila de chamados e resumo da integração de e-mail. Pendente validação com usuários reais, refinamento visual final, testes frontend/e2e e homologação institucional.
+
+Atencao tecnica:
+Validar se os indicadores respeitam corretamente as permissões internas do usuário autenticado. Confirmar se administradores visualizam a operação completa e se atendentes visualizam apenas o escopo permitido, caso essa regra seja exigida. Verificar performance das consultas em bases maiores, principalmente filtros por período, produtividade por atendente e agrupamentos por status, prioridade e categoria. Garantir que chamados inativos, registros históricos e dados de SLA sejam tratados corretamente para não distorcer os indicadores.
+
+Status da implementacao:
+- Implementado funcionalmente
+
+Status tecnico:
+- Completo com pendências evolutivas
+
+Percentual (%):
+- 85
+
+Pendencias tecnicas:
+- Aplicar ou validar permissão granular `Dashboard.Visualizar` no backend, além da proteção por perfil.
+- Validar performance com volume maior de chamados.
+- Criar ou consolidar testes automatizados específicos do dashboard em nível HTTP.
+- Criar testes frontend/e2e para `dashboardAdminService` e `AdminDashboardView`, se o projeto já tiver estrutura para isso.
+- Avaliar cache ou otimização das consultas agregadas, caso necessário.
+- Revisar regras de permissão dos indicadores por perfil.
+
+Pendencias de homologacao:
+- Validar com Administrador.
+- Validar com Atendente.
+- Conferir números do dashboard contra consultas reais no banco.
+- Validar filtros por período, departamento, categoria e responsável.
+- Confirmar se os indicadores atendem à necessidade de gestão da operação.
+- Registrar evidências formais de homologação.
+
+Evidencia da implementacao:
+- `src/SGX.SistemaChamado.Api/Controllers/AdminDashboardController.cs`
+- `src/SGX.SistemaChamado.Application/UseCases/Admin/AdminIndicadoresUseCases.cs`
+- `src/SGX.SistemaChamado.Application/DTOs/Admin/AdminDashboardDtos.cs`
+- `src/SGX.SistemaChamado.Web/src/services/dashboardAdminService.ts`
+- `src/SGX.SistemaChamado.Web/src/types/dashboard.ts`
+- `src/SGX.SistemaChamado.Web/src/views/AdminDashboardView.vue`
+- `tests/SGX.SistemaChamado.Tests/DashboardAdminUseCaseTests.cs`
+- `tests/SGX.SistemaChamado.Tests/IndicadoresUseCaseTests.cs`
+
+Criterio de aceite:
+O usuário autorizado deve conseguir acessar o Dashboard Administrativo e visualizar indicadores consolidados da operação. Os filtros devem alterar os dados apresentados. Os cards principais devem exibir chamados abertos, em atendimento, aguardando solicitante, SLA vencido, próximos do vencimento e resolvidos no período. A tela deve permitir navegação para fila de chamados, gestão de chamados e integração de e-mail. Os dados exibidos devem ser coerentes com os registros persistidos no sistema.
+
+Proxima acao:
+Executar validação técnica e homologação funcional do dashboard com dados reais ou massa simulada mais próxima da operação institucional.
+
+Checklist:
+
+Planejamento:
+- [x] Definir indicadores principais do dashboard.
+- [x] Definir filtros gerenciais.
+- [x] Definir visão para administrador e atendente.
+
+Backend:
+- [x] Criar endpoint de dashboard administrativo.
+- [x] Criar endpoint de chamados por status.
+- [x] Criar endpoint de chamados por prioridade.
+- [x] Criar endpoint de chamados por categoria.
+- [x] Criar endpoint de indicadores de SLA.
+- [x] Criar endpoint de produtividade por atendente.
+- [ ] Aplicar ou validar policy granular Dashboard.Visualizar no backend.
+- [ ] Validar performance das consultas agregadas.
+- [ ] Validar regras de permissão por perfil.
+
+Frontend:
+- [x] Criar tela administrativa de Dashboard.
+- [x] Criar cards de indicadores principais.
+- [x] Criar filtros do dashboard.
+- [x] Exibir indicadores por status.
+- [x] Exibir indicadores por prioridade.
+- [x] Exibir indicadores por categoria.
+- [x] Exibir indicadores de SLA.
+- [x] Exibir produtividade por atendente.
+- [x] Exibir fila resumida de chamados.
+- [x] Exibir resumo da integração de e-mail.
+- [ ] Refinar layout visual para apresentação gerencial.
+
+Testes:
+- [x] Criar testes de use case do dashboard.
+- [x] Criar testes de use case dos indicadores.
+- [ ] Criar testes HTTP de sucesso para /api/admin/dashboard.
+- [ ] Criar testes HTTP de sucesso para /api/admin/indicadores/*.
+- [ ] Testar bloqueio por ausência de permissão granular, se a policy for aplicada.
+- [ ] Criar teste frontend/e2e, se aplicável.
+
+Documentacao:
+- [x] Registrar dashboard no roadmap geral.
+- [x] Criar documentação funcional específica do Dashboard / Gestão.
+- [ ] Registrar evidências de homologação.
+
+Homologacao:
+- [ ] Validar com administrador.
+- [ ] Validar com atendente.
+- [ ] Validar com massa real ou simulada.
+- [ ] Registrar aceite funcional.

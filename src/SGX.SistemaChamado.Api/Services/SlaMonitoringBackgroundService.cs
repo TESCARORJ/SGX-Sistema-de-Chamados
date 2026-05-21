@@ -21,32 +21,64 @@ public sealed class SlaMonitoringBackgroundService(
 
         var intervalo = TimeSpan.FromMinutes(Math.Max(1, options.Value.IntervalMinutes));
 
-        using var timer = new PeriodicTimer(intervalo);
-        await ExecutarCicloAsync(stoppingToken);
-
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
+            using var timer = new PeriodicTimer(intervalo);
+            using var stopRegistration = stoppingToken.Register(static state =>
+            {
+                ((PeriodicTimer)state!).Dispose();
+            }, timer);
+
             await ExecutarCicloAsync(stoppingToken);
+
+            while (await timer.WaitForNextTickAsync())
+            {
+                if (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                await ExecutarCicloAsync(stoppingToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            if (stoppingToken.IsCancellationRequested)
+            {
+                logger.LogDebug("Monitoramento de SLA finalizado por cancelamento do host.");
+                return;
+            }
+
+            logger.LogWarning("Monitoramento de SLA interrompido por cancelamento nao esperado.");
         }
     }
 
     private async Task ExecutarCicloAsync(CancellationToken cancellationToken)
     {
-        if (!await semaphore.WaitAsync(0, cancellationToken))
-        {
-            logger.LogWarning("Ciclo de monitoramento de SLA ignorado por execucao concorrente.");
-            return;
-        }
+        var lockAdquirido = false;
 
         try
         {
+            if (!await semaphore.WaitAsync(0, cancellationToken))
+            {
+                logger.LogWarning("Ciclo de monitoramento de SLA ignorado por execucao concorrente.");
+                return;
+            }
+
+            lockAdquirido = true;
             using var scope = scopeFactory.CreateScope();
             var monitoringService = scope.ServiceProvider.GetRequiredService<ISlaMonitoringService>();
             await monitoringService.ExecutarVerificacaoAsync(cancellationToken);
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
-            throw;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogDebug("Ciclo de monitoramento de SLA cancelado.");
+                return;
+            }
+
+            logger.LogWarning("Ciclo de monitoramento de SLA interrompido por cancelamento nao esperado.");
         }
         catch (Exception ex)
         {
@@ -54,7 +86,10 @@ public sealed class SlaMonitoringBackgroundService(
         }
         finally
         {
-            semaphore.Release();
+            if (lockAdquirido)
+            {
+                semaphore.Release();
+            }
         }
     }
 }
