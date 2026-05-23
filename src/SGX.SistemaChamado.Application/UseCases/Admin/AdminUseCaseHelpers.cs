@@ -38,6 +38,12 @@ internal static class AdminUseCaseHelpers
             TipoHistoricoChamado.Reaberto => string.IsNullOrWhiteSpace(detalhe)
                 ? "Chamado reaberto"
                 : detalhe,
+            TipoHistoricoChamado.ArtigoConhecimentoVinculado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Artigo da base de conhecimento vinculado ao chamado"
+                : detalhe,
+            TipoHistoricoChamado.ArtigoConhecimentoDesvinculado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Artigo da base de conhecimento removido do chamado"
+                : detalhe,
             _ => detalhe ?? tipo.ToString()
         };
 

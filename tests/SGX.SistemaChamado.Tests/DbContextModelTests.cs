@@ -24,6 +24,8 @@ public sealed class DbContextModelTests
         var permissaoEntity = context.Model.FindEntityType(typeof(PermissaoSistema));
         var perfilPermissaoEntity = context.Model.FindEntityType(typeof(PerfilAcessoPermissao));
         var eventoAuditoriaEntity = context.Model.FindEntityType(typeof(EventoAuditoria));
+        var baseConhecimentoArtigoEntity = context.Model.FindEntityType(typeof(BaseConhecimentoArtigo));
+        var chamadoArtigoConhecimentoEntity = context.Model.FindEntityType(typeof(ChamadoArtigoConhecimento));
 
         Assert.NotNull(chamadoEntity);
         Assert.NotNull(usuarioEntity);
@@ -34,6 +36,8 @@ public sealed class DbContextModelTests
         Assert.NotNull(permissaoEntity);
         Assert.NotNull(perfilPermissaoEntity);
         Assert.NotNull(eventoAuditoriaEntity);
+        Assert.NotNull(baseConhecimentoArtigoEntity);
+        Assert.NotNull(chamadoArtigoConhecimentoEntity);
         Assert.Equal("chamados", chamadoEntity!.GetTableName());
         Assert.Equal("usuarios", usuarioEntity!.GetTableName());
         Assert.Equal("roadmap_itsm_itens", roadmapEntity!.GetTableName());
@@ -43,6 +47,8 @@ public sealed class DbContextModelTests
         Assert.Equal("permissoes_sistema", permissaoEntity!.GetTableName());
         Assert.Equal("perfis_acesso_permissoes", perfilPermissaoEntity!.GetTableName());
         Assert.Equal("eventos_auditoria", eventoAuditoriaEntity!.GetTableName());
+        Assert.Equal("base_conhecimento_artigos", baseConhecimentoArtigoEntity!.GetTableName());
+        Assert.Equal("chamados_artigos_conhecimento", chamadoArtigoConhecimentoEntity!.GetTableName());
 
         var indiceCodigoPermissao = permissaoEntity.GetIndexes()
             .FirstOrDefault(x => x.GetDatabaseName() == "ux_permissoes_sistema_codigo");

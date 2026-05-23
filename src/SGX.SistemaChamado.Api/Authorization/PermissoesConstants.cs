@@ -28,4 +28,9 @@ public static class PermissoesConstants
     public const string SlaAtivarDesativar = "Sla.AtivarDesativar";
     public const string AuditoriaVisualizar = "Auditoria.Visualizar";
     public const string AuditoriaGerenciar = "Auditoria.Gerenciar";
+    public const string BaseConhecimentoVisualizar = "BaseConhecimento.Visualizar";
+    public const string BaseConhecimentoGerenciar = "BaseConhecimento.Gerenciar";
+    public const string BaseConhecimentoPublicar = "BaseConhecimento.Publicar";
+    public const string BaseConhecimentoArquivar = "BaseConhecimento.Arquivar";
+    public const string BaseConhecimentoVincularChamado = "BaseConhecimento.VincularChamado";
 }

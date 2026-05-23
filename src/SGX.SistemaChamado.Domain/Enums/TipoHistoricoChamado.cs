@@ -11,5 +11,7 @@ public enum TipoHistoricoChamado
     AnexoAdicionado = 7,
     Encerrado = 8,
     Reaberto = 9,
-    IntegracaoEmail = 10
+    IntegracaoEmail = 10,
+    ArtigoConhecimentoVinculado = 11,
+    ArtigoConhecimentoDesvinculado = 12
 }

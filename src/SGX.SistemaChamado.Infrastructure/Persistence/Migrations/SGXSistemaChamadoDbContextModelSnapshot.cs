@@ -102,6 +102,126 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("anexos_chamado", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.BaseConhecimentoArtigo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("ArquivadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("arquivado_em");
+
+                    b.Property<Guid?>("ArquivadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("arquivado_por_usuario_id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<string>("Conteudo")
+                        .IsRequired()
+                        .HasMaxLength(20000)
+                        .HasColumnType("character varying(20000)")
+                        .HasColumnName("conteudo");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<DateTime?>("PublicadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("publicado_em");
+
+                    b.Property<Guid?>("PublicadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("publicado_por_usuario_id");
+
+                    b.Property<string>("Resumo")
+                        .HasMaxLength(1200)
+                        .HasColumnType("character varying(1200)")
+                        .HasColumnName("resumo");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)")
+                        .HasColumnName("slug");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(1200)
+                        .HasColumnType("character varying(1200)")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("titulo");
+
+                    b.Property<int>("Visibilidade")
+                        .HasColumnType("integer")
+                        .HasColumnName("visibilidade");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArquivadoPorUsuarioId");
+
+                    b.HasIndex("AtualizadoPorUsuarioId");
+
+                    b.HasIndex("CategoriaId")
+                        .HasDatabaseName("ix_base_conhecimento_artigos_categoria_id");
+
+                    b.HasIndex("CriadoPorUsuarioId");
+
+                    b.HasIndex("PublicadoEm")
+                        .HasDatabaseName("ix_base_conhecimento_artigos_publicado_em");
+
+                    b.HasIndex("PublicadoPorUsuarioId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ux_base_conhecimento_artigos_slug");
+
+                    b.HasIndex("Status", "Ativo")
+                        .HasDatabaseName("ix_base_conhecimento_artigos_status_ativo");
+
+                    b.ToTable("base_conhecimento_artigos", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -352,6 +472,61 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("TipoSolicitacaoId");
 
                     b.ToTable("chamados", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoArtigoConhecimento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ArtigoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("artigo_id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("observacao");
+
+                    b.Property<DateTime>("VinculadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vinculado_em");
+
+                    b.Property<Guid>("VinculadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("vinculado_por_usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtigoId")
+                        .HasDatabaseName("ix_chamados_artigos_conhecimento_artigo_id");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_chamados_artigos_conhecimento_chamado_id");
+
+                    b.HasIndex("VinculadoPorUsuarioId");
+
+                    b.HasIndex("ChamadoId", "ArtigoId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_chamados_artigos_conhecimento_chamado_artigo");
+
+                    b.ToTable("chamados_artigos_conhecimento", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
@@ -1891,40 +2066,40 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888843"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999043")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888844"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999044")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888845"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999045")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888846"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999046")
                         },
                         new
                         {
-                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
+                            PerfilAcessoId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888847"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999047")
@@ -1932,7 +2107,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888801"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999048")
@@ -1940,7 +2115,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999049")
@@ -1948,7 +2123,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888803"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999050")
@@ -1956,7 +2131,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999051")
@@ -1964,7 +2139,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999052")
@@ -1972,7 +2147,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888807"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999053")
@@ -1980,7 +2155,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888809"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999054")
@@ -1988,7 +2163,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888810"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999055")
@@ -1996,7 +2171,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888811"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999056")
@@ -2004,7 +2179,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888812"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999057")
@@ -2012,7 +2187,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888813"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999058")
@@ -2020,7 +2195,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888814"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999059")
@@ -2028,7 +2203,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888816"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999060")
@@ -2036,10 +2211,66 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888836"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888824"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Id = new Guid("99999999-9999-9999-9999-999999999061")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999062")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888828"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999063")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888829"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999064")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888831"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999065")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888836"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999066")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888843"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999067")
+                        },
+                        new
+                        {
+                            PerfilAcessoId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888847"),
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Id = new Guid("99999999-9999-9999-9999-999999999068")
                         },
                         new
                         {
@@ -2047,7 +2278,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888802"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999062")
+                            Id = new Guid("99999999-9999-9999-9999-999999999069")
                         },
                         new
                         {
@@ -2055,7 +2286,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888804"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999063")
+                            Id = new Guid("99999999-9999-9999-9999-999999999070")
                         },
                         new
                         {
@@ -2063,7 +2294,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888805"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999064")
+                            Id = new Guid("99999999-9999-9999-9999-999999999071")
                         },
                         new
                         {
@@ -2071,7 +2302,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888806"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999065")
+                            Id = new Guid("99999999-9999-9999-9999-999999999072")
                         },
                         new
                         {
@@ -2079,7 +2310,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PermissaoSistemaId = new Guid("88888888-8888-8888-8888-888888888826"),
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Id = new Guid("99999999-9999-9999-9999-999999999066")
+                            Id = new Guid("99999999-9999-9999-9999-999999999073")
                         });
                 });
 
@@ -2568,6 +2799,56 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Modulo = "Auditoria"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888843"),
+                            Acao = "Visualizar",
+                            Ativo = true,
+                            Codigo = "BaseConhecimento.Visualizar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "BaseConhecimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888844"),
+                            Acao = "Gerenciar",
+                            Ativo = true,
+                            Codigo = "BaseConhecimento.Gerenciar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "BaseConhecimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888845"),
+                            Acao = "Publicar",
+                            Ativo = true,
+                            Codigo = "BaseConhecimento.Publicar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "BaseConhecimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888846"),
+                            Acao = "Arquivar",
+                            Ativo = true,
+                            Codigo = "BaseConhecimento.Arquivar",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "BaseConhecimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888847"),
+                            Acao = "VincularChamado",
+                            Ativo = true,
+                            Codigo = "BaseConhecimento.VincularChamado",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Modulo = "BaseConhecimento"
                         });
                 });
 
@@ -8121,21 +8402,27 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777710"),
                             Area = "Base de conhecimento",
-                            AtencaoTecnica = "Pode ser GAP assumido para evolucao",
+                            AtencaoTecnica = "Pendencias evolutivas: homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras como versionamento, workflow de aprovacao, anexos, avaliacao de utilidade, relatorios e busca semantica/IA.",
                             Ativo = true,
                             Categoria = "Conhecimento",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Decisao = 2,
-                            Impacto = 2,
+                            CriterioAceite = "A tela do roadmap deve refletir Base de conhecimento como implementado funcionalmente, com homologacao funcional preparada e percentual de 90%.",
+                            Decisao = 4,
+                            EvidenciaImplementacao = "- docs/BASE-CONHECIMENTO.md\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md\n- docs/CHECKLIST-HOMOLOGACAO-BASE-CONHECIMENTO.md\n- docs/evidencias/base-conhecimento/README.md",
+                            Impacto = 1,
+                            Observacao = "Sprints 1 a 6 implementadas e validadas tecnicamente em Release.",
                             Ordem = 10,
-                            PercentualImplementacao = 0,
+                            PendenciasHomologacao = "- Coletar evidencias com prints reais.\n- Registrar aceite funcional institucional.",
+                            PendenciasTecnicas = "- Homologacao institucional com usuarios reais.\n- Testes E2E completos, quando houver framework institucional.\n- Evolucoes futuras: versionamento, workflow de aprovacao, anexos, avaliacao de utilidade, relatorios e busca semantica/IA.",
+                            PercentualImplementacao = 90,
                             Prioridade = 2,
+                            ProximaAcao = "Executar homologacao institucional com usuarios reais e anexar evidencias formais.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666614"),
-                            SituacaoAtual = "Nao ha evidencia forte",
-                            Status = 4,
-                            StatusImplementacao = 0,
-                            StatusTecnico = 0
+                            SituacaoAtual = "Fundacao tecnica, CRUD administrativo, consulta no portal, frontend administrativo, frontend do portal, integracao com chamados, auditoria, historico, testes backend/frontend, documentacao, checklist de homologacao e estrutura de evidencias implementados. Modulo validado em Release, com homologacao funcional preparada.",
+                            Status = 2,
+                            StatusImplementacao = 3,
+                            StatusTecnico = 4
                         },
                         new
                         {
@@ -8828,6 +9115,37 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.BaseConhecimentoArtigo", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("ArquivadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("PublicadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Categoria");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Departamento", "Departamento")
@@ -8906,6 +9224,33 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Subcategoria");
 
                     b.Navigation("TipoSolicitacao");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoArtigoConhecimento", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.BaseConhecimentoArtigo", "Artigo")
+                        .WithMany("ChamadosVinculados")
+                        .HasForeignKey("ArtigoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany("ArtigosConhecimento")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "VinculadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("VinculadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Artigo");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("VinculadoPorUsuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
@@ -9217,6 +9562,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.BaseConhecimentoArtigo", b =>
+                {
+                    b.Navigation("ChamadosVinculados");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", b =>
                 {
                     b.Navigation("Excecoes");
@@ -9236,6 +9586,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Chamado", b =>
                 {
                     b.Navigation("Anexos");
+
+                    b.Navigation("ArtigosConhecimento");
 
                     b.Navigation("ChamadoSla");
 

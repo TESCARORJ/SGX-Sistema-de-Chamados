@@ -64,3 +64,16 @@ public sealed class ReabrirChamadoRequest
 {
     public string Mensagem { get; init; } = string.Empty;
 }
+
+public sealed class VincularArtigoChamadoRequest
+{
+    public string? Observacao { get; init; }
+}
+
+public sealed class BuscarArtigosParaVinculoChamadoRequest
+{
+    public string? Termo { get; init; }
+    public Guid? CategoriaId { get; init; }
+    public int Pagina { get; init; } = 1;
+    public int TamanhoPagina { get; init; } = 20;
+}

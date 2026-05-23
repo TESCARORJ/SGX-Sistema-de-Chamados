@@ -1118,3 +1118,228 @@ Homologacao:
 - [ ] Validar com atendente.
 - [ ] Validar com massa real ou simulada.
 - [ ] Registrar aceite funcional.
+
+## Sprint Base de Conhecimento 1 - Fundacao tecnica
+
+Area: Base de Conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Modelagem inicial concluida
+
+Objetivo:
+Criar a fundacao tecnica da Base de Conhecimento com entidades, enums, migration e permissoes granulares, preparando o sistema para evolucao de fluxos editoriais e vinculacao com chamados.
+
+Checklist Sprint 1:
+- [x] Enum `StatusArtigoConhecimento` criado.
+- [x] Enum `VisibilidadeArtigoConhecimento` criado.
+- [x] Entidade `BaseConhecimentoArtigo` criada.
+- [x] Entidade `ChamadoArtigoConhecimento` criada.
+- [x] Mapeamentos EF Core criados.
+- [x] `DbContext` atualizado com novos `DbSet`.
+- [x] Migration incremental criada para tabelas `base_conhecimento_artigos` e `chamados_artigos_conhecimento`.
+- [x] Permissoes `BaseConhecimento.*` criadas no catalogo do sistema.
+- [x] Documentacao inicial do modulo criada em `docs/BASE-CONHECIMENTO.md`.
+
+Pendencias evolutivas:
+- implementar casos de uso e endpoints do modulo;
+- implementar fluxo de revisao/publicacao/arquivamento via API;
+- implementar vinculacao de artigo no atendimento;
+- implementar telas do modulo no frontend administrativo e portal;
+- criar testes automatizados dedicados ao modulo.
+
+## Sprint Base de Conhecimento 2 - CRUD administrativo backend
+
+Area: Base de conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Backend administrativo em implementacao
+Status tecnico: Sprint 2 concluida apos validacao
+Percentual sugerido apos conclusao: 45%
+
+Objetivo:
+Implementar o CRUD administrativo completo da Base de Conhecimento no backend, com filtros, transicoes de status, auditoria e testes.
+
+Entregas da sprint:
+- DTOs e requests administrativos da Base de Conhecimento;
+- use cases de listar, obter, criar, atualizar, publicar, arquivar e reativar artigo;
+- controller `AdminBaseConhecimentoController`;
+- endpoints em `/api/admin/base-conhecimento/artigos`;
+- regras de negocio para criacao, edicao, publicacao, arquivamento e reativacao;
+- geracao de slug automatico com garantia de unicidade;
+- filtros por termo, status, visibilidade, categoria e ativo com paginacao;
+- auditoria nas operacoes do modulo;
+- testes automatizados de negocio e permissao.
+
+Checklist Sprint 2:
+- [x] CRUD administrativo backend implementado.
+- [x] Endpoints administrativos publicados.
+- [x] Permissoes `BaseConhecimento.*` aplicadas por endpoint.
+- [x] Slug unico com geracao automatica implementado.
+- [x] Arquivamento logico sem exclusao fisica mantido.
+- [x] Auditoria integrada nas operacoes principais.
+- [x] Testes automatizados da sprint adicionados.
+- [x] Documentacao atualizada.
+
+Pendencias evolutivas:
+- implementar vinculacao operacional artigo x chamado na API de atendimento;
+- implementar experiencias frontend administrativa e portal;
+- ampliar homologacao funcional com usuarios reais.
+
+## Sprint Base de Conhecimento 3 - Consulta no portal
+
+Area: Base de conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Backend administrativo e consulta do portal implementados
+Status tecnico: Sprint 3 concluida apos validacao
+Percentual sugerido apos conclusao: 60%
+
+Objetivo:
+Habilitar consulta da Base de Conhecimento no portal, expondo somente artigos publicados e ativos, com visibilidade controlada por perfil.
+
+Entregas da sprint:
+- DTOs de portal para listagem e detalhe;
+- use cases de listagem e detalhe por slug;
+- controller `PortalBaseConhecimentoController`;
+- endpoints `GET /api/portal/base-conhecimento/artigos` e `GET /api/portal/base-conhecimento/artigos/{slug}`;
+- filtros por termo e categoria com paginacao;
+- ordenacao defensiva por `PublicadoEm`, `AtualizadoEm` e `CriadoEm`;
+- regra de visibilidade por perfil (`Solicitante`, `Atendente`, `Administrador`);
+- retorno `404` para slug inexistente, artigo nao publicado/inativo ou sem visibilidade;
+- testes de regra e integracao de endpoint.
+
+Checklist Sprint 3:
+- [x] Consulta do portal implementada.
+- [x] Listagem limitada a artigos publicados e ativos.
+- [x] Listagem com dados resumidos sem `Conteudo` completo.
+- [x] Detalhe por slug com `Conteudo` completo.
+- [x] Filtros de termo e categoria com paginacao implementados.
+- [x] Regras de visibilidade por perfil aplicadas.
+- [x] Testes automatizados da sprint adicionados.
+- [x] Documentacao atualizada.
+
+Pendencias evolutivas:
+- integrar vinculacao artigo x chamado no fluxo operacional;
+- evoluir telas/frontend do modulo;
+- consolidar homologacao funcional institucional.
+
+## Sprint Base de Conhecimento 4 - Frontend administrativo e portal
+
+Area: Base de conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Frontend administrativo e portal implementados
+Status tecnico: Sprint 4 concluida apos validacao
+Percentual sugerido apos conclusao: 75%
+
+Objetivo:
+Concluir a experiencia de uso da Base de Conhecimento no frontend, cobrindo administracao de artigos e consulta no portal.
+
+Entregas consolidadas:
+- tipos TypeScript de Base de Conhecimento para admin e portal;
+- services `baseConhecimentoAdminService` e `baseConhecimentoPortalService`;
+- tela administrativa de listagem com filtros, chips, paginacao e acoes;
+- tela administrativa de formulario para criacao/edicao de artigo;
+- confirmacao de publicar/arquivar/reativar na listagem administrativa;
+- rotas administrativas em `/admin/conhecimento/base-conhecimento`;
+- item de menu administrativo `Conhecimento > Base de conhecimento`;
+- tela de listagem do portal em `/portal/base-conhecimento`;
+- tela de detalhe do artigo por slug em `/portal/base-conhecimento/:slug`;
+- estados de loading, erro e vazio no admin e portal;
+- testes unitarios de services frontend da Base de Conhecimento.
+
+Checklist Sprint 4:
+- [x] Frontend administrativo implementado.
+- [x] Frontend de consulta do portal implementado.
+- [x] Rotas administrativas e de portal publicadas.
+- [x] Menu administrativo e menu do portal atualizados.
+- [x] Acoes de publicar, arquivar e reativar com confirmacao.
+- [x] Filtros e paginacao das listagens implementados.
+- [x] Tratamento de loading, erro e vazio implementado.
+- [x] Documentacao atualizada.
+
+Pendencias evolutivas:
+- homologacao funcional institucional com usuarios reais;
+- cobertura e2e frontend ponta a ponta;
+- evolucao da vinculacao artigo x chamado no fluxo operacional.
+
+## Sprint Base de Conhecimento 5 - Integracao com fluxo de chamados
+
+Area: Base de conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Integrado ao fluxo de chamados
+Status tecnico: Sprint 5 concluida apos validacao
+Percentual sugerido apos conclusao: 85%
+
+Objetivo:
+Integrar artigos da Base de Conhecimento ao fluxo administrativo de chamados para vinculo, consulta e remocao de vinculos sem perda historica.
+
+Entregas consolidadas:
+- backend com endpoints de vinculo no modulo administrativo de chamados;
+- regras de negocio para permitir apenas artigos `Publicado` e `Ativo`;
+- bloqueio de duplicidade no vinculo chamado + artigo;
+- bloqueio de artigo arquivado, inativo ou nao publicado;
+- listagem de artigos vinculados ao chamado;
+- busca paginada de artigos disponiveis para vinculo, com exclusao dos ja vinculados;
+- historico e auditoria para vinculacao e remocao;
+- frontend no detalhe administrativo do chamado com secao \"Base de conhecimento\";
+- fluxo de vincular/remover com loading, vazio, erro e confirmacao;
+- testes backend e frontend de service atualizados para o fluxo.
+
+Checklist Sprint 5:
+- [x] Endpoints de listagem, vinculo e remocao implementados.
+- [x] Regra de vinculo somente para artigo publicado e ativo implementada.
+- [x] Bloqueio de vinculo duplicado implementado.
+- [x] Auditoria/historico de vinculo e remocao implementados.
+- [x] Secao de Base de Conhecimento no detalhe administrativo do chamado implementada.
+- [x] Build backend e frontend validados.
+- [x] Testes backend e frontend validados.
+- [x] Documentacao do modulo e roadmap atualizada.
+
+Pendencias evolutivas:
+- homologacao institucional manual com usuarios reais;
+- evidencia formal de aceite funcional em ambiente alvo;
+- ampliacao de cobertura e2e ponta a ponta para jornadas de vinculacao.
+
+## Sprint Base de Conhecimento 6 - Fechamento funcional
+
+Area: Base de conhecimento
+Categoria: Conhecimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+
+Objetivo:
+Fechar tecnicamente a entrega da Base de Conhecimento com checklist de homologacao consolidado, estrutura de evidencias, revisao de UX/seguranca e documentacao final atualizada.
+
+Entregas consolidadas:
+- checklist de homologacao expandido com cenarios admin, portal, visibilidade e vinculo em chamado;
+- estrutura de evidencias criada em `docs/evidencias/base-conhecimento/README.md`;
+- revisao de viabilidade E2E concluida (sem framework E2E instalado nesta sprint);
+- revisao de UX das telas da Base de Conhecimento e integracao com chamados;
+- revisao de seguranca das regras de exposicao, permissao e validacao backend;
+- consolidacao documental final do modulo.
+
+Checklist Sprint 6:
+- [x] Checklist de homologacao completo.
+- [x] Estrutura de evidencias preparada.
+- [x] Revisao de UX aplicada/validada.
+- [x] Revisao de seguranca aplicada/validada.
+- [x] Documentacao final da Base de Conhecimento atualizada.
+- [x] Roadmap e Roadmap ITSM atualizados para fechamento.
+
+Pendencias evolutivas:
+- homologacao institucional com usuarios reais;
+- evidencias com prints reais;
+- testes E2E completos (quando houver framework E2E institucional);
+- versionamento de artigos;
+- workflow formal de aprovacao;
+- anexos em artigos;
+- avaliacao de utilidade do artigo;
+- relatorio de artigos mais acessados;
+- sugestao automatica de artigos durante abertura do chamado;
+- sugestao automatica de artigos durante atendimento;
+- busca semantica/IA.

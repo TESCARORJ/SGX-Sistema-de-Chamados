@@ -43,7 +43,7 @@ export const statusTecnicoLabels: Record<number, string> = {
   1: 'Parcial',
   2: 'Completo',
   3: 'Completo com pendências evolutivas',
-  4: 'Requer validação',
+  4: 'Homologação funcional preparada',
   5: 'Requer correção',
   6: 'Bloqueado',
   7: 'Modelagem inicial em implementação',

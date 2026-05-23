@@ -53,6 +53,11 @@ public static class SeedData
     public static readonly Guid PermissaoSlaAtivarDesativarId = Guid.Parse("88888888-8888-8888-8888-888888888840");
     public static readonly Guid PermissaoAuditoriaVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888841");
     public static readonly Guid PermissaoAuditoriaGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888842");
+    public static readonly Guid PermissaoBaseConhecimentoVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888843");
+    public static readonly Guid PermissaoBaseConhecimentoGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888844");
+    public static readonly Guid PermissaoBaseConhecimentoPublicarId = Guid.Parse("88888888-8888-8888-8888-888888888845");
+    public static readonly Guid PermissaoBaseConhecimentoArquivarId = Guid.Parse("88888888-8888-8888-8888-888888888846");
+    public static readonly Guid PermissaoBaseConhecimentoVincularChamadoId = Guid.Parse("88888888-8888-8888-8888-888888888847");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -343,7 +348,12 @@ public static class SeedData
         (PermissaoSlaExcluirId, "Sla.Excluir"),
         (PermissaoSlaAtivarDesativarId, "Sla.AtivarDesativar"),
         (PermissaoAuditoriaVisualizarId, "Auditoria.Visualizar"),
-        (PermissaoAuditoriaGerenciarId, "Auditoria.Gerenciar")
+        (PermissaoAuditoriaGerenciarId, "Auditoria.Gerenciar"),
+        (PermissaoBaseConhecimentoVisualizarId, "BaseConhecimento.Visualizar"),
+        (PermissaoBaseConhecimentoGerenciarId, "BaseConhecimento.Gerenciar"),
+        (PermissaoBaseConhecimentoPublicarId, "BaseConhecimento.Publicar"),
+        (PermissaoBaseConhecimentoArquivarId, "BaseConhecimento.Arquivar"),
+        (PermissaoBaseConhecimentoVincularChamadoId, "BaseConhecimento.VincularChamado")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -369,7 +379,9 @@ public static class SeedData
         "Indicadores.Visualizar",
         "Roadmap.Visualizar",
         "RoadmapImplementacoes.Visualizar",
-        "Sla.Visualizar"
+        "Sla.Visualizar",
+        "BaseConhecimento.Visualizar",
+        "BaseConhecimento.VincularChamado"
     ];
 
     private static readonly string[] CodigosPermissoesSolicitante =
@@ -979,23 +991,23 @@ public static class SeedData
             Area = "Base de conhecimento",
             Categoria = "Conhecimento",
             RoadmapCategoriaId = RoadmapCategoriaConhecimentoId,
-            SituacaoAtual = "Nao ha evidencia forte",
-            AtencaoTecnica = "Pode ser GAP assumido para evolucao",
-            Status = StatusRoadmapItsm.Pendente,
+            SituacaoAtual = "Fundacao tecnica, CRUD administrativo, consulta no portal, frontend administrativo, frontend do portal, integracao com chamados, auditoria, historico, testes backend/frontend, documentacao, checklist de homologacao e estrutura de evidencias implementados. Modulo validado em Release, com homologacao funcional preparada.",
+            AtencaoTecnica = "Pendencias evolutivas: homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras como versionamento, workflow de aprovacao, anexos, avaliacao de utilidade, relatorios e busca semantica/IA.",
+            Status = StatusRoadmapItsm.EmValidacao,
             Prioridade = PrioridadeRoadmapItsm.Media,
-            Impacto = ImpactoRoadmapItsm.Medio,
-            Decisao = DecisaoRoadmapItsm.PosValidacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            Impacto = ImpactoRoadmapItsm.Alto,
+            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.RequerValidacao,
+            PercentualImplementacao = 90,
+            PendenciasTecnicas = "- Homologacao institucional com usuarios reais.\n- Testes E2E completos, quando houver framework institucional.\n- Evolucoes futuras: versionamento, workflow de aprovacao, anexos, avaliacao de utilidade, relatorios e busca semantica/IA.",
+            PendenciasHomologacao = "- Coletar evidencias com prints reais.\n- Registrar aceite funcional institucional.",
+            EvidenciaImplementacao = "- docs/BASE-CONHECIMENTO.md\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md\n- docs/CHECKLIST-HOMOLOGACAO-BASE-CONHECIMENTO.md\n- docs/evidencias/base-conhecimento/README.md",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "A tela do roadmap deve refletir Base de conhecimento como implementado funcionalmente, com homologacao funcional preparada e percentual de 90%.",
+            ProximaAcao = "Executar homologacao institucional com usuarios reais e anexar evidencias formais.",
+            Observacao = "Sprints 1 a 6 implementadas e validadas tecnicamente em Release.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 10,

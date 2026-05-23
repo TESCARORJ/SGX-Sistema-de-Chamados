@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -51,7 +51,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'Políticas',
+        label: 'PolÃ­ticas',
         icon: 'rule',
         to: '/admin/sla/policies',
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaCriar, permissoes.slaEditar],
@@ -63,7 +63,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
       },
       {
-        label: 'Calendários',
+        label: 'CalendÃ¡rios',
         icon: 'event_available',
         to: '/admin/sla/calendarios',
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
@@ -77,7 +77,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Notificações',
+    label: 'NotificaÃ§Ãµes',
     icon: 'notifications_active',
     to: '/admin/notificacoes',
     requiredAnyPermissions: [permissoes.notificacoesVisualizar],
@@ -94,7 +94,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'Usuários',
+        label: 'UsuÃ¡rios',
         icon: 'group',
         to: '/admin/cadastros/usuarios',
         requiredAnyPermissions: [permissoes.usuariosVisualizar, permissoes.usuariosGerenciar],
@@ -150,12 +150,35 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Configurações',
+    label: 'Conhecimento',
+    icon: 'menu_book',
+    requiredAnyPermissions: [
+      permissoes.baseConhecimentoVisualizar,
+      permissoes.baseConhecimentoGerenciar,
+      permissoes.baseConhecimentoPublicar,
+      permissoes.baseConhecimentoArquivar,
+    ],
+    children: [
+      {
+        label: 'Base de conhecimento',
+        icon: 'article',
+        to: '/admin/conhecimento/base-conhecimento',
+        requiredAnyPermissions: [
+          permissoes.baseConhecimentoVisualizar,
+          permissoes.baseConhecimentoGerenciar,
+          permissoes.baseConhecimentoPublicar,
+          permissoes.baseConhecimentoArquivar,
+        ],
+      },
+    ],
+  },
+  {
+    label: 'ConfiguraÃ§Ãµes',
     icon: 'settings',
     requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
     children: [
       {
-        label: 'Parâmetros do Sistema',
+        label: 'ParÃ¢metros do Sistema',
         icon: 'tune',
         to: '/admin/configuracoes/parametros',
         requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
@@ -163,7 +186,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Integrações',
+    label: 'IntegraÃ§Ãµes',
     icon: 'hub',
     requiredAnyPermissions: [
       permissoes.integracoesEmailVisualizar,
@@ -186,7 +209,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Gestão ITSM',
+    label: 'GestÃ£o ITSM',
     icon: 'insights',
     requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
     children: [
@@ -197,7 +220,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
       },
       {
-        label: 'Documentação',
+        label: 'DocumentaÃ§Ã£o',
         icon: 'library_books',
         to: '/admin/gestao-itsm/documentacao',
         requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
@@ -205,7 +228,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'Governança',
+    label: 'GovernanÃ§a',
     icon: 'fact_check',
     requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
     children: [
@@ -274,20 +297,21 @@ const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offlin
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
-  if (route.path === '/admin/notificacoes') return 'Central de NotificaÃ§Ãµes'
+  if (route.path === '/admin/notificacoes') return 'Central de NotificaÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/sla/alertas')) return 'Alertas de SLA'
-  if (route.path.startsWith('/admin/sla/calendarios')) return 'Calendários de SLA'
+  if (route.path.startsWith('/admin/sla/calendarios')) return 'CalendÃ¡rios de SLA'
   if (route.path.startsWith('/admin/sla/painel')) return 'Painel de SLA'
-  if (route.path.startsWith('/admin/sla')) return 'Políticas de SLA'
+  if (route.path.startsWith('/admin/sla')) return 'PolÃ­ticas de SLA'
   if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
-  if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃ§Ãµes'
-  if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃ§Ãµes'
-  if (route.path.startsWith('/admin/governanca/auditoria')) return 'Histórico / Auditoria'
-  if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'Documentação ITSM'
-  if (route.path.startsWith('/admin/gestao-itsm')) return 'Gestão ITSM'
+  if (route.path.startsWith('/admin/conhecimento/base-conhecimento')) return 'Base de conhecimento'
+  if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃƒÂ§ÃƒÂµes'
+  if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃƒÂ§ÃƒÂµes'
+  if (route.path.startsWith('/admin/governanca/auditoria')) return 'HistÃ³rico / Auditoria'
+  if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'DocumentaÃ§Ã£o ITSM'
+  if (route.path.startsWith('/admin/gestao-itsm')) return 'GestÃ£o ITSM'
   if (route.path.startsWith('/admin/roadmap-itsm')) return 'Roadmap ITSM'
-  return 'Ãrea Administrativa'
+  return 'ÃƒÂrea Administrativa'
 })
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
@@ -367,7 +391,7 @@ async function visualizarComoSolicitante(): Promise<void> {
     await authStore.iniciarEmulacaoSolicitante()
     await router.replace('/portal')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
+    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
     $q.notify({
       type: 'negative',
       message,
@@ -388,7 +412,7 @@ async function visualizarComoAtendente(): Promise<void> {
     await authStore.iniciarEmulacaoAtendente()
     await router.replace('/admin/chamados')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
+    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
     $q.notify({
       type: 'negative',
       message,
@@ -409,7 +433,7 @@ async function voltarParaAdministrador(): Promise<void> {
     await authStore.encerrarEmulacao()
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel concluir a aÃ§Ã£o.'
+    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
     $q.notify({
       type: 'negative',
       message,
@@ -417,7 +441,7 @@ async function voltarParaAdministrador(): Promise<void> {
 
     if (
       message.includes('Contexto original da emulacao nao encontrado') ||
-      message.includes('Contexto original da emulaÃ§Ã£o nÃ£o encontrado')
+      message.includes('Contexto original da emulaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrado')
     ) {
       await router.replace('/login')
     }
@@ -530,7 +554,7 @@ watch(
             :loading="emulacaoSolicitanteCarregando"
             @click="visualizarComoSolicitante"
           >
-            <q-tooltip>Simula a experiÃªncia do Solicitante em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiÃƒÂªncia do Solicitante em ambiente local.</q-tooltip>
           </q-btn>
 
           <q-btn
@@ -542,7 +566,7 @@ watch(
             :loading="emulacaoAtendenteCarregando"
             @click="visualizarComoAtendente"
           >
-            <q-tooltip>Simula a experiÃªncia do Atendente em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiÃƒÂªncia do Atendente em ambiente local.</q-tooltip>
           </q-btn>
         </div>
 
@@ -632,7 +656,7 @@ watch(
           </template>
 
           <div class="text-weight-medium">Visualizando como Atendente Demo</div>
-          <div class="text-caption">VocÃª estÃ¡ visualizando como Atendente Demo.</div>
+          <div class="text-caption">VocÃƒÂª estÃƒÂ¡ visualizando como Atendente Demo.</div>
 
           <template #action>
             <q-btn
@@ -869,5 +893,8 @@ watch(
   }
 }
 </style>
+
+
+
 
 

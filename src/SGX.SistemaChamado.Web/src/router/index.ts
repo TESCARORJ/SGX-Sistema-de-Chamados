@@ -15,6 +15,8 @@ const PortalDashboardView = () => import('../views/PortalDashboardView.vue')
 const PortalChamadosView = () => import('../views/PortalChamadosView.vue')
 const NovoChamadoView = () => import('../views/NovoChamadoView.vue')
 const DetalheChamadoView = () => import('../views/DetalheChamadoView.vue')
+const BaseConhecimentoPortalPage = () => import('../views/BaseConhecimentoPortalPage.vue')
+const BaseConhecimentoArtigoPage = () => import('../views/BaseConhecimentoArtigoPage.vue')
 
 const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
@@ -49,6 +51,8 @@ const SlaAlertasAdminView = () => import('../views/SlaAlertasAdminView.vue')
 const SlaDashboardAdminView = () => import('../views/SlaDashboardAdminView.vue')
 const SlaCalendariosAdminView = () => import('../views/SlaCalendariosAdminView.vue')
 const AuditoriaAdminView = () => import('../views/AuditoriaAdminView.vue')
+const BaseConhecimentoListPage = () => import('../views/BaseConhecimentoListPage.vue')
+const BaseConhecimentoFormPage = () => import('../views/BaseConhecimentoFormPage.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -120,6 +124,16 @@ const routes: RouteRecordRaw[] = [
         path: 'chamados/:id',
         name: 'portal-chamados-detalhe',
         component: DetalheChamadoView,
+      },
+      {
+        path: 'base-conhecimento',
+        name: 'portal-base-conhecimento',
+        component: BaseConhecimentoPortalPage,
+      },
+      {
+        path: 'base-conhecimento/:slug',
+        name: 'portal-base-conhecimento-artigo',
+        component: BaseConhecimentoArtigoPage,
       },
     ],
   },
@@ -324,6 +338,16 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           perfisPermitidos: ['Administrador', 'Atendente'],
         },
+      },
+      {
+        path: 'conhecimento/base-conhecimento',
+        name: 'admin-conhecimento-base-conhecimento',
+        component: BaseConhecimentoListPage,
+      },
+      {
+        path: 'conhecimento/base-conhecimento/:id',
+        name: 'admin-conhecimento-base-conhecimento-detalhe',
+        component: BaseConhecimentoFormPage,
       },
     ],
   },

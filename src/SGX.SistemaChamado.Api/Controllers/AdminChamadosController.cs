@@ -22,6 +22,10 @@ public sealed class AdminChamadosController(
     IComentarChamadoAdminUseCase comentarChamadoAdminUseCase,
     IEncerrarChamadoUseCase encerrarChamadoUseCase,
     IReabrirChamadoUseCase reabrirChamadoUseCase,
+    IListarArtigosConhecimentoDoChamadoUseCase listarArtigosConhecimentoDoChamadoUseCase,
+    IVincularArtigoConhecimentoAoChamadoUseCase vincularArtigoConhecimentoAoChamadoUseCase,
+    IRemoverArtigoConhecimentoDoChamadoUseCase removerArtigoConhecimentoDoChamadoUseCase,
+    IBuscarArtigosConhecimentoParaVinculoUseCase buscarArtigosConhecimentoParaVinculoUseCase,
     IValidator<FiltroChamadosAdminRequest> filtroValidator,
     IValidator<AtribuirChamadoRequest> atribuirValidator,
     IValidator<AlterarStatusChamadoRequest> alterarStatusValidator,
@@ -301,6 +305,107 @@ public sealed class AdminChamadosController(
         catch (InvalidOperationException ex)
         {
             return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/artigos-conhecimento")]
+    [Authorize(Policy = PermissionPolicies.BaseConhecimentoVincularChamado)]
+    public async Task<IActionResult> ListarArtigosConhecimento(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await listarArtigosConhecimentoDoChamadoUseCase.ExecutarAsync(chamadoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/artigos-conhecimento/disponiveis")]
+    [Authorize(Policy = PermissionPolicies.BaseConhecimentoVincularChamado)]
+    public async Task<IActionResult> BuscarArtigosConhecimentoDisponiveis(
+        Guid chamadoId,
+        [FromQuery] string? termo,
+        [FromQuery] Guid? categoriaId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await buscarArtigosConhecimentoParaVinculoUseCase.ExecutarAsync(chamadoId, new BuscarArtigosParaVinculoChamadoRequest
+            {
+                Termo = termo,
+                CategoriaId = categoriaId,
+                Pagina = page,
+                TamanhoPagina = pageSize
+            }, cancellationToken);
+
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/artigos-conhecimento/{artigoId:guid}")]
+    [Authorize(Policy = PermissionPolicies.BaseConhecimentoVincularChamado)]
+    public async Task<IActionResult> VincularArtigoConhecimento(
+        Guid chamadoId,
+        Guid artigoId,
+        [FromBody] VincularArtigoChamadoRequest? request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await vincularArtigoConhecimentoAoChamadoUseCase.ExecutarAsync(chamadoId, artigoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpDelete("chamados/{chamadoId:guid}/artigos-conhecimento/{artigoId:guid}")]
+    [Authorize(Policy = PermissionPolicies.BaseConhecimentoVincularChamado)]
+    public async Task<IActionResult> RemoverArtigoConhecimento(Guid chamadoId, Guid artigoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await removerArtigoConhecimentoDoChamadoUseCase.ExecutarAsync(chamadoId, artigoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
         }
     }
 }

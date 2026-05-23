@@ -326,13 +326,31 @@ public sealed class AdminRoadmapItsmController(
         T request,
         CancellationToken cancellationToken)
     {
-        var validation = await validator.ValidateAsync(request, cancellationToken);
-        if (validation.IsValid)
+        if (cancellationToken.IsCancellationRequested)
         {
-            return null;
+            return new ObjectResult(new { mensagem = "Requisicao cancelada pelo cliente." })
+            {
+                StatusCode = StatusCodes.Status499ClientClosedRequest
+            };
         }
 
-        return new BadRequestObjectResult(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        try
+        {
+            var validation = await validator.ValidateAsync(request, cancellationToken);
+            if (validation.IsValid)
+            {
+                return null;
+            }
+
+            return new BadRequestObjectResult(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        }
+        catch (OperationCanceledException)
+        {
+            return new ObjectResult(new { mensagem = "Requisicao cancelada pelo cliente." })
+            {
+                StatusCode = StatusCodes.Status499ClientClosedRequest
+            };
+        }
     }
 
     private static async Task<IActionResult> ExecutarAsync<T>(Func<Task<T>> action)
@@ -357,6 +375,13 @@ public sealed class AdminRoadmapItsmController(
         catch (InvalidOperationException ex)
         {
             return new BadRequestObjectResult(new { mensagem = ex.Message });
+        }
+        catch (OperationCanceledException)
+        {
+            return new ObjectResult(new { mensagem = "Requisicao cancelada pelo cliente." })
+            {
+                StatusCode = StatusCodes.Status499ClientClosedRequest
+            };
         }
     }
 }

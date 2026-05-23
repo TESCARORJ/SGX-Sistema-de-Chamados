@@ -1561,7 +1561,7 @@ internal static class RoadmapItsmMaps
         StatusTecnicoRoadmapItsm.Parcial => "Parcial",
         StatusTecnicoRoadmapItsm.Completo => "Completo",
         StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas => "Completo com pendências evolutivas",
-        StatusTecnicoRoadmapItsm.RequerValidacao => "Requer validação",
+        StatusTecnicoRoadmapItsm.RequerValidacao => "Homologação funcional preparada",
         StatusTecnicoRoadmapItsm.RequerCorrecao => "Requer correção",
         StatusTecnicoRoadmapItsm.Bloqueado => "Bloqueado",
         StatusTecnicoRoadmapItsm.ModelagemInicialEmImplementacao => "Modelagem inicial em implementação",

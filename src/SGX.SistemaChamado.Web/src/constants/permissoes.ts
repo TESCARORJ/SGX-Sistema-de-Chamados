@@ -31,6 +31,11 @@
   slaAtivarDesativar: 'Sla.AtivarDesativar',
   auditoriaVisualizar: 'Auditoria.Visualizar',
   auditoriaGerenciar: 'Auditoria.Gerenciar',
+  baseConhecimentoVisualizar: 'BaseConhecimento.Visualizar',
+  baseConhecimentoGerenciar: 'BaseConhecimento.Gerenciar',
+  baseConhecimentoPublicar: 'BaseConhecimento.Publicar',
+  baseConhecimentoArquivar: 'BaseConhecimento.Arquivar',
+  baseConhecimentoVincularChamado: 'BaseConhecimento.VincularChamado',
 } as const
 
 export const permissoesCriticas = [

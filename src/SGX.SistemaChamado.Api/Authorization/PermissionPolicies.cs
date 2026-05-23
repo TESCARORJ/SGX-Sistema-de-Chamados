@@ -30,4 +30,9 @@ public static class PermissionPolicies
     public const string SlaAtivarDesativar = Prefixo + PermissoesConstants.SlaAtivarDesativar;
     public const string AuditoriaVisualizar = Prefixo + PermissoesConstants.AuditoriaVisualizar;
     public const string AuditoriaGerenciar = Prefixo + PermissoesConstants.AuditoriaGerenciar;
+    public const string BaseConhecimentoVisualizar = Prefixo + PermissoesConstants.BaseConhecimentoVisualizar;
+    public const string BaseConhecimentoGerenciar = Prefixo + PermissoesConstants.BaseConhecimentoGerenciar;
+    public const string BaseConhecimentoPublicar = Prefixo + PermissoesConstants.BaseConhecimentoPublicar;
+    public const string BaseConhecimentoArquivar = Prefixo + PermissoesConstants.BaseConhecimentoArquivar;
+    public const string BaseConhecimentoVincularChamado = Prefixo + PermissoesConstants.BaseConhecimentoVincularChamado;
 }

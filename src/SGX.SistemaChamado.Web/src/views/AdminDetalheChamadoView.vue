@@ -12,6 +12,7 @@ import ModalReabrirChamado from '../components/admin/ModalReabrirChamado.vue'
 import PainelAtendimento from '../components/admin/PainelAtendimento.vue'
 import TimelineAdministrativa from '../components/admin/TimelineAdministrativa.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
@@ -19,10 +20,16 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
+import { chamadoBaseConhecimentoService } from '../services/chamadoBaseConhecimentoService'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { useAuthStore } from '../stores/authStore'
-import type { AdminContextoResponse, ChamadoAdminDetalhe } from '../types/admin'
+import type {
+  AdminContextoResponse,
+  ArtigoConhecimentoDisponivelParaVinculo,
+  ChamadoAdminDetalhe,
+  ChamadoArtigoConhecimento,
+} from '../types/admin'
 
 const $q = useQuasar()
 const route = useRoute()
@@ -46,9 +53,24 @@ const showCategoria = ref(false)
 const showEncerrar = ref(false)
 const showReabrir = ref(false)
 const showComentar = ref(false)
+const showVincularArtigo = ref(false)
+const showConfirmarRemocaoVinculo = ref(false)
 
 const comentarioMensagem = ref('')
 const comentarioInterno = ref(false)
+const artigosConhecimento = ref<ChamadoArtigoConhecimento[]>([])
+const erroBaseConhecimento = ref<string | null>(null)
+const loadingArtigosConhecimento = ref(false)
+const loadingArtigosDisponiveis = ref(false)
+const vinculandoArtigoId = ref<string | null>(null)
+const removendoArtigoId = ref<string | null>(null)
+const artigoVinculoSelecionado = ref<ChamadoArtigoConhecimento | null>(null)
+const artigosDisponiveis = ref<ArtigoConhecimentoDisponivelParaVinculo[]>([])
+const totalArtigosDisponiveis = ref(0)
+const paginaArtigosDisponiveis = ref(1)
+const tamanhoPaginaArtigosDisponiveis = ref(8)
+const termoBuscaArtigosDisponiveis = ref('')
+const categoriaBuscaArtigosDisponiveis = ref('')
 
 const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
@@ -63,6 +85,9 @@ const podeAtribuirPermissao = computed(() =>
 )
 const podeEncerrarPermissao = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosEncerrar)
+)
+const podeVincularArtigoConhecimento = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.baseConhecimentoVincularChamado)
 )
 
 const podeAssumir = computed(() => {
@@ -82,6 +107,13 @@ const chamadoReabrivel = computed(() => {
 })
 
 const slaProximo = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento')
+const totalPaginasArtigosDisponiveis = computed(() =>
+  Math.max(1, Math.ceil(totalArtigosDisponiveis.value / tamanhoPaginaArtigosDisponiveis.value))
+)
+const mensagemConfirmarRemocaoVinculo = computed(() => {
+  const titulo = artigoVinculoSelecionado.value?.titulo ?? ''
+  return `Deseja remover o vinculo do artigo "${titulo}" deste chamado?`
+})
 
 const atualizadoEm = computed(() => {
   if (!detalhe.value?.historico.length) {
@@ -107,9 +139,60 @@ function registrarSucesso(mensagem: string): void {
 }
 
 function registrarErro(error: unknown, fallback: string): void {
-  const mensagem = error instanceof Error ? error.message : fallback
+  const mensagem = extrairMensagemErro(error, fallback)
   erro.value = mensagem
   $q.notify({ type: 'negative', message: mensagem })
+}
+
+function extrairMensagemErro(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) {
+    return fallback
+  }
+
+  const mensagem = error.message
+  const jsonStart = mensagem.indexOf('{')
+  if (jsonStart >= 0) {
+    const trechoJson = mensagem.slice(jsonStart)
+
+    try {
+      const parsed = JSON.parse(trechoJson) as { mensagem?: string }
+      if (parsed?.mensagem) {
+        return parsed.mensagem
+      }
+    } catch {
+      return mensagem
+    }
+  }
+
+  return mensagem
+}
+
+function statusArtigoColor(status: number): string {
+  if (status === 2) {
+    return 'positive'
+  }
+
+  if (status === 3) {
+    return 'negative'
+  }
+
+  if (status === 1) {
+    return 'warning'
+  }
+
+  return 'grey-7'
+}
+
+function visibilidadeArtigoColor(visibilidade: number): string {
+  if (visibilidade === 2) {
+    return 'deep-orange'
+  }
+
+  if (visibilidade === 1) {
+    return 'indigo'
+  }
+
+  return 'teal'
 }
 
 async function carregar(): Promise<void> {
@@ -124,6 +207,10 @@ async function carregar(): Promise<void> {
 
     contexto.value = ctx
     detalhe.value = det
+
+    if (podeVincularArtigoConhecimento.value) {
+      await carregarArtigosConhecimento()
+    }
   } catch (error) {
     registrarErro(error, 'Não foi possível carregar o detalhe do chamado.')
   } finally {
@@ -298,6 +385,137 @@ async function reabrir(mensagem: string): Promise<void> {
   } finally {
     processing.value = false
   }
+}
+
+async function carregarArtigosConhecimento(): Promise<void> {
+  if (!detalhe.value || !podeVincularArtigoConhecimento.value) {
+    return
+  }
+
+  loadingArtigosConhecimento.value = true
+  erroBaseConhecimento.value = null
+
+  try {
+    artigosConhecimento.value = await chamadoBaseConhecimentoService.listarArtigosDoChamado(detalhe.value.id)
+  } catch (error) {
+    erroBaseConhecimento.value = extrairMensagemErro(error, 'Não foi possível carregar os artigos vinculados ao chamado.')
+  } finally {
+    loadingArtigosConhecimento.value = false
+  }
+}
+
+async function carregarArtigosDisponiveisParaVinculo(): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  loadingArtigosDisponiveis.value = true
+
+  try {
+    const response = await chamadoBaseConhecimentoService.buscarArtigosDisponiveisParaVinculo(detalhe.value.id, {
+      termo: termoBuscaArtigosDisponiveis.value.trim() || undefined,
+      categoriaId: categoriaBuscaArtigosDisponiveis.value || undefined,
+      page: paginaArtigosDisponiveis.value,
+      pageSize: tamanhoPaginaArtigosDisponiveis.value,
+    })
+
+    artigosDisponiveis.value = response.items
+    totalArtigosDisponiveis.value = response.total
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Não foi possível buscar artigos disponíveis para vínculo.')
+    erroBaseConhecimento.value = mensagem
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    loadingArtigosDisponiveis.value = false
+  }
+}
+
+async function abrirModalVincularArtigo(): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  termoBuscaArtigosDisponiveis.value = ''
+  categoriaBuscaArtigosDisponiveis.value = ''
+  paginaArtigosDisponiveis.value = 1
+  totalArtigosDisponiveis.value = 0
+  artigosDisponiveis.value = []
+  erroBaseConhecimento.value = null
+  showVincularArtigo.value = true
+
+  await carregarArtigosDisponiveisParaVinculo()
+}
+
+async function buscarArtigosDisponiveis(): Promise<void> {
+  paginaArtigosDisponiveis.value = 1
+  await carregarArtigosDisponiveisParaVinculo()
+}
+
+async function alterarPaginaArtigosDisponiveis(value: number): Promise<void> {
+  paginaArtigosDisponiveis.value = value
+  await carregarArtigosDisponiveisParaVinculo()
+}
+
+async function vincularArtigo(artigo: ArtigoConhecimentoDisponivelParaVinculo): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  vinculandoArtigoId.value = artigo.artigoId
+
+  try {
+    await chamadoBaseConhecimentoService.vincularArtigoAoChamado(detalhe.value.id, artigo.artigoId)
+    $q.notify({ type: 'positive', message: 'Artigo vinculado ao chamado com sucesso.' })
+    await carregarArtigosConhecimento()
+    await carregarArtigosDisponiveisParaVinculo()
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Não foi possível vincular o artigo ao chamado.')
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    vinculandoArtigoId.value = null
+  }
+}
+
+function prepararRemocaoVinculo(artigo: ChamadoArtigoConhecimento): void {
+  artigoVinculoSelecionado.value = artigo
+  showConfirmarRemocaoVinculo.value = true
+}
+
+function cancelarRemocaoVinculo(): void {
+  artigoVinculoSelecionado.value = null
+}
+
+async function confirmarRemocaoVinculo(): Promise<void> {
+  if (!detalhe.value || !artigoVinculoSelecionado.value) {
+    return
+  }
+
+  removendoArtigoId.value = artigoVinculoSelecionado.value.artigoId
+
+  try {
+    const response = await chamadoBaseConhecimentoService.removerArtigoDoChamado(
+      detalhe.value.id,
+      artigoVinculoSelecionado.value.artigoId
+    )
+
+    showConfirmarRemocaoVinculo.value = false
+    artigoVinculoSelecionado.value = null
+    $q.notify({ type: 'positive', message: response.mensagem || 'Vínculo removido com sucesso.' })
+    await carregarArtigosConhecimento()
+
+    if (showVincularArtigo.value) {
+      await carregarArtigosDisponiveisParaVinculo()
+    }
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Não foi possível remover o vínculo do artigo.')
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    removendoArtigoId.value = null
+  }
+}
+
+function abrirArtigoConhecimento(artigoId: string): void {
+  router.push(`/admin/conhecimento/base-conhecimento/${artigoId}`)
 }
 
 onMounted(carregar)
@@ -511,6 +729,80 @@ onMounted(carregar)
         />
       </AppSectionCard>
 
+      <AppSectionCard
+        v-if="podeVincularArtigoConhecimento"
+        titulo="Base de conhecimento"
+        subtitulo="Vincule artigos publicados para acelerar respostas e padronizar atendimentos."
+      >
+        <template #actions>
+          <q-btn color="primary" icon="add_link" label="Vincular artigo" :disable="loadingArtigosConhecimento" @click="abrirModalVincularArtigo" />
+        </template>
+
+        <LoadingState v-if="loadingArtigosConhecimento" inline mensagem="Carregando artigos vinculados..." />
+
+        <ErrorState
+          v-else-if="erroBaseConhecimento && !artigosConhecimento.length"
+          titulo="Falha ao carregar artigos vinculados"
+          :mensagem="erroBaseConhecimento"
+          @retry="carregarArtigosConhecimento"
+        />
+
+        <EmptyState
+          v-else-if="!artigosConhecimento.length"
+          titulo="Nenhum artigo vinculado"
+          mensagem="Vincule artigos da base de conhecimento para facilitar orientacoes e retornos."
+          icon="article"
+        />
+
+        <q-list v-else bordered separator>
+          <q-item v-for="artigo in artigosConhecimento" :key="artigo.artigoId">
+            <q-item-section>
+              <q-item-label class="text-weight-medium">{{ artigo.titulo }}</q-item-label>
+              <q-item-label caption>{{ artigo.resumo || 'Sem resumo informado.' }}</q-item-label>
+              <div class="row q-gutter-xs q-mt-xs">
+                <q-chip dense square text-color="white" :color="statusArtigoColor(artigo.status)">
+                  {{ artigo.statusDescricao }}
+                </q-chip>
+                <q-chip dense square text-color="white" :color="visibilidadeArtigoColor(artigo.visibilidade)">
+                  {{ artigo.visibilidadeDescricao }}
+                </q-chip>
+                <q-chip v-if="artigo.categoriaNome" dense square color="grey-3" text-color="grey-9">
+                  {{ artigo.categoriaNome }}
+                </q-chip>
+              </div>
+              <q-item-label caption class="q-mt-xs">
+                Vinculado por {{ artigo.vinculadoPorUsuario }} em {{ formatarData(artigo.vinculadoEm) }}
+              </q-item-label>
+              <q-item-label v-if="artigo.observacao" caption class="text-grey-8">
+                Observação: {{ artigo.observacao }}
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section side top>
+              <div class="column q-gutter-xs items-end">
+                <q-btn
+                  flat
+                  dense
+                  color="primary"
+                  icon="open_in_new"
+                  label="Abrir artigo"
+                  @click="abrirArtigoConhecimento(artigo.artigoId)"
+                />
+                <q-btn
+                  flat
+                  dense
+                  color="negative"
+                  icon="link_off"
+                  label="Remover vínculo"
+                  :loading="removendoArtigoId === artigo.artigoId"
+                  @click="prepararRemocaoVinculo(artigo)"
+                />
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </AppSectionCard>
+
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-6">
           <AppSectionCard titulo="Comentários" subtitulo="Comentários públicos e internos da equipe.">
@@ -630,12 +922,138 @@ onMounted(carregar)
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="showVincularArtigo">
+      <q-card class="sgx-card vinculo-artigo-dialog-card">
+        <q-card-section class="row items-center q-gutter-sm">
+          <div class="text-h6">Vincular artigo da base de conhecimento</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form class="column q-gutter-sm" @submit.prevent="buscarArtigosDisponiveis">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="termoBuscaArtigosDisponiveis"
+                  outlined
+                  label="Busca"
+                  placeholder="Titulo, resumo, conteudo ou tags"
+                  :disable="loadingArtigosDisponiveis"
+                />
+              </div>
+
+              <div class="col-12 col-md-4">
+                <q-select
+                  v-model="categoriaBuscaArtigosDisponiveis"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Categoria"
+                  :disable="loadingArtigosDisponiveis"
+                  :options="(contexto?.categorias ?? []).map((item) => ({ label: item.nome, value: item.id }))"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-btn
+                  class="full-width"
+                  color="primary"
+                  icon="search"
+                  label="Buscar"
+                  type="submit"
+                  :loading="loadingArtigosDisponiveis"
+                />
+              </div>
+            </div>
+          </q-form>
+        </q-card-section>
+
+        <q-card-section>
+          <LoadingState v-if="loadingArtigosDisponiveis && !artigosDisponiveis.length" inline mensagem="Buscando artigos disponíveis..." />
+
+          <EmptyState
+            v-else-if="!artigosDisponiveis.length"
+            titulo="Nenhum artigo disponível"
+            mensagem="Nao ha artigos publicados elegiveis para vinculo com os filtros atuais."
+            icon="search_off"
+          />
+
+          <q-list v-else bordered separator>
+            <q-item v-for="artigo in artigosDisponiveis" :key="artigo.artigoId">
+              <q-item-section>
+                <q-item-label class="text-weight-medium">{{ artigo.titulo }}</q-item-label>
+                <q-item-label caption>{{ artigo.resumo || 'Sem resumo informado.' }}</q-item-label>
+                <div class="row q-gutter-xs q-mt-xs">
+                  <q-chip dense square text-color="white" :color="statusArtigoColor(artigo.status)">
+                    {{ artigo.statusDescricao }}
+                  </q-chip>
+                  <q-chip dense square text-color="white" :color="visibilidadeArtigoColor(artigo.visibilidade)">
+                    {{ artigo.visibilidadeDescricao }}
+                  </q-chip>
+                  <q-chip v-if="artigo.categoriaNome" dense square color="grey-3" text-color="grey-9">
+                    {{ artigo.categoriaNome }}
+                  </q-chip>
+                </div>
+                <q-item-label caption class="q-mt-xs">
+                  Publicado em {{ formatarData(artigo.publicadoEm) }}
+                </q-item-label>
+              </q-item-section>
+
+              <q-item-section side top>
+                <q-btn
+                  color="positive"
+                  dense
+                  flat
+                  icon="add_link"
+                  label="Vincular"
+                  :loading="vinculandoArtigoId === artigo.artigoId"
+                  @click="vincularArtigo(artigo)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <div v-if="totalPaginasArtigosDisponiveis > 1" class="row justify-center q-mt-md">
+            <q-pagination
+              :model-value="paginaArtigosDisponiveis"
+              :max="totalPaginasArtigosDisponiveis"
+              :max-pages="6"
+              boundary-links
+              direction-links
+              color="primary"
+              @update:model-value="alterarPaginaArtigosDisponiveis"
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Fechar" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <ConfirmDialog
+      v-model="showConfirmarRemocaoVinculo"
+      titulo="Remover vínculo"
+      :mensagem="mensagemConfirmarRemocaoVinculo"
+      confirmar-label="Remover"
+      color="negative"
+      :loading="!!removendoArtigoId"
+      @confirm="confirmarRemocaoVinculo"
+      @cancel="cancelarRemocaoVinculo"
+    />
   </q-page>
 </template>
 
 <style scoped>
 .comment-dialog-card {
   width: min(560px, 92vw);
+}
+
+.vinculo-artigo-dialog-card {
+  width: min(1024px, 96vw);
+  max-height: 90vh;
 }
 
 .detalhe-top-grid {

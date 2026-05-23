@@ -223,6 +223,52 @@ export interface ChamadoAdminDetalhe {
   sla: SlaAdmin | null
 }
 
+export interface ChamadoArtigoConhecimento {
+  artigoId: string
+  titulo: string
+  slug: string
+  resumo: string | null
+  status: number
+  statusDescricao: string
+  visibilidade: number
+  visibilidadeDescricao: string
+  categoriaId: string | null
+  categoriaNome: string | null
+  vinculadoEm: string
+  vinculadoPorUsuarioId: string
+  vinculadoPorUsuario: string
+  observacao: string | null
+}
+
+export interface ArtigoConhecimentoDisponivelParaVinculo {
+  artigoId: string
+  titulo: string
+  slug: string
+  resumo: string | null
+  status: number
+  statusDescricao: string
+  visibilidade: number
+  visibilidadeDescricao: string
+  categoriaId: string | null
+  categoriaNome: string | null
+  tags: string | null
+  publicadoEm: string | null
+}
+
+export interface BuscarArtigosConhecimentoParaVinculoFiltro {
+  termo?: string
+  categoriaId?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface ArtigosConhecimentoDisponiveisResponse {
+  items: ArtigoConhecimentoDisponivelParaVinculo[]
+  total: number
+  pagina: number
+  tamanhoPagina: number
+}
+
 export interface AtribuirChamadoPayload {
   responsavelId: string
 }

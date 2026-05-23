@@ -75,6 +75,8 @@ public static class DependencyInjection
         services.AddScoped<IComentarChamadoUseCase, ComentarChamadoUseCase>();
         services.AddScoped<IAnexarArquivoChamadoUseCase, AnexarArquivoChamadoUseCase>();
         services.AddScoped<IObterPortalContextoUseCase, ObterPortalContextoUseCase>();
+        services.AddScoped<IListarArtigosPortalBaseConhecimentoUseCase, ListarArtigosPortalBaseConhecimentoUseCase>();
+        services.AddScoped<IObterArtigoPortalBaseConhecimentoPorSlugUseCase, ObterArtigoPortalBaseConhecimentoPorSlugUseCase>();
         services.AddScoped<IObterAdminContextoUseCase, ObterAdminContextoUseCase>();
         services.AddScoped<IListarEventosAuditoriaUseCase, ListarEventosAuditoriaUseCase>();
         services.AddScoped<IObterEventoAuditoriaUseCase, ObterEventoAuditoriaUseCase>();
@@ -163,6 +165,17 @@ public static class DependencyInjection
         services.AddScoped<IAtualizarParametroSistemaUseCase, AtualizarParametroSistemaUseCase>();
         services.AddScoped<IInativarParametroSistemaUseCase, InativarParametroSistemaUseCase>();
         services.AddScoped<IReativarParametroSistemaUseCase, ReativarParametroSistemaUseCase>();
+        services.AddScoped<IListarArtigosBaseConhecimentoUseCase, ListarArtigosBaseConhecimentoUseCase>();
+        services.AddScoped<IObterArtigoBaseConhecimentoUseCase, ObterArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<ICriarArtigoBaseConhecimentoUseCase, CriarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IAtualizarArtigoBaseConhecimentoUseCase, AtualizarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IPublicarArtigoBaseConhecimentoUseCase, PublicarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IArquivarArtigoBaseConhecimentoUseCase, ArquivarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IReativarArtigoBaseConhecimentoUseCase, ReativarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IListarArtigosConhecimentoDoChamadoUseCase, ListarArtigosConhecimentoDoChamadoUseCase>();
+        services.AddScoped<IVincularArtigoConhecimentoAoChamadoUseCase, VincularArtigoConhecimentoAoChamadoUseCase>();
+        services.AddScoped<IRemoverArtigoConhecimentoDoChamadoUseCase, RemoverArtigoConhecimentoDoChamadoUseCase>();
+        services.AddScoped<IBuscarArtigosConhecimentoParaVinculoUseCase, BuscarArtigosConhecimentoParaVinculoUseCase>();
         services.AddScoped<IListarRoadmapItsmUseCase, ListarRoadmapItsmUseCase>();
         services.AddScoped<IObterRoadmapItsmItemUseCase, ObterRoadmapItsmItemUseCase>();
         services.AddScoped<ICriarRoadmapItsmItemUseCase, CriarRoadmapItsmItemUseCase>();

@@ -174,3 +174,33 @@ public sealed class ChamadoAdminDetalheResponse
     public IReadOnlyCollection<EventoSlaAdminResponse> HistoricoSla { get; init; } = [];
     public SlaAdminResponse? Sla { get; init; }
 }
+
+public sealed record ChamadoArtigoConhecimentoDto(
+    Guid ArtigoId,
+    string Titulo,
+    string Slug,
+    string? Resumo,
+    int Status,
+    string StatusDescricao,
+    int Visibilidade,
+    string VisibilidadeDescricao,
+    Guid? CategoriaId,
+    string? CategoriaNome,
+    DateTime VinculadoEm,
+    Guid VinculadoPorUsuarioId,
+    string VinculadoPorUsuario,
+    string? Observacao);
+
+public sealed record ArtigoConhecimentoDisponivelParaVinculoDto(
+    Guid ArtigoId,
+    string Titulo,
+    string Slug,
+    string? Resumo,
+    int Status,
+    string StatusDescricao,
+    int Visibilidade,
+    string VisibilidadeDescricao,
+    Guid? CategoriaId,
+    string? CategoriaNome,
+    string? Tags,
+    DateTime? PublicadoEm);
