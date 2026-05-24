@@ -23,6 +23,7 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.Property(x => x.PrioridadeId).HasColumnName("prioridade_id").IsRequired();
         builder.Property(x => x.TipoSolicitacaoId).HasColumnName("tipo_solicitacao_id");
         builder.Property(x => x.LocalUnidadeId).HasColumnName("local_unidade_id");
+        builder.Property(x => x.CatalogoServicoId).HasColumnName("catalogo_servico_id");
         builder.Property(x => x.StatusId).HasColumnName("status_id").IsRequired();
         builder.Property(x => x.Origem).HasColumnName("origem").HasConversion<int>().IsRequired();
         builder.Property(x => x.AbertoEm).HasColumnName("aberto_em").IsRequired();
@@ -34,6 +35,7 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
 
         builder.HasIndex(x => x.Codigo).IsUnique().HasDatabaseName("ux_chamados_codigo");
+        builder.HasIndex(x => x.CatalogoServicoId).HasDatabaseName("ix_chamados_catalogo_servico_id");
 
         builder.HasOne(x => x.Solicitante)
             .WithMany()
@@ -73,6 +75,11 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.HasOne(x => x.LocalUnidade)
             .WithMany(x => x.Chamados)
             .HasForeignKey(x => x.LocalUnidadeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.CatalogoServico)
+            .WithMany(x => x.Chamados)
+            .HasForeignKey(x => x.CatalogoServicoId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Status)

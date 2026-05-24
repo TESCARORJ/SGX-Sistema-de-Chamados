@@ -33,4 +33,8 @@ public static class PermissoesConstants
     public const string BaseConhecimentoPublicar = "BaseConhecimento.Publicar";
     public const string BaseConhecimentoArquivar = "BaseConhecimento.Arquivar";
     public const string BaseConhecimentoVincularChamado = "BaseConhecimento.VincularChamado";
+    public const string CatalogoServicosVisualizar = "CatalogoServicos.Visualizar";
+    public const string CatalogoServicosGerenciar = "CatalogoServicos.Gerenciar";
+    public const string CatalogoServicosPublicar = "CatalogoServicos.Publicar";
+    public const string CatalogoServicosArquivar = "CatalogoServicos.Arquivar";
 }

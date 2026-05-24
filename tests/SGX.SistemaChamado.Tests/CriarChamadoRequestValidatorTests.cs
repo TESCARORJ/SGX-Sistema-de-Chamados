@@ -77,4 +77,31 @@ public sealed class CriarChamadoRequestValidatorTests
 
         Assert.Contains(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.SubcategoriaId));
     }
+
+    [Fact]
+    public void DevePermitirSemCategoriaEPrioridadeQuandoCatalogoServicoInformado()
+    {
+        var resultado = _validator.Validate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida",
+            CatalogoServicoId = Guid.NewGuid()
+        });
+
+        Assert.DoesNotContain(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.CategoriaId));
+        Assert.DoesNotContain(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.PrioridadeId));
+    }
+
+    [Fact]
+    public void DeveRejeitarCatalogoServicoIdVazio()
+    {
+        var resultado = _validator.Validate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida",
+            CatalogoServicoId = Guid.Empty
+        });
+
+        Assert.Contains(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.CatalogoServicoId));
+    }
 }

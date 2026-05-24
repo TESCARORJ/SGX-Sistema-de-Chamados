@@ -14,8 +14,16 @@ public sealed class SlaService(
     ISlaEventService slaEventService) : ISlaService
 {
     public async Task InicializarNaAberturaAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default)
+        => await InicializarNaAberturaAsync(chamado, usuarioLogin, agoraUtc, null, cancellationToken);
+
+    public async Task InicializarNaAberturaAsync(
+        Chamado chamado,
+        string usuarioLogin,
+        DateTime agoraUtc,
+        Guid? politicaSlaIdPreferencial,
+        CancellationToken cancellationToken = default)
     {
-        var prazos = await slaCalculator.CalcularPrazosAsync(chamado.PrioridadeId, chamado.CategoriaId, chamado.DepartamentoId, cancellationToken);
+        var prazos = await slaCalculator.CalcularPrazosAsync(chamado.PrioridadeId, chamado.CategoriaId, chamado.DepartamentoId, politicaSlaIdPreferencial, cancellationToken);
         if (prazos is null)
         {
             return;

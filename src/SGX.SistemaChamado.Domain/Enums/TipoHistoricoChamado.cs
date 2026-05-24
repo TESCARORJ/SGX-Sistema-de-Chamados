@@ -13,5 +13,6 @@ public enum TipoHistoricoChamado
     Reaberto = 9,
     IntegracaoEmail = 10,
     ArtigoConhecimentoVinculado = 11,
-    ArtigoConhecimentoDesvinculado = 12
+    ArtigoConhecimentoDesvinculado = 12,
+    ChamadoCriadoPorCatalogoServico = 13
 }

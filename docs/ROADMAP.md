@@ -1343,3 +1343,216 @@ Pendencias evolutivas:
 - sugestao automatica de artigos durante abertura do chamado;
 - sugestao automatica de artigos durante atendimento;
 - busca semantica/IA.
+
+## Sprint Catalogo de Servicos 1 - Fundacao tecnica
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Fundacao tecnica implementada
+Status tecnico: Sprint 1 concluida apos validacao
+Percentual: 20%
+
+Objetivo:
+Criar a fundacao tecnica de um catalogo de servicos institucional e multiarea, com modelagem inicial, permissao granular e base de persistencia para evolucao das proximas sprints.
+
+Entregas da sprint:
+- entidade `CatalogoServico` com `DepartamentoResponsavelId` obrigatorio;
+- enums `StatusCatalogoServico` e `VisibilidadeCatalogoServico`;
+- relacionamentos opcionais com categoria, subcategoria, prioridade, SLA e base de conhecimento;
+- tabela `catalogo_servicos` com indice unico de slug e indices de departamento, status e ativo;
+- permissões `CatalogoServicos.Visualizar`, `CatalogoServicos.Gerenciar`, `CatalogoServicos.Publicar`, `CatalogoServicos.Arquivar`;
+- seed de permissões atualizado;
+- documentacao inicial em `docs/CATALOGO-SERVICOS.md`.
+
+Regras consolidadas:
+- catalogo nao exclusivo de TI;
+- sem exclusao fisica;
+- arquivamento preserva historico;
+- somente servicos ativos e publicados devem aparecer para solicitantes nas proximas evolucoes de consulta.
+
+## Sprint Catalogo de Servicos 2 - CRUD administrativo backend
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: CRUD administrativo implementado
+Status tecnico: Sprint 2 concluida apos validacao
+Percentual: 45%
+
+Objetivo:
+Implementar o CRUD administrativo backend do Catalogo de Servicos com validacoes de negocio, filtros, transicoes de status, auditoria e cobertura de testes.
+
+Entregas da sprint:
+- DTOs/requests administrativos (`FiltroCatalogoServicoRequest`, `CatalogoServicoListagemDto`, `CatalogoServicoDetalheDto`, `CriarCatalogoServicoRequest`, `AtualizarCatalogoServicoRequest`);
+- interface `IAdminCatalogoServicosUseCases`;
+- use case `CatalogoServicosAdminUseCases` com listagem, detalhe, criacao, atualizacao, publicacao, arquivamento e reativacao;
+- controller `AdminCatalogoServicosController` e endpoints em `/api/admin/catalogo-servicos`;
+- aplicacao das permissoes `CatalogoServicos.Visualizar`, `CatalogoServicos.Gerenciar`, `CatalogoServicos.Publicar` e `CatalogoServicos.Arquivar`;
+- validacao de relacionamentos com departamento, categoria, subcategoria, prioridade, SLA e artigo da base de conhecimento;
+- geracao automatica de slug com garantia de unicidade;
+- auditoria de criacao, edicao, publicacao, arquivamento e reativacao;
+- testes automatizados de regras de negocio, filtros e autorizacao de endpoints administrativos.
+
+Checklist Sprint 2:
+- [x] CRUD administrativo backend implementado.
+- [x] Endpoints administrativos publicados.
+- [x] Permissoes do modulo aplicadas por endpoint.
+- [x] Slug unico com geracao automatica implementado.
+- [x] Arquivamento logico sem exclusao fisica preservado.
+- [x] Auditoria integrada nas operacoes principais.
+- [x] Testes automatizados da sprint adicionados e validados.
+- [x] Documentacao do modulo e roadmaps atualizada.
+
+Pendencias evolutivas:
+- implementar frontend administrativo do catalogo;
+- integrar abertura de chamado orientada por servico;
+- homologacao institucional com evidencias formais.
+## Sprint Catalogo de Servicos 3 - Consulta do portal
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+Status da implementacao: Consulta do portal implementada
+Status tecnico: Sprint 3 concluida apos validacao
+Percentual: 60%
+Objetivo:
+Disponibilizar consulta do Catalogo de Servicos no portal para usuarios autenticados, exibindo somente servicos publicados, ativos e visiveis conforme perfil.
+Entregas da sprint:
+- DTOs de portal (PortalFiltroCatalogoServicoRequest, PortalCatalogoServicoListagemDto, PortalCatalogoServicoDetalheDto);
+- interface IPortalCatalogoServicosUseCases;
+- use case CatalogoServicosPortalUseCases com listagem e detalhe por slug;
+- controller PortalCatalogoServicosController com endpoints:
+  - GET /api/portal/catalogo-servicos
+  - GET /api/portal/catalogo-servicos/{slug};
+- filtros de listagem por termo, departamento, categoria, subcategoria e permite abertura;
+- paginacao padrao e ordenacao por departamento, ordem e nome;
+- regra de visibilidade backend para Solicitante, Atendente, Administrador e Interno;
+- retorno 404 para slug inexistente, servico nao publicado/inativo ou sem visibilidade;
+- testes automatizados de use case e integracao HTTP.
+Checklist Sprint 3:
+- [x] Consulta do portal implementada.
+- [x] Listagem restrita a servicos publicados e ativos.
+- [x] Regras de visibilidade por perfil aplicadas no backend.
+- [x] Filtros e paginacao da listagem implementados.
+- [x] Detalhe por slug com 404 para cenarios inelegiveis implementado.
+- [x] Endpoints do portal publicados.
+- [x] Testes automatizados da sprint adicionados e validados.
+- [x] Documentacao do modulo e roadmaps atualizada sem duplicidade.
+Pendencias evolutivas:
+- implementar frontend administrativo do catalogo;
+- integrar abertura de chamado orientada por servico;
+- homologacao institucional com evidencias formais.
+
+## Sprint Catalogo de Servicos 4 - Frontend administrativo e portal
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Frontend administrativo e portal implementados
+Status tecnico: Sprint 4 concluida apos validacao
+Percentual: 75%
+
+Objetivo:
+Concluir a camada frontend do Catalogo de Servicos no SGX com experiencia administrativa completa e consulta no portal autenticado.
+
+Entregas consolidadas:
+- types TypeScript do modulo (src/types/catalogoServicos.ts) para contratos admin e portal;
+- services frontend catalogoServicosAdminService.ts e catalogoServicosPortalService.ts;
+- telas administrativas em /admin/conhecimento/catalogo-servicos, /admin/conhecimento/catalogo-servicos/novo e /admin/conhecimento/catalogo-servicos/:id;
+- acoes administrativas de publicar, arquivar e reativar com confirmacao;
+- filtros administrativos com paginacao e estados de loading/erro/vazio;
+- telas de portal em /portal/catalogo-servicos e /portal/catalogo-servicos/:slug;
+- menu administrativo e menu do portal atualizados para o Catalogo de servicos;
+- testes unitarios de services e testes minimos de views da listagem admin/portal.
+
+Checklist Sprint 4:
+- [x] Frontend administrativo implementado.
+- [x] Frontend de consulta do portal implementado.
+- [x] Rotas administrativas e de portal publicadas.
+- [x] Menus administrativo e portal atualizados.
+- [x] Acoes de ciclo de vida com confirmacao implementadas.
+- [x] Filtros, cards e paginacao implementados.
+- [x] Estados de loading, erro e vazio implementados.
+- [x] Testes de services frontend do modulo implementados.
+- [x] Documentacao do modulo e roadmaps atualizada.
+
+Pendencias evolutivas:
+- integrar abertura guiada de chamado por servico (Sprint 5);
+- homologacao institucional com evidencias formais.
+
+
+## Sprint Catalogo de Servicos 5 - Integrado a abertura de chamados
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Integrado a abertura de chamados
+Status tecnico: Sprint 5 concluida apos validacao
+Percentual: 85%
+
+Objetivo:
+Integrar o Catalogo de Servicos ao fluxo real de abertura de chamados no portal, com validacao obrigatoria no backend e aplicacao oficial de classificacao operacional.
+
+Entregas consolidadas:
+- `Chamado` associado opcionalmente ao `CatalogoServicoId`;
+- migration `Sprint5CatalogoServicosChamado` com coluna, indice e FK;
+- endpoint `GET /api/portal/catalogo-servicos/{slug}/preparar-chamado`;
+- abertura do chamado por catalogo com aplicacao backend de:
+  - departamento responsavel;
+  - categoria/subcategoria;
+  - prioridade padrao;
+  - politica SLA padrao quando configurada no servico;
+- bloqueios de seguranca para servico rascunho, arquivado, inativo, sem visibilidade ou sem permissao de abertura;
+- historico operacional com tipo `ChamadoCriadoPorCatalogoServico`;
+- frontend do portal atualizado para iniciar abertura a partir do detalhe do servico e enviar `CatalogoServicoId` no payload;
+- mensagens amigaveis para servico apenas de consulta e falha de preparacao;
+- testes backend e frontend da sprint implementados.
+
+Checklist Sprint 5:
+- [x] Associacao opcional de chamado com catalogo implementada.
+- [x] Endpoint de preparar abertura implementado.
+- [x] Validacoes de seguranca backend para uso de servico implementadas.
+- [x] Aplicacao oficial de departamento/categoria/subcategoria/prioridade/SLA pelo backend implementada.
+- [x] Historico de abertura por catalogo implementado.
+- [x] Frontend do detalhe do catalogo integrado com abertura real implementado.
+- [x] Tela de novo chamado com bloco de servico selecionado implementada.
+- [x] Payload de criacao com `CatalogoServicoId` implementado.
+- [x] Testes backend e frontend da sprint adicionados.
+- [x] Documentacao do modulo e roadmaps atualizada.
+
+Pendencias evolutivas:
+- homologacao institucional com evidencias formais.
+## Sprint Catalogo de Servicos 6 - Fechamento funcional
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+
+Situacao atual:
+Catalogo de Servicos implementado funcionalmente como modulo institucional multiarea. O modulo contempla fundacao tecnica, CRUD administrativo, frontend administrativo, consulta no portal, frontend do portal, controle de permissoes, visibilidade por perfil, integracao com abertura de chamados, associacao CatalogoServicoId ao chamado, aplicacao backend dos dados oficiais do servico, historico de abertura por catalogo, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras.
+
+Entregas da Sprint 6:
+- checklist de homologacao criado em `docs/CHECKLIST-HOMOLOGACAO-CATALOGO-SERVICOS.md`;
+- estrutura de evidencias criada em `docs/evidencias/catalogo-servicos/README.md`;
+- documentacao principal do modulo revisada e consolidada;
+- revisao de UX registrada para listagem/form admin, listagem/detalhe portal e abertura de chamado;
+- revisao de seguranca registrada sem relaxamento de regras;
+- verificacao de framework E2E: nao identificado Playwright/Cypress nesta sprint;
+- validacoes tecnicas executadas: build release, testes backend, testes unitarios frontend e build frontend.
+
+Pendencias evolutivas:
+- homologacao institucional com usuarios reais;
+- evidencias com prints reais;
+- testes E2E completos;
+- formularios dinamicos por servico;
+- campos obrigatorios por servico;
+- workflow de aprovacao por servico;
+- aprovacoes por departamento;
+- indicadores de servicos mais solicitados;
+- relatorios por departamento;
+- SLA avancado por servico;
+- automacao de triagem por servico;
+- sugestao de artigos da Base de Conhecimento por servico;
+- melhoria de encoding de `docs/ROADMAP.md` e `docs/ROADMAP-ITSM.md`.

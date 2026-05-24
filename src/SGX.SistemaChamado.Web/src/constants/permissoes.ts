@@ -36,6 +36,10 @@
   baseConhecimentoPublicar: 'BaseConhecimento.Publicar',
   baseConhecimentoArquivar: 'BaseConhecimento.Arquivar',
   baseConhecimentoVincularChamado: 'BaseConhecimento.VincularChamado',
+  catalogoServicosVisualizar: 'CatalogoServicos.Visualizar',
+  catalogoServicosGerenciar: 'CatalogoServicos.Gerenciar',
+  catalogoServicosPublicar: 'CatalogoServicos.Publicar',
+  catalogoServicosArquivar: 'CatalogoServicos.Arquivar',
 } as const
 
 export const permissoesCriticas = [

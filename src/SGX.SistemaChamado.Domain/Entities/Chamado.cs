@@ -16,6 +16,7 @@ public sealed class Chamado : AuditableEntity
     public Guid PrioridadeId { get; private set; }
     public Guid? TipoSolicitacaoId { get; private set; }
     public Guid? LocalUnidadeId { get; private set; }
+    public Guid? CatalogoServicoId { get; private set; }
     public Guid StatusId { get; private set; }
     public OrigemChamado Origem { get; private set; }
     public DateTime AbertoEm { get; private set; }
@@ -29,6 +30,7 @@ public sealed class Chamado : AuditableEntity
     public PrioridadeChamado Prioridade { get; private set; } = default!;
     public TipoSolicitacao? TipoSolicitacao { get; private set; }
     public LocalUnidade? LocalUnidade { get; private set; }
+    public CatalogoServico? CatalogoServico { get; private set; }
     public StatusChamado Status { get; private set; } = default!;
     public ICollection<HistoricoChamado> Historicos { get; private set; } = [];
     public ICollection<ComentarioChamado> Comentarios { get; private set; } = [];
@@ -55,7 +57,8 @@ public sealed class Chamado : AuditableEntity
         Guid? departamentoId = null,
         Guid? subcategoriaId = null,
         Guid? tipoSolicitacaoId = null,
-        Guid? localUnidadeId = null)
+        Guid? localUnidadeId = null,
+        Guid? catalogoServicoId = null)
     {
         DefinirCodigo(codigo);
         DefinirTitulo(titulo);
@@ -81,6 +84,11 @@ public sealed class Chamado : AuditableEntity
             throw new ArgumentException("O status do chamado e obrigatorio.", nameof(statusId));
         }
 
+        if (catalogoServicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O servico de catalogo informado e invalido.", nameof(catalogoServicoId));
+        }
+
         SolicitanteId = solicitanteId;
         CategoriaId = categoriaId;
         PrioridadeId = prioridadeId;
@@ -90,6 +98,7 @@ public sealed class Chamado : AuditableEntity
         SubcategoriaId = subcategoriaId;
         TipoSolicitacaoId = tipoSolicitacaoId;
         LocalUnidadeId = localUnidadeId;
+        CatalogoServicoId = catalogoServicoId;
         AbertoEm = DateTime.UtcNow;
         DefinirCriacao(criadoPor);
     }

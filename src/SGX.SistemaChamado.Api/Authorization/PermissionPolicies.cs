@@ -35,4 +35,8 @@ public static class PermissionPolicies
     public const string BaseConhecimentoPublicar = Prefixo + PermissoesConstants.BaseConhecimentoPublicar;
     public const string BaseConhecimentoArquivar = Prefixo + PermissoesConstants.BaseConhecimentoArquivar;
     public const string BaseConhecimentoVincularChamado = Prefixo + PermissoesConstants.BaseConhecimentoVincularChamado;
+    public const string CatalogoServicosVisualizar = Prefixo + PermissoesConstants.CatalogoServicosVisualizar;
+    public const string CatalogoServicosGerenciar = Prefixo + PermissoesConstants.CatalogoServicosGerenciar;
+    public const string CatalogoServicosPublicar = Prefixo + PermissoesConstants.CatalogoServicosPublicar;
+    public const string CatalogoServicosArquivar = Prefixo + PermissoesConstants.CatalogoServicosArquivar;
 }

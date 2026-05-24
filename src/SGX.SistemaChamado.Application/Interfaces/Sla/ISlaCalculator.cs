@@ -22,4 +22,11 @@ public interface ISlaCalculator
         Guid? categoriaId,
         Guid? departamentoId,
         CancellationToken cancellationToken = default);
+
+    Task<SlaPrazosAplicados?> CalcularPrazosAsync(
+        Guid prioridadeId,
+        Guid? categoriaId,
+        Guid? departamentoId,
+        Guid? politicaSlaIdPreferencial,
+        CancellationToken cancellationToken = default);
 }

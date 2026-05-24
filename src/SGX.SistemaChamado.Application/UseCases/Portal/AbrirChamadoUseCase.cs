@@ -19,6 +19,7 @@ public sealed class AbrirChamadoUseCase(
     IRepository<TipoSolicitacao> tipoSolicitacaoRepository,
     IRepository<LocalUnidade> localUnidadeRepository,
     IRepository<Departamento> departamentoRepository,
+    IRepository<CatalogoServico> catalogoServicoRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
@@ -28,39 +29,47 @@ public sealed class AbrirChamadoUseCase(
     IAuditoriaService? auditoriaService = null) : IAbrirChamadoUseCase
 {
     private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
+    private const string DescricaoHistoricoCriacaoCatalogo = "Chamado aberto a partir do servico do catalogo";
 
     public async Task<ChamadoDetalheResponse> ExecutarAsync(CriarChamadoRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (request.CategoriaId == Guid.Empty)
+        var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
+        var servicoCatalogo = await ResolverServicoCatalogoAsync(request, usuarioAtual, cancellationToken);
+
+        var categoriaIdEfetiva = servicoCatalogo?.CategoriaId ?? request.CategoriaId;
+        if (!categoriaIdEfetiva.HasValue || categoriaIdEfetiva.Value == Guid.Empty)
         {
             throw new InvalidOperationException("Categoria obrigatoria.");
         }
 
-        if (request.PrioridadeId == Guid.Empty)
+        var prioridadeIdEfetiva = servicoCatalogo?.PrioridadePadraoId ?? request.PrioridadeId;
+        if (!prioridadeIdEfetiva.HasValue || prioridadeIdEfetiva.Value == Guid.Empty)
         {
             throw new InvalidOperationException("Prioridade obrigatoria.");
         }
 
-        var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
+        var departamentoIdEfetivo = servicoCatalogo?.DepartamentoResponsavelId ?? request.DepartamentoId;
+        var subcategoriaIdEfetiva = servicoCatalogo?.SubcategoriaId ?? request.SubcategoriaId;
+        var catalogoServicoIdEfetivo = servicoCatalogo?.Id;
 
         var categoria = await categoriaRepository.Query()
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == request.CategoriaId && x.Ativo, cancellationToken)
+            .FirstOrDefaultAsync(x => x.Id == categoriaIdEfetiva.Value && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Categoria nao encontrada ou inativa.");
 
         var prioridade = await prioridadeRepository.Query()
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == request.PrioridadeId && x.Ativo, cancellationToken)
+            .FirstOrDefaultAsync(x => x.Id == prioridadeIdEfetiva.Value && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Prioridade nao encontrada ou inativa.");
 
         SubcategoriaChamado? subcategoria = null;
-        if (request.SubcategoriaId.HasValue)
+        if (subcategoriaIdEfetiva.HasValue)
         {
             subcategoria = await subcategoriaRepository.Query()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.SubcategoriaId.Value && x.Ativo, cancellationToken)
+                .FirstOrDefaultAsync(x => x.Id == subcategoriaIdEfetiva.Value && x.Ativo, cancellationToken)
                 ?? throw new InvalidOperationException("Subcategoria nao encontrada ou inativa.");
 
             if (subcategoria.CategoriaChamadoId != categoria.Id)
@@ -85,11 +94,11 @@ public sealed class AbrirChamadoUseCase(
                 ?? throw new InvalidOperationException("Local/unidade nao encontrado ou inativo.");
         }
 
-        if (request.DepartamentoId.HasValue)
+        if (departamentoIdEfetivo.HasValue)
         {
             _ = await departamentoRepository.Query()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.DepartamentoId.Value && x.Ativo, cancellationToken)
+                .FirstOrDefaultAsync(x => x.Id == departamentoIdEfetivo.Value && x.Ativo, cancellationToken)
                 ?? throw new InvalidOperationException("Departamento nao encontrado ou inativo.");
         }
 
@@ -104,15 +113,16 @@ public sealed class AbrirChamadoUseCase(
             request.Titulo,
             request.Descricao,
             usuarioAtual.Id,
-            request.CategoriaId,
-            request.PrioridadeId,
+            categoria.Id,
+            prioridade.Id,
             statusAberto.Id,
             OrigemChamado.Portal,
             usuarioAtual.Login,
-            request.DepartamentoId,
+            departamentoIdEfetivo,
             subcategoria?.Id,
             request.TipoSolicitacaoId,
-            request.LocalUnidadeId);
+            request.LocalUnidadeId,
+            catalogoServicoIdEfetivo);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
@@ -125,7 +135,20 @@ public sealed class AbrirChamadoUseCase(
 
         await historicoRepository.AddAsync(historicoCriado, cancellationToken);
 
-        await slaService.InicializarNaAberturaAsync(chamado, usuarioAtual.Login, DateTime.UtcNow, cancellationToken);
+        if (servicoCatalogo is not null)
+        {
+            var descricaoCatalogo = $"{DescricaoHistoricoCriacaoCatalogo}: {servicoCatalogo.Nome} - departamento {servicoCatalogo.DepartamentoResponsavel?.Nome ?? "nao informado"}.";
+            var historicoCatalogo = new HistoricoChamado(
+                chamado.Id,
+                TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico,
+                descricaoCatalogo,
+                usuarioAtual.Id,
+                usuarioAtual.Login);
+
+            await historicoRepository.AddAsync(historicoCatalogo, cancellationToken);
+        }
+
+        await slaService.InicializarNaAberturaAsync(chamado, usuarioAtual.Login, DateTime.UtcNow, servicoCatalogo?.SlaPadraoId, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -160,6 +183,7 @@ public sealed class AbrirChamadoUseCase(
                 TipoSolicitacao = chamadoCriado.TipoSolicitacao?.Nome,
                 LocalUnidade = chamadoCriado.LocalUnidade?.Nome,
                 chamadoCriado.DepartamentoId,
+                chamadoCriado.CatalogoServicoId,
                 SolicitanteId = chamadoCriado.SolicitanteId
             });
 
@@ -183,5 +207,84 @@ public sealed class AbrirChamadoUseCase(
         }
 
         return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);
+    }
+
+    private async Task<CatalogoServico?> ResolverServicoCatalogoAsync(
+        CriarChamadoRequest request,
+        UsuarioContextoAplicacao usuarioAtual,
+        CancellationToken cancellationToken)
+    {
+        if (!request.CatalogoServicoId.HasValue && string.IsNullOrWhiteSpace(request.CatalogoServicoSlug))
+        {
+            return null;
+        }
+
+        CatalogoServico? servico;
+
+        if (request.CatalogoServicoId.HasValue)
+        {
+            servico = await catalogoServicoRepository.Query()
+                .AsNoTracking()
+                .Include(x => x.DepartamentoResponsavel)
+                .Include(x => x.Categoria)
+                .Include(x => x.Subcategoria)
+                .Include(x => x.PrioridadePadrao)
+                .Include(x => x.SlaPadrao)
+                .FirstOrDefaultAsync(x => x.Id == request.CatalogoServicoId.Value, cancellationToken);
+        }
+        else
+        {
+            var slug = request.CatalogoServicoSlug!.Trim().ToLowerInvariant();
+            servico = await catalogoServicoRepository.Query()
+                .AsNoTracking()
+                .Include(x => x.DepartamentoResponsavel)
+                .Include(x => x.Categoria)
+                .Include(x => x.Subcategoria)
+                .Include(x => x.PrioridadePadrao)
+                .Include(x => x.SlaPadrao)
+                .FirstOrDefaultAsync(x => x.Slug == slug, cancellationToken);
+        }
+
+        if (servico is null)
+        {
+            throw new InvalidOperationException("Servico do catalogo nao encontrado.");
+        }
+
+        if (servico.Status != StatusCatalogoServico.Publicado)
+        {
+            throw new InvalidOperationException("Somente servicos publicados podem ser usados para abertura de chamado.");
+        }
+
+        if (!servico.Ativo)
+        {
+            throw new InvalidOperationException("Somente servicos ativos podem ser usados para abertura de chamado.");
+        }
+
+        if (!servico.PermiteAberturaChamado)
+        {
+            throw new InvalidOperationException("Este servico esta disponivel apenas para consulta.");
+        }
+
+        if (!PortalCatalogoServicosVisibilidadeHelper.PodeVisualizarServico(usuarioAtual, servico.Visibilidade))
+        {
+            throw new InvalidOperationException("Servico do catalogo indisponivel para o seu perfil.");
+        }
+
+        if (!servico.CategoriaId.HasValue)
+        {
+            throw new InvalidOperationException("Servico do catalogo sem categoria configurada para abertura de chamado.");
+        }
+
+        if (!servico.PrioridadePadraoId.HasValue)
+        {
+            throw new InvalidOperationException("Servico do catalogo sem prioridade padrao configurada para abertura de chamado.");
+        }
+
+        if (servico.SubcategoriaId.HasValue && !servico.CategoriaId.HasValue)
+        {
+            throw new InvalidOperationException("Servico do catalogo com subcategoria invalida para abertura de chamado.");
+        }
+
+        return servico;
     }
 }

@@ -1,4 +1,4 @@
-ï»¿# Roadmap ITSM - SGX Sistema de Chamados
+# Roadmap ITSM - SGX Sistema de Chamados
 
 ## Objetivo do Roadmap ITSM
 
@@ -473,93 +473,93 @@ Observacao de percentual:
 - percentual do item deve ser calculado automaticamente pelo checklist ativo;
 - nao preencher percentual manual quando checklist estiver ativo.
 
-## Sprint AutenticaÃ§Ã£o 1 - RevisÃ£o da base e desenho final do fluxo Entra ID
+## Sprint Autenticação 1 - Revisão da base e desenho final do fluxo Entra ID
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
 Status anterior:
-- Status atual: NÃ£o iniciado
-- Status tÃ©cnico: NÃ£o avaliado
+- Status atual: Não iniciado
+- Status técnico: Não avaliado
 
-Status apÃ³s a Sprint AutenticaÃ§Ã£o 1:
-- Status da implementaÃ§Ã£o: Em desenvolvimento
-- Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status após a Sprint Autenticação 1:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
 
-DecisÃ£o arquitetural consolidada:
+Decisão arquitetural consolidada:
 - Microsoft Entra ID (Azure AD) autentica.
-- SGX Sistema de Chamados autoriza internamente por perfis e permissÃµes.
+- SGX Sistema de Chamados autoriza internamente por perfis e permissões.
 
 Escopo revisado nesta sprint:
-- [x] RevisÃ£o do login Microsoft no frontend (`LoginView`, `authService`, `AuthStore`)
-- [x] RevisÃ£o da validaÃ§Ã£o JWT/API (`ServiceCollectionExtensions`)
-- [x] RevisÃ£o de `GET /api/me` (`MeController`, `UsuarioAtualService`)
-- [x] RevisÃ£o de `httpClient` e tratamento de `401/403`
-- [x] RevisÃ£o de router guards (`router.beforeEach`)
-- [x] RevisÃ£o do login local Development
-- [x] RevisÃ£o da emulaÃ§Ã£o de perfis em Development
-- [x] ConsolidaÃ§Ã£o da documentaÃ§Ã£o tÃ©cnica da autenticaÃ§Ã£o corporativa
+- [x] Revisão do login Microsoft no frontend (`LoginView`, `authService`, `AuthStore`)
+- [x] Revisão da validação JWT/API (`ServiceCollectionExtensions`)
+- [x] Revisão de `GET /api/me` (`MeController`, `UsuarioAtualService`)
+- [x] Revisão de `httpClient` e tratamento de `401/403`
+- [x] Revisão de router guards (`router.beforeEach`)
+- [x] Revisão do login local Development
+- [x] Revisão da emulação de perfis em Development
+- [x] Consolidação da documentação técnica da autenticação corporativa
 
 Fluxo oficial definido:
-1. UsuÃ¡rio acessa o frontend.
-2. UsuÃ¡rio clica em `Entrar com Microsoft Entra ID`.
-3. UsuÃ¡rio autentica no Microsoft Entra ID.
+1. Usuário acessa o frontend.
+2. Usuário clica em `Entrar com Microsoft Entra ID`.
+3. Usuário autentica no Microsoft Entra ID.
 4. Frontend recebe `access token`.
 5. API valida o token JWT.
-6. SGX identifica o usuÃ¡rio interno.
-7. SGX cria usuÃ¡rio interno quando aplicÃ¡vel.
-8. SGX retorna `GET /api/me` com perfis e permissÃµes efetivas.
-9. Frontend redireciona conforme perfil/permissÃ£o.
+6. SGX identifica o usuário interno.
+7. SGX cria usuário interno quando aplicável.
+8. SGX retorna `GET /api/me` com perfis e permissões efetivas.
+9. Frontend redireciona conforme perfil/permissão.
 
-PendÃªncias reais para Sprint AutenticaÃ§Ã£o 2:
+Pendências reais para Sprint Autenticação 2:
 - [ ] Configurar App Registration definitivo (SPA e API) no tenant institucional.
 - [ ] Validar escopo real da API no frontend (`VITE_AZURE_API_SCOPE`).
-- [ ] Homologar fluxo real com usuÃ¡rios corporativos (Administrador, Atendente e Solicitante).
-- [ ] Definir regra formal para provisionamento e bloqueio de usuÃ¡rio interno conforme ciclo de vida no Entra ID.
-- [ ] Registrar evidÃªncias formais de homologaÃ§Ã£o para promoÃ§Ã£o a produÃ§Ã£o.
+- [ ] Homologar fluxo real com usuários corporativos (Administrador, Atendente e Solicitante).
+- [ ] Definir regra formal para provisionamento e bloqueio de usuário interno conforme ciclo de vida no Entra ID.
+- [ ] Registrar evidências formais de homologação para promoção a produção.
 
-EvidÃªncias de implementaÃ§Ã£o/documentaÃ§Ã£o:
+Evidências de implementação/documentação:
 - `docs/AUTENTICACAO-CORPORATIVA.md`
 - `docs/CONFIGURACAO-AZURE-AD.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
 
-## Sprint AutenticaÃ§Ã£o 2 - Backend Microsoft Entra ID, JWT e usuÃ¡rio interno
+## Sprint Autenticação 2 - Backend Microsoft Entra ID, JWT e usuário interno
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status apÃ³s a Sprint AutenticaÃ§Ã£o 2:
-- Status da implementaÃ§Ã£o: Em desenvolvimento
-- Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status após a Sprint Autenticação 2:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
 
-DecisÃ£o arquitetural mantida:
+Decisão arquitetural mantida:
 - Microsoft Entra ID autentica.
-- SGX Sistema de Chamados autoriza internamente por perfis e permissÃµes.
+- SGX Sistema de Chamados autoriza internamente por perfis e permissões.
 
 Escopo entregue nesta sprint:
-- [x] RevisÃ£o e reforÃ§o da validaÃ§Ã£o JWT (`Authority`, `Issuer`, `Audience`, expiraÃ§Ã£o e assinatura).
+- [x] Revisão e reforço da validação JWT (`Authority`, `Issuer`, `Audience`, expiração e assinatura).
 - [x] Suporte a `MetadataAddress` opcional em `AzureAdOptions`.
-- [x] Fortalecimento das opÃ§Ãµes de autenticaÃ§Ã£o (`DominiosPermitidos`, `CriarUsuarioAutomaticamente`, `PerfilPadraoUsuarioMicrosoft`).
+- [x] Fortalecimento das opções de autenticação (`DominiosPermitidos`, `CriarUsuarioAutomaticamente`, `PerfilPadraoUsuarioMicrosoft`).
 - [x] Mapeamento de claims Microsoft com fallback definido (`preferred_username`, `email`, `upn`, `unique_name`).
-- [x] Regras de bloqueio por domÃ­nio nÃ£o permitido.
-- [x] Regras de bloqueio de usuÃ¡rio interno inativo.
-- [x] CriaÃ§Ã£o automÃ¡tica de usuÃ¡rio interno com perfil padrÃ£o quando permitido.
-- [x] PreservaÃ§Ã£o do login local Development e emulaÃ§Ã£o de perfis.
-- [x] PreservaÃ§Ã£o do contrato de `GET /api/me` com `autenticadoPor=MicrosoftEntraId` no fluxo Microsoft.
-- [x] Testes automatizados de unidade e integraÃ§Ã£o atualizados.
+- [x] Regras de bloqueio por domínio não permitido.
+- [x] Regras de bloqueio de usuário interno inativo.
+- [x] Criação automática de usuário interno com perfil padrão quando permitido.
+- [x] Preservação do login local Development e emulação de perfis.
+- [x] Preservação do contrato de `GET /api/me` com `autenticadoPor=MicrosoftEntraId` no fluxo Microsoft.
+- [x] Testes automatizados de unidade e integração atualizados.
 
-Regras de seguranÃ§a validadas:
-- [x] Perfis e permissÃµes continuam internos no SGX.
-- [x] `roles` e `groups` do Azure AD nÃ£o concedem perfil administrativo automaticamente.
-- [x] Login local nÃ£o Ã© habilitado fora de Development.
+Regras de segurança validadas:
+- [x] Perfis e permissões continuam internos no SGX.
+- [x] `roles` e `groups` do Azure AD não concedem perfil administrativo automaticamente.
+- [x] Login local não é habilitado fora de Development.
 
-PendÃªncias reais para Sprint AutenticaÃ§Ã£o 3:
-- [ ] HomologaÃ§Ã£o ponta a ponta com tenant institucional real (Microsoft Entra ID).
-- [ ] ValidaÃ§Ã£o operacional em ambiente de homologaÃ§Ã£o com usuÃ¡rios reais.
-- [ ] DefiniÃ§Ã£o final de governanÃ§a de ciclo de vida de usuÃ¡rio interno (bloqueio, reativaÃ§Ã£o e auditoria).
-- [ ] AvaliaÃ§Ã£o de persistÃªncia opcional de identificadores corporativos (`oid`/`tid`) sem impacto em migraÃ§Ãµes indevidas.
+Pendências reais para Sprint Autenticação 3:
+- [ ] Homologação ponta a ponta com tenant institucional real (Microsoft Entra ID).
+- [ ] Validação operacional em ambiente de homologação com usuários reais.
+- [ ] Definição final de governança de ciclo de vida de usuário interno (bloqueio, reativação e auditoria).
+- [ ] Avaliação de persistência opcional de identificadores corporativos (`oid`/`tid`) sem impacto em migrações indevidas.
 
-EvidÃªncias de implementaÃ§Ã£o:
+Evidências de implementação:
 - `src/SGX.SistemaChamado.Api/Services/UsuarioAtualService.cs`
 - `src/SGX.SistemaChamado.Api/Extensions/ServiceCollectionExtensions.cs`
 - `src/SGX.SistemaChamado.Api/Options/AuthOptions.cs`
@@ -569,31 +569,31 @@ EvidÃªncias de implementaÃ§Ã£o:
 - `tests/SGX.SistemaChamado.Tests/ApiHttpIntegrationTests.cs`
 - `tests/SGX.SistemaChamado.Tests/AzureAdOptionsValidatorTests.cs`
 
-## Sprint AutenticaÃ§Ã£o 3 - Frontend de login Microsoft e restauraÃ§Ã£o de sessÃ£o
+## Sprint Autenticação 3 - Frontend de login Microsoft e restauração de sessão
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status apÃ³s a Sprint AutenticaÃ§Ã£o 3:
-- Status da implementaÃ§Ã£o: Em desenvolvimento
-- Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status após a Sprint Autenticação 3:
+- Status da implementação: Em desenvolvimento
+- Status técnico: Completo com pendências evolutivas
 
 Escopo entregue nesta sprint:
-- [x] ConsolidaÃ§Ã£o do login Microsoft no frontend (`LoginView`, `authService`, `authStore`).
-- [x] Ajuste de mensagens de erro e cancelamento amigÃ¡vel no popup Microsoft.
-- [x] ReforÃ§o de restauraÃ§Ã£o de sessÃ£o com single-flight em `inicializarSessao`.
-- [x] ManutenÃ§Ã£o de `GET /api/me` como fonte de perfis e permissÃµes.
-- [x] PreservaÃ§Ã£o dos guards de `/admin`, `/portal`, `/acesso-negado` e `/login`.
-- [x] PreservaÃ§Ã£o de login local e emulaÃ§Ã£o apenas em Development.
-- [x] Bloqueio explÃ­cito de aÃ§Ãµes concorrentes no login (duplo clique).
+- [x] Consolidação do login Microsoft no frontend (`LoginView`, `authService`, `authStore`).
+- [x] Ajuste de mensagens de erro e cancelamento amigável no popup Microsoft.
+- [x] Reforço de restauração de sessão com single-flight em `inicializarSessao`.
+- [x] Manutenção de `GET /api/me` como fonte de perfis e permissões.
+- [x] Preservação dos guards de `/admin`, `/portal`, `/acesso-negado` e `/login`.
+- [x] Preservação de login local e emulação apenas em Development.
+- [x] Bloqueio explícito de ações concorrentes no login (duplo clique).
 - [x] Alinhamento de tipagem do frontend para `autenticadoPor=MicrosoftEntraId`.
 
-PendÃªncias reais para Sprint AutenticaÃ§Ã£o 4:
-- [ ] Validar login Microsoft com tenant institucional real e evidÃªncias formais.
-- [ ] Validar cenÃ¡rios corporativos de MFA/Conditional Access em homologaÃ§Ã£o.
-- [ ] Executar rodada completa de validaÃ§Ã£o manual de UX de sessÃ£o em ambiente interativo.
+Pendências reais para Sprint Autenticação 4:
+- [ ] Validar login Microsoft com tenant institucional real e evidências formais.
+- [ ] Validar cenários corporativos de MFA/Conditional Access em homologação.
+- [ ] Executar rodada completa de validação manual de UX de sessão em ambiente interativo.
 
-EvidÃªncias de implementaÃ§Ã£o:
+Evidências de implementação:
 - `src/SGX.SistemaChamado.Web/src/views/LoginView.vue`
 - `src/SGX.SistemaChamado.Web/src/services/authService.ts`
 - `src/SGX.SistemaChamado.Web/src/stores/authStore.ts`
@@ -602,144 +602,144 @@ EvidÃªncias de implementaÃ§Ã£o:
 - `docs/CONFIGURACAO-AZURE-AD.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
 
-## Sprint AutenticaÃ§Ã£o 4 - ConfiguraÃ§Ã£o Microsoft Entra ID e homologaÃ§Ã£o tÃ©cnica
+## Sprint Autenticação 4 - Configuração Microsoft Entra ID e homologação técnica
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Em desenvolvimento  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Em desenvolvimento  
+Status técnico: Completo com pendências evolutivas
 
 Checklist entregue nesta sprint:
 - [x] App Registration documentado
 - [x] Redirect URI documentado
 - [x] Logout URI documentado
 - [x] Escopo de API documentado
-- [x] VariÃ¡veis backend documentadas
-- [x] VariÃ¡veis frontend documentadas
-- [x] SeguranÃ§a MFA/Conditional Access documentada
-- [x] Checklist de homologaÃ§Ã£o criado
+- [x] Variáveis backend documentadas
+- [x] Variáveis frontend documentadas
+- [x] Segurança MFA/Conditional Access documentada
+- [x] Checklist de homologação criado
 
-PendÃªncias mantidas:
+Pendências mantidas:
 - [ ] Configurar tenant institucional real
-- [ ] Executar homologaÃ§Ã£o com usuÃ¡rio corporativo real
+- [ ] Executar homologação com usuário corporativo real
 - [ ] Validar MFA
 - [ ] Validar Conditional Access
 - [ ] Validar ambiente publicado/VPS
-- [ ] Registrar evidÃªncias formais de homologaÃ§Ã£o
+- [ ] Registrar evidências formais de homologação
 
-## Sprint AutenticaÃ§Ã£o 5 - Fechamento do item AutenticaÃ§Ã£o corporativa
+## Sprint Autenticação 5 - Fechamento do item Autenticação corporativa
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Objetivo:
-Permitir que usuÃ¡rios acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorizaÃ§Ã£o interna no SGX por usuÃ¡rios, perfis e permissÃµes. O Azure autentica a identidade; o SGX controla o que cada usuÃ¡rio pode acessar e executar dentro do sistema.
+Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por usuários, perfis e permissões. O Azure autentica a identidade; o SGX controla o que cada usuário pode acessar e executar dentro do sistema.
 
-SituaÃ§Ã£o atual:
-Fluxo de autenticaÃ§Ã£o corporativa com Microsoft Entra ID/Azure AD implementado funcionalmente, com validaÃ§Ã£o de token JWT, modo Single Tenant, controle de domÃ­nio permitido, integraÃ§Ã£o com `GET /api/me`, criaÃ§Ã£o/identificaÃ§Ã£o de usuÃ¡rio interno e autorizaÃ§Ã£o por perfis/permissÃµes do SGX. Ainda depende de homologaÃ§Ã£o com tenant institucional real.
+Situação atual:
+Fluxo de autenticação corporativa com Microsoft Entra ID/Azure AD implementado funcionalmente, com validação de token JWT, modo Single Tenant, controle de domínio permitido, integração com `GET /api/me`, criação/identificação de usuário interno e autorização por perfis/permissões do SGX. Ainda depende de homologação com tenant institucional real.
 
-AtenÃ§Ã£o tÃ©cnica:
-Microsoft Entra ID/Azure AD autentica e o SGX autoriza. Roles/groups do Azure nÃ£o concedem perfil administrativo automaticamente no SGX. Perfis e permissÃµes continuam internos ao SGX.
+Atenção técnica:
+Microsoft Entra ID/Azure AD autentica e o SGX autoriza. Roles/groups do Azure não concedem perfil administrativo automaticamente no SGX. Perfis e permissões continuam internos ao SGX.
 
 Checklist:
-- 19 itens tÃ©cnicos concluÃ­dos
-- 8 itens pendentes de homologaÃ§Ã£o/governanÃ§a
+- 19 itens técnicos concluídos
+- 8 itens pendentes de homologação/governança
 - percentual esperado aproximado: 70%
 
-PendÃªncias tÃ©cnicas:
+Pendências técnicas:
 - homologar com tenant institucional real do Microsoft Entra ID;
-- validar login com usuÃ¡rios corporativos reais;
+- validar login com usuários corporativos reais;
 - validar MFA e Conditional Access;
 - validar logout corporativo;
 - validar ambiente publicado/VPS;
-- revisar configuraÃ§Ã£o com a equipe responsÃ¡vel pelo Azure;
-- registrar evidÃªncias formais de homologaÃ§Ã£o;
-- avaliar persistÃªncia opcional de `oid/tid`;
-- definir governanÃ§a de ciclo de vida do usuÃ¡rio interno.
+- revisar configuração com a equipe responsável pelo Azure;
+- registrar evidências formais de homologação;
+- avaliar persistência opcional de `oid/tid`;
+- definir governança de ciclo de vida do usuário interno.
 
-PendÃªncias de homologaÃ§Ã£o:
-- executar homologaÃ§Ã£o ponta a ponta com usuÃ¡rios reais de perfil Administrador, Atendente e Solicitante;
-- validar comportamento com usuÃ¡rio interno inativo;
-- validar bloqueio de domÃ­nio/tenant nÃ£o permitido;
+Pendências de homologação:
+- executar homologação ponta a ponta com usuários reais de perfil Administrador, Atendente e Solicitante;
+- validar comportamento com usuário interno inativo;
+- validar bloqueio de domínio/tenant não permitido;
 - validar mensagens de erro de login;
-- validar redirecionamento por perfil/permissÃ£o apÃ³s login;
-- registrar evidÃªncias com prints, data, ambiente e usuÃ¡rio de teste.
+- validar redirecionamento por perfil/permissão após login;
+- registrar evidências com prints, data, ambiente e usuário de teste.
 
-Mensagem para reuniÃ£o:
-A autenticaÃ§Ã£o corporativa do SGX estÃ¡ desenhada para usar Microsoft Entra ID/Azure AD como identidade principal, enquanto o SGX mantÃ©m a autorizaÃ§Ã£o interna por perfis e permissÃµes. Essa abordagem permite MFA, Conditional Access, acesso fora da rede e melhor governanÃ§a sem transferir regras internas do sistema para o Azure.
+Mensagem para reunião:
+A autenticação corporativa do SGX está desenhada para usar Microsoft Entra ID/Azure AD como identidade principal, enquanto o SGX mantém a autorização interna por perfis e permissões. Essa abordagem permite MFA, Conditional Access, acesso fora da rede e melhor governança sem transferir regras internas do sistema para o Azure.
 
-## Sprint AutenticaÃ§Ã£o 7 - Administrador inicial seguro
+## Sprint Autenticação 7 - Administrador inicial seguro
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Objetivo:
-Permitir a criaÃ§Ã£o segura do primeiro Administrador em produÃ§Ã£o por variÃ¡veis de ambiente explÃ­citas, sem senha fixa e sem dependÃªncia do modo Development.
+Permitir a criação segura do primeiro Administrador em produção por variáveis de ambiente explícitas, sem senha fixa e sem dependência do modo Development.
 
 Checklist:
-- [x] VariÃ¡veis de ambiente definidas (`SGX_ADMIN_INICIAL_EMAIL`, `SGX_ADMIN_INICIAL_SENHA`, `SGX_ADMIN_INICIAL_NOME`)
-- [x] ValidaÃ§Ã£o de e-mail implementada
-- [x] ValidaÃ§Ã£o de senha forte implementada
+- [x] Variáveis de ambiente definidas (`SGX_ADMIN_INICIAL_EMAIL`, `SGX_ADMIN_INICIAL_SENHA`, `SGX_ADMIN_INICIAL_NOME`)
+- [x] Validação de e-mail implementada
+- [x] Validação de senha forte implementada
 - [x] Senha hasheada
 - [x] Perfil Administrador associado
-- [x] NÃ£o cria duplicidade se jÃ¡ existe Administrador ativo
-- [x] DocumentaÃ§Ã£o atualizada
+- [x] Não cria duplicidade se já existe Administrador ativo
+- [x] Documentação atualizada
 - [x] Testes criados/atualizados
-- [ ] HomologaÃ§Ã£o em ambiente real pendente
+- [ ] Homologação em ambiente real pendente
 
-PendÃªncias evolutivas:
-- processo operacional de rotaÃ§Ã£o de credencial de bootstrap;
-- validaÃ§Ã£o formal em homologaÃ§Ã£o/produÃ§Ã£o;
-- auditoria operacional contÃ­nua de eventos de criaÃ§Ã£o inicial.
+Pendências evolutivas:
+- processo operacional de rotação de credencial de bootstrap;
+- validação formal em homologação/produção;
+- auditoria operacional contínua de eventos de criação inicial.
 
-## Sprint AutenticaÃ§Ã£o 8 - RecuperaÃ§Ã£o de senha e hardening do login local SGX
+## Sprint Autenticação 8 - Recuperação de senha e hardening do login local SGX
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Objetivo:
-Permitir recuperaÃ§Ã£o de senha local SGX, troca obrigatÃ³ria e hardening de login para produÃ§Ã£o, sem senha em texto puro, sem enumeraÃ§Ã£o de usuÃ¡rio e com lockout configurÃ¡vel.
+Permitir recuperação de senha local SGX, troca obrigatória e hardening de login para produção, sem senha em texto puro, sem enumeração de usuário e com lockout configurável.
 
 Checklist:
 - [x] troca de senha autenticada
-- [x] troca obrigatÃ³ria
-- [x] recuperaÃ§Ã£o de senha
-- [x] token temporÃ¡rio
-- [x] token de uso Ãºnico
-- [x] token com expiraÃ§Ã£o
-- [x] polÃ­tica de senha
+- [x] troca obrigatória
+- [x] recuperação de senha
+- [x] token temporário
+- [x] token de uso único
+- [x] token com expiração
+- [x] política de senha
 - [x] lockout
-- [x] Ãºltimo login
+- [x] último login
 - [x] frontend `/alterar-senha`
 - [x] frontend `/recuperar-senha`
-- [x] documentaÃ§Ã£o
+- [x] documentação
 - [x] testes
-- [ ] homologaÃ§Ã£o real pendente
+- [ ] homologação real pendente
 
-PendÃªncias evolutivas:
-- envio transacional real de e-mail para recuperaÃ§Ã£o;
-- auditoria dedicada persistida em banco para eventos de autenticaÃ§Ã£o local;
-- validaÃ§Ã£o formal em ambiente publicado com evidÃªncias de lockout e recuperaÃ§Ã£o.
+Pendências evolutivas:
+- envio transacional real de e-mail para recuperação;
+- auditoria dedicada persistida em banco para eventos de autenticação local;
+- validação formal em ambiente publicado com evidências de lockout e recuperação.
 
-## Sprint AutenticaÃ§Ã£o 9 - Tenant Ãºnico, contas permitidas e homologaÃ§Ã£o real Microsoft Entra ID
+## Sprint Autenticação 9 - Tenant único, contas permitidas e homologação real Microsoft Entra ID
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
-Checklist tÃ©cnico:
+Checklist técnico:
 - [x] Single Tenant documentado
 - [x] TenantId validado
 - [x] issuer validado
@@ -747,199 +747,199 @@ Checklist tÃ©cnico:
 - [x] audience validada
 - [x] contas pessoais Microsoft bloqueadas
 - [x] tenants externos bloqueados
-- [x] domÃ­nio permitido validado quando configurado
-- [x] roles/groups Azure nÃ£o concedem admin
-- [x] mensagens frontend amigÃ¡veis
+- [x] domínio permitido validado quando configurado
+- [x] roles/groups Azure não concedem admin
+- [x] mensagens frontend amigáveis
 - [x] testes automatizados criados/ajustados
-- [x] documentaÃ§Ã£o atualizada
+- [x] documentação atualizada
 
-PendÃªncias:
-- homologaÃ§Ã£o com tenant real;
-- teste com usuÃ¡rio externo real;
+Pendências:
+- homologação com tenant real;
+- teste com usuário externo real;
 - teste com conta pessoal Microsoft real;
 - MFA;
 - Conditional Access;
 - logout corporativo;
-- evidÃªncias formais.
+- evidências formais.
 
-## CorreÃ§Ãµes - IntegraÃ§Ã£o Microsoft, usuÃ¡rios demo e senha por Administrador
+## Correções - Integração Microsoft, usuários demo e senha por Administrador
 
-Ãrea: AutenticaÃ§Ã£o corporativa  
-Categoria: SeguranÃ§a
+Área: Autenticação corporativa  
+Categoria: Segurança
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
-Checklist tÃ©cnico:
-- [x] Menu `IntegraÃ§Ãµes` exibe `Microsoft Entra ID`
+Checklist técnico:
+- [x] Menu `Integrações` exibe `Microsoft Entra ID`
 - [x] Tela `/admin/integracoes/microsoft-entra-id` criada
-- [x] Endpoints administrativos de configuraÃ§Ã£o Microsoft criados (`GET/PUT`)
-- [x] LoginView consome provedores com fallback amigÃ¡vel
-- [x] Seed Development mantÃ©m 2 usuÃ¡rios demonstrativos por perfil
-- [x] RedefiniÃ§Ã£o de senha por Administrador implementada
-- [x] PermissÃµes novas criadas (`IntegracoesMicrosoft.*`, `Usuarios.RedefinirSenha`)
+- [x] Endpoints administrativos de configuração Microsoft criados (`GET/PUT`)
+- [x] LoginView consome provedores com fallback amigável
+- [x] Seed Development mantém 2 usuários demonstrativos por perfil
+- [x] Redefinição de senha por Administrador implementada
+- [x] Permissões novas criadas (`IntegracoesMicrosoft.*`, `Usuarios.RedefinirSenha`)
 - [x] Testes automatizados atualizados
 
-PendÃªncias evolutivas:
-- homologaÃ§Ã£o funcional em banco PostgreSQL real com dados legados;
-- governanÃ§a de limpeza administrativa para bases antigas com usuÃ¡rios demo excedentes;
-- revisÃ£o de UX para ediÃ§Ã£o de configuraÃ§Ãµes Microsoft em ambiente distribuÃ­do (quando exigir restart).
+Pendências evolutivas:
+- homologação funcional em banco PostgreSQL real com dados legados;
+- governança de limpeza administrativa para bases antigas com usuários demo excedentes;
+- revisão de UX para edição de configurações Microsoft em ambiente distribuído (quando exigir restart).
 
 ## Sprint SLA 1 - Modelagem e cadastro administrativo
 
-Ãrea: SLA  
+Área: SLA  
 Categoria: SLA
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Resumo:
-- cadastro administrativo de polÃ­ticas de SLA implementado;
-- metas de SLA por prioridade implementadas em estrutura prÃ³pria;
-- polÃ­tica padrÃ£o de SLA semeada com metas para Baixa, MÃ©dia, Alta e CrÃ­tica;
+- cadastro administrativo de políticas de SLA implementado;
+- metas de SLA por prioridade implementadas em estrutura própria;
+- política padrão de SLA semeada com metas para Baixa, Média, Alta e Crítica;
 - checklist Sprint 1 do item SLA criado e vinculado no roadmap;
 - percentual do item passa a ser calculado pelo checklist ativo.
 
-LimitaÃ§Ã£o conhecida:
-- nesta sprint, a aplicaÃ§Ã£o automÃ¡tica integral da polÃ­tica no fluxo dos chamados fica para Sprint 2.
+Limitação conhecida:
+- nesta sprint, a aplicação automática integral da política no fluxo dos chamados fica para Sprint 2.
 
-## Sprint SLA 2 - AplicaÃ§Ã£o prÃ¡tica nos chamados
+## Sprint SLA 2 - Aplicação prática nos chamados
 
-Ãrea: SLA  
+Área: SLA  
 Categoria: SLA
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Resumo:
-- registro prÃ³prio de SLA aplicado ao chamado criado em `chamado_slas`;
-- polÃ­tica ativa escolhida por compatibilidade de categoria/departamento, ordem e meta ativa por prioridade;
-- SLA aplicado na criaÃ§Ã£o do chamado sem impedir abertura quando nÃ£o hÃ¡ polÃ­tica/meta aplicÃ¡vel;
-- primeira resposta registrada por comentÃ¡rio pÃºblico de atendente ou status `Em atendimento`;
-- resoluÃ§Ã£o registrada em status final, `Resolvido` ou `Encerrado`;
-- pausa implementada quando o status entra em `AguardandoSolicitante`, respeitando a polÃ­tica aplicada;
+- registro próprio de SLA aplicado ao chamado criado em `chamado_slas`;
+- política ativa escolhida por compatibilidade de categoria/departamento, ordem e meta ativa por prioridade;
+- SLA aplicado na criação do chamado sem impedir abertura quando não há política/meta aplicável;
+- primeira resposta registrada por comentário público de atendente ou status `Em atendimento`;
+- resolução registrada em status final, `Resolvido` ou `Encerrado`;
+- pausa implementada quando o status entra em `AguardandoSolicitante`, respeitando a política aplicada;
 - detalhe e listagem de chamados retornam resumo de SLA;
-- listagem administrativa possui filtros por situaÃ§Ã£o do SLA;
-- documentaÃ§Ã£o tÃ©cnica atualizada em `docs/SLA.md`.
+- listagem administrativa possui filtros por situação do SLA;
+- documentação técnica atualizada em `docs/SLA.md`.
 
 Checklist Sprint 2:
 - [x] Tabela de SLA aplicado ao chamado criada.
 - [x] Relacionamento entre chamado e SLA criado.
-- [x] Service de cÃ¡lculo de SLA criado.
-- [x] PolÃ­tica aplicÃ¡vel identificada por prioridade/categoria/departamento.
-- [x] SLA aplicado na criaÃ§Ã£o do chamado.
+- [x] Service de cálculo de SLA criado.
+- [x] Política aplicável identificada por prioridade/categoria/departamento.
+- [x] SLA aplicado na criação do chamado.
 - [x] Prazo de primeira resposta calculado.
-- [x] Prazo de resoluÃ§Ã£o calculado.
+- [x] Prazo de resolução calculado.
 - [x] Primeira resposta registrada.
-- [x] ResoluÃ§Ã£o registrada.
+- [x] Resolução registrada.
 - [x] Pausa de SLA preparada ou implementada.
-- [x] SituaÃ§Ã£o atual do SLA calculada.
+- [x] Situação atual do SLA calculada.
 - [x] SLA exibido no detalhe do chamado.
 - [x] SLA exibido na listagem administrativa.
 - [x] Filtros administrativos de SLA criados.
 - [x] DTOs de chamado atualizados com resumo de SLA.
 - [x] Testes automatizados criados.
-- [x] DocumentaÃ§Ã£o atualizada.
+- [x] Documentação atualizada.
 
-PendÃªncias tÃ©cnicas:
-- calendÃ¡rio corporativo para `UsarHorarioComercial=true`;
-- homologaÃ§Ã£o com base PostgreSQL real;
-- relatÃ³rios histÃ³ricos e indicadores avanÃ§ados de SLA.
+Pendências técnicas:
+- calendário corporativo para `UsarHorarioComercial=true`;
+- homologação com base PostgreSQL real;
+- relatórios históricos e indicadores avançados de SLA.
 
 ## Sprint SLA 3 - Alertas, vencimentos e painel de SLA
 
-Ãrea: SLA  
+Área: SLA  
 Categoria: SLA
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Resumo:
-- configuraÃ§Ã£o padrÃ£o de alertas criada e exposta em `Admin > SLA > Alertas`;
-- eventos de SLA persistidos em `eventos_sla` com chave de idempotÃªncia;
-- monitoramento periÃ³dico configurÃ¡vel por `SlaMonitoring`;
-- alertas de primeira resposta/resoluÃ§Ã£o prÃ³ximos do vencimento e vencidos registrados como eventos;
+- configuração padrão de alertas criada e exposta em `Admin > SLA > Alertas`;
+- eventos de SLA persistidos em `eventos_sla` com chave de idempotência;
+- monitoramento periódico configurável por `SlaMonitoring`;
+- alertas de primeira resposta/resolução próximos do vencimento e vencidos registrados como eventos;
 - painel gerencial em `Admin > SLA > Painel`;
-- histÃ³rico de SLA exibido no detalhe administrativo do chamado;
-- consulta estruturada para relatÃ³rio futuro.
+- histórico de SLA exibido no detalhe administrativo do chamado;
+- consulta estruturada para relatório futuro.
 
 Checklist Sprint 3:
-- [x] ConfiguraÃ§Ã£o de alerta de SLA criada.
-- [x] Tela administrativa de configuraÃ§Ã£o de alerta criada.
-- [x] Endpoints de configuraÃ§Ã£o de alerta criados.
-- [x] Job de verificaÃ§Ã£o de SLA criado.
-- [x] Periodicidade configurÃ¡vel por appsettings criada.
-- [x] Controle contra notificaÃ§Ãµes/eventos duplicados criado.
-- [x] HistÃ³rico de eventos de SLA criado.
-- [x] Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resoluÃ§Ã£o, pausa e retomada.
+- [x] Configuração de alerta de SLA criada.
+- [x] Tela administrativa de configuração de alerta criada.
+- [x] Endpoints de configuração de alerta criados.
+- [x] Job de verificação de SLA criado.
+- [x] Periodicidade configurável por appsettings criada.
+- [x] Controle contra notificações/eventos duplicados criado.
+- [x] Histórico de eventos de SLA criado.
+- [x] Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resolução, pausa e retomada.
 - [x] Painel de indicadores de SLA criado.
 - [x] Indicador de SLA vencido criado.
-- [x] Indicador de SLA prÃ³ximo do vencimento criado.
+- [x] Indicador de SLA próximo do vencimento criado.
 - [x] Indicador de percentual de cumprimento criado.
-- [x] MÃ©trica de tempo mÃ©dio de primeira resposta criada.
-- [x] MÃ©trica de tempo mÃ©dio de resoluÃ§Ã£o criada.
+- [x] Métrica de tempo médio de primeira resposta criada.
+- [x] Métrica de tempo médio de resolução criada.
 - [x] Indicadores por prioridade criados.
 - [x] Indicadores por categoria criados.
 - [x] Indicadores por departamento criados.
-- [x] HistÃ³rico de SLA exibido no detalhe administrativo do chamado.
-- [x] Estrutura preparada para exportaÃ§Ã£o futura.
-- [x] DocumentaÃ§Ã£o atualizada.
+- [x] Histórico de SLA exibido no detalhe administrativo do chamado.
+- [x] Estrutura preparada para exportação futura.
+- [x] Documentação atualizada.
 - [x] Testes automatizados criados.
 
-PendÃªncias tÃ©cnicas:
-- envio real de notificaÃ§Ãµes por canal oficial;
-- exportaÃ§Ã£o Excel/PDF;
-- evidÃªncias de homologaÃ§Ã£o em ambiente publicado;
-- calendÃ¡rio por departamento/time;
-- importaÃ§Ã£o automÃ¡tica de feriados.
+Pendências técnicas:
+- envio real de notificações por canal oficial;
+- exportação Excel/PDF;
+- evidências de homologação em ambiente publicado;
+- calendário por departamento/time;
+- importação automática de feriados.
 
-## Sprint SLA 4 - CalendÃ¡rio corporativo e horÃ¡rio comercial
+## Sprint SLA 4 - Calendário corporativo e horário comercial
 
-Ãrea: SLA  
+Área: SLA  
 Categoria: SLA
 
-Status da implementaÃ§Ã£o: Implementado funcionalmente  
-Status tÃ©cnico: Completo com pendÃªncias evolutivas
+Status da implementação: Implementado funcionalmente  
+Status técnico: Completo com pendências evolutivas
 
 Entregas:
 
-- estrutura de calendÃ¡rio corporativo criada com expediente semanal e exceÃ§Ãµes;
-- seed do calendÃ¡rio corporativo padrÃ£o, ativo, em `America/Sao_Paulo`, segunda a sexta das 09:00 Ã s 18:00;
-- polÃ­tica de SLA vinculÃ¡vel a calendÃ¡rio corporativo;
-- cÃ¡lculo de SLA em minutos corridos ou minutos Ãºteis conforme configuraÃ§Ã£o da polÃ­tica;
-- endpoints administrativos para calendÃ¡rios, horÃ¡rios e exceÃ§Ãµes;
-- tela `Admin > SLA > CalendÃ¡rios`;
-- tela de polÃ­ticas com seleÃ§Ã£o de calendÃ¡rio quando horÃ¡rio comercial estÃ¡ ativo;
-- detalhe administrativo do chamado mostra tipo de cÃ¡lculo e calendÃ¡rio utilizado;
-- testes automatizados para calendÃ¡rio, cÃ¡lculo Ãºtil e integraÃ§Ã£o com SLA.
+- estrutura de calendário corporativo criada com expediente semanal e exceções;
+- seed do calendário corporativo padrão, ativo, em `America/Sao_Paulo`, segunda a sexta das 09:00 às 18:00;
+- política de SLA vinculável a calendário corporativo;
+- cálculo de SLA em minutos corridos ou minutos úteis conforme configuração da política;
+- endpoints administrativos para calendários, horários e exceções;
+- tela `Admin > SLA > Calendários`;
+- tela de políticas com seleção de calendário quando horário comercial está ativo;
+- detalhe administrativo do chamado mostra tipo de cálculo e calendário utilizado;
+- testes automatizados para calendário, cálculo útil e integração com SLA.
 
 Checklist Sprint 4:
 
 - [x] Entidade CalendarioCorporativo criada.
 - [x] Entidade HorarioAtendimentoCalendario criada.
 - [x] Entidade ExcecaoCalendarioCorporativo criada.
-- [x] Migrations de calendÃ¡rio criadas.
-- [x] Seed do calendÃ¡rio padrÃ£o criado.
-- [x] Relacionamento entre PolÃ­tica SLA e CalendÃ¡rio criado.
-- [x] Service administrativo de calendÃ¡rio criado.
-- [x] Service de cÃ¡lculo de tempo Ãºtil criado.
-- [x] CÃ¡lculo de prazo de primeira resposta usando horÃ¡rio comercial implementado.
-- [x] CÃ¡lculo de prazo de resoluÃ§Ã£o usando horÃ¡rio comercial implementado.
-- [x] CÃ¡lculo de minutos Ãºteis de primeira resposta implementado.
-- [x] CÃ¡lculo de minutos Ãºteis de resoluÃ§Ã£o implementado.
-- [x] Endpoints administrativos de calendÃ¡rio criados.
-- [x] Tela Admin > SLA > CalendÃ¡rios criada.
-- [x] Tela de polÃ­tica SLA atualizada com seleÃ§Ã£o de calendÃ¡rio.
-- [x] Detalhe do chamado mostra tipo de cÃ¡lculo e calendÃ¡rio usado.
+- [x] Migrations de calendário criadas.
+- [x] Seed do calendário padrão criado.
+- [x] Relacionamento entre Política SLA e Calendário criado.
+- [x] Service administrativo de calendário criado.
+- [x] Service de cálculo de tempo útil criado.
+- [x] Cálculo de prazo de primeira resposta usando horário comercial implementado.
+- [x] Cálculo de prazo de resolução usando horário comercial implementado.
+- [x] Cálculo de minutos úteis de primeira resposta implementado.
+- [x] Cálculo de minutos úteis de resolução implementado.
+- [x] Endpoints administrativos de calendário criados.
+- [x] Tela Admin > SLA > Calendários criada.
+- [x] Tela de política SLA atualizada com seleção de calendário.
+- [x] Detalhe do chamado mostra tipo de cálculo e calendário usado.
 - [x] Testes automatizados criados.
-- [x] DocumentaÃ§Ã£o atualizada.
+- [x] Documentação atualizada.
 
-PendÃªncias:
+Pendências:
 
-- calendÃ¡rio por departamento/time;
-- importaÃ§Ã£o automÃ¡tica de feriados;
-- exceÃ§Ãµes recorrentes;
-- regra avanÃ§ada de prazo remanescente em reabertura.
+- calendário por departamento/time;
+- importação automática de feriados;
+- exceções recorrentes;
+- regra avançada de prazo remanescente em reabertura.
 
 ## Sprint Historico/Auditoria 2 - Governanca
 
@@ -1033,7 +1033,7 @@ Pendencias evolutivas:
 - Alertas para eventos criticos.
 - Painel avancado de seguranca.
 - Integracao com SIEM/Log Analytics.
-- Politica de anonimizaÃ§ao/LGPD para eventos antigos.
+- Politica de anonimizaçao/LGPD para eventos antigos.
 
 ## Sprint Cadastros Administrativos 1 - Base tecnica
 
@@ -1541,47 +1541,47 @@ Criterio de aceite:
 Proxima acao:
 Executar homologacao institucional/manual com evidencias formais, incluindo prints das telas administrativas, abertura de chamado com cadastros, detalhe do chamado, filtros administrativos, responsavel, data, ambiente e resultado da validacao.
 
-## Dashboard / GestÃ£o - ConsolidaÃ§Ã£o tÃ©cnica
+## Dashboard / Gestão - Consolidação técnica
 
 Area:
 - Dashboard
 
 Categoria:
-- GestÃ£o
+- Gestão
 
 Ordem:
 - 9
 
 Objetivo:
-Disponibilizar uma visÃ£o gerencial da operaÃ§Ã£o de chamados, permitindo que administradores e atendentes acompanhem em tempo real os principais indicadores do service desk, incluindo volume de chamados abertos, em atendimento, aguardando solicitante, resolvidos no perÃ­odo, chamados sem responsÃ¡vel, riscos de SLA, distribuiÃ§Ã£o por status, prioridade, categoria, produtividade por atendente e situaÃ§Ã£o da integraÃ§Ã£o de e-mail.
+Disponibilizar uma visão gerencial da operação de chamados, permitindo que administradores e atendentes acompanhem em tempo real os principais indicadores do service desk, incluindo volume de chamados abertos, em atendimento, aguardando solicitante, resolvidos no período, chamados sem responsável, riscos de SLA, distribuição por status, prioridade, categoria, produtividade por atendente e situação da integração de e-mail.
 
 Situacao atual:
-Dashboard administrativo implementado funcionalmente no backend e frontend. A API disponibiliza indicadores consolidados, filtros por perÃ­odo e contexto administrativo. A interface apresenta cards gerenciais, grÃ¡ficos/listagens por status, prioridade e categoria, indicadores de SLA, produtividade por atendente, fila de chamados e resumo da integraÃ§Ã£o de e-mail. Pendente validaÃ§Ã£o com usuÃ¡rios reais, refinamento visual final, testes frontend/e2e e homologaÃ§Ã£o institucional.
+Dashboard administrativo implementado funcionalmente no backend e frontend. A API disponibiliza indicadores consolidados, filtros por período e contexto administrativo. A interface apresenta cards gerenciais, gráficos/listagens por status, prioridade e categoria, indicadores de SLA, produtividade por atendente, fila de chamados e resumo da integração de e-mail. Pendente validação com usuários reais, refinamento visual final, testes frontend/e2e e homologação institucional.
 
 Status da implementacao:
 - Implementado funcionalmente
 
 Status tecnico:
-- Completo com pendÃªncias evolutivas
+- Completo com pendências evolutivas
 
 Percentual:
 - 85%
 
 Pendencias tecnicas:
-- Aplicar ou validar permissÃ£o granular `Dashboard.Visualizar` no backend, alÃ©m da proteÃ§Ã£o por perfil.
+- Aplicar ou validar permissão granular `Dashboard.Visualizar` no backend, além da proteção por perfil.
 - Validar performance com volume maior de chamados.
-- Criar ou consolidar testes automatizados especÃ­ficos do dashboard em nÃ­vel HTTP.
-- Criar testes frontend/e2e para `dashboardAdminService` e `AdminDashboardView`, se o projeto jÃ¡ tiver estrutura para isso.
-- Avaliar cache ou otimizaÃ§Ã£o das consultas agregadas, caso necessÃ¡rio.
-- Revisar regras de permissÃ£o dos indicadores por perfil.
+- Criar ou consolidar testes automatizados específicos do dashboard em nível HTTP.
+- Criar testes frontend/e2e para `dashboardAdminService` e `AdminDashboardView`, se o projeto já tiver estrutura para isso.
+- Avaliar cache ou otimização das consultas agregadas, caso necessário.
+- Revisar regras de permissão dos indicadores por perfil.
 
 Pendencias de homologacao:
 - Validar com Administrador.
 - Validar com Atendente.
-- Conferir nÃºmeros do dashboard contra consultas reais no banco.
-- Validar filtros por perÃ­odo, departamento, categoria e responsÃ¡vel.
-- Confirmar se os indicadores atendem Ã  necessidade de gestÃ£o da operaÃ§Ã£o.
-- Registrar evidÃªncias formais de homologaÃ§Ã£o.
+- Conferir números do dashboard contra consultas reais no banco.
+- Validar filtros por período, departamento, categoria e responsável.
+- Confirmar se os indicadores atendem à necessidade de gestão da operação.
+- Registrar evidências formais de homologação.
 
 Evidencias:
 - `src/SGX.SistemaChamado.Api/Controllers/AdminDashboardController.cs`
@@ -1594,16 +1594,16 @@ Evidencias:
 - `tests/SGX.SistemaChamado.Tests/IndicadoresUseCaseTests.cs`
 - `docs/DASHBOARD-GESTAO.md`
 
-CritÃ©rio de aceite:
-O usuÃ¡rio autorizado deve conseguir acessar o Dashboard Administrativo e visualizar indicadores consolidados da operaÃ§Ã£o. Os filtros devem alterar os dados apresentados. Os cards principais devem exibir chamados abertos, em atendimento, aguardando solicitante, SLA vencido, prÃ³ximos do vencimento e resolvidos no perÃ­odo. A tela deve permitir navegaÃ§Ã£o para fila de chamados, gestÃ£o de chamados e integraÃ§Ã£o de e-mail. Os dados exibidos devem ser coerentes com os registros persistidos no sistema.
+Critério de aceite:
+O usuário autorizado deve conseguir acessar o Dashboard Administrativo e visualizar indicadores consolidados da operação. Os filtros devem alterar os dados apresentados. Os cards principais devem exibir chamados abertos, em atendimento, aguardando solicitante, SLA vencido, próximos do vencimento e resolvidos no período. A tela deve permitir navegação para fila de chamados, gestão de chamados e integração de e-mail. Os dados exibidos devem ser coerentes com os registros persistidos no sistema.
 
-PrÃ³xima aÃ§Ã£o:
-Executar validaÃ§Ã£o tÃ©cnica e homologaÃ§Ã£o funcional do dashboard com dados reais ou massa simulada mais prÃ³xima da operaÃ§Ã£o institucional.
+Próxima ação:
+Executar validação técnica e homologação funcional do dashboard com dados reais ou massa simulada mais próxima da operação institucional.
 
 Checklist (40 itens):
-- 34 concluÃ­dos
+- 34 concluídos
 - 6 pendentes
-- Itens pendentes: policy granular de dashboard, performance agregada, testes HTTP de sucesso, teste frontend/e2e, registro formal de evidÃªncias e homologaÃ§Ã£o com usuÃ¡rios.
+- Itens pendentes: policy granular de dashboard, performance agregada, testes HTTP de sucesso, teste frontend/e2e, registro formal de evidências e homologação com usuários.
 
 ## Sprint Base de Conhecimento 1 - Fundacao tecnica
 
@@ -1831,3 +1831,215 @@ Pendencias evolutivas:
 - sugestao automatica de artigos durante abertura do chamado;
 - sugestao automatica de artigos durante atendimento;
 - busca semantica/IA.
+
+## Sprint Catalogo de Servicos 1 - Fundacao tecnica
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Fundacao tecnica implementada
+Status tecnico: Sprint 1 concluida apos validacao
+Percentual: 20%
+
+Objetivo:
+Estabelecer a base tecnica do Catalogo de Servicos como modulo institucional e multiarea, permitindo evolucao controlada para publicacao de servicos solicitaveis por diferentes departamentos.
+
+Escopo entregue:
+- entidade `CatalogoServico` no dominio;
+- enums `StatusCatalogoServico` (`Rascunho`, `Publicado`, `Arquivado`) e `VisibilidadeCatalogoServico` (`Interno`, `Solicitante`, `Atendente`, `Administrador`);
+- relacionamento obrigatorio com `Departamento`;
+- relacionamentos opcionais com categoria, subcategoria, prioridade, politica de SLA e artigo da base de conhecimento;
+- mapeamento EF Core da tabela `catalogo_servicos`;
+- indice unico de `slug` e indices por departamento, status e ativo;
+- migration `Sprint1CatalogoServicosFundacao`;
+- permissoes `CatalogoServicos.Visualizar`, `CatalogoServicos.Gerenciar`, `CatalogoServicos.Publicar`, `CatalogoServicos.Arquivar` com seed atualizado;
+- atualizacao de constantes de permissao no frontend;
+- documentacao inicial em `docs/CATALOGO-SERVICOS.md`.
+
+Regras tecnicas consolidadas:
+- modulo nao restrito a TI;
+- sem exclusao fisica de servico;
+- arquivamento com preservacao historica;
+- exposicao para solicitantes condicionada a servico ativo e publicado nas proximas camadas de consulta.
+
+## Sprint Catalogo de Servicos 2 - CRUD administrativo backend
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: CRUD administrativo implementado
+Status tecnico: Sprint 2 concluida apos validacao
+Percentual: 45%
+
+Objetivo:
+Implementar o CRUD administrativo backend do Catalogo de Servicos com governanca de permissao, transicoes de status, auditoria e cobertura de testes.
+
+Entregas consolidadas:
+- contratos administrativos do modulo (`FiltroCatalogoServicoRequest`, `CatalogoServicoListagemDto`, `CatalogoServicoDetalheDto`, `CriarCatalogoServicoRequest`, `AtualizarCatalogoServicoRequest`);
+- interface `IAdminCatalogoServicosUseCases`;
+- implementacao `CatalogoServicosAdminUseCases` com operacoes de listar, obter, criar, atualizar, publicar, arquivar e reativar;
+- controller `AdminCatalogoServicosController` com endpoints em `/api/admin/catalogo-servicos`;
+- aplicacao de permissoes granulares `CatalogoServicos.*` por endpoint;
+- validacoes de negocio para dados obrigatorios, relacionamentos opcionais e regras de ciclo de vida;
+- slug automatico e unico com sufixo incremental;
+- auditoria de criacao, edicao, publicacao, arquivamento e reativacao;
+- testes automatizados do modulo e de autorizacao HTTP.
+
+Checklist Sprint 2:
+- [x] CRUD administrativo backend implementado.
+- [x] Endpoints administrativos implementados.
+- [x] Permissoes `CatalogoServicos.*` aplicadas.
+- [x] Slug unico implementado.
+- [x] Sem exclusao fisica de servicos.
+- [x] Auditoria nas operacoes principais implementada.
+- [x] Testes automatizados adicionados e validados.
+- [x] Documentacao atualizada sem duplicar item de roadmap.
+
+Pendencias evolutivas:
+- frontend administrativo do catalogo;
+- abertura guiada de chamado por servico;
+- homologacao institucional com evidencias formais.
+## Sprint Catalogo de Servicos 3 - Consulta do portal
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+Status da implementacao: Consulta do portal implementada
+Status tecnico: Sprint 3 concluida apos validacao
+Percentual: 60%
+Objetivo:
+Habilitar consulta de servicos publicados no portal com controle de visibilidade por perfil, mantendo o catalogo institucional e multiarea.
+Entregas consolidadas:
+- contratos de portal (PortalFiltroCatalogoServicoRequest, PortalCatalogoServicoListagemDto, PortalCatalogoServicoDetalheDto);
+- interface IPortalCatalogoServicosUseCases;
+- implementacao CatalogoServicosPortalUseCases para listagem e detalhe por slug;
+- controller PortalCatalogoServicosController com endpoints:
+  - GET /api/portal/catalogo-servicos
+  - GET /api/portal/catalogo-servicos/{slug};
+- retorno restrito a servicos Publicado e Ativo;
+- filtros por termo, departamento, categoria, subcategoria e permite abertura;
+- paginacao e ordenacao por departamento, ordem e nome;
+- regras de visibilidade backend para Solicitante, Atendente, Administrador e Interno;
+- retorno 404 para slug inexistente, servico inelegivel ou sem visibilidade;
+- testes automatizados de use case e integracao HTTP.
+Checklist Sprint 3:
+- [x] Consulta do portal implementada.
+- [x] Listagem restrita a servicos publicados e ativos.
+- [x] Visibilidade por perfil aplicada no backend.
+- [x] Endpoints de portal publicados.
+- [x] Filtros e paginacao implementados.
+- [x] Detalhe por slug com 404 para cenarios inelegiveis implementado.
+- [x] Testes automatizados da sprint adicionados e validados.
+- [x] Documentacao atualizada sem duplicidade de roadmap.
+Pendencias evolutivas:
+- frontend administrativo do catalogo;
+- abertura guiada de chamado por servico;
+- homologacao institucional com evidencias formais.
+
+## Sprint Catalogo de Servicos 4 - Frontend administrativo e portal
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Frontend administrativo e portal implementados
+Status tecnico: Sprint 4 concluida apos validacao
+Percentual: 75%
+
+Objetivo:
+Concluir a camada frontend do Catalogo de Servicos no SGX com experiencia administrativa completa e consulta no portal autenticado.
+
+Entregas consolidadas:
+- types TypeScript do modulo (src/types/catalogoServicos.ts) para contratos admin e portal;
+- services frontend catalogoServicosAdminService.ts e catalogoServicosPortalService.ts;
+- telas administrativas em /admin/conhecimento/catalogo-servicos, /admin/conhecimento/catalogo-servicos/novo e /admin/conhecimento/catalogo-servicos/:id;
+- acoes administrativas de publicar, arquivar e reativar com confirmacao;
+- filtros administrativos com paginacao e estados de loading/erro/vazio;
+- telas de portal em /portal/catalogo-servicos e /portal/catalogo-servicos/:slug;
+- menu administrativo e menu do portal atualizados para o Catalogo de servicos;
+- testes unitarios de services e testes minimos de views da listagem admin/portal.
+
+Checklist Sprint 4:
+- [x] Frontend administrativo implementado.
+- [x] Frontend de consulta do portal implementado.
+- [x] Rotas administrativas e de portal publicadas.
+- [x] Menus administrativo e portal atualizados.
+- [x] Acoes de ciclo de vida com confirmacao implementadas.
+- [x] Filtros, cards e paginacao implementados.
+- [x] Estados de loading, erro e vazio implementados.
+- [x] Testes de services frontend do modulo implementados.
+- [x] Documentacao do modulo e roadmaps atualizada.
+
+Pendencias evolutivas:
+- integrar abertura guiada de chamado por servico (Sprint 5);
+- homologacao institucional com evidencias formais.
+
+
+## Sprint Catalogo de Servicos 5 - Integracao com abertura de chamados
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Integrado a abertura de chamados
+Status tecnico: Sprint 5 concluida apos validacao
+Percentual: 85%
+
+Objetivo:
+Conectar o Catalogo de Servicos ao fluxo de abertura de chamados do portal com validacao central no backend e aplicacao oficial dos dados do servico.
+
+Entregas consolidadas:
+- associacao opcional `CatalogoServicoId` em `Chamado`;
+- migration `Sprint5CatalogoServicosChamado` com coluna, indice e chave estrangeira;
+- endpoint `GET /api/portal/catalogo-servicos/{slug}/preparar-chamado`;
+- abertura de chamado orientada por catalogo com validacoes de status, ativo, visibilidade e permissao de abertura;
+- aplicacao backend de departamento, categoria, subcategoria, prioridade e politica SLA do servico quando configuradas;
+- historico de chamado com evento `ChamadoCriadoPorCatalogoServico`;
+- frontend do portal atualizado para preparar abertura a partir do detalhe e enviar `CatalogoServicoId`;
+- mensagens amigaveis para servico somente consulta e falha na preparacao;
+- testes backend e frontend cobrindo fluxo positivo e bloqueios.
+
+Checklist Sprint 5:
+- [x] Endpoint de preparar abertura implementado.
+- [x] Validacoes de elegibilidade do servico implementadas.
+- [x] Aplicacao backend dos dados oficiais do servico implementada.
+- [x] Associacao `CatalogoServicoId` no chamado implementada.
+- [x] Historico de abertura por catalogo implementado.
+- [x] Integracao frontend detalhe -> novo chamado implementada.
+- [x] Payload de abertura com `CatalogoServicoId` implementado.
+- [x] Testes backend e frontend da sprint validados.
+- [x] Documentacao de modulo e roadmaps atualizada.
+
+Pendencias evolutivas:
+- homologacao institucional com evidencias formais.
+## Sprint Catalogo de Servicos 6 - Fechamento funcional
+
+Area: Catalogo de Servicos
+Categoria: Conhecimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+
+Situacao atual:
+Catalogo de Servicos implementado funcionalmente como modulo institucional multiarea. O modulo contempla fundacao tecnica, CRUD administrativo, frontend administrativo, consulta no portal, frontend do portal, controle de permissoes, visibilidade por perfil, integracao com abertura de chamados, associacao CatalogoServicoId ao chamado, aplicacao backend dos dados oficiais do servico, historico de abertura por catalogo, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras.
+
+Entregas da Sprint 6:
+- checklist de homologacao criado em `docs/CHECKLIST-HOMOLOGACAO-CATALOGO-SERVICOS.md`;
+- estrutura de evidencias criada em `docs/evidencias/catalogo-servicos/README.md`;
+- documentacao principal do modulo revisada e consolidada;
+- revisao de UX registrada para listagem/form admin, listagem/detalhe portal e abertura de chamado;
+- revisao de seguranca registrada sem relaxamento de regras;
+- verificacao de framework E2E: nao identificado Playwright/Cypress nesta sprint;
+- validacoes tecnicas executadas: build release, testes backend, testes unitarios frontend e build frontend.
+
+Pendencias evolutivas:
+- homologacao institucional com usuarios reais;
+- evidencias com prints reais;
+- testes E2E completos;
+- formularios dinamicos por servico;
+- campos obrigatorios por servico;
+- workflow de aprovacao por servico;
+- aprovacoes por departamento;
+- indicadores de servicos mais solicitados;
+- relatorios por departamento;
+- SLA avancado por servico;
+- automacao de triagem por servico;
+- sugestao de artigos da Base de Conhecimento por servico;
+- melhoria de encoding de `docs/ROADMAP.md` e `docs/ROADMAP-ITSM.md`.

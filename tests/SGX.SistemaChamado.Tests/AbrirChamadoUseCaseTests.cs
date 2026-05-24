@@ -24,6 +24,7 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<TipoSolicitacao>(context),
             PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
+            PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
             SlaTestFactory.CriarService(context),
@@ -274,6 +275,221 @@ public sealed class AbrirChamadoUseCaseTests
         }));
     }
 
+    [Fact]
+    public async Task DeveAbrirChamadoComServicoCatalogoValido()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var categoriaAlternativa = new CategoriaChamado("Infraestrutura", null, dados.Departamento.Id, "teste");
+        context.CategoriasChamado.Add(categoriaAlternativa);
+        await context.SaveChangesAsync();
+
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante);
+
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Solicitar VPN",
+            Descricao = "Preciso de acesso remoto",
+            CatalogoServicoId = servico.Id,
+            DepartamentoId = Guid.NewGuid(),
+            CategoriaId = categoriaAlternativa.Id,
+            SubcategoriaId = null,
+            PrioridadeId = Guid.NewGuid()
+        });
+
+        var chamado = await context.Chamados.FirstAsync(x => x.Id == response.Id);
+        Assert.Equal(servico.Id, chamado.CatalogoServicoId);
+        Assert.Equal(dados.Departamento.Id, chamado.DepartamentoId);
+        Assert.Equal(dados.Categoria.Id, chamado.CategoriaId);
+        Assert.Equal(dados.Subcategoria.Id, chamado.SubcategoriaId);
+        Assert.Equal(dados.Prioridade.Id, chamado.PrioridadeId);
+    }
+
+    [Fact]
+    public async Task DeveAbrirChamadoComServicoCatalogoPorSlug()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante);
+
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Abertura por slug",
+            Descricao = "Fluxo por slug",
+            CatalogoServicoSlug = servico.Slug
+        });
+
+        Assert.Equal(servico.Id, context.Chamados.Single(x => x.Id == response.Id).CatalogoServicoId);
+    }
+
+    [Fact]
+    public async Task DeveRegistrarHistoricoDeCatalogoAoAbrirChamado()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Historico catalogo",
+            Descricao = "Abertura com catalogo",
+            CatalogoServicoId = servico.Id
+        });
+
+        Assert.Contains(
+            context.HistoricosChamado,
+            x => x.ChamadoId == response.Id && x.Tipo == TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComServicoArquivado()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Arquivado,
+            VisibilidadeCatalogoServico.Solicitante);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComServicoInativo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            ativo: false);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComServicoNaoPublicado()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Rascunho,
+            VisibilidadeCatalogoServico.Solicitante);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComServicoSemVisibilidade()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Atendente);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComServicoSemPermissaoDeAbertura()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            permiteAberturaChamado: false);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id
+        }));
+    }
+
     private static AbrirChamadoUseCase CriarUseCase(SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao usuario)
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
@@ -283,12 +499,63 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<TipoSolicitacao>(context),
             PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
+            PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
             new FakeUsuarioContextoAplicacaoService(usuario),
             PortalUseCasesTestFactory.Uow(context));
+
+    private static async Task<CatalogoServico> CriarServicoCatalogoAsync(
+        SGXSistemaChamadoDbContext context,
+        Usuario criador,
+        Guid departamentoId,
+        Guid categoriaId,
+        Guid subcategoriaId,
+        Guid prioridadeId,
+        StatusCatalogoServico status,
+        VisibilidadeCatalogoServico visibilidade,
+        bool ativo = true,
+        bool permiteAberturaChamado = true)
+    {
+        var nome = $"Servico Catalogo {Guid.NewGuid():N}";
+        var servico = new CatalogoServico(
+            nome,
+            nome.ToLowerInvariant().Replace(' ', '-'),
+            "Descricao do servico",
+            "Instrucoes do servico",
+            departamentoId,
+            categoriaId,
+            subcategoriaId,
+            prioridadeId,
+            null,
+            null,
+            visibilidade,
+            permiteAberturaChamado,
+            false,
+            1,
+            criador.Id,
+            criador.Login);
+
+        if (status == StatusCatalogoServico.Publicado)
+        {
+            servico.Publicar(criador.Id, criador.Login);
+        }
+        else if (status == StatusCatalogoServico.Arquivado)
+        {
+            servico.Arquivar(criador.Id, criador.Login);
+        }
+
+        if (!ativo)
+        {
+            servico.Desativar(criador.Login);
+        }
+
+        context.CatalogosServico.Add(servico);
+        await context.SaveChangesAsync();
+        return servico;
+    }
 
     private static async Task<(Usuario Usuario, UsuarioContextoAplicacao UsuarioContexto, Departamento Departamento, CategoriaChamado Categoria, SubcategoriaChamado Subcategoria, PrioridadeChamado Prioridade, TipoSolicitacao TipoSolicitacao, LocalUnidade LocalUnidade)> SeedBasico(SGXSistemaChamadoDbContext context)
     {

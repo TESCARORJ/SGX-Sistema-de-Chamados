@@ -5,6 +5,7 @@ namespace SGX.SistemaChamado.Application.Interfaces.Sla;
 public interface ISlaService
 {
     Task InicializarNaAberturaAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default);
+    Task InicializarNaAberturaAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, Guid? politicaSlaIdPreferencial, CancellationToken cancellationToken = default);
     Task RegistrarPrimeiraRespostaAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default);
     Task AplicarMudancaPrioridadeAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default);
     Task AplicarMudancaCategoriaAsync(Chamado chamado, string usuarioLogin, DateTime agoraUtc, CancellationToken cancellationToken = default);

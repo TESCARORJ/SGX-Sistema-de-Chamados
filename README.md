@@ -159,6 +159,7 @@ npm run build
 - `docs/ROADMAP.md`
 - `docs/ROADMAP-ITSM.md`
 - `docs/EXECUCAO-LOCAL.md`
+- `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
 - `docs/ARQUITETURA.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
 - `docs/SLA.md`

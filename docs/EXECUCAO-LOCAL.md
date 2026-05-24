@@ -287,3 +287,16 @@ Regras:
 
 
 
+
+## 13. Troubleshooting de build/EF Core
+
+Se ocorrer falha de startup em `MigrateAsync` com `PendingModelChangesWarning` junto de erros `MSB3021/MSB3027` (DLL/PDB em uso), consulte:
+
+- `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
+
+Scripts de apoio:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/check-ef-model.ps1
+powershell -ExecutionPolicy Bypass -File scripts/dev-reset-build-locks.ps1
+```

@@ -12,24 +12,48 @@ var builder = WebApplication.CreateBuilder(args)
 builder.Services.AddApiServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
+var startupLogger = app.Logger;
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
-    if (dbContext.Database.IsRelational())
+    try
     {
-        await dbContext.Database.MigrateAsync();
+        startupLogger.LogInformation("Inicializando banco de dados do SGX Sistema de Chamados.");
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+        if (dbContext.Database.IsRelational())
+        {
+            startupLogger.LogInformation("Aplicando migrations pendentes (banco relacional).");
+            await dbContext.Database.MigrateAsync();
+        }
+        else
+        {
+            startupLogger.LogInformation("Garantindo criacao do banco (provider nao relacional).");
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+
+        var administradorInicialService = scope.ServiceProvider.GetRequiredService<IAdministradorInicialService>();
+        await administradorInicialService.SeedAsync();
+
+        var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentSeedService>();
+        await seeder.SeedAsync();
+
+        startupLogger.LogInformation("Inicializacao de banco e seeds concluida com sucesso.");
     }
-    else
+    catch (InvalidOperationException ex) when (ex.Message.Contains("PendingModelChangesWarning", StringComparison.Ordinal))
     {
-        await dbContext.Database.EnsureCreatedAsync();
+        startupLogger.LogCritical(
+            ex,
+            "Falha ao aplicar migrations: EF Core detectou PendingModelChangesWarning. " +
+            "Valide migrations pendentes com 'dotnet ef migrations has-pending-model-changes' e, " +
+            "se nao houver diferenca de modelo, verifique assemblies travados (DLL/PDB) por debugger/API ativa.");
+        throw;
     }
-
-    var administradorInicialService = scope.ServiceProvider.GetRequiredService<IAdministradorInicialService>();
-    await administradorInicialService.SeedAsync();
-
-    var seeder = scope.ServiceProvider.GetRequiredService<DevelopmentSeedService>();
-    await seeder.SeedAsync();
+    catch (Exception ex)
+    {
+        startupLogger.LogCritical(ex, "Falha na inicializacao de banco/seeds durante startup da API.");
+        throw;
+    }
 }
 
 app.UseMiddleware<CorrelationIdMiddleware>();

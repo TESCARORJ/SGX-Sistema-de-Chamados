@@ -17,6 +17,8 @@ const NovoChamadoView = () => import('../views/NovoChamadoView.vue')
 const DetalheChamadoView = () => import('../views/DetalheChamadoView.vue')
 const BaseConhecimentoPortalPage = () => import('../views/BaseConhecimentoPortalPage.vue')
 const BaseConhecimentoArtigoPage = () => import('../views/BaseConhecimentoArtigoPage.vue')
+const CatalogoServicosPortalPage = () => import('../views/CatalogoServicosPortalPage.vue')
+const CatalogoServicoDetalhePage = () => import('../views/CatalogoServicoDetalhePage.vue')
 
 const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
@@ -53,6 +55,8 @@ const SlaCalendariosAdminView = () => import('../views/SlaCalendariosAdminView.v
 const AuditoriaAdminView = () => import('../views/AuditoriaAdminView.vue')
 const BaseConhecimentoListPage = () => import('../views/BaseConhecimentoListPage.vue')
 const BaseConhecimentoFormPage = () => import('../views/BaseConhecimentoFormPage.vue')
+const CatalogoServicosListPage = () => import('../views/CatalogoServicosListPage.vue')
+const CatalogoServicosFormPage = () => import('../views/CatalogoServicosFormPage.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -134,6 +138,16 @@ const routes: RouteRecordRaw[] = [
         path: 'base-conhecimento/:slug',
         name: 'portal-base-conhecimento-artigo',
         component: BaseConhecimentoArtigoPage,
+      },
+      {
+        path: 'catalogo-servicos',
+        name: 'portal-catalogo-servicos',
+        component: CatalogoServicosPortalPage,
+      },
+      {
+        path: 'catalogo-servicos/:slug',
+        name: 'portal-catalogo-servicos-detalhe',
+        component: CatalogoServicoDetalhePage,
       },
     ],
   },
@@ -348,6 +362,21 @@ const routes: RouteRecordRaw[] = [
         path: 'conhecimento/base-conhecimento/:id',
         name: 'admin-conhecimento-base-conhecimento-detalhe',
         component: BaseConhecimentoFormPage,
+      },
+      {
+        path: 'conhecimento/catalogo-servicos',
+        name: 'admin-conhecimento-catalogo-servicos',
+        component: CatalogoServicosListPage,
+      },
+      {
+        path: 'conhecimento/catalogo-servicos/novo',
+        name: 'admin-conhecimento-catalogo-servicos-novo',
+        component: CatalogoServicosFormPage,
+      },
+      {
+        path: 'conhecimento/catalogo-servicos/:id',
+        name: 'admin-conhecimento-catalogo-servicos-detalhe',
+        component: CatalogoServicosFormPage,
       },
     ],
   },

@@ -16,10 +16,24 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
             .MaximumLength(4000).WithMessage("Descricao deve ter no maximo 4000 caracteres.");
 
         RuleFor(x => x.CategoriaId)
-            .NotEmpty().WithMessage("Categoria obrigatoria.");
+            .Must((request, valor) => request.CatalogoServicoId.HasValue || !string.IsNullOrWhiteSpace(request.CatalogoServicoSlug) || valor.HasValue)
+            .WithMessage("Categoria obrigatoria quando nao houver servico de catalogo.")
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Categoria invalida.");
 
         RuleFor(x => x.PrioridadeId)
-            .NotEmpty().WithMessage("Prioridade obrigatoria.");
+            .Must((request, valor) => request.CatalogoServicoId.HasValue || !string.IsNullOrWhiteSpace(request.CatalogoServicoSlug) || valor.HasValue)
+            .WithMessage("Prioridade obrigatoria quando nao houver servico de catalogo.")
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Prioridade invalida.");
+
+        RuleFor(x => x.CatalogoServicoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("Servico de catalogo invalido.");
+
+        RuleFor(x => x.CatalogoServicoSlug)
+            .MaximumLength(160)
+            .WithMessage("Slug do servico de catalogo deve ter no maximo 160 caracteres.");
 
         RuleFor(x => x.SubcategoriaId)
             .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)

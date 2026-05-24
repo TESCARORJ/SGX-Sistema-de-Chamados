@@ -2,13 +2,15 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QForm } from 'quasar'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import UploadAnexo from '../components/portal/UploadAnexo.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import { catalogoServicosPortalService } from '../services/catalogoServicosPortalService'
 import { portalService } from '../services/portalService'
+import type { PortalPrepararChamadoCatalogoServico } from '../types/catalogoServicos'
 import type {
   CategoriaPortal,
   DepartamentoPortal,
@@ -31,11 +33,13 @@ const EXTENSOES_POR_CONTENT_TYPE: Record<string, string[]> = {
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
 }
 
+const route = useRoute()
 const router = useRouter()
 const $q = useQuasar()
 const formRef = ref<QForm | null>(null)
 
 const carregandoContexto = ref(false)
+const carregandoCatalogoSelecionado = ref(false)
 const salvando = ref(false)
 const erroContexto = ref<string | null>(null)
 const erroSalvar = ref<string | null>(null)
@@ -51,10 +55,13 @@ const locaisUnidade = ref<LocalUnidadePortal[]>([])
 const anexosPendentes = ref<File[]>([])
 const extensoesPermitidas = ref<string[]>(EXTENSOES_PADRAO)
 const tamanhoMaximoAnexoBytes = ref<number | null>(null)
+const servicoSelecionado = ref<PortalPrepararChamadoCatalogoServico | null>(null)
 
 const form = reactive({
   titulo: '',
   descricao: '',
+  catalogoServicoId: null as string | null,
+  catalogoServicoSlug: null as string | null,
   departamentoId: null as string | null,
   categoriaId: null as string | null,
   subcategoriaId: null as string | null,
@@ -64,6 +71,7 @@ const form = reactive({
 })
 
 const exibirDepartamento = computed(() => departamentos.value.length > 0)
+const aberturaPorCatalogo = computed(() => Boolean(form.catalogoServicoId))
 
 const opcoesDepartamento = computed(() =>
   departamentos.value.map((item) => ({
@@ -142,9 +150,55 @@ async function carregarContexto(): Promise<void> {
     extensoesPermitidas.value = normalizarExtensoesPorContentType(tiposPermitidos)
     tamanhoMaximoAnexoBytes.value = contexto.configuracaoAnexos?.tamanhoMaximoBytes ?? null
   } catch (error) {
-    erroContexto.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados da abertura.'
+    erroContexto.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os dados da abertura.'
   } finally {
     carregandoContexto.value = false
+  }
+}
+
+function aplicarServicoSelecionadoNoFormulario(servico: PortalPrepararChamadoCatalogoServico): void {
+  servicoSelecionado.value = servico
+  form.catalogoServicoId = servico.catalogoServicoId
+  form.catalogoServicoSlug = servico.slug
+  form.departamentoId = servico.departamentoResponsavelId
+  form.categoriaId = servico.categoriaId
+  form.subcategoriaId = servico.subcategoriaId
+  form.prioridadeId = servico.prioridadePadraoId
+}
+
+async function carregarServicoSelecionado(): Promise<void> {
+  const slugQuery = String(route.query.catalogoServicoSlug ?? '').trim()
+  const idQuery = String(route.query.catalogoServicoId ?? '').trim()
+
+  if (!slugQuery && !idQuery) {
+    servicoSelecionado.value = null
+    form.catalogoServicoId = null
+    form.catalogoServicoSlug = null
+    return
+  }
+
+  if (!slugQuery) {
+    erroContexto.value = 'Nao foi possivel iniciar a abertura do chamado para este servico.'
+    return
+  }
+
+  carregandoCatalogoSelecionado.value = true
+
+  try {
+    const servico = await catalogoServicosPortalService.prepararAberturaChamado(slugQuery)
+
+    if (idQuery && servico.catalogoServicoId !== idQuery) {
+      throw new Error('Servico divergente para abertura.')
+    }
+
+    aplicarServicoSelecionadoNoFormulario(servico)
+  } catch {
+    servicoSelecionado.value = null
+    form.catalogoServicoId = null
+    form.catalogoServicoSlug = null
+    erroContexto.value = 'Nao foi possivel iniciar a abertura do chamado para este servico.'
+  } finally {
+    carregandoCatalogoSelecionado.value = false
   }
 }
 
@@ -179,10 +233,13 @@ async function salvar(): Promise<void> {
     const chamado = await portalService.criarChamado({
       titulo: form.titulo.trim(),
       descricao: form.descricao.trim(),
-      departamentoId: exibirDepartamento.value ? (form.departamentoId ?? undefined) : undefined,
-      categoriaId: form.categoriaId!,
+      catalogoServicoId: form.catalogoServicoId ?? undefined,
+      catalogoServicoSlug: form.catalogoServicoSlug ?? undefined,
+      departamentoId:
+        exibirDepartamento.value && !aberturaPorCatalogo.value ? (form.departamentoId ?? undefined) : undefined,
+      categoriaId: form.categoriaId ?? undefined,
       subcategoriaId: form.subcategoriaId ?? undefined,
-      prioridadeId: form.prioridadeId!,
+      prioridadeId: form.prioridadeId ?? undefined,
       tipoSolicitacaoId: form.tipoSolicitacaoId ?? undefined,
       localUnidadeId: form.localUnidadeId ?? undefined,
     })
@@ -200,7 +257,7 @@ async function salvar(): Promise<void> {
     if (anexosComFalha > 0) {
       $q.notify({
         type: 'warning',
-        message: 'Chamado aberto com sucesso, mas um ou mais anexos não foram enviados.',
+        message: 'Chamado aberto com sucesso, mas um ou mais anexos nao foram enviados.',
       })
     } else {
       $q.notify({
@@ -211,7 +268,7 @@ async function salvar(): Promise<void> {
 
     await router.replace(`/portal/chamados/${chamado.id}`)
   } catch {
-    erroSalvar.value = 'Não foi possível abrir o chamado. Verifique os dados e tente novamente.'
+    erroSalvar.value = 'Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.'
   } finally {
     salvando.value = false
   }
@@ -221,14 +278,17 @@ function cancelar(): void {
   router.push('/portal/chamados')
 }
 
-onMounted(carregarContexto)
+onMounted(async () => {
+  await carregarContexto()
+  await carregarServicoSelecionado()
+})
 </script>
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
       titulo="Abrir chamado"
-      subtitulo="Informe os dados da solicitação para que a equipe responsável possa realizar o atendimento."
+      subtitulo="Informe os dados da solicitacao para que a equipe responsavel possa realizar o atendimento."
     >
       <template #actions>
         <q-btn flat color="primary" icon="arrow_back" label="Voltar" :disable="salvando" @click="cancelar" />
@@ -237,22 +297,42 @@ onMounted(carregarContexto)
 
     <ErrorState v-if="erroContexto && !carregandoContexto" :mensagem="erroContexto" @retry="carregarContexto" />
 
-    <LoadingState v-else-if="carregandoContexto" inline mensagem="Carregando contexto de abertura..." />
+    <LoadingState
+      v-else-if="carregandoContexto || carregandoCatalogoSelecionado"
+      inline
+      mensagem="Carregando contexto de abertura..."
+    />
 
     <q-form v-else ref="formRef" class="column q-gutter-md" @submit.prevent="salvar">
       <q-banner v-if="erroSalvar" rounded class="bg-negative text-white">
-        Não foi possível abrir o chamado. Verifique os dados e tente novamente.
+        Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.
       </q-banner>
 
-      <AppSectionCard titulo="Dados da solicitação" subtitulo="Preencha os campos obrigatórios para abrir o chamado.">
+      <AppSectionCard titulo="Dados da solicitacao" subtitulo="Preencha os campos obrigatorios para abrir o chamado.">
         <div class="column q-gutter-md">
+          <q-banner v-if="servicoSelecionado" rounded class="bg-blue-1 text-primary">
+            <div class="text-subtitle2">Servico selecionado</div>
+            <div class="text-body2"><strong>{{ servicoSelecionado.nome }}</strong></div>
+            <div class="text-body2">Departamento: {{ servicoSelecionado.departamentoResponsavelNome || 'Nao informado' }}</div>
+            <div class="text-body2">{{ servicoSelecionado.descricao || 'Sem descricao complementar.' }}</div>
+            <div v-if="servicoSelecionado.instrucoesSolicitante" class="text-body2 q-mt-sm">
+              Instrucoes: {{ servicoSelecionado.instrucoesSolicitante }}
+            </div>
+            <div class="text-caption q-mt-sm">
+              Categoria: {{ servicoSelecionado.categoriaNome || 'Nao informada' }} |
+              Subcategoria: {{ servicoSelecionado.subcategoriaNome || 'Nao informada' }} |
+              Prioridade: {{ servicoSelecionado.prioridadePadraoNome || 'Nao informada' }} |
+              SLA: {{ servicoSelecionado.slaPadraoNome || 'Nao informado' }}
+            </div>
+          </q-banner>
+
           <q-input
             v-model="form.titulo"
             outlined
             maxlength="180"
             counter
-            label="Título *"
-            :rules="[(v) => !!String(v ?? '').trim() || 'Título obrigatório']"
+            label="Titulo *"
+            :rules="[(v) => !!String(v ?? '').trim() || 'Titulo obrigatorio']"
           />
 
           <q-input
@@ -262,8 +342,8 @@ onMounted(carregarContexto)
             autogrow
             maxlength="4000"
             counter
-            label="Descrição *"
-            :rules="[(v) => !!String(v ?? '').trim() || 'Descrição obrigatória']"
+            label="Descricao *"
+            :rules="[(v) => !!String(v ?? '').trim() || 'Descricao obrigatoria']"
           />
 
           <div class="row q-col-gutter-md">
@@ -276,6 +356,7 @@ onMounted(carregarContexto)
                 map-options
                 label="Departamento"
                 :options="opcoesDepartamento"
+                :disable="aberturaPorCatalogo"
               />
             </div>
 
@@ -287,7 +368,8 @@ onMounted(carregarContexto)
                 map-options
                 label="Categoria *"
                 :options="opcoesCategoria"
-                :rules="[(v) => !!v || 'Categoria obrigatória']"
+                :rules="[(v) => aberturaPorCatalogo || !!v || 'Categoria obrigatoria']"
+                :disable="aberturaPorCatalogo"
                 @update:model-value="onCategoriaChanged"
               />
             </div>
@@ -301,7 +383,7 @@ onMounted(carregarContexto)
                 clearable
                 label="Subcategoria"
                 :options="opcoesSubcategoria"
-                :disable="!form.categoriaId"
+                :disable="aberturaPorCatalogo || !form.categoriaId"
               />
             </div>
 
@@ -313,7 +395,8 @@ onMounted(carregarContexto)
                 map-options
                 label="Prioridade *"
                 :options="opcoesPrioridade"
-                :rules="[(v) => !!v || 'Prioridade obrigatória']"
+                :rules="[(v) => aberturaPorCatalogo || !!v || 'Prioridade obrigatoria']"
+                :disable="aberturaPorCatalogo"
               />
             </div>
           </div>
@@ -326,7 +409,7 @@ onMounted(carregarContexto)
                 emit-value
                 map-options
                 clearable
-                label="Tipo de solicitação"
+                label="Tipo de solicitacao"
                 :options="opcoesTipoSolicitacao"
               />
             </div>

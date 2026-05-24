@@ -190,10 +190,12 @@ export interface ChamadoDetalhePortal {
 export interface CriarChamadoRequest {
   titulo: string
   descricao: string
+  catalogoServicoId?: string
+  catalogoServicoSlug?: string
   departamentoId?: string
-  categoriaId: string
+  categoriaId?: string
   subcategoriaId?: string
-  prioridadeId: string
+  prioridadeId?: string
   tipoSolicitacaoId?: string
   localUnidadeId?: string
 }

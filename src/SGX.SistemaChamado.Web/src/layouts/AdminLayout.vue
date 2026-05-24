@@ -157,6 +157,10 @@ const menu: MenuItem[] = [
       permissoes.baseConhecimentoGerenciar,
       permissoes.baseConhecimentoPublicar,
       permissoes.baseConhecimentoArquivar,
+      permissoes.catalogoServicosVisualizar,
+      permissoes.catalogoServicosGerenciar,
+      permissoes.catalogoServicosPublicar,
+      permissoes.catalogoServicosArquivar,
     ],
     children: [
       {
@@ -168,6 +172,17 @@ const menu: MenuItem[] = [
           permissoes.baseConhecimentoGerenciar,
           permissoes.baseConhecimentoPublicar,
           permissoes.baseConhecimentoArquivar,
+        ],
+      },
+      {
+        label: 'Catalogo de servicos',
+        icon: 'inventory_2',
+        to: '/admin/conhecimento/catalogo-servicos',
+        requiredAnyPermissions: [
+          permissoes.catalogoServicosVisualizar,
+          permissoes.catalogoServicosGerenciar,
+          permissoes.catalogoServicosPublicar,
+          permissoes.catalogoServicosArquivar,
         ],
       },
     ],
@@ -305,6 +320,7 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/conhecimento/base-conhecimento')) return 'Base de conhecimento'
+  if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catalogo de servicos'
   if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/governanca/auditoria')) return 'HistÃ³rico / Auditoria'

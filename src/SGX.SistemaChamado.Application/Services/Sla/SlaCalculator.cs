@@ -17,10 +17,49 @@ public sealed class SlaCalculator(
         Guid? categoriaId,
         Guid? departamentoId,
         CancellationToken cancellationToken = default)
+        => await CalcularPrazosAsync(prioridadeId, categoriaId, departamentoId, null, cancellationToken);
+
+    public async Task<SlaPrazosAplicados?> CalcularPrazosAsync(
+        Guid prioridadeId,
+        Guid? categoriaId,
+        Guid? departamentoId,
+        Guid? politicaSlaIdPreferencial,
+        CancellationToken cancellationToken = default)
     {
         if (prioridadeId == Guid.Empty)
         {
             throw new ArgumentException("A prioridade informada para calculo de SLA e invalida.", nameof(prioridadeId));
+        }
+
+        if (politicaSlaIdPreferencial.HasValue)
+        {
+            var politicaPreferencial = await politicaRepository.Query()
+                .AsNoTracking()
+                .Where(x => x.Ativo && x.Id == politicaSlaIdPreferencial.Value)
+                .Include(x => x.CalendarioCorporativo)
+                    .ThenInclude(x => x!.HorariosAtendimento)
+                .Include(x => x.CalendarioCorporativo)
+                    .ThenInclude(x => x!.Excecoes)
+                .Include(x => x.Metas.Where(m => m.Ativo && m.PrioridadeId == prioridadeId))
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var metaPreferencial = politicaPreferencial?.Metas.FirstOrDefault();
+            if (politicaPreferencial is not null && metaPreferencial is not null)
+            {
+                var calendarioPreferencial = await ResolverCalendarioAsync(politicaPreferencial, cancellationToken);
+                return new SlaPrazosAplicados(
+                    politicaPreferencial.Id,
+                    politicaPreferencial.Nome,
+                    prioridadeId,
+                    metaPreferencial.TempoPrimeiraRespostaMinutos,
+                    metaPreferencial.TempoResolucaoMinutos,
+                    politicaPreferencial.UsarHorarioComercial,
+                    calendarioPreferencial?.Id,
+                    calendarioPreferencial?.Nome,
+                    calendarioPreferencial,
+                    politicaPreferencial.PausarQuandoAguardandoSolicitante,
+                    $"PoliticaPreferencial:{politicaPreferencial.Nome}");
+            }
         }
 
         var politicas = await politicaRepository.Query()

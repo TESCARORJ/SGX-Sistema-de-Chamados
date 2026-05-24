@@ -58,6 +58,10 @@ public static class SeedData
     public static readonly Guid PermissaoBaseConhecimentoPublicarId = Guid.Parse("88888888-8888-8888-8888-888888888845");
     public static readonly Guid PermissaoBaseConhecimentoArquivarId = Guid.Parse("88888888-8888-8888-8888-888888888846");
     public static readonly Guid PermissaoBaseConhecimentoVincularChamadoId = Guid.Parse("88888888-8888-8888-8888-888888888847");
+    public static readonly Guid PermissaoCatalogoServicosVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888848");
+    public static readonly Guid PermissaoCatalogoServicosGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888849");
+    public static readonly Guid PermissaoCatalogoServicosPublicarId = Guid.Parse("88888888-8888-8888-8888-888888888850");
+    public static readonly Guid PermissaoCatalogoServicosArquivarId = Guid.Parse("88888888-8888-8888-8888-888888888851");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -353,7 +357,11 @@ public static class SeedData
         (PermissaoBaseConhecimentoGerenciarId, "BaseConhecimento.Gerenciar"),
         (PermissaoBaseConhecimentoPublicarId, "BaseConhecimento.Publicar"),
         (PermissaoBaseConhecimentoArquivarId, "BaseConhecimento.Arquivar"),
-        (PermissaoBaseConhecimentoVincularChamadoId, "BaseConhecimento.VincularChamado")
+        (PermissaoBaseConhecimentoVincularChamadoId, "BaseConhecimento.VincularChamado"),
+        (PermissaoCatalogoServicosVisualizarId, "CatalogoServicos.Visualizar"),
+        (PermissaoCatalogoServicosGerenciarId, "CatalogoServicos.Gerenciar"),
+        (PermissaoCatalogoServicosPublicarId, "CatalogoServicos.Publicar"),
+        (PermissaoCatalogoServicosArquivarId, "CatalogoServicos.Arquivar")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -381,7 +389,8 @@ public static class SeedData
         "RoadmapImplementacoes.Visualizar",
         "Sla.Visualizar",
         "BaseConhecimento.Visualizar",
-        "BaseConhecimento.VincularChamado"
+        "BaseConhecimento.VincularChamado",
+        "CatalogoServicos.Visualizar"
     ];
 
     private static readonly string[] CodigosPermissoesSolicitante =
@@ -1052,26 +1061,26 @@ public static class SeedData
         new
         {
             Id = RoadmapItsmItem12Id,
-            Area = "Catalogo de servicos",
-            Categoria = "Catalogo",
+            Area = "Catalogo de Servicos",
+            Categoria = "Conhecimento",
             RoadmapCategoriaId = RoadmapCategoriaConhecimentoId,
-            SituacaoAtual = "Parcial, via categorias/departamentos",
-            AtencaoTecnica = "Pode precisar virar recurso mais formal",
-            Status = StatusRoadmapItsm.Parcial,
+            SituacaoAtual = "Catalogo de Servicos implementado funcionalmente como modulo institucional multiarea. O modulo contempla fundacao tecnica, CRUD administrativo, frontend administrativo, consulta no portal, frontend do portal, controle de permissoes, visibilidade por perfil, integracao com abertura de chamados, associacao CatalogoServicoId ao chamado, aplicacao backend dos dados oficiais do servico, historico de abertura por catalogo, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras.",
+            AtencaoTecnica = "Manter consolidacao de um unico item canonico do Catalogo de Servicos no roadmap e preservar as regras de seguranca backend do modulo sem relaxamento.",
+            Status = StatusRoadmapItsm.EmValidacao,
             Prioridade = PrioridadeRoadmapItsm.Media,
             Impacto = ImpactoRoadmapItsm.Alto,
-            Decisao = DecisaoRoadmapItsm.PosValidacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
-            DataConclusaoTecnica = (DateTime?)null,
+            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.RequerValidacao,
+            PercentualImplementacao = 90,
+            PendenciasTecnicas = "- Testes E2E completos.\n- Evolucoes futuras: formularios dinamicos por servico, campos obrigatorios por servico, workflow de aprovacao por servico e melhorias de indicadores/relatorios.",
+            PendenciasHomologacao = "- Homologacao institucional com usuarios reais.\n- Evidencias formais com prints reais.",
+            EvidenciaImplementacao = "- docs/CATALOGO-SERVICOS.md\n- docs/CHECKLIST-HOMOLOGACAO-CATALOGO-SERVICOS.md\n- docs/evidencias/catalogo-servicos/README.md",
+            DataConclusaoTecnica = DataBase,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "A tela do roadmap deve exibir um unico item de Catalogo de Servicos com categoria Conhecimento, status de implementacao Implementado funcionalmente, status tecnico Homologacao funcional preparada e percentual 90.",
+            ProximaAcao = "Executar homologacao institucional com usuarios reais e anexar evidencias formais.",
+            Observacao = "Sprint 6 consolidada com checklist e estrutura de evidencias preparados.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 12,

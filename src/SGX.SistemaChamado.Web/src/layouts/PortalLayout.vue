@@ -16,6 +16,7 @@ const menu = [
   { label: 'Dashboard', icon: 'space_dashboard', to: '/portal' },
   { label: 'Meus chamados', icon: 'receipt_long', to: '/portal/chamados' },
   { label: 'Novo chamado', icon: 'add_circle', to: '/portal/chamados/novo' },
+  { label: 'Catalogo de servicos', icon: 'inventory_2', to: '/portal/catalogo-servicos' },
   { label: 'Base de conhecimento', icon: 'menu_book', to: '/portal/base-conhecimento' },
 ]
 

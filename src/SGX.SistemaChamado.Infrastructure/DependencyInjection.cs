@@ -77,6 +77,7 @@ public static class DependencyInjection
         services.AddScoped<IObterPortalContextoUseCase, ObterPortalContextoUseCase>();
         services.AddScoped<IListarArtigosPortalBaseConhecimentoUseCase, ListarArtigosPortalBaseConhecimentoUseCase>();
         services.AddScoped<IObterArtigoPortalBaseConhecimentoPorSlugUseCase, ObterArtigoPortalBaseConhecimentoPorSlugUseCase>();
+        services.AddScoped<IPortalCatalogoServicosUseCases, CatalogoServicosPortalUseCases>();
         services.AddScoped<IObterAdminContextoUseCase, ObterAdminContextoUseCase>();
         services.AddScoped<IListarEventosAuditoriaUseCase, ListarEventosAuditoriaUseCase>();
         services.AddScoped<IObterEventoAuditoriaUseCase, ObterEventoAuditoriaUseCase>();
@@ -172,6 +173,7 @@ public static class DependencyInjection
         services.AddScoped<IPublicarArtigoBaseConhecimentoUseCase, PublicarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IArquivarArtigoBaseConhecimentoUseCase, ArquivarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IReativarArtigoBaseConhecimentoUseCase, ReativarArtigoBaseConhecimentoUseCase>();
+        services.AddScoped<IAdminCatalogoServicosUseCases, CatalogoServicosAdminUseCases>();
         services.AddScoped<IListarArtigosConhecimentoDoChamadoUseCase, ListarArtigosConhecimentoDoChamadoUseCase>();
         services.AddScoped<IVincularArtigoConhecimentoAoChamadoUseCase, VincularArtigoConhecimentoAoChamadoUseCase>();
         services.AddScoped<IRemoverArtigoConhecimentoDoChamadoUseCase, RemoverArtigoConhecimentoDoChamadoUseCase>();
