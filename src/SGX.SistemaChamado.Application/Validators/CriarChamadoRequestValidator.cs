@@ -50,5 +50,9 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
         RuleFor(x => x.DepartamentoId)
             .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
             .WithMessage("Departamento invalido.");
+
+        RuleFor(x => x.InventarioAtivoId)
+            .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
+            .WithMessage("InventarioAtivoId invalido.");
     }
 }

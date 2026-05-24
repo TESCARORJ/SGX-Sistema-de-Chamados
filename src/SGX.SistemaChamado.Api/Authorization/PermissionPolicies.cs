@@ -39,4 +39,9 @@ public static class PermissionPolicies
     public const string CatalogoServicosGerenciar = Prefixo + PermissoesConstants.CatalogoServicosGerenciar;
     public const string CatalogoServicosPublicar = Prefixo + PermissoesConstants.CatalogoServicosPublicar;
     public const string CatalogoServicosArquivar = Prefixo + PermissoesConstants.CatalogoServicosArquivar;
+    public const string InventarioAtivosVisualizar = Prefixo + PermissoesConstants.InventarioAtivosVisualizar;
+    public const string InventarioAtivosGerenciar = Prefixo + PermissoesConstants.InventarioAtivosGerenciar;
+    public const string InventarioAtivosInativar = Prefixo + PermissoesConstants.InventarioAtivosInativar;
+    public const string InventarioAtivosMovimentar = Prefixo + PermissoesConstants.InventarioAtivosMovimentar;
+    public const string InventarioAtivosVincularChamado = Prefixo + PermissoesConstants.InventarioAtivosVincularChamado;
 }

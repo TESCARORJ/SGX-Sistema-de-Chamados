@@ -12,4 +12,5 @@ public sealed class CriarChamadoRequest
     public Guid? PrioridadeId { get; set; }
     public Guid? TipoSolicitacaoId { get; set; }
     public Guid? LocalUnidadeId { get; set; }
+    public Guid? InventarioAtivoId { get; set; }
 }

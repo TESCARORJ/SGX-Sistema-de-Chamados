@@ -19,52 +19,52 @@ function Write-OkLine {
     Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
+function Write-InfoLine {
+    param([string]$Message)
+    Write-Host "[INFO] $Message" -ForegroundColor Gray
+}
+
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 Set-Location $repoRoot
 
-Write-Step "SGX dev reset para locks de build (Windows)"
+Write-Step "Reset conservador de locks de build/debug (SGX)"
 Write-Host "Repositorio: $repoRoot"
-Write-WarnLine "Este script pode encerrar processos de debug/API relacionados ao SGX para liberar DLL/PDB bloqueados."
-Write-WarnLine "Sem -KillDotnet, processos dotnet.exe nao serao encerrados automaticamente."
+Write-WarnLine "Pare o debugger da API/Worker antes de continuar."
+Write-WarnLine "Sem -KillDotnet, este script nao encerra dotnet.exe automaticamente."
 
 $processes = Get-CimInstance Win32_Process
-
 $relatedProcesses = $processes | Where-Object {
     ($_.Name -in @('SGX.SistemaChamado.Api.exe', 'SGX.SistemaChamado.Worker.Email.exe', 'vsdbg.exe', 'VSCodeDebugAdapterHost.exe')) -or
     ($_.CommandLine -like '*SGX.SistemaChamado*')
 }
 
 if (-not $relatedProcesses) {
-    Write-Host "Nenhum processo relacionado ao SGX foi identificado." -ForegroundColor DarkGray
+    Write-InfoLine "Nenhum processo relacionado ao SGX foi identificado."
 } else {
-    Write-Step "Processos relacionados identificados"
+    Write-Step "Processos possivelmente relacionados"
     $relatedProcesses |
         Sort-Object Name, ProcessId |
         Select-Object ProcessId, Name, CommandLine |
         Format-Table -AutoSize
 }
 
-Write-Step "Tentando encerrar processos relacionados"
-
+Write-Step "Encerrando processos relacionados (modo seguro)"
 foreach ($proc in $relatedProcesses) {
     $name = [string]$proc.Name
     $id = [int]$proc.ProcessId
     $commandLine = [string]$proc.CommandLine
 
-    if ($name -ieq 'dotnet.exe') {
-        if (-not $KillDotnet) {
-            Write-WarnLine "Ignorando dotnet.exe PID $id (use -KillDotnet se quiser encerrar dotnet relacionado ao SGX)."
-            continue
-        }
+    if ($name -ieq 'dotnet.exe' -and -not $KillDotnet) {
+        Write-WarnLine "Ignorando dotnet.exe PID $id (use -KillDotnet para encerrar dotnet relacionado ao SGX)."
+        continue
+    }
 
-        if ($commandLine -notlike '*SGX.SistemaChamado*') {
-            Write-WarnLine "Ignorando dotnet.exe PID $id porque nao parece relacionado ao SGX."
-            continue
-        }
+    if ($name -ieq 'dotnet.exe' -and $commandLine -notlike '*SGX.SistemaChamado*') {
+        Write-WarnLine "Ignorando dotnet.exe PID $id por nao parecer relacionado ao SGX."
+        continue
     }
 
     try {
-        Write-Host "Encerrando $name (PID $id)..." -ForegroundColor Yellow
         Stop-Process -Id $id -Force -ErrorAction Stop
         Write-OkLine "$name (PID $id) encerrado."
     } catch {
@@ -72,7 +72,28 @@ foreach ($proc in $relatedProcesses) {
     }
 }
 
-Write-Step "Aguardando liberacao de handles"
+if ($KillDotnet) {
+    $stillRunningDotnet = Get-Process -Name dotnet -ErrorAction SilentlyContinue
+    if ($stillRunningDotnet) {
+        Write-WarnLine "Ainda existem processos dotnet.exe ativos."
+        Write-WarnLine "Para manter seguranca, o script NAO mata todos globalmente sem confirmacao."
+        $confirmation = Read-Host "Digite MATAR-TODOS para encerrar todos os dotnet.exe restantes (acao ampla), ou pressione Enter para manter seguro"
+        if ($confirmation -eq 'MATAR-TODOS') {
+            foreach ($dotnetProc in $stillRunningDotnet) {
+                try {
+                    Stop-Process -Id $dotnetProc.Id -Force -ErrorAction Stop
+                    Write-OkLine "dotnet.exe PID $($dotnetProc.Id) encerrado."
+                } catch {
+                    Write-WarnLine "Nao foi possivel encerrar dotnet.exe PID $($dotnetProc.Id): $($_.Exception.Message)"
+                }
+            }
+        } else {
+            Write-InfoLine "Mantido modo seguro: dotnet.exe global nao foi encerrado."
+        }
+    }
+}
+
+Write-Step "Aguardando liberacao de arquivos"
 Start-Sleep -Seconds 1
 
 $pathsToClean = @(
@@ -80,20 +101,20 @@ $pathsToClean = @(
     'src/SGX.SistemaChamado.Api/obj',
     'src/SGX.SistemaChamado.Infrastructure/bin',
     'src/SGX.SistemaChamado.Infrastructure/obj',
-    'src/SGX.SistemaChamado.Domain/bin',
-    'src/SGX.SistemaChamado.Domain/obj',
     'src/SGX.SistemaChamado.Application/bin',
     'src/SGX.SistemaChamado.Application/obj',
+    'src/SGX.SistemaChamado.Domain/bin',
+    'src/SGX.SistemaChamado.Domain/obj',
     'tests/SGX.SistemaChamado.Tests/bin',
     'tests/SGX.SistemaChamado.Tests/obj'
 )
 
-Write-Step "Limpando pastas bin/obj"
+Write-Step "Limpando bin/obj dos projetos principais"
 foreach ($relativePath in $pathsToClean) {
     $fullPath = Join-Path $repoRoot $relativePath
 
     if (-not (Test-Path -LiteralPath $fullPath)) {
-        Write-Host "Nao encontrado: $relativePath" -ForegroundColor DarkGray
+        Write-InfoLine "Nao encontrado: $relativePath"
         continue
     }
 
@@ -107,24 +128,23 @@ foreach ($relativePath in $pathsToClean) {
 
 Write-Step "Executando dotnet clean"
 & dotnet clean SGX.SistemaChamado.sln
-if ($LASTEXITCODE -ne 0) {
-    Write-WarnLine "dotnet clean retornou codigo $LASTEXITCODE."
+$cleanExitCode = $LASTEXITCODE
+if ($cleanExitCode -ne 0) {
+    Write-WarnLine "dotnet clean retornou codigo $cleanExitCode."
 } else {
     Write-OkLine "dotnet clean concluido."
 }
 
-Write-Step "Executando dotnet build Debug"
+Write-Step "Executando dotnet build -c Debug"
 & dotnet build SGX.SistemaChamado.sln -c Debug
 $buildExitCode = $LASTEXITCODE
 if ($buildExitCode -ne 0) {
     Write-WarnLine "dotnet build Debug falhou com codigo $buildExitCode."
-    Write-Host "Dica: rode este script novamente com -KillDotnet caso ainda exista lock de dotnet.exe." -ForegroundColor Yellow
+    Write-Host "Revise locks ativos e rode novamente com -KillDotnet se necessario." -ForegroundColor Yellow
     exit $buildExitCode
 }
 
 Write-OkLine "dotnet build Debug concluido com sucesso."
-
 Write-Step "Proximos passos"
-Write-Host "1. Validar modelo EF: scripts/check-ef-model.ps1"
-Write-Host "2. Iniciar API novamente (dotnet run ou debug pelo IDE)."
-Write-Host "3. Se lock persistir, feche sessoes de debug e execute este script com -KillDotnet."
+Write-Host "1. powershell -ExecutionPolicy Bypass -File scripts/check-ef-model.ps1"
+Write-Host "2. Reiniciar API/Debug normalmente."

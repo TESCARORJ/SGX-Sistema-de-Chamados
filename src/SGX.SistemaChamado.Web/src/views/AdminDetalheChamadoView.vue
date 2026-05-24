@@ -21,6 +21,8 @@ import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
 import { chamadoBaseConhecimentoService } from '../services/chamadoBaseConhecimentoService'
+import { chamadoInventarioAtivoService } from '../services/chamadoInventarioAtivoService'
+import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminService'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { useAuthStore } from '../stores/authStore'
@@ -30,6 +32,7 @@ import type {
   ChamadoAdminDetalhe,
   ChamadoArtigoConhecimento,
 } from '../types/admin'
+import type { InventarioAtivoDetalhe, InventarioAtivoListagem } from '../types/inventarioAtivos'
 
 const $q = useQuasar()
 const route = useRoute()
@@ -55,6 +58,8 @@ const showReabrir = ref(false)
 const showComentar = ref(false)
 const showVincularArtigo = ref(false)
 const showConfirmarRemocaoVinculo = ref(false)
+const showVincularAtivo = ref(false)
+const showConfirmarRemocaoAtivo = ref(false)
 
 const comentarioMensagem = ref('')
 const comentarioInterno = ref(false)
@@ -71,6 +76,15 @@ const paginaArtigosDisponiveis = ref(1)
 const tamanhoPaginaArtigosDisponiveis = ref(8)
 const termoBuscaArtigosDisponiveis = ref('')
 const categoriaBuscaArtigosDisponiveis = ref('')
+const ativosDisponiveis = ref<InventarioAtivoListagem[]>([])
+const totalAtivosDisponiveis = ref(0)
+const paginaAtivosDisponiveis = ref(1)
+const tamanhoPaginaAtivosDisponiveis = ref(8)
+const termoBuscaAtivosDisponiveis = ref('')
+const loadingAtivosDisponiveis = ref(false)
+const vinculandoAtivoId = ref<string | null>(null)
+const removendoVinculoAtivo = ref(false)
+const ativoVinculadoDetalhe = ref<InventarioAtivoDetalhe | null>(null)
 
 const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
@@ -88,6 +102,9 @@ const podeEncerrarPermissao = computed(() =>
 )
 const podeVincularArtigoConhecimento = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.baseConhecimentoVincularChamado)
+)
+const podeVincularAtivoInventario = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.inventarioAtivosVincularChamado)
 )
 
 const podeAssumir = computed(() => {
@@ -110,9 +127,18 @@ const slaProximo = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVen
 const totalPaginasArtigosDisponiveis = computed(() =>
   Math.max(1, Math.ceil(totalArtigosDisponiveis.value / tamanhoPaginaArtigosDisponiveis.value))
 )
+const totalPaginasAtivosDisponiveis = computed(() =>
+  Math.max(1, Math.ceil(totalAtivosDisponiveis.value / tamanhoPaginaAtivosDisponiveis.value))
+)
 const mensagemConfirmarRemocaoVinculo = computed(() => {
   const titulo = artigoVinculoSelecionado.value?.titulo ?? ''
   return `Deseja remover o vinculo do artigo "${titulo}" deste chamado?`
+})
+const mensagemConfirmarRemocaoAtivo = computed(() => {
+  const codigo = detalhe.value?.inventarioAtivoCodigo ?? ''
+  const nome = detalhe.value?.inventarioAtivoNome ?? ''
+  const referencia = [codigo, nome].filter(Boolean).join(' - ')
+  return `Deseja remover o vinculo do ativo "${referencia || 'selecionado'}" deste chamado?`
 })
 
 const atualizadoEm = computed(() => {
@@ -195,6 +221,19 @@ function visibilidadeArtigoColor(visibilidade: number): string {
   return 'teal'
 }
 
+async function carregarAtivoVinculadoDetalhe(): Promise<void> {
+  if (!detalhe.value?.inventarioAtivoId) {
+    ativoVinculadoDetalhe.value = null
+    return
+  }
+
+  try {
+    ativoVinculadoDetalhe.value = await inventarioAtivosAdminService.obterPorId(detalhe.value.inventarioAtivoId)
+  } catch {
+    ativoVinculadoDetalhe.value = null
+  }
+}
+
 async function carregar(): Promise<void> {
   loading.value = true
   erro.value = null
@@ -207,6 +246,7 @@ async function carregar(): Promise<void> {
 
     contexto.value = ctx
     detalhe.value = det
+    await carregarAtivoVinculadoDetalhe()
 
     if (podeVincularArtigoConhecimento.value) {
       await carregarArtigosConhecimento()
@@ -224,6 +264,7 @@ async function recarregarDetalhe(): Promise<void> {
   }
 
   detalhe.value = await adminService.obterChamadoAdmin(detalhe.value.id)
+  await carregarAtivoVinculadoDetalhe()
 }
 
 async function assumir(): Promise<void> {
@@ -514,6 +555,105 @@ async function confirmarRemocaoVinculo(): Promise<void> {
   }
 }
 
+async function carregarAtivosDisponiveisParaVinculo(): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  loadingAtivosDisponiveis.value = true
+
+  try {
+    const response = await inventarioAtivosAdminService.listar({
+      termo: termoBuscaAtivosDisponiveis.value.trim() || undefined,
+      ativo: true,
+      pagina: paginaAtivosDisponiveis.value,
+      tamanhoPagina: tamanhoPaginaAtivosDisponiveis.value,
+      ordenarPor: 'nome',
+      direcaoOrdenacao: 'asc',
+    })
+
+    ativosDisponiveis.value = response.items
+    totalAtivosDisponiveis.value = response.total
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Nao foi possivel buscar ativos para vinculo.')
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    loadingAtivosDisponiveis.value = false
+  }
+}
+
+async function abrirModalVincularAtivo(): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  termoBuscaAtivosDisponiveis.value = ''
+  paginaAtivosDisponiveis.value = 1
+  totalAtivosDisponiveis.value = 0
+  ativosDisponiveis.value = []
+  showVincularAtivo.value = true
+
+  await carregarAtivosDisponiveisParaVinculo()
+}
+
+async function buscarAtivosDisponiveis(): Promise<void> {
+  paginaAtivosDisponiveis.value = 1
+  await carregarAtivosDisponiveisParaVinculo()
+}
+
+async function alterarPaginaAtivosDisponiveis(value: number): Promise<void> {
+  paginaAtivosDisponiveis.value = value
+  await carregarAtivosDisponiveisParaVinculo()
+}
+
+async function vincularAtivoChamado(ativo: InventarioAtivoListagem): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  vinculandoAtivoId.value = ativo.id
+
+  try {
+    detalhe.value = await chamadoInventarioAtivoService.vincularAtivo(detalhe.value.id, ativo.id)
+    await carregarAtivoVinculadoDetalhe()
+    await carregarAtivosDisponiveisParaVinculo()
+    $q.notify({ type: 'positive', message: 'Ativo vinculado ao chamado com sucesso.' })
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Nao foi possivel vincular o ativo ao chamado.')
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    vinculandoAtivoId.value = null
+  }
+}
+
+function prepararRemocaoAtivoVinculado(): void {
+  showConfirmarRemocaoAtivo.value = true
+}
+
+async function confirmarRemocaoAtivoVinculado(): Promise<void> {
+  if (!detalhe.value?.inventarioAtivoId) {
+    return
+  }
+
+  removendoVinculoAtivo.value = true
+
+  try {
+    detalhe.value = await chamadoInventarioAtivoService.removerAtivo(detalhe.value.id)
+    ativoVinculadoDetalhe.value = null
+    showConfirmarRemocaoAtivo.value = false
+    $q.notify({ type: 'positive', message: 'Vinculo do ativo removido com sucesso.' })
+
+    if (showVincularAtivo.value) {
+      await carregarAtivosDisponiveisParaVinculo()
+    }
+  } catch (error) {
+    const mensagem = extrairMensagemErro(error, 'Nao foi possivel remover o vinculo do ativo.')
+    $q.notify({ type: 'negative', message: mensagem })
+  } finally {
+    removendoVinculoAtivo.value = false
+  }
+}
+
 function abrirArtigoConhecimento(artigoId: string): void {
   router.push(`/admin/conhecimento/base-conhecimento/${artigoId}`)
 }
@@ -630,6 +770,76 @@ onMounted(carregar)
             :situacao="detalhe.sla?.situacao ?? 'NaoAplicavel'"
           />
         </div>
+      </AppSectionCard>
+
+      <AppSectionCard
+        v-if="podeVisualizar"
+        titulo="Ativo vinculado"
+        subtitulo="Rastreie o ativo principal associado ao chamado e ajuste o vinculo quando necessario."
+      >
+        <template #actions>
+          <div class="row q-gutter-xs">
+            <q-btn
+              v-if="podeVincularAtivoInventario"
+              color="primary"
+              flat
+              icon="link"
+              label="Vincular ativo"
+              @click="abrirModalVincularAtivo"
+            />
+            <q-btn
+              v-if="podeVincularAtivoInventario && detalhe.inventarioAtivoId"
+              color="negative"
+              flat
+              icon="link_off"
+              label="Remover vinculo"
+              :loading="removendoVinculoAtivo"
+              @click="prepararRemocaoAtivoVinculado"
+            />
+          </div>
+        </template>
+
+        <EmptyState
+          v-if="!detalhe.inventarioAtivoId"
+          titulo="Nenhum ativo vinculado"
+          mensagem="Este chamado ainda nao possui ativo associado."
+          icon="inventory_2"
+        />
+
+        <q-list v-else separator>
+          <q-item>
+            <q-item-section>
+              <q-item-label caption>Codigo</q-item-label>
+              <q-item-label>{{ detalhe.inventarioAtivoCodigo || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Nome</q-item-label>
+              <q-item-label>{{ detalhe.inventarioAtivoNome || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Patrimonio</q-item-label>
+              <q-item-label>{{ ativoVinculadoDetalhe?.numeroPatrimonio || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Serie</q-item-label>
+              <q-item-label>{{ ativoVinculadoDetalhe?.numeroSerie || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Status operacional</q-item-label>
+              <q-item-label>{{ ativoVinculadoDetalhe?.statusOperacionalDescricao || '-' }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                v-if="detalhe.inventarioAtivoId"
+                flat
+                color="primary"
+                icon="open_in_new"
+                label="Abrir ativo"
+                @click="router.push(`/admin/infraestrutura/inventario-ativos/${detalhe.inventarioAtivoId}`)"
+              />
+            </q-item-section>
+          </q-item>
+        </q-list>
       </AppSectionCard>
 
       <div class="detalhe-top-grid">
@@ -1033,6 +1243,93 @@ onMounted(carregar)
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="showVincularAtivo">
+      <q-card class="sgx-card vinculo-ativo-dialog-card">
+        <q-card-section class="row items-center q-gutter-sm">
+          <div class="text-h6">Vincular ativo de inventario</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form class="row q-col-gutter-sm" @submit.prevent="buscarAtivosDisponiveis">
+            <div class="col-12 col-md-9">
+              <q-input
+                v-model="termoBuscaAtivosDisponiveis"
+                outlined
+                label="Busca"
+                placeholder="Codigo, nome, patrimonio, serie..."
+                :disable="loadingAtivosDisponiveis"
+              />
+            </div>
+
+            <div class="col-12 col-md-3">
+              <q-btn
+                class="full-width"
+                color="primary"
+                icon="search"
+                label="Buscar"
+                type="submit"
+                :loading="loadingAtivosDisponiveis"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+
+        <q-card-section>
+          <LoadingState v-if="loadingAtivosDisponiveis && !ativosDisponiveis.length" inline mensagem="Buscando ativos..." />
+
+          <EmptyState
+            v-else-if="!ativosDisponiveis.length"
+            titulo="Nenhum ativo disponivel"
+            mensagem="Nao ha ativos ativos disponiveis para vinculo com os filtros atuais."
+            icon="search_off"
+          />
+
+          <q-list v-else bordered separator>
+            <q-item v-for="ativo in ativosDisponiveis" :key="ativo.id">
+              <q-item-section>
+                <q-item-label class="text-weight-medium">{{ ativo.codigo }} - {{ ativo.nome }}</q-item-label>
+                <q-item-label caption>
+                  Tipo: {{ ativo.tipoAtivoInventarioNome }} | Patrimonio: {{ ativo.numeroPatrimonio || '-' }} | Serie:
+                  {{ ativo.numeroSerie || '-' }}
+                </q-item-label>
+                <q-item-label caption>
+                  Status: {{ ativo.statusOperacionalDescricao }} | Criticidade: {{ ativo.criticidadeDescricao }}
+                </q-item-label>
+              </q-item-section>
+
+              <q-item-section side>
+                <q-btn
+                  color="positive"
+                  dense
+                  flat
+                  icon="link"
+                  label="Vincular"
+                  :loading="vinculandoAtivoId === ativo.id"
+                  @click="vincularAtivoChamado(ativo)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <div v-if="totalPaginasAtivosDisponiveis > 1" class="row justify-center q-mt-md">
+            <q-pagination
+              :model-value="paginaAtivosDisponiveis"
+              :max="totalPaginasAtivosDisponiveis"
+              :max-pages="6"
+              boundary-links
+              direction-links
+              color="primary"
+              @update:model-value="alterarPaginaAtivosDisponiveis"
+            />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Fechar" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <ConfirmDialog
       v-model="showConfirmarRemocaoVinculo"
       titulo="Remover vínculo"
@@ -1042,6 +1339,16 @@ onMounted(carregar)
       :loading="!!removendoArtigoId"
       @confirm="confirmarRemocaoVinculo"
       @cancel="cancelarRemocaoVinculo"
+    />
+
+    <ConfirmDialog
+      v-model="showConfirmarRemocaoAtivo"
+      titulo="Remover vinculo de ativo"
+      :mensagem="mensagemConfirmarRemocaoAtivo"
+      confirmar-label="Remover"
+      color="negative"
+      :loading="removendoVinculoAtivo"
+      @confirm="confirmarRemocaoAtivoVinculado"
     />
   </q-page>
 </template>
@@ -1053,6 +1360,11 @@ onMounted(carregar)
 
 .vinculo-artigo-dialog-card {
   width: min(1024px, 96vw);
+  max-height: 90vh;
+}
+
+.vinculo-ativo-dialog-card {
+  width: min(980px, 96vw);
   max-height: 90vh;
 }
 

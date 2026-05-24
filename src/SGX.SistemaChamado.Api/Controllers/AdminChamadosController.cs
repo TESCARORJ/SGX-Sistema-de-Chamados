@@ -22,6 +22,8 @@ public sealed class AdminChamadosController(
     IComentarChamadoAdminUseCase comentarChamadoAdminUseCase,
     IEncerrarChamadoUseCase encerrarChamadoUseCase,
     IReabrirChamadoUseCase reabrirChamadoUseCase,
+    IVincularInventarioAtivoChamadoUseCase vincularInventarioAtivoChamadoUseCase,
+    IRemoverInventarioAtivoChamadoUseCase removerInventarioAtivoChamadoUseCase,
     IListarArtigosConhecimentoDoChamadoUseCase listarArtigosConhecimentoDoChamadoUseCase,
     IVincularArtigoConhecimentoAoChamadoUseCase vincularArtigoConhecimentoAoChamadoUseCase,
     IRemoverArtigoConhecimentoDoChamadoUseCase removerArtigoConhecimentoDoChamadoUseCase,
@@ -292,6 +294,52 @@ public sealed class AdminChamadosController(
         try
         {
             var response = await reabrirChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/ativo/{ativoId:guid}")]
+    [Authorize(Policy = PermissionPolicies.InventarioAtivosVincularChamado)]
+    public async Task<IActionResult> VincularAtivoChamado(Guid chamadoId, Guid ativoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await vincularInventarioAtivoChamadoUseCase.ExecutarAsync(chamadoId, ativoId, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpDelete("chamados/{chamadoId:guid}/ativo")]
+    [Authorize(Policy = PermissionPolicies.InventarioAtivosVincularChamado)]
+    public async Task<IActionResult> RemoverVinculoAtivoChamado(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await removerInventarioAtivoChamadoUseCase.ExecutarAsync(chamadoId, cancellationToken);
             return Ok(response);
         }
         catch (UnauthorizedAccessException)

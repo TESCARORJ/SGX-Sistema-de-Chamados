@@ -188,6 +188,30 @@ const menu: MenuItem[] = [
     ],
   },
   {
+    label: 'Infraestrutura',
+    icon: 'memory',
+    requiredAnyPermissions: [
+      permissoes.inventarioAtivosVisualizar,
+      permissoes.inventarioAtivosGerenciar,
+      permissoes.inventarioAtivosInativar,
+      permissoes.inventarioAtivosMovimentar,
+      permissoes.inventarioAtivosVincularChamado,
+    ],
+    children: [
+      {
+        label: 'Inventario / Ativos',
+        icon: 'inventory',
+        to: '/admin/infraestrutura/inventario-ativos',
+        requiredAnyPermissions: [
+          permissoes.inventarioAtivosVisualizar,
+          permissoes.inventarioAtivosGerenciar,
+          permissoes.inventarioAtivosInativar,
+          permissoes.inventarioAtivosMovimentar,
+        ],
+      },
+    ],
+  },
+  {
     label: 'ConfiguraÃ§Ãµes',
     icon: 'settings',
     requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
@@ -321,6 +345,7 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/conhecimento/base-conhecimento')) return 'Base de conhecimento'
   if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catalogo de servicos'
+  if (route.path.startsWith('/admin/infraestrutura/inventario-ativos')) return 'Inventario / Ativos'
   if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/governanca/auditoria')) return 'HistÃ³rico / Auditoria'

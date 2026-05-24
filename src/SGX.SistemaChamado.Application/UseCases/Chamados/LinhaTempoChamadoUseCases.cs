@@ -184,6 +184,8 @@ public sealed class ListarLinhaTempoChamadoUseCase(
             TipoHistoricoChamado.ResponsavelAlterado => ("responsavel", "Responsavel", "Responsavel alterado", true),
             TipoHistoricoChamado.PrioridadeAlterada => ("prioridade", "Prioridade", "Prioridade alterada", true),
             TipoHistoricoChamado.CategoriaAlterada => ("categoria", "Categoria", "Categoria alterada", true),
+            TipoHistoricoChamado.AtivoVinculado => ("ativo", "Ativo", "Ativo vinculado", false),
+            TipoHistoricoChamado.AtivoRemovido => ("ativo", "Ativo", "Vinculo de ativo removido", false),
             TipoHistoricoChamado.Encerrado => ("encerramento", "Encerramento", "Chamado encerrado", false),
             TipoHistoricoChamado.Reaberto => ("reabertura", "Reabertura", "Chamado reaberto", false),
             TipoHistoricoChamado.IntegracaoEmail => ("historico", "Historico", "Atualizacao interna", true),
@@ -194,7 +196,9 @@ public sealed class ListarLinhaTempoChamadoUseCase(
     {
         if (historico.Tipo is TipoHistoricoChamado.StatusAlterado
             or TipoHistoricoChamado.Encerrado
-            or TipoHistoricoChamado.Reaberto)
+            or TipoHistoricoChamado.Reaberto
+            or TipoHistoricoChamado.AtivoVinculado
+            or TipoHistoricoChamado.AtivoRemovido)
         {
             return true;
         }

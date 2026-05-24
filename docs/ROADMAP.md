@@ -1556,3 +1556,229 @@ Pendencias evolutivas:
 - automacao de triagem por servico;
 - sugestao de artigos da Base de Conhecimento por servico;
 - melhoria de encoding de `docs/ROADMAP.md` e `docs/ROADMAP-ITSM.md`.
+## Sprint Inventario/Ativos 1 - Fundacao tecnica
+
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+
+Status da implementacao: Fundacao tecnica implementada
+Status tecnico: Sprint 1 concluida apos validacao
+Percentual: 20%
+
+Objetivo:
+Criar a fundacao tecnica do modulo Inventario/Ativos para cadastro e rastreabilidade de ativos de infraestrutura, preparando evolucoes de vinculo com chamados, usuarios, departamentos, locais/unidades e historico de movimentacoes.
+
+Entregas consolidadas:
+- entidade `InventarioAtivo` com identificacao por `Codigo` e trilha de inativacao logica;
+- entidade `TipoAtivoInventario` com seed inicial de tipos de ativo;
+- enums `StatusOperacionalAtivo`, `StatusPatrimonialAtivo` e `CriticidadeAtivo`;
+- tabelas `inventario_ativos` e `tipos_ativo_inventario` via migration `Sprint1InventarioAtivosFundacao`;
+- indices de busca e unicidade (incluindo filtros para `NumeroPatrimonio` e `NumeroSerie` quando preenchidos);
+- permissoes granulares `InventarioAtivos.*` com seed e constantes frontend atualizadas;
+- documentacao inicial do modulo em `docs/INVENTARIO-ATIVOS.md`.
+
+Regras consolidadas:
+- sem exclusao fisica de ativo;
+- inativacao preserva historico;
+- `Codigo` e identificador institucional do ativo no SGX;
+- `NumeroPatrimonio` e `NumeroSerie` permanecem opcionais para atender ativos sem tombamento/serie conhecida.
+
+Pendencias evolutivas:
+- CRUD administrativo completo e filtros operacionais;
+- trilha de movimentacoes do ativo;
+- vinculo com chamados e historico de recorrencia;
+- homologacao institucional com evidencias formais.
+
+## Sprint Inventario/Ativos 2 - CRUD administrativo backend
+
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+
+Status da implementacao: CRUD administrativo implementado
+Status tecnico: Sprint 2 concluida apos validacao
+Percentual: 45%
+
+Objetivo:
+Implementar o CRUD administrativo backend do modulo Inventario/Ativos com filtros, validacoes, permissao granular, auditoria e testes automatizados.
+
+Entregas consolidadas:
+- contratos administrativos (`FiltroInventarioAtivoRequest`, `InventarioAtivoListagemDto`, `InventarioAtivoDetalheDto`, `CriarInventarioAtivoRequest`, `AtualizarInventarioAtivoRequest`);
+- interface `IAdminInventarioAtivosUseCases`;
+- implementacao `InventarioAtivosAdminUseCases`;
+- controller `AdminInventarioAtivosController` com endpoints administrativos do modulo;
+- validacoes de relacionamentos com tipo, departamento, local/unidade e usuario responsavel;
+- validacao de unicidade para codigo, patrimonio e serie (quando preenchidos);
+- inativacao e reativacao logicas sem exclusao fisica;
+- auditoria de criacao, edicao, inativacao e reativacao;
+- testes de regras de negocio, filtros e autorizacao de endpoints.
+
+Permissoes aplicadas:
+- `InventarioAtivos.Visualizar`;
+- `InventarioAtivos.Gerenciar`;
+- `InventarioAtivos.Inativar`.
+
+Pendencias evolutivas:
+- trilha de movimentacoes do ativo;
+- vinculacao operacional com chamados;
+- indicadores e dashboard do modulo;
+- homologacao institucional com evidencias formais.
+## Sprint Inventario/Ativos 3 - Historico e movimentacao
+
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+
+Status da implementacao: Historico e movimentacao implementados
+Status tecnico: Sprint 3 concluida apos validacao
+Percentual: 60%
+
+Objetivo:
+Adicionar rastreabilidade operacional ao inventario com historico de alteracoes e endpoint administrativo dedicado para movimentacao de ativos.
+
+Entregas consolidadas:
+- entidade `HistoricoInventarioAtivo` com origem/destino e estados anterior/novo;
+- enum `TipoMovimentacaoAtivo`;
+- migration `Sprint3InventarioAtivosHistorico`;
+- endpoint `GET /api/admin/inventario-ativos/{id}/historico`;
+- endpoint `POST /api/admin/inventario-ativos/{id}/movimentar`;
+- registro de historico em criacao, edicao relevante, inativacao e reativacao;
+- movimentacao com validacao de ativo, permissao, alteracoes efetivas e atualizacao de auditoria;
+- rastreabilidade de departamento, local, responsavel e status;
+- testes automatizados de historico, movimentacao e autorizacao dos novos endpoints.
+
+Permissoes aplicadas:
+- `InventarioAtivos.Visualizar` para historico;
+- `InventarioAtivos.Movimentar` para movimentar.
+
+Pendencias evolutivas:
+- vinculo operacional de ativos com chamados;
+- indicadores e dashboard do modulo;
+- homologacao institucional com evidencias formais.
+
+## Sprint Inventario/Ativos 4 - Integrado aos chamados
+
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+
+Status da implementacao: Integrado aos chamados
+Status tecnico: Sprint 4 concluida apos validacao
+Percentual: 75%
+
+Objetivo:
+Integrar o modulo Inventario/Ativos ao fluxo de chamados para permitir vinculo operacional de ativo, consulta historica de chamados por ativo e rastreabilidade completa de vinculacao/remocao.
+
+Entregas consolidadas:
+- Chamado com campo opcional InventarioAtivoId;
+- migration Sprint4InventarioAtivosChamados;
+- abertura de chamado via portal com validacao de ativo quando informado;
+- bloqueio de abertura/vinculo com ativo inativo;
+- endpoints administrativos de vinculo e remocao de ativo no chamado;
+- endpoint administrativo para consultar chamados relacionados ao ativo;
+- historico do chamado em vinculacao/remocao (AtivoVinculado e AtivoRemovido);
+- historico do ativo em vinculacao/remocao (VinculoChamado e RemocaoVinculoChamado);
+- permissao InventarioAtivos.VincularChamado aplicada em vincular/remover;
+- permissao InventarioAtivos.Visualizar aplicada na consulta de chamados por ativo;
+- auditoria de chamados mantida no ciclo de vinculo/remocao;
+- testes backend ampliados, com suite total validada.
+
+Checklist Sprint 4:
+- [x] Chamado com vinculacao opcional a ativo implementado.
+- [x] Migration de relacionamento chamado x ativo criada.
+- [x] Abertura portal com ativo valido implementada.
+- [x] Bloqueio para ativo inativo implementado.
+- [x] Endpoints administrativos de vincular/remover implementados.
+- [x] Endpoint de chamados por ativo implementado.
+- [x] Historico de chamado para vinculo/remocao implementado.
+- [x] Historico de ativo para vinculo/remocao implementado.
+- [x] Permissoes aplicadas e testadas.
+- [x] Documentacao atualizada sem duplicacao de item.
+
+Pendencias evolutivas:
+- evoluir regra patrimonial para bloqueio condicional por status patrimonial;
+- ampliar indicadores/dashboards de ativos;
+- homologacao institucional com evidencias formais.
+
+## Sprint Inventario/Ativos 5 - Frontend administrativo
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+Status da implementacao: Frontend administrativo implementado
+Status tecnico: Sprint 5 concluida apos validacao
+Percentual: 85%
+Objetivo:
+Concluir a experiencia administrativa do modulo Inventario/Ativos no frontend, cobrindo listagem, cadastro, edicao, detalhe, inativacao, reativacao, movimentacao e consulta de chamados relacionados.
+Entregas consolidadas:
+- types do modulo em src/SGX.SistemaChamado.Web/src/types/inventarioAtivos.ts;
+- service administrativo inventarioAtivosAdminService;
+- service de vinculo ativo/chamado chamadoInventarioAtivoService;
+- testes unitarios dos services de inventario e vinculo;
+- telas administrativas:
+  - InventarioAtivosListPage.vue;
+  - InventarioAtivosFormPage.vue;
+  - InventarioAtivosDetalhePage.vue;
+- rotas administrativas de inventario e edicao;
+- menu administrativo atualizado no agrupamento Infraestrutura;
+- listagem com filtros, tabela, paginacao e acoes de ciclo de vida;
+- formulario com validacoes de negocio alinhadas ao backend;
+- detalhe do ativo com historico/movimentacoes e chamados relacionados;
+- modal de movimentacao com validacao de alteracao efetiva;
+- detalhe administrativo do chamado com secao de ativo vinculado, vincular/remover e link para ativo.
+Checklist Sprint 5:
+- [x] Frontend administrativo de inventario implementado.
+- [x] Services frontend do modulo implementados.
+- [x] Rotas e menu administrativo atualizados.
+- [x] Detalhe administrativo do chamado integrado ao vinculo de ativo.
+- [x] Permissoes frontend aplicadas.
+- [x] Testes unitarios frontend atualizados e aprovados.
+- [x] Build frontend aprovado.
+- [x] Build/testes backend mantidos sem regressao.
+- [x] Documentacao e roadmaps atualizados sem duplicacao de item.
+Pendencias evolutivas:
+- avaliar seletor de ativo na abertura de chamado (portal/admin) em sprint futura;
+- ampliar testes de views do modulo;
+- homologacao institucional com evidencias formais.
+
+## Sprint Inventario/Ativos 6 - Fechamento funcional
+Area: Inventario/Ativos
+Categoria: Infraestrutura
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+Situacao atual:
+Inventario/Ativos implementado funcionalmente como modulo de infraestrutura. O modulo contempla cadastro de ativos, tipos de ativo, inativacao logica, validacoes de codigo/patrimonio/serie, filtros administrativos, auditoria, historico operacional, movimentacao, vinculo com chamados, consulta de chamados relacionados, frontend administrativo, integracao visual com detalhe administrativo do chamado, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras.
+Entregas de fechamento da sprint:
+- checklist de homologacao em docs/CHECKLIST-HOMOLOGACAO-INVENTARIO-ATIVOS.md;
+- estrutura de evidencias em docs/evidencias/inventario-ativos/README.md;
+- documentacao principal consolidada em docs/INVENTARIO-ATIVOS.md;
+- revisao de UX das telas administrativas e do detalhe administrativo do chamado;
+- revisao de seguranca com confirmacao de politicas de permissao e bloqueios de ativo inativo;
+- validacoes automatizadas mantidas sem regressao.
+Checklist Sprint 6:
+- [x] Checklist de homologacao criado.
+- [x] Estrutura de evidencias criada.
+- [x] Documentacao principal atualizada.
+- [x] Roadmaps atualizados para 90%.
+- [x] Revisao UX documentada.
+- [x] Revisao de seguranca documentada.
+- [x] Nenhuma regra de seguranca relaxada.
+- [x] Sem duplicacao de item no roadmap.
+- [x] Backend build Release validado.
+- [x] Testes backend validados.
+- [x] Frontend unit tests validados.
+- [x] Frontend build validado.
+Pendencias evolutivas:
+- homologacao institucional com usuarios reais;
+- evidencias com prints reais;
+- testes E2E completos;
+- seletor de ativo na abertura de chamado do portal/admin;
+- importacao em massa de ativos;
+- exportacao de inventario;
+- leitura por QR Code;
+- etiquetas patrimoniais;
+- anexos no ativo;
+- garantia e alertas de vencimento;
+- manutencao preventiva;
+- integracao com patrimonio oficial;
+- relatorios de ativos por departamento;
+- dashboard de ativos criticos;
+- indicadores de chamados por ativo;
+- regra patrimonial avancada para descartado/extraviado;
+- inventario por agente automatico futuramente.

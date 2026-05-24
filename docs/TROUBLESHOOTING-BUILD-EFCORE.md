@@ -1,58 +1,72 @@
-# Troubleshooting - Build/Startup EF Core (PendingModelChangesWarning + locks de DLL/PDB)
+# Troubleshooting - Build/Debug e EF Core
 
-## Contexto
-Este guia cobre falhas de inicializacao/build no SGX Sistema de Chamados quando aparecem juntos:
-- `PendingModelChangesWarning` durante `MigrateAsync` no startup da API.
-- erros `MSB3021`/`MSB3027` ao copiar DLL/PDB (arquivo em uso por outro processo).
+## Objetivo
+Padronizar diagnostico e mitigacao para o problema recorrente no desenvolvimento local:
+- falha de build com `MSB3021`/`MSB3027` por DLL/PDB bloqueado;
+- `PendingModelChangesWarning` no startup da API sem mudanca real de modelo.
 
-## O que significa PendingModelChangesWarning
-A partir do EF Core 9, diferencas entre o modelo atual e o ultimo snapshot de migration podem gerar excecao durante `Migrate`/`MigrateAsync`.
+## Erros MSB3021/MSB3027
+`MSB3021` e `MSB3027` sao erros de copia de artefatos durante o build.
 
-Em termos praticos, pode significar:
-1. **Migration realmente pendente** (mudanca de modelo sem migration).
-2. **Assemblies inconsistentes** em runtime/build (ex.: `Infrastructure.dll` antigo + `Domain.dll` novo), normalmente por lock de arquivo em `bin/obj`.
+No SGX, o caso mais comum e:
+- API em execucao no debugger;
+- processo `dotnet`/`SGX.SistemaChamado.Api`/`Microsoft .NET Core Debugger` mantendo lock em:
+  - `SGX.SistemaChamado.Infrastructure.dll`
+  - `SGX.SistemaChamado.Infrastructure.pdb`
+  - outros binarios referenciados.
 
-## Como diferenciar migration pendente real de assembly inconsistente
+Quando isso ocorre, o build pode ficar parcial (alguns assemblies atualizados e outros nao).
 
-### 1) Verificar modelo via EF CLI
-Execute na raiz do repositorio:
+## O que e PendingModelChangesWarning
+No EF Core, o warning indica diferenca entre:
+- modelo atual carregado em runtime; e
+- snapshot da ultima migration.
+
+Isso pode ser:
+1. migration realmente pendente; ou
+2. falso positivo por binarios inconsistentes apos build quebrado por lock.
+
+## Como diferenciar migration real de falso positivo
+Execute sempre na raiz do repositorio:
 
 ```bash
 dotnet ef migrations has-pending-model-changes --project src/SGX.SistemaChamado.Infrastructure --startup-project src/SGX.SistemaChamado.Api --context SGXSistemaChamadoDbContext
 ```
 
-Interprete o resultado:
-- Se retornar **`No changes have been made to the model since the last migration.`**:
+Interpretacao:
+- retorno com `No changes have been made to the model since the last migration.`:
   - nao ha migration pendente no source atual;
-  - suspeite de build travado/assemblies misturados.
-- Se indicar mudancas pendentes reais:
-  - crie migration apropriada;
-  - aplique migration antes de subir a API.
+  - suspeitar de lock de build e artefatos inconsistentes.
+- retorno indicando mudancas pendentes:
+  - revisar diff antes de criar migration;
+  - gerar migration real somente com alteracao confirmada.
 
-### 2) Verificar erros de lock em build
+## Como identificar arquivos em uso
 Sinais comuns:
-- `MSB3021` e `MSB3027`
-- mensagens do tipo: `The process cannot access the file ... because it is being used by another process.`
-- processos bloqueando: `Microsoft .NET Core Debugger`, `.NET Host`, `dotnet.exe`, processo da API.
+- mensagens `The process cannot access the file ... because it is being used by another process.`;
+- bloqueio por:
+  - `Microsoft .NET Core Debugger`
+  - `.NET Host`
+  - `dotnet.exe`
+  - processo da API.
 
-Quando isso ocorre, o build pode terminar com artefatos parcialmente atualizados, gerando falso positivo de `PendingModelChangesWarning` na inicializacao.
+Em IDE, pare debug antes do build. Em terminal, confira processos ativos.
 
-## Fluxo recomendado de recuperacao (Windows)
-
-1. Pare depuracao e instancias em execucao da API/Worker.
-2. Rode o reset conservador:
+## Fluxo recomendado de recuperacao
+1. Pare depuracao e execucao da API/worker.
+2. Rode reset conservador:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/dev-reset-build-locks.ps1
 ```
 
-3. Se ainda houver lock de `dotnet.exe`, rode com opcao explicita:
+3. Se lock persistir em `dotnet.exe`, rode com opcao explicita:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/dev-reset-build-locks.ps1 -KillDotnet
 ```
 
-4. Revalide o modelo EF:
+4. Revalide modelo EF:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/check-ef-model.ps1
@@ -60,34 +74,22 @@ powershell -ExecutionPolicy Bypass -File scripts/check-ef-model.ps1
 
 5. Suba a API novamente.
 
-## Scripts de apoio
+## Regras de seguranca para migrations
+- Nao criar migration automaticamente sem revisar o diff.
+- Nao criar migration so porque houve `PendingModelChangesWarning` no startup.
+- Nao suprimir `PendingModelChangesWarning` como primeira resposta.
+- Nao remover `MigrateAsync` do startup apenas para esconder falha local.
 
-- `scripts/dev-reset-build-locks.ps1`
-  - identifica processos relacionados ao SGX;
-  - por padrao **nao** encerra `dotnet.exe`;
-  - com `-KillDotnet`, encerra apenas `dotnet.exe` relacionado ao SGX;
-  - remove `bin/obj` de projetos principais;
-  - executa `dotnet clean` e `dotnet build -c Debug`.
+## Diagnostico adicional (quando necessario)
+Script auxiliar:
 
-- `scripts/check-ef-model.ps1`
-  - executa verificacao de `has-pending-model-changes`;
-  - orienta se o problema e migration real ou suspeita de lock/inconsistencia de build.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/diagnose-pending-migration.ps1
+```
 
-## O que nao fazer como primeira acao
-- Nao suprimir `PendingModelChangesWarning` globalmente.
-- Nao remover migracao automatica no startup sem decisao arquitetural.
-- Nao criar migration nova quando o EF CLI diz que nao ha mudancas.
-- Nao mascarar erro real de migration.
+Ele orienta a geracao manual de migration temporaria `_DiagnosticoPending` apenas com confirmacao textual.
 
-## Observacao sobre startup da API
-A API aplica migrations automaticamente no startup. Isso e esperado e util para detectar divergencia real.
-
-Quando houver falha em `MigrateAsync`, revise:
-1. se ha migration pendente real via EF CLI;
-2. se ha lock de DLL/PDB no build local.
-
-## Comandos de validacao final
-
+## Validacoes finais recomendadas
 ```bash
 dotnet build SGX.SistemaChamado.sln -c Debug
 dotnet build SGX.SistemaChamado.sln -c Release

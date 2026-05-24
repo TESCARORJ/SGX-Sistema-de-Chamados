@@ -40,6 +40,11 @@
   catalogoServicosGerenciar: 'CatalogoServicos.Gerenciar',
   catalogoServicosPublicar: 'CatalogoServicos.Publicar',
   catalogoServicosArquivar: 'CatalogoServicos.Arquivar',
+  inventarioAtivosVisualizar: 'InventarioAtivos.Visualizar',
+  inventarioAtivosGerenciar: 'InventarioAtivos.Gerenciar',
+  inventarioAtivosInativar: 'InventarioAtivos.Inativar',
+  inventarioAtivosMovimentar: 'InventarioAtivos.Movimentar',
+  inventarioAtivosVincularChamado: 'InventarioAtivos.VincularChamado',
 } as const
 
 export const permissoesCriticas = [

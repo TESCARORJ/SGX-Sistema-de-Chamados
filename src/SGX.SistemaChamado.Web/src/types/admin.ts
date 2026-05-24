@@ -119,6 +119,9 @@ export interface ChamadoAdminResumo {
   tipoSolicitacaoId: string | null
   localUnidadeId: string | null
   departamentoId: string | null
+  inventarioAtivoId: string | null
+  inventarioAtivoCodigo: string | null
+  inventarioAtivoNome: string | null
   abertoEm: string
   atualizadoEm: string | null
   encerradoEm: string | null
@@ -213,6 +216,9 @@ export interface ChamadoAdminDetalhe {
   tipoSolicitacaoId: string | null
   localUnidadeId: string | null
   departamentoId: string | null
+  inventarioAtivoId: string | null
+  inventarioAtivoCodigo: string | null
+  inventarioAtivoNome: string | null
   origem: string
   abertoEm: string
   encerradoEm: string | null

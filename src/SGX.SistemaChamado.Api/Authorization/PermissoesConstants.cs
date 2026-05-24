@@ -37,4 +37,9 @@ public static class PermissoesConstants
     public const string CatalogoServicosGerenciar = "CatalogoServicos.Gerenciar";
     public const string CatalogoServicosPublicar = "CatalogoServicos.Publicar";
     public const string CatalogoServicosArquivar = "CatalogoServicos.Arquivar";
+    public const string InventarioAtivosVisualizar = "InventarioAtivos.Visualizar";
+    public const string InventarioAtivosGerenciar = "InventarioAtivos.Gerenciar";
+    public const string InventarioAtivosInativar = "InventarioAtivos.Inativar";
+    public const string InventarioAtivosMovimentar = "InventarioAtivos.Movimentar";
+    public const string InventarioAtivosVincularChamado = "InventarioAtivos.VincularChamado";
 }

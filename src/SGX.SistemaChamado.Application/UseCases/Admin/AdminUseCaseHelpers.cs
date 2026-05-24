@@ -44,6 +44,12 @@ internal static class AdminUseCaseHelpers
             TipoHistoricoChamado.ArtigoConhecimentoDesvinculado => string.IsNullOrWhiteSpace(detalhe)
                 ? "Artigo da base de conhecimento removido do chamado"
                 : detalhe,
+            TipoHistoricoChamado.AtivoVinculado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Ativo vinculado ao chamado"
+                : detalhe,
+            TipoHistoricoChamado.AtivoRemovido => string.IsNullOrWhiteSpace(detalhe)
+                ? "Vinculo de ativo removido do chamado"
+                : detalhe,
             _ => detalhe ?? tipo.ToString()
         };
 
@@ -73,6 +79,9 @@ internal static class AdminUseCaseHelpers
             TipoSolicitacaoId = chamado.TipoSolicitacaoId,
             LocalUnidadeId = chamado.LocalUnidadeId,
             DepartamentoId = chamado.DepartamentoId,
+            InventarioAtivoId = chamado.InventarioAtivoId,
+            InventarioAtivoCodigo = chamado.InventarioAtivo?.Codigo,
+            InventarioAtivoNome = chamado.InventarioAtivo?.Nome,
             AbertoEm = chamado.AbertoEm,
             AtualizadoEm = chamado.AtualizadoEm,
             EncerradoEm = chamado.EncerradoEm,
@@ -122,6 +131,9 @@ internal static class AdminUseCaseHelpers
             TipoSolicitacaoId = chamado.TipoSolicitacaoId,
             LocalUnidadeId = chamado.LocalUnidadeId,
             DepartamentoId = chamado.DepartamentoId,
+            InventarioAtivoId = chamado.InventarioAtivoId,
+            InventarioAtivoCodigo = chamado.InventarioAtivo?.Codigo,
+            InventarioAtivoNome = chamado.InventarioAtivo?.Nome,
             Origem = chamado.Origem.ToString(),
             AbertoEm = chamado.AbertoEm,
             EncerradoEm = chamado.EncerradoEm,

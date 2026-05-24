@@ -58,6 +58,9 @@ public sealed class ChamadoAdminResumoResponse
     public Guid? TipoSolicitacaoId { get; init; }
     public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
+    public Guid? InventarioAtivoId { get; init; }
+    public string? InventarioAtivoCodigo { get; init; }
+    public string? InventarioAtivoNome { get; init; }
     public DateTime AbertoEm { get; init; }
     public DateTime? AtualizadoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }
@@ -165,6 +168,9 @@ public sealed class ChamadoAdminDetalheResponse
     public Guid? TipoSolicitacaoId { get; init; }
     public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
+    public Guid? InventarioAtivoId { get; init; }
+    public string? InventarioAtivoCodigo { get; init; }
+    public string? InventarioAtivoNome { get; init; }
     public string Origem { get; init; } = string.Empty;
     public DateTime AbertoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }

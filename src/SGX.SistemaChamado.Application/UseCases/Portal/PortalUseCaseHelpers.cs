@@ -37,6 +37,9 @@ internal static class PortalUseCaseHelpers
             TipoSolicitacaoId = chamado.TipoSolicitacaoId,
             LocalUnidadeId = chamado.LocalUnidadeId,
             DepartamentoId = chamado.DepartamentoId,
+            InventarioAtivoId = chamado.InventarioAtivoId,
+            InventarioAtivoCodigo = chamado.InventarioAtivo?.Codigo,
+            InventarioAtivoNome = chamado.InventarioAtivo?.Nome,
             AbertoEm = chamado.AbertoEm,
             AtualizadoEm = chamado.AtualizadoEm,
             SlaVencido = situacao is SituacaoSlaChamadoEnum.Vencido or SituacaoSlaChamadoEnum.Violado,
@@ -86,6 +89,9 @@ internal static class PortalUseCaseHelpers
             TipoSolicitacaoId = chamado.TipoSolicitacaoId,
             LocalUnidadeId = chamado.LocalUnidadeId,
             DepartamentoId = chamado.DepartamentoId,
+            InventarioAtivoId = chamado.InventarioAtivoId,
+            InventarioAtivoCodigo = chamado.InventarioAtivo?.Codigo,
+            InventarioAtivoNome = chamado.InventarioAtivo?.Nome,
             Solicitante = chamado.Solicitante.Nome,
             Responsavel = chamado.Responsavel?.Nome,
             AbertoEm = chamado.AbertoEm,
@@ -144,6 +150,8 @@ internal static class PortalUseCaseHelpers
             TipoHistoricoChamado.Criado => "Chamado criado",
             TipoHistoricoChamado.ComentarioAdicionado => "Comentario adicionado",
             TipoHistoricoChamado.AnexoAdicionado => "Anexo adicionado",
+            TipoHistoricoChamado.AtivoVinculado => "Ativo vinculado ao chamado",
+            TipoHistoricoChamado.AtivoRemovido => "Vinculo de ativo removido do chamado",
             _ => tipo.ToString()
         };
 }

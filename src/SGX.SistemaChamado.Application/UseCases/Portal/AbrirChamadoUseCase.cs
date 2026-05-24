@@ -20,8 +20,10 @@ public sealed class AbrirChamadoUseCase(
     IRepository<LocalUnidade> localUnidadeRepository,
     IRepository<Departamento> departamentoRepository,
     IRepository<CatalogoServico> catalogoServicoRepository,
+    IRepository<InventarioAtivo> inventarioAtivoRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    IRepository<HistoricoInventarioAtivo> historicoInventarioAtivoRepository,
     ISlaService slaService,
     ICodigoChamadoService codigoChamadoService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
@@ -30,6 +32,7 @@ public sealed class AbrirChamadoUseCase(
 {
     private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
     private const string DescricaoHistoricoCriacaoCatalogo = "Chamado aberto a partir do servico do catalogo";
+    private const string DescricaoHistoricoCriacaoComAtivo = "Chamado aberto com ativo vinculado";
 
     public async Task<ChamadoDetalheResponse> ExecutarAsync(CriarChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -53,6 +56,7 @@ public sealed class AbrirChamadoUseCase(
         var departamentoIdEfetivo = servicoCatalogo?.DepartamentoResponsavelId ?? request.DepartamentoId;
         var subcategoriaIdEfetiva = servicoCatalogo?.SubcategoriaId ?? request.SubcategoriaId;
         var catalogoServicoIdEfetivo = servicoCatalogo?.Id;
+        InventarioAtivo? inventarioAtivo = null;
 
         var categoria = await categoriaRepository.Query()
             .AsNoTracking()
@@ -102,6 +106,19 @@ public sealed class AbrirChamadoUseCase(
                 ?? throw new InvalidOperationException("Departamento nao encontrado ou inativo.");
         }
 
+        if (request.InventarioAtivoId.HasValue)
+        {
+            inventarioAtivo = await inventarioAtivoRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.InventarioAtivoId.Value, cancellationToken)
+                ?? throw new InvalidOperationException("Ativo de inventario nao encontrado.");
+
+            if (!inventarioAtivo.Ativo)
+            {
+                throw new InvalidOperationException("Ativo de inventario informado esta inativo.");
+            }
+        }
+
         var statusAberto = await statusRepository.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Ativo && x.Codigo == StatusChamadoEnum.Aberto, cancellationToken)
@@ -122,7 +139,8 @@ public sealed class AbrirChamadoUseCase(
             subcategoria?.Id,
             request.TipoSolicitacaoId,
             request.LocalUnidadeId,
-            catalogoServicoIdEfetivo);
+            catalogoServicoIdEfetivo,
+            inventarioAtivo?.Id);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
@@ -148,6 +166,33 @@ public sealed class AbrirChamadoUseCase(
             await historicoRepository.AddAsync(historicoCatalogo, cancellationToken);
         }
 
+        if (inventarioAtivo is not null)
+        {
+            var descricaoAtivo = $"{DescricaoHistoricoCriacaoComAtivo}: {inventarioAtivo.Codigo} - {inventarioAtivo.Nome}";
+            if (!string.IsNullOrWhiteSpace(inventarioAtivo.NumeroPatrimonio))
+            {
+                descricaoAtivo += $" (Patrimonio: {inventarioAtivo.NumeroPatrimonio})";
+            }
+
+            var historicoAtivoNoChamado = new HistoricoChamado(
+                chamado.Id,
+                TipoHistoricoChamado.AtivoVinculado,
+                descricaoAtivo,
+                usuarioAtual.Id,
+                usuarioAtual.Login);
+
+            await historicoRepository.AddAsync(historicoAtivoNoChamado, cancellationToken);
+
+            var historicoAtivo = new HistoricoInventarioAtivo(
+                inventarioAtivo.Id,
+                TipoMovimentacaoAtivo.VinculoChamado,
+                usuarioAtual.Id,
+                usuarioAtual.Login,
+                $"Chamado {chamado.Codigo} vinculado na abertura ({chamado.Titulo}).");
+
+            await historicoInventarioAtivoRepository.AddAsync(historicoAtivo, cancellationToken);
+        }
+
         await slaService.InicializarNaAberturaAsync(chamado, usuarioAtual.Login, DateTime.UtcNow, servicoCatalogo?.SlaPadraoId, cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -160,6 +205,7 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.TipoSolicitacao)
             .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
+            .Include(x => x.InventarioAtivo)
             .Include(x => x.Solicitante)
             .Include(x => x.Responsavel)
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
@@ -184,6 +230,7 @@ public sealed class AbrirChamadoUseCase(
                 LocalUnidade = chamadoCriado.LocalUnidade?.Nome,
                 chamadoCriado.DepartamentoId,
                 chamadoCriado.CatalogoServicoId,
+                chamadoCriado.InventarioAtivoId,
                 SolicitanteId = chamadoCriado.SolicitanteId
             });
 

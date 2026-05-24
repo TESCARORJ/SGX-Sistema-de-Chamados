@@ -57,6 +57,9 @@ const BaseConhecimentoListPage = () => import('../views/BaseConhecimentoListPage
 const BaseConhecimentoFormPage = () => import('../views/BaseConhecimentoFormPage.vue')
 const CatalogoServicosListPage = () => import('../views/CatalogoServicosListPage.vue')
 const CatalogoServicosFormPage = () => import('../views/CatalogoServicosFormPage.vue')
+const InventarioAtivosListPage = () => import('../views/InventarioAtivosListPage.vue')
+const InventarioAtivosFormPage = () => import('../views/InventarioAtivosFormPage.vue')
+const InventarioAtivosDetalhePage = () => import('../views/InventarioAtivosDetalhePage.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -377,6 +380,26 @@ const routes: RouteRecordRaw[] = [
         path: 'conhecimento/catalogo-servicos/:id',
         name: 'admin-conhecimento-catalogo-servicos-detalhe',
         component: CatalogoServicosFormPage,
+      },
+      {
+        path: 'infraestrutura/inventario-ativos',
+        name: 'admin-infraestrutura-inventario-ativos',
+        component: InventarioAtivosListPage,
+      },
+      {
+        path: 'infraestrutura/inventario-ativos/novo',
+        name: 'admin-infraestrutura-inventario-ativos-novo',
+        component: InventarioAtivosFormPage,
+      },
+      {
+        path: 'infraestrutura/inventario-ativos/:id',
+        name: 'admin-infraestrutura-inventario-ativos-detalhe',
+        component: InventarioAtivosDetalhePage,
+      },
+      {
+        path: 'infraestrutura/inventario-ativos/:id/editar',
+        name: 'admin-infraestrutura-inventario-ativos-editar',
+        component: InventarioAtivosFormPage,
       },
     ],
   },

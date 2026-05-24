@@ -18,13 +18,16 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        startupLogger.LogInformation("Inicializando banco de dados do SGX Sistema de Chamados.");
+        startupLogger.LogInformation("Inicializando banco de dados do SGX Sistema de Chamados (startup).");
 
         var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
         if (dbContext.Database.IsRelational())
         {
-            startupLogger.LogInformation("Aplicando migrations pendentes (banco relacional).");
+            startupLogger.LogInformation(
+                "Aplicando migrations pendentes para o contexto {DbContext} (provider relacional).",
+                nameof(SGXSistemaChamadoDbContext));
             await dbContext.Database.MigrateAsync();
+            startupLogger.LogInformation("MigrateAsync concluido com sucesso.");
         }
         else
         {
@@ -45,8 +48,8 @@ using (var scope = app.Services.CreateScope())
         startupLogger.LogCritical(
             ex,
             "Falha ao aplicar migrations: EF Core detectou PendingModelChangesWarning. " +
-            "Valide migrations pendentes com 'dotnet ef migrations has-pending-model-changes' e, " +
-            "se nao houver diferenca de modelo, verifique assemblies travados (DLL/PDB) por debugger/API ativa.");
+            "Checklist sugerido: (1) parar debugger/API em execucao, (2) limpar bin/obj e rebuild debug, " +
+            "(3) executar scripts/check-ef-model.ps1. Evite criar migration sem diff real confirmado.");
         throw;
     }
     catch (Exception ex)

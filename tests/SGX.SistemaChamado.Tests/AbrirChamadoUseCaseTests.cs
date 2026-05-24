@@ -25,8 +25,10 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
+            PortalUseCasesTestFactory.Repo<InventarioAtivo>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
             new FakeUsuarioContextoAplicacaoService(dados.UsuarioContexto),
@@ -173,6 +175,91 @@ public sealed class AbrirChamadoUseCaseTests
         Assert.Contains(
             context.HistoricosChamado,
             x => x.Tipo == TipoHistoricoChamado.Criado && x.Descricao == "Chamado criado pelo portal");
+    }
+
+    [Fact]
+    public async Task DeveAbrirChamadoComAtivoValido()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var ativo = await CriarAtivoInventarioAsync(context, dados, "INV-ABRIR-001");
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Notebook com problema de desempenho",
+            Descricao = "Lentidao recorrente no equipamento.",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            InventarioAtivoId = ativo.Id
+        });
+
+        var chamadoCriado = await context.Chamados.FirstAsync(x => x.Id == response.Id);
+        Assert.Equal(ativo.Id, chamadoCriado.InventarioAtivoId);
+        Assert.Equal(ativo.Id, response.InventarioAtivoId);
+    }
+
+    [Fact]
+    public async Task DeveImpedirAberturaComAtivoInativo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var ativo = await CriarAtivoInventarioAsync(context, dados, "INV-INATIVO-001", ativo: false);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Ativo inativo nao deve vincular",
+            Descricao = "Teste de validacao.",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            InventarioAtivoId = ativo.Id
+        }));
+    }
+
+    [Fact]
+    public async Task DeveManterAberturaSemAtivoQuandoNaoInformado()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Chamado sem ativo",
+            Descricao = "Fluxo deve continuar sem inventario.",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id
+        });
+
+        Assert.Null(response.InventarioAtivoId);
+        Assert.Null(context.Chamados.Single(x => x.Id == response.Id).InventarioAtivoId);
+    }
+
+    [Fact]
+    public async Task DeveRegistrarHistoricoChamadoEAtivoQuandoAbrirComAtivo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var ativo = await CriarAtivoInventarioAsync(context, dados, "INV-HIST-001");
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Chamado com historico de vinculo",
+            Descricao = "Necessario registrar rastreabilidade.",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            InventarioAtivoId = ativo.Id
+        });
+
+        Assert.Contains(
+            context.HistoricosChamado,
+            x => x.ChamadoId == response.Id && x.Tipo == TipoHistoricoChamado.AtivoVinculado);
+
+        Assert.Contains(
+            context.HistoricosInventarioAtivo,
+            x => x.InventarioAtivoId == ativo.Id && x.TipoMovimentacao == TipoMovimentacaoAtivo.VinculoChamado);
     }
 
     [Fact]
@@ -500,8 +587,10 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
+            PortalUseCasesTestFactory.Repo<InventarioAtivo>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
             new FakeUsuarioContextoAplicacaoService(usuario),
@@ -555,6 +644,38 @@ public sealed class AbrirChamadoUseCaseTests
         context.CatalogosServico.Add(servico);
         await context.SaveChangesAsync();
         return servico;
+    }
+
+    private static async Task<InventarioAtivo> CriarAtivoInventarioAsync(
+        SGXSistemaChamadoDbContext context,
+        (Usuario Usuario, UsuarioContextoAplicacao UsuarioContexto, Departamento Departamento, CategoriaChamado Categoria, SubcategoriaChamado Subcategoria, PrioridadeChamado Prioridade, TipoSolicitacao TipoSolicitacao, LocalUnidade LocalUnidade) dados,
+        string codigo,
+        bool ativo = true)
+    {
+        var tipoAtivo = new TipoAtivoInventario($"Tipo {codigo}", null, "teste");
+        context.TiposAtivoInventario.Add(tipoAtivo);
+        await context.SaveChangesAsync();
+
+        var inventarioAtivo = new InventarioAtivo(
+            codigo,
+            $"Ativo {codigo}",
+            tipoAtivo.Id,
+            dados.Usuario.Id,
+            dados.Usuario.Login);
+
+        inventarioAtivo.DefinirDepartamento(dados.Departamento.Id);
+        inventarioAtivo.DefinirLocalUnidade(dados.LocalUnidade.Id);
+        inventarioAtivo.DefinirStatusOperacional(StatusOperacionalAtivo.Operacional);
+        inventarioAtivo.DefinirStatusPatrimonial(StatusPatrimonialAtivo.EmUso);
+
+        if (!ativo)
+        {
+            inventarioAtivo.Inativar(dados.Usuario.Id, dados.Usuario.Login);
+        }
+
+        context.InventarioAtivos.Add(inventarioAtivo);
+        await context.SaveChangesAsync();
+        return inventarioAtivo;
     }
 
     private static async Task<(Usuario Usuario, UsuarioContextoAplicacao UsuarioContexto, Departamento Departamento, CategoriaChamado Categoria, SubcategoriaChamado Subcategoria, PrioridadeChamado Prioridade, TipoSolicitacao TipoSolicitacao, LocalUnidade LocalUnidade)> SeedBasico(SGXSistemaChamadoDbContext context)

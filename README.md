@@ -152,6 +152,15 @@ npm install
 npm run build
 ```
 
+## Troubleshooting local (build/EF Core)
+
+Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarning` no startup:
+
+- `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
+- `scripts/dev-reset-build-locks.ps1`
+- `scripts/check-ef-model.ps1`
+- `scripts/diagnose-pending-migration.ps1`
+
 ## Documentação
 
 - `docs/AUTENTICACAO-CORPORATIVA.md`

@@ -62,6 +62,11 @@ public static class SeedData
     public static readonly Guid PermissaoCatalogoServicosGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888849");
     public static readonly Guid PermissaoCatalogoServicosPublicarId = Guid.Parse("88888888-8888-8888-8888-888888888850");
     public static readonly Guid PermissaoCatalogoServicosArquivarId = Guid.Parse("88888888-8888-8888-8888-888888888851");
+    public static readonly Guid PermissaoInventarioAtivosVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888852");
+    public static readonly Guid PermissaoInventarioAtivosGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888853");
+    public static readonly Guid PermissaoInventarioAtivosInativarId = Guid.Parse("88888888-8888-8888-8888-888888888854");
+    public static readonly Guid PermissaoInventarioAtivosMovimentarId = Guid.Parse("88888888-8888-8888-8888-888888888855");
+    public static readonly Guid PermissaoInventarioAtivosVincularChamadoId = Guid.Parse("88888888-8888-8888-8888-888888888856");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -73,6 +78,18 @@ public static class SeedData
     public static readonly Guid PrioridadeMediaId = Guid.Parse("55555555-5555-5555-5555-555555555552");
     public static readonly Guid PrioridadeAltaId = Guid.Parse("55555555-5555-5555-5555-555555555553");
     public static readonly Guid PrioridadeCriticaId = Guid.Parse("55555555-5555-5555-5555-555555555554");
+    public static readonly Guid TipoAtivoInventarioNotebookId = Guid.Parse("58585858-5858-5858-5858-585858585801");
+    public static readonly Guid TipoAtivoInventarioDesktopId = Guid.Parse("58585858-5858-5858-5858-585858585802");
+    public static readonly Guid TipoAtivoInventarioImpressoraId = Guid.Parse("58585858-5858-5858-5858-585858585803");
+    public static readonly Guid TipoAtivoInventarioMonitorId = Guid.Parse("58585858-5858-5858-5858-585858585804");
+    public static readonly Guid TipoAtivoInventarioServidorId = Guid.Parse("58585858-5858-5858-5858-585858585805");
+    public static readonly Guid TipoAtivoInventarioSwitchId = Guid.Parse("58585858-5858-5858-5858-585858585806");
+    public static readonly Guid TipoAtivoInventarioRoteadorId = Guid.Parse("58585858-5858-5858-5858-585858585807");
+    public static readonly Guid TipoAtivoInventarioCelularId = Guid.Parse("58585858-5858-5858-5858-585858585808");
+    public static readonly Guid TipoAtivoInventarioTabletId = Guid.Parse("58585858-5858-5858-5858-585858585809");
+    public static readonly Guid TipoAtivoInventarioNobreakId = Guid.Parse("58585858-5858-5858-5858-585858585810");
+    public static readonly Guid TipoAtivoInventarioPerifericoId = Guid.Parse("58585858-5858-5858-5858-585858585811");
+    public static readonly Guid TipoAtivoInventarioOutroId = Guid.Parse("58585858-5858-5858-5858-585858585812");
     public static readonly Guid SlaPoliticaPadraoId = Guid.Parse("56565656-5656-5656-5656-565656565601");
     public static readonly Guid SlaMetaPadraoBaixaId = Guid.Parse("56565656-5656-5656-5656-565656565611");
     public static readonly Guid SlaMetaPadraoMediaId = Guid.Parse("56565656-5656-5656-5656-565656565612");
@@ -361,7 +378,12 @@ public static class SeedData
         (PermissaoCatalogoServicosVisualizarId, "CatalogoServicos.Visualizar"),
         (PermissaoCatalogoServicosGerenciarId, "CatalogoServicos.Gerenciar"),
         (PermissaoCatalogoServicosPublicarId, "CatalogoServicos.Publicar"),
-        (PermissaoCatalogoServicosArquivarId, "CatalogoServicos.Arquivar")
+        (PermissaoCatalogoServicosArquivarId, "CatalogoServicos.Arquivar"),
+        (PermissaoInventarioAtivosVisualizarId, "InventarioAtivos.Visualizar"),
+        (PermissaoInventarioAtivosGerenciarId, "InventarioAtivos.Gerenciar"),
+        (PermissaoInventarioAtivosInativarId, "InventarioAtivos.Inativar"),
+        (PermissaoInventarioAtivosMovimentarId, "InventarioAtivos.Movimentar"),
+        (PermissaoInventarioAtivosVincularChamadoId, "InventarioAtivos.VincularChamado")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -390,7 +412,10 @@ public static class SeedData
         "Sla.Visualizar",
         "BaseConhecimento.Visualizar",
         "BaseConhecimento.VincularChamado",
-        "CatalogoServicos.Visualizar"
+        "CatalogoServicos.Visualizar",
+        "InventarioAtivos.Visualizar",
+        "InventarioAtivos.Movimentar",
+        "InventarioAtivos.VincularChamado"
     ];
 
     private static readonly string[] CodigosPermissoesSolicitante =
@@ -675,6 +700,22 @@ public static class SeedData
             AtualizadoEm = (DateTime?)null,
             AtualizadoPor = (string?)null
         }
+    ];
+
+    public static readonly object[] TiposAtivoInventario =
+    [
+        new { Id = TipoAtivoInventarioNotebookId, Nome = "Notebook", Descricao = "Computador portatil corporativo.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioDesktopId, Nome = "Desktop", Descricao = "Computador de mesa corporativo.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioImpressoraId, Nome = "Impressora", Descricao = "Impressora ou multifuncional.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioMonitorId, Nome = "Monitor", Descricao = "Monitor corporativo.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioServidorId, Nome = "Servidor", Descricao = "Servidor fisico ou appliance.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioSwitchId, Nome = "Switch", Descricao = "Equipamento de comutacao de rede.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioRoteadorId, Nome = "Roteador", Descricao = "Equipamento de roteamento de rede.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioCelularId, Nome = "Celular", Descricao = "Celular corporativo.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioTabletId, Nome = "Tablet", Descricao = "Tablet corporativo.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioNobreakId, Nome = "Nobreak", Descricao = "Equipamento de energia ininterrupta.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioPerifericoId, Nome = "Periferico", Descricao = "Perifericos diversos.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null },
+        new { Id = TipoAtivoInventarioOutroId, Nome = "Outro", Descricao = "Demais tipos de ativo inventariavel.", Ativo = true, CriadoEm = DataBase, CriadoPor = UsuarioSistema, AtualizadoEm = (DateTime?)null, AtualizadoPor = (string?)null }
     ];
 
     public static readonly object[] RoadmapCategorias =
@@ -1029,26 +1070,26 @@ public static class SeedData
         new
         {
             Id = RoadmapItsmItem11Id,
-            Area = "Inventario/ativos",
-            Categoria = "Ativos",
+            Area = "Inventario/Ativos",
+            Categoria = "Infraestrutura",
             RoadmapCategoriaId = RoadmapCategoriaInfraestruturaId,
-            SituacaoAtual = "Nao ha evidencia forte",
-            AtencaoTecnica = "Nao prometer equivalencia com GLPI nesse ponto",
-            Status = StatusRoadmapItsm.Pendente,
-            Prioridade = PrioridadeRoadmapItsm.Baixa,
-            Impacto = ImpactoRoadmapItsm.Medio,
-            Decisao = DecisaoRoadmapItsm.PosValidacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
+            SituacaoAtual = "Inventario/Ativos implementado funcionalmente como modulo de infraestrutura. O modulo contempla cadastro de ativos, tipos de ativo, inativacao logica, validacoes de codigo/patrimonio/serie, filtros administrativos, auditoria, historico operacional, movimentacao, vinculo com chamados, consulta de chamados relacionados, frontend administrativo, integracao visual com detalhe administrativo do chamado, testes backend/frontend e documentacao.",
+            AtencaoTecnica = "Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras planejadas.",
+            Status = StatusRoadmapItsm.EmValidacao,
+            Prioridade = PrioridadeRoadmapItsm.Media,
+            Impacto = ImpactoRoadmapItsm.Alto,
+            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.RequerValidacao,
+            PercentualImplementacao = 90,
+            PendenciasTecnicas = "- Homologacao institucional com usuarios reais.\n- Testes E2E completos.\n- Evolucoes futuras: importacao em massa, exportacao, QR Code, etiquetas patrimoniais, anexos, alertas de garantia, manutencao preventiva e indicadores por ativo.",
+            PendenciasHomologacao = "- Coletar evidencias com prints reais.\n- Registrar aceite funcional institucional.",
+            EvidenciaImplementacao = "- docs/INVENTARIO-ATIVOS.md\n- docs/CHECKLIST-HOMOLOGACAO-INVENTARIO-ATIVOS.md\n- docs/evidencias/inventario-ativos/README.md\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md",
             DataConclusaoTecnica = (DateTime?)null,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "A tela do roadmap deve exibir um unico item de Inventario/Ativos com categoria Infraestrutura, status da implementacao Implementado funcionalmente, status tecnico Homologacao funcional preparada e percentual 90.",
+            ProximaAcao = "Executar homologacao institucional com usuarios reais e anexar evidencias formais.",
+            Observacao = "Sprints 1 a 6 concluidas tecnicamente; item consolidado para evitar duplicidades por variacao de nome.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 11,

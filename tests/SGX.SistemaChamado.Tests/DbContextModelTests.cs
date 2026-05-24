@@ -27,6 +27,9 @@ public sealed class DbContextModelTests
         var baseConhecimentoArtigoEntity = context.Model.FindEntityType(typeof(BaseConhecimentoArtigo));
         var chamadoArtigoConhecimentoEntity = context.Model.FindEntityType(typeof(ChamadoArtigoConhecimento));
         var catalogoServicoEntity = context.Model.FindEntityType(typeof(CatalogoServico));
+        var tipoAtivoInventarioEntity = context.Model.FindEntityType(typeof(TipoAtivoInventario));
+        var inventarioAtivoEntity = context.Model.FindEntityType(typeof(InventarioAtivo));
+        var historicoInventarioAtivoEntity = context.Model.FindEntityType(typeof(HistoricoInventarioAtivo));
 
         Assert.NotNull(chamadoEntity);
         Assert.NotNull(usuarioEntity);
@@ -40,6 +43,9 @@ public sealed class DbContextModelTests
         Assert.NotNull(baseConhecimentoArtigoEntity);
         Assert.NotNull(chamadoArtigoConhecimentoEntity);
         Assert.NotNull(catalogoServicoEntity);
+        Assert.NotNull(tipoAtivoInventarioEntity);
+        Assert.NotNull(inventarioAtivoEntity);
+        Assert.NotNull(historicoInventarioAtivoEntity);
         Assert.Equal("chamados", chamadoEntity!.GetTableName());
         Assert.Equal("usuarios", usuarioEntity!.GetTableName());
         Assert.Equal("roadmap_itsm_itens", roadmapEntity!.GetTableName());
@@ -52,6 +58,9 @@ public sealed class DbContextModelTests
         Assert.Equal("base_conhecimento_artigos", baseConhecimentoArtigoEntity!.GetTableName());
         Assert.Equal("chamados_artigos_conhecimento", chamadoArtigoConhecimentoEntity!.GetTableName());
         Assert.Equal("catalogo_servicos", catalogoServicoEntity!.GetTableName());
+        Assert.Equal("tipos_ativo_inventario", tipoAtivoInventarioEntity!.GetTableName());
+        Assert.Equal("inventario_ativos", inventarioAtivoEntity!.GetTableName());
+        Assert.Equal("historico_inventario_ativos", historicoInventarioAtivoEntity!.GetTableName());
 
         var indiceCodigoPermissao = permissaoEntity.GetIndexes()
             .FirstOrDefault(x => x.GetDatabaseName() == "ux_permissoes_sistema_codigo");
@@ -70,5 +79,10 @@ public sealed class DbContextModelTests
         Assert.Contains("ix_eventos_auditoria_entidade_id", indicesAuditoria);
         Assert.Contains("ix_eventos_auditoria_acao", indicesAuditoria);
         Assert.Contains("ix_eventos_auditoria_correlacao_id", indicesAuditoria);
+
+        var indiceCodigoInventario = inventarioAtivoEntity.GetIndexes()
+            .FirstOrDefault(x => x.GetDatabaseName() == "ux_inventario_ativos_codigo");
+        Assert.NotNull(indiceCodigoInventario);
+        Assert.True(indiceCodigoInventario!.IsUnique);
     }
 }

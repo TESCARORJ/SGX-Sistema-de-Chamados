@@ -17,6 +17,7 @@ public sealed class Chamado : AuditableEntity
     public Guid? TipoSolicitacaoId { get; private set; }
     public Guid? LocalUnidadeId { get; private set; }
     public Guid? CatalogoServicoId { get; private set; }
+    public Guid? InventarioAtivoId { get; private set; }
     public Guid StatusId { get; private set; }
     public OrigemChamado Origem { get; private set; }
     public DateTime AbertoEm { get; private set; }
@@ -31,6 +32,7 @@ public sealed class Chamado : AuditableEntity
     public TipoSolicitacao? TipoSolicitacao { get; private set; }
     public LocalUnidade? LocalUnidade { get; private set; }
     public CatalogoServico? CatalogoServico { get; private set; }
+    public InventarioAtivo? InventarioAtivo { get; private set; }
     public StatusChamado Status { get; private set; } = default!;
     public ICollection<HistoricoChamado> Historicos { get; private set; } = [];
     public ICollection<ComentarioChamado> Comentarios { get; private set; } = [];
@@ -58,7 +60,8 @@ public sealed class Chamado : AuditableEntity
         Guid? subcategoriaId = null,
         Guid? tipoSolicitacaoId = null,
         Guid? localUnidadeId = null,
-        Guid? catalogoServicoId = null)
+        Guid? catalogoServicoId = null,
+        Guid? inventarioAtivoId = null)
     {
         DefinirCodigo(codigo);
         DefinirTitulo(titulo);
@@ -99,6 +102,7 @@ public sealed class Chamado : AuditableEntity
         TipoSolicitacaoId = tipoSolicitacaoId;
         LocalUnidadeId = localUnidadeId;
         CatalogoServicoId = catalogoServicoId;
+        InventarioAtivoId = inventarioAtivoId;
         AbertoEm = DateTime.UtcNow;
         DefinirCriacao(criadoPor);
     }
@@ -210,6 +214,23 @@ public sealed class Chamado : AuditableEntity
         TipoSolicitacaoId = tipoSolicitacaoId;
         LocalUnidadeId = localUnidadeId;
         DepartamentoId = departamentoId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void VincularInventarioAtivo(Guid inventarioAtivoId, string atualizadoPor)
+    {
+        if (inventarioAtivoId == Guid.Empty)
+        {
+            throw new ArgumentException("O ativo informado e invalido.", nameof(inventarioAtivoId));
+        }
+
+        InventarioAtivoId = inventarioAtivoId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void RemoverVinculoInventarioAtivo(string atualizadoPor)
+    {
+        InventarioAtivoId = null;
         AtualizarAuditoria(atualizadoPor);
     }
 

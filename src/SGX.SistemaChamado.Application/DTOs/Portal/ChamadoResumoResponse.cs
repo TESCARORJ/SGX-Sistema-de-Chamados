@@ -20,6 +20,9 @@ public sealed class ChamadoResumoResponse
     public Guid? TipoSolicitacaoId { get; init; }
     public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
+    public Guid? InventarioAtivoId { get; init; }
+    public string? InventarioAtivoCodigo { get; init; }
+    public string? InventarioAtivoNome { get; init; }
     public DateTime AbertoEm { get; init; }
     public DateTime? AtualizadoEm { get; init; }
     public bool SlaVencido { get; init; }
