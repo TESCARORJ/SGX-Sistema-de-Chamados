@@ -12,6 +12,7 @@ import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
 import { portalService } from '../services/portalService'
+import { StatusAprovacaoChamado } from '../types/aprovacaoChamados'
 import type { CategoriaPortal, ChamadoResumoPortal, FiltroChamadosPortal, PrioridadePortal, StatusPortal } from '../types/portal'
 
 const $q = useQuasar()
@@ -41,6 +42,7 @@ const columns: QTableColumn<ChamadoResumoPortal>[] = [
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
   { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
   { name: 'categoria', label: 'Categoria', field: 'categoria', align: 'left', sortable: true },
+  { name: 'aprovacao', label: 'Aprovação', field: 'statusAprovacao', align: 'left' },
   { name: 'abertoEm', label: 'Aberto em', field: 'abertoEm', align: 'left', sortable: true },
   { name: 'atualizadoEm', label: 'Atualizado em', field: 'atualizadoEm', align: 'left', sortable: true },
   { name: 'acoes', label: 'Ações', field: 'id', align: 'right' },
@@ -49,6 +51,23 @@ const columns: QTableColumn<ChamadoResumoPortal>[] = [
 const opcoesStatus = computed(() => status.value.map((item) => ({ label: item.nome, value: item.id })))
 const opcoesPrioridade = computed(() => prioridades.value.map((item) => ({ label: item.nome, value: item.id })))
 const opcoesCategoria = computed(() => categorias.value.map((item) => ({ label: item.nome, value: item.id })))
+
+function extrairMensagemErro(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) {
+    return fallback
+  }
+
+  const mensagem = error.message?.trim()
+  if (!mensagem) {
+    return fallback
+  }
+
+  if (mensagem.includes('Request failed with status code') || mensagem.includes('Network Error')) {
+    return fallback
+  }
+
+  return mensagem
+}
 
 function formatarData(data: string | null): string {
   if (!data) {
@@ -69,6 +88,24 @@ function montarFiltroRequest(): FiltroChamadosPortal {
   }
 }
 
+function textoStatusAprovacao(row: ChamadoResumoPortal): string {
+  if (!row.requerAprovacao) return 'Nao requer aprovacao'
+  if (row.aprovacaoPendente || row.statusAprovacao === StatusAprovacaoChamado.Pendente) return 'Aguardando aprovacao'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Aprovado) return 'Aprovado'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Reprovado) return 'Reprovado'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Cancelado) return 'Aprovacao cancelada'
+  return 'Nao informado'
+}
+
+function corStatusAprovacao(row: ChamadoResumoPortal): string {
+  if (!row.requerAprovacao) return 'grey-6'
+  if (row.aprovacaoPendente || row.statusAprovacao === StatusAprovacaoChamado.Pendente) return 'orange-8'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Aprovado) return 'positive'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Reprovado) return 'negative'
+  if (row.statusAprovacao === StatusAprovacaoChamado.Cancelado) return 'grey-7'
+  return 'grey-6'
+}
+
 async function carregarContexto(): Promise<void> {
   const contexto = await portalService.getPortalContexto()
   categorias.value = contexto.categorias
@@ -85,7 +122,7 @@ async function carregarChamados(): Promise<void> {
     chamados.value = response.items
     total.value = response.total
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os chamados.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel carregar os chamados.')
   } finally {
     loading.value = false
   }
@@ -111,7 +148,7 @@ onMounted(async () => {
     await carregarContexto()
     await carregarChamados()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel carregar os dados do portal.')
     loading.value = false
   }
 })
@@ -238,6 +275,14 @@ onMounted(async () => {
           </q-td>
         </template>
 
+        <template #body-cell-aprovacao="slotProps">
+          <q-td :props="slotProps">
+            <q-chip dense square text-color="white" :color="corStatusAprovacao(slotProps.row)">
+              {{ textoStatusAprovacao(slotProps.row) }}
+            </q-chip>
+          </q-td>
+        </template>
+
         <template #body-cell-abertoEm="slotProps">
           <q-td :props="slotProps">{{ formatarData(slotProps.row.abertoEm) }}</q-td>
         </template>
@@ -273,6 +318,9 @@ onMounted(async () => {
                 <div class="col-auto column items-end q-gutter-xs">
                   <StatusBadge :texto="slotProps.row.status" />
                   <PrioridadeBadge :texto="slotProps.row.prioridade" />
+                  <q-chip dense square text-color="white" :color="corStatusAprovacao(slotProps.row)">
+                    {{ textoStatusAprovacao(slotProps.row) }}
+                  </q-chip>
                 </div>
               </q-card-section>
 

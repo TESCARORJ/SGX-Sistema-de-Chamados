@@ -60,6 +60,33 @@ public sealed class AssumirChamadoUseCaseTests
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => useCase.ExecutarAsync(dados.Chamado.Id));
     }
 
+    [Fact]
+    public async Task BloqueiaAssumirQuandoChamadoAguardaAprovacao()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var aprovacao = new AprovacaoChamado(
+            dados.Chamado.Id,
+            TipoOrigemAprovacaoChamado.CatalogoServico,
+            dados.Atendente.Id,
+            dados.Atendente.Login,
+            dados.Chamado.SolicitanteId,
+            "Servico teste",
+            "Aprovacao pendente");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new AssumirChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            SlaTestFactory.CriarService(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto),
+            PortalUseCasesTestFactory.Uow(context));
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.Chamado.Id));
+        Assert.Contains("aguarda aprovacao", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static async Task<(Chamado Chamado, Usuario Atendente, UsuarioContextoAplicacao AtendenteContexto, UsuarioContextoAplicacao SolicitanteContexto)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
         var atendente = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Atendente", "atendente@empresa.com", TipoPerfil.Atendente);

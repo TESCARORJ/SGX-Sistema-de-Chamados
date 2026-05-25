@@ -11,6 +11,7 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
+import { StatusAprovacaoChamado } from '../types/aprovacaoChamados'
 import { chamadosService } from '../services/chamadosService'
 import { portalService } from '../services/portalService'
 import { useAuthStore } from '../stores/authStore'
@@ -69,6 +70,23 @@ function formatarTamanho(tamanhoBytes: number): string {
   return `${(tamanhoBytes / 1024).toFixed(1)} KB`
 }
 
+function extrairMensagemErro(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) {
+    return fallback
+  }
+
+  const mensagem = error.message?.trim()
+  if (!mensagem) {
+    return fallback
+  }
+
+  if (mensagem.includes('Request failed with status code') || mensagem.includes('Network Error')) {
+    return fallback
+  }
+
+  return mensagem
+}
+
 async function carregar(): Promise<void> {
   const id = String(route.params.id)
 
@@ -88,12 +106,12 @@ async function carregar(): Promise<void> {
     anexos.value = anexosResponse
     linhaTempo.value = linhaTempoResponse.items
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Não foi possível carregar o detalhe do chamado.'
+    const message = extrairMensagemErro(error, 'Nao foi possivel carregar o detalhe do chamado.')
 
     if (message.includes('403')) {
-      erro.value = 'Você não possui permissão para visualizar este chamado.'
+      erro.value = 'Voce nao possui permissao para visualizar este chamado.'
     } else if (message.includes('404')) {
-      erro.value = 'Chamado não encontrado.'
+      erro.value = 'Chamado nao encontrado.'
     } else {
       erro.value = message
     }
@@ -117,7 +135,7 @@ async function comentar(payload: { mensagem: string; interno: boolean }): Promis
     })
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel concluir a acao.')
   } finally {
     enviandoComentario.value = false
   }
@@ -138,7 +156,7 @@ async function anexar(arquivos: File[]): Promise<void> {
 
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel concluir a acao.')
   } finally {
     enviandoAnexo.value = false
   }
@@ -167,7 +185,7 @@ async function baixarAnexo(anexo: AnexoChamado): Promise<void> {
     link.remove()
     window.URL.revokeObjectURL(url)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível baixar o anexo.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel baixar o anexo.')
   }
 }
 
@@ -190,7 +208,7 @@ async function baixarAnexoDaLinhaTempo(item: LinhaTempoChamadoItem): Promise<voi
     link.remove()
     window.URL.revokeObjectURL(url)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível baixar o anexo.'
+    erro.value = extrairMensagemErro(error, 'Nao foi possivel baixar o anexo.')
   }
 }
 
@@ -223,6 +241,24 @@ function iconeLinhaTempo(tipo: string): string {
 
   return 'history'
 }
+
+const statusAprovacaoTexto = computed(() => {
+  if (!detalhe.value?.requerAprovacao) return 'Nao requer aprovacao'
+  if (detalhe.value.aprovacaoPendente || detalhe.value.statusAprovacao === StatusAprovacaoChamado.Pendente) return 'Aguardando aprovacao'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Aprovado) return 'Aprovado'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Reprovado) return 'Reprovado'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Cancelado) return 'Aprovacao cancelada'
+  return 'Nao informado'
+})
+
+const corStatusAprovacao = computed(() => {
+  if (!detalhe.value?.requerAprovacao) return 'grey-7'
+  if (detalhe.value.aprovacaoPendente || detalhe.value.statusAprovacao === StatusAprovacaoChamado.Pendente) return 'orange-8'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Aprovado) return 'positive'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Reprovado) return 'negative'
+  if (detalhe.value.statusAprovacao === StatusAprovacaoChamado.Cancelado) return 'grey-7'
+  return 'grey-7'
+})
 
 onMounted(carregar)
 </script>
@@ -314,6 +350,71 @@ onMounted(carregar)
             {{ detalhe.sla.usarHorarioComercial ? 'Horário comercial' : 'Minutos corridos' }}
           </q-chip>
         </div>
+      </AppSectionCard>
+
+      <AppSectionCard titulo="Aprovacao" subtitulo="Acompanhe o status de aprovacao deste chamado.">
+        <q-banner
+          rounded
+          :class="{
+            'bg-blue-1 text-primary': !detalhe.requerAprovacao,
+            'bg-orange-1 text-orange-10': detalhe.aprovacaoPendente || detalhe.statusAprovacao === StatusAprovacaoChamado.Pendente,
+            'bg-green-1 text-positive': detalhe.statusAprovacao === StatusAprovacaoChamado.Aprovado,
+            'bg-red-1 text-negative': detalhe.statusAprovacao === StatusAprovacaoChamado.Reprovado,
+            'bg-grey-2 text-grey-8': detalhe.statusAprovacao === StatusAprovacaoChamado.Cancelado,
+          }"
+          class="q-mb-sm"
+        >
+          {{ detalhe.mensagemOrientativaAprovacao }}
+        </q-banner>
+
+        <q-list separator>
+          <q-item>
+            <q-item-section>
+              <q-item-label caption>Status da aprovacao</q-item-label>
+              <q-item-label>
+                <q-chip dense square text-color="white" :color="corStatusAprovacao">
+                  {{ statusAprovacaoTexto }}
+                </q-chip>
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label caption>Requer aprovacao</q-item-label>
+              <q-item-label>{{ detalhe.requerAprovacao ? 'Sim' : 'Nao' }}</q-item-label>
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label caption>Aprovacao pendente</q-item-label>
+              <q-item-label>{{ detalhe.aprovacaoPendente ? 'Sim' : 'Nao' }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item>
+            <q-item-section>
+              <q-item-label caption>Solicitada em</q-item-label>
+              <q-item-label>{{ formatarData(detalhe.aprovacaoSolicitadaEm) }}</q-item-label>
+            </q-item-section>
+
+            <q-item-section>
+              <q-item-label caption>Decidida em</q-item-label>
+              <q-item-label>{{ formatarData(detalhe.aprovacaoDecididaEm) }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-if="detalhe.statusAprovacao === StatusAprovacaoChamado.Reprovado && detalhe.justificativaReprovacao">
+            <q-item-section>
+              <q-item-label caption>Justificativa da reprovacao</q-item-label>
+              <q-item-label class="text-body2">{{ detalhe.justificativaReprovacao }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item v-else-if="detalhe.statusAprovacao === StatusAprovacaoChamado.Aprovado && detalhe.justificativaAprovacao">
+            <q-item-section>
+              <q-item-label caption>Justificativa da aprovacao</q-item-label>
+              <q-item-label class="text-body2">{{ detalhe.justificativaAprovacao }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </AppSectionCard>
 
       <div class="row q-col-gutter-md">

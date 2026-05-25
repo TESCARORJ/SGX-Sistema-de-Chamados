@@ -76,6 +76,10 @@ public sealed class ChamadoAdminResumoResponse
     public DateTime? ResolvidoEm { get; init; }
     public bool EstaPausado { get; init; }
     public int TotalMinutosPausado { get; init; }
+    public bool RequerAprovacao { get; init; }
+    public bool AprovacaoPendente { get; init; }
+    public StatusAprovacaoChamado? StatusAprovacao { get; init; }
+    public Guid? AprovacaoChamadoId { get; init; }
 }
 
 public sealed class ListaChamadosAdminResponse
@@ -174,6 +178,10 @@ public sealed class ChamadoAdminDetalheResponse
     public string Origem { get; init; } = string.Empty;
     public DateTime AbertoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }
+    public bool RequerAprovacao { get; init; }
+    public bool AprovacaoPendente { get; init; }
+    public StatusAprovacaoChamado? StatusAprovacao { get; init; }
+    public Guid? AprovacaoChamadoId { get; init; }
     public IReadOnlyCollection<ComentarioAdminResponse> Comentarios { get; init; } = [];
     public IReadOnlyCollection<AnexoAdminResponse> Anexos { get; init; } = [];
     public IReadOnlyCollection<HistoricoAdminResponse> Historico { get; init; } = [];

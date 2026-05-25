@@ -44,4 +44,9 @@ public static class PermissionPolicies
     public const string InventarioAtivosInativar = Prefixo + PermissoesConstants.InventarioAtivosInativar;
     public const string InventarioAtivosMovimentar = Prefixo + PermissoesConstants.InventarioAtivosMovimentar;
     public const string InventarioAtivosVincularChamado = Prefixo + PermissoesConstants.InventarioAtivosVincularChamado;
+    public const string AprovacaoChamadosVisualizar = Prefixo + PermissoesConstants.AprovacaoChamadosVisualizar;
+    public const string AprovacaoChamadosGerenciar = Prefixo + PermissoesConstants.AprovacaoChamadosGerenciar;
+    public const string AprovacaoChamadosAprovar = Prefixo + PermissoesConstants.AprovacaoChamadosAprovar;
+    public const string AprovacaoChamadosReprovar = Prefixo + PermissoesConstants.AprovacaoChamadosReprovar;
+    public const string AprovacaoChamadosCancelar = Prefixo + PermissoesConstants.AprovacaoChamadosCancelar;
 }

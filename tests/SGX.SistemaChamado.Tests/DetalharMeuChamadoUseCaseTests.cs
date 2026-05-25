@@ -109,6 +109,134 @@ public sealed class DetalharMeuChamadoUseCaseTests
         Assert.DoesNotContain(response.Comentarios, item => item.Mensagem.Contains("interno", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public async Task DetalhePortalDeveIndicarAprovacaoPendente()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.ChamadoSolicitante.Id,
+            TipoOrigemAprovacaoChamado.CatalogoServico,
+            dados.SolicitanteContexto.Id,
+            dados.SolicitanteContexto.Login,
+            dados.SolicitanteContexto.Id,
+            "Servico portal",
+            "Aprovacao automatica por catalogo");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.True(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, response.StatusAprovacao);
+        Assert.Equal(aprovacao.Id, response.AprovacaoChamadoId);
+        Assert.Equal(aprovacao.SolicitadaEm, response.AprovacaoSolicitadaEm);
+        Assert.Null(response.AprovacaoDecididaEm);
+        Assert.Null(response.JustificativaAprovacao);
+        Assert.Null(response.JustificativaReprovacao);
+        Assert.Equal("Seu chamado esta aguardando aprovacao antes de seguir para atendimento.", response.MensagemOrientativaAprovacao);
+    }
+
+    [Fact]
+    public async Task DetalhePortalDeveIndicarAprovacaoAprovadaComJustificativa()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.ChamadoSolicitante.Id,
+            TipoOrigemAprovacaoChamado.Manual,
+            dados.SolicitanteContexto.Id,
+            dados.SolicitanteContexto.Login,
+            dados.SolicitanteContexto.Id,
+            "Fluxo manual",
+            "Validacao de aprovacao");
+        aprovacao.Aprovar(dados.AdminContexto.Id, dados.AdminContexto.Id, dados.AdminContexto.Login, "Aprovado pelo responsavel.");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Aprovado, response.StatusAprovacao);
+        Assert.Equal("Aprovado pelo responsavel.", response.JustificativaAprovacao);
+        Assert.Null(response.JustificativaReprovacao);
+        Assert.Equal("Seu chamado foi aprovado e esta liberado para atendimento.", response.MensagemOrientativaAprovacao);
+    }
+
+    [Fact]
+    public async Task DetalhePortalDeveIndicarAprovacaoReprovadaComJustificativa()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.ChamadoSolicitante.Id,
+            TipoOrigemAprovacaoChamado.Manual,
+            dados.SolicitanteContexto.Id,
+            dados.SolicitanteContexto.Login,
+            dados.SolicitanteContexto.Id,
+            "Fluxo manual",
+            "Validacao de aprovacao");
+        aprovacao.Reprovar(dados.AdminContexto.Id, dados.AdminContexto.Id, dados.AdminContexto.Login, "Informacoes insuficientes.");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Reprovado, response.StatusAprovacao);
+        Assert.Null(response.JustificativaAprovacao);
+        Assert.Equal("Informacoes insuficientes.", response.JustificativaReprovacao);
+        Assert.Equal("Seu chamado foi reprovado. Verifique a justificativa.", response.MensagemOrientativaAprovacao);
+    }
+
+    [Fact]
+    public async Task DetalhePortalDeveIndicarAprovacaoCancelada()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.ChamadoSolicitante.Id,
+            TipoOrigemAprovacaoChamado.Manual,
+            dados.SolicitanteContexto.Id,
+            dados.SolicitanteContexto.Login,
+            dados.SolicitanteContexto.Id,
+            "Fluxo manual",
+            "Validacao de aprovacao");
+        aprovacao.Cancelar(dados.AdminContexto.Id, dados.AdminContexto.Login, "Fluxo substituido.");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Cancelado, response.StatusAprovacao);
+        Assert.Equal("A aprovacao deste chamado foi cancelada.", response.MensagemOrientativaAprovacao);
+    }
+
     private static async Task<(Chamado ChamadoSolicitante, Chamado ChamadoOutro, UsuarioContextoAplicacao SolicitanteContexto, UsuarioContextoAplicacao AdminContexto)> SeedChamados(SGXSistemaChamadoDbContext context)
     {
         var prioridade = context.PrioridadesChamado.First();

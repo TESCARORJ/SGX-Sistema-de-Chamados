@@ -1,6 +1,7 @@
 using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Services.Sla;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -18,6 +19,7 @@ internal static class PortalUseCaseHelpers
     {
         var agora = DateTime.UtcNow;
         var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
+        var aprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
 
         return new ChamadoResumoResponse
         {
@@ -53,7 +55,16 @@ internal static class PortalUseCaseHelpers
             PrazoResolucaoEm = chamado.ChamadoSla?.PrazoResolucao,
             ResolvidoEm = chamado.ChamadoSla?.DataResolucao,
             EstaPausado = chamado.ChamadoSla?.Pausado ?? false,
-            TotalMinutosPausado = chamado.ChamadoSla?.MinutosPausados ?? 0
+            TotalMinutosPausado = chamado.ChamadoSla?.MinutosPausados ?? 0,
+            RequerAprovacao = aprovacao.RequerAprovacao,
+            AprovacaoPendente = aprovacao.AprovacaoPendente,
+            StatusAprovacao = aprovacao.StatusAprovacao,
+            AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
+            AprovacaoSolicitadaEm = aprovacao.AprovacaoSolicitadaEm,
+            AprovacaoDecididaEm = aprovacao.AprovacaoDecididaEm,
+            JustificativaAprovacao = aprovacao.JustificativaAprovacao,
+            JustificativaReprovacao = aprovacao.JustificativaReprovacao,
+            MensagemOrientativaAprovacao = aprovacao.MensagemOrientativa
         };
     }
 
@@ -69,6 +80,7 @@ internal static class PortalUseCaseHelpers
 
         var agora = DateTime.UtcNow;
         var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
+        var aprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
 
         return new ChamadoDetalheResponse
         {
@@ -96,6 +108,15 @@ internal static class PortalUseCaseHelpers
             Responsavel = chamado.Responsavel?.Nome,
             AbertoEm = chamado.AbertoEm,
             EncerradoEm = chamado.EncerradoEm,
+            RequerAprovacao = aprovacao.RequerAprovacao,
+            AprovacaoPendente = aprovacao.AprovacaoPendente,
+            StatusAprovacao = aprovacao.StatusAprovacao,
+            AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
+            AprovacaoSolicitadaEm = aprovacao.AprovacaoSolicitadaEm,
+            AprovacaoDecididaEm = aprovacao.AprovacaoDecididaEm,
+            JustificativaAprovacao = aprovacao.JustificativaAprovacao,
+            JustificativaReprovacao = aprovacao.JustificativaReprovacao,
+            MensagemOrientativaAprovacao = aprovacao.MensagemOrientativa,
             Comentarios = chamado.Comentarios
                 .Where(x => x.Ativo && !x.Interno)
                 .OrderBy(x => x.CriadoEm)
@@ -144,6 +165,23 @@ internal static class PortalUseCaseHelpers
         };
     }
 
+    public static PortalStatusAprovacaoChamadoDto MapStatusAprovacao(Chamado chamado)
+    {
+        var aprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+        return new PortalStatusAprovacaoChamadoDto
+        {
+            ChamadoId = chamado.Id,
+            RequerAprovacao = aprovacao.RequerAprovacao,
+            AprovacaoPendente = aprovacao.AprovacaoPendente,
+            StatusAprovacao = aprovacao.StatusAprovacao,
+            AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
+            SolicitadaEm = aprovacao.AprovacaoSolicitadaEm,
+            DecididaEm = aprovacao.AprovacaoDecididaEm,
+            JustificativaDecisao = aprovacao.JustificativaDecisao,
+            MensagemOrientativa = aprovacao.MensagemOrientativa
+        };
+    }
+
     public static string ObterDescricaoHistorico(TipoHistoricoChamado tipo)
         => tipo switch
         {
@@ -152,6 +190,10 @@ internal static class PortalUseCaseHelpers
             TipoHistoricoChamado.AnexoAdicionado => "Anexo adicionado",
             TipoHistoricoChamado.AtivoVinculado => "Ativo vinculado ao chamado",
             TipoHistoricoChamado.AtivoRemovido => "Vinculo de ativo removido do chamado",
+            TipoHistoricoChamado.AprovacaoSolicitada => "Aprovacao solicitada",
+            TipoHistoricoChamado.ChamadoAprovado => "Chamado aprovado",
+            TipoHistoricoChamado.ChamadoReprovado => "Chamado reprovado",
+            TipoHistoricoChamado.AprovacaoCancelada => "Aprovacao cancelada",
             _ => tipo.ToString()
         };
 }

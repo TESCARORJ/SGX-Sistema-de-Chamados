@@ -67,6 +67,11 @@ public static class SeedData
     public static readonly Guid PermissaoInventarioAtivosInativarId = Guid.Parse("88888888-8888-8888-8888-888888888854");
     public static readonly Guid PermissaoInventarioAtivosMovimentarId = Guid.Parse("88888888-8888-8888-8888-888888888855");
     public static readonly Guid PermissaoInventarioAtivosVincularChamadoId = Guid.Parse("88888888-8888-8888-8888-888888888856");
+    public static readonly Guid PermissaoAprovacaoChamadosVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888857");
+    public static readonly Guid PermissaoAprovacaoChamadosGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888858");
+    public static readonly Guid PermissaoAprovacaoChamadosAprovarId = Guid.Parse("88888888-8888-8888-8888-888888888859");
+    public static readonly Guid PermissaoAprovacaoChamadosReprovarId = Guid.Parse("88888888-8888-8888-8888-888888888860");
+    public static readonly Guid PermissaoAprovacaoChamadosCancelarId = Guid.Parse("88888888-8888-8888-8888-888888888861");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -383,7 +388,12 @@ public static class SeedData
         (PermissaoInventarioAtivosGerenciarId, "InventarioAtivos.Gerenciar"),
         (PermissaoInventarioAtivosInativarId, "InventarioAtivos.Inativar"),
         (PermissaoInventarioAtivosMovimentarId, "InventarioAtivos.Movimentar"),
-        (PermissaoInventarioAtivosVincularChamadoId, "InventarioAtivos.VincularChamado")
+        (PermissaoInventarioAtivosVincularChamadoId, "InventarioAtivos.VincularChamado"),
+        (PermissaoAprovacaoChamadosVisualizarId, "AprovacaoChamados.Visualizar"),
+        (PermissaoAprovacaoChamadosGerenciarId, "AprovacaoChamados.Gerenciar"),
+        (PermissaoAprovacaoChamadosAprovarId, "AprovacaoChamados.Aprovar"),
+        (PermissaoAprovacaoChamadosReprovarId, "AprovacaoChamados.Reprovar"),
+        (PermissaoAprovacaoChamadosCancelarId, "AprovacaoChamados.Cancelar")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -1135,25 +1145,25 @@ public static class SeedData
         {
             Id = RoadmapItsmItem13Id,
             Area = "Aprovacao de chamados",
-            Categoria = "Workflow",
+            Categoria = "Atendimento",
             RoadmapCategoriaId = RoadmapCategoriaAtendimentoId,
-            SituacaoAtual = "Nao ha evidencia forte",
-            AtencaoTecnica = "Tratar como melhoria futura se for exigencia",
-            Status = StatusRoadmapItsm.Pendente,
+            SituacaoAtual = "Aprovacao de chamados implementada funcionalmente. O modulo contempla fundacao tecnica, backend administrativo, aprovacao manual, aprovacao automatica por Catalogo de Servicos, bloqueios operacionais para chamados pendentes ou reprovados, frontend administrativo, acompanhamento no portal do solicitante, historico do chamado, auditoria, permissoes, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras.",
+            AtencaoTecnica = "Manter governanca do fluxo de aprovacao sem relaxar validacoes de backend, trilha de historico e auditoria, e controle de acesso por permissao nos endpoints administrativos e de portal.",
+            Status = StatusRoadmapItsm.EmValidacao,
             Prioridade = PrioridadeRoadmapItsm.Media,
-            Impacto = ImpactoRoadmapItsm.Medio,
-            Decisao = DecisaoRoadmapItsm.PosValidacao,
-                        StatusImplementacao = StatusImplementacaoRoadmapItsm.NaoIniciado,
-            StatusTecnico = StatusTecnicoRoadmapItsm.NaoAvaliado,
-            PercentualImplementacao = 0,
-            PendenciasTecnicas = (string?)null,
-            PendenciasHomologacao = (string?)null,
-            EvidenciaImplementacao = (string?)null,
-            DataConclusaoTecnica = (DateTime?)null,
+            Impacto = ImpactoRoadmapItsm.Alto,
+            Decisao = DecisaoRoadmapItsm.AguardandoAvaliacao,
+            StatusImplementacao = StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente,
+            StatusTecnico = StatusTecnicoRoadmapItsm.RequerValidacao,
+            PercentualImplementacao = 90,
+            PendenciasTecnicas = "- Testes E2E completos quando houver framework institucional.\n- Evolucoes futuras: multiplos niveis de aprovacao, alcadas, delegacao, notificacoes avancadas e relatorios.",
+            PendenciasHomologacao = "- Executar homologacao institucional com usuarios reais.\n- Coletar evidencias com prints reais e registrar aceite funcional.",
+            EvidenciaImplementacao = "- docs/APROVACAO-CHAMADOS.md\n- docs/CHECKLIST-HOMOLOGACAO-APROVACAO-CHAMADOS.md\n- docs/evidencias/aprovacao-chamados/README.md\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md",
+            DataConclusaoTecnica = DataBase,
             DataHomologacao = (DateTime?)null,
-            CriterioAceite = (string?)null,
-            ProximaAcao = (string?)null,
-            Observacao = (string?)null,
+            CriterioAceite = "A tela do roadmap deve exibir um unico item de Aprovacao de chamados com categoria Atendimento, status de implementacao Implementado funcionalmente, status tecnico Homologacao funcional preparada e percentual 90.",
+            ProximaAcao = "Executar homologacao institucional com usuarios reais e anexar evidencias formais da validacao funcional.",
+            Observacao = "Sprints 1 a 6 concluidas com fechamento funcional e preparacao de homologacao.",
             Responsavel = (string?)null,
             PrazoAlvo = (DateTime?)null,
             Ordem = 13,

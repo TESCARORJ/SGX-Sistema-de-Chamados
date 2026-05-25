@@ -18,6 +18,7 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<LocalUnidade> LocaisUnidade => Set<LocalUnidade>();
     public DbSet<StatusChamado> StatusChamado => Set<StatusChamado>();
     public DbSet<Chamado> Chamados => Set<Chamado>();
+    public DbSet<AprovacaoChamado> AprovacoesChamado => Set<AprovacaoChamado>();
     public DbSet<HistoricoChamado> HistoricosChamado => Set<HistoricoChamado>();
     public DbSet<ComentarioChamado> ComentariosChamado => Set<ComentarioChamado>();
     public DbSet<AnexoChamado> AnexosChamado => Set<AnexoChamado>();

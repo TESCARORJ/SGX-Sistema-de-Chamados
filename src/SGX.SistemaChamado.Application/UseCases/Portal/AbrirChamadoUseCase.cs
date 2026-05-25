@@ -23,6 +23,7 @@ public sealed class AbrirChamadoUseCase(
     IRepository<InventarioAtivo> inventarioAtivoRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    IRepository<AprovacaoChamado> aprovacaoChamadoRepository,
     IRepository<HistoricoInventarioAtivo> historicoInventarioAtivoRepository,
     ISlaService slaService,
     ICodigoChamadoService codigoChamadoService,
@@ -33,6 +34,8 @@ public sealed class AbrirChamadoUseCase(
     private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
     private const string DescricaoHistoricoCriacaoCatalogo = "Chamado aberto a partir do servico do catalogo";
     private const string DescricaoHistoricoCriacaoComAtivo = "Chamado aberto com ativo vinculado";
+    private const string DescricaoHistoricoAprovacaoCatalogo = "Aprovacao solicitada automaticamente por servico de catalogo que requer aprovacao";
+    private const string JustificativaAprovacaoCatalogo = "Aprovacao automatica solicitada por regra do catalogo de servicos";
 
     public async Task<ChamadoDetalheResponse> ExecutarAsync(CriarChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -166,6 +169,36 @@ public sealed class AbrirChamadoUseCase(
             await historicoRepository.AddAsync(historicoCatalogo, cancellationToken);
         }
 
+        if (servicoCatalogo?.RequerAprovacao == true)
+        {
+            var jaExistePendente = await aprovacaoChamadoRepository.Query()
+                .AsNoTracking()
+                .AnyAsync(x => x.Ativo && x.ChamadoId == chamado.Id && x.Status == StatusAprovacaoChamado.Pendente, cancellationToken);
+
+            if (!jaExistePendente)
+            {
+                var aprovacao = new AprovacaoChamado(
+                    chamado.Id,
+                    TipoOrigemAprovacaoChamado.CatalogoServico,
+                    usuarioAtual.Id,
+                    usuarioAtual.Login,
+                    chamado.SolicitanteId,
+                    servicoCatalogo.Nome,
+                    JustificativaAprovacaoCatalogo);
+
+                await aprovacaoChamadoRepository.AddAsync(aprovacao, cancellationToken);
+
+                var historicoAprovacao = new HistoricoChamado(
+                    chamado.Id,
+                    TipoHistoricoChamado.AprovacaoSolicitada,
+                    $"{DescricaoHistoricoAprovacaoCatalogo}: {servicoCatalogo.Nome}",
+                    usuarioAtual.Id,
+                    usuarioAtual.Login);
+
+                await historicoRepository.AddAsync(historicoAprovacao, cancellationToken);
+            }
+        }
+
         if (inventarioAtivo is not null)
         {
             var descricaoAtivo = $"{DescricaoHistoricoCriacaoComAtivo}: {inventarioAtivo.Codigo} - {inventarioAtivo.Nome}";
@@ -206,6 +239,7 @@ public sealed class AbrirChamadoUseCase(
             .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
             .Include(x => x.InventarioAtivo)
+            .Include(x => x.Aprovacoes)
             .Include(x => x.Solicitante)
             .Include(x => x.Responsavel)
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
@@ -251,6 +285,44 @@ public sealed class AbrirChamadoUseCase(
                     resultado: "Sucesso",
                     observacao: "Abertura via portal"),
                 cancellationToken: cancellationToken);
+
+            if (servicoCatalogo?.RequerAprovacao == true)
+            {
+                var aprovacaoGerada = chamadoCriado.Aprovacoes
+                    .Where(x => x.Ativo && x.Status == StatusAprovacaoChamado.Pendente && x.TipoOrigem == TipoOrigemAprovacaoChamado.CatalogoServico)
+                    .OrderByDescending(x => x.SolicitadaEm)
+                    .ThenByDescending(x => x.CriadoEm)
+                    .FirstOrDefault();
+
+                if (aprovacaoGerada is not null)
+                {
+                    await auditoriaService.RegistrarCriacaoAsync(
+                        "Aprovacao de Chamados",
+                        "AprovacaoChamado",
+                        aprovacaoGerada.Id.ToString(),
+                        "Aprovacao automatica gerada na abertura do chamado por servico de catalogo.",
+                        dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new
+                        {
+                            aprovacaoGerada.Id,
+                            aprovacaoGerada.ChamadoId,
+                            Status = aprovacaoGerada.Status.ToString(),
+                            TipoOrigem = aprovacaoGerada.TipoOrigem.ToString(),
+                            aprovacaoGerada.OrigemDescricao,
+                            aprovacaoGerada.JustificativaSolicitacao,
+                            aprovacaoGerada.SolicitadaEm
+                        }),
+                        metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                            origem: "api",
+                            modulo: "Aprovacao de Chamados",
+                            entidade: "AprovacaoChamado",
+                            entidadeId: aprovacaoGerada.Id.ToString(),
+                            codigo: chamadoCriado.Codigo,
+                            nome: chamadoCriado.Titulo,
+                            operacao: "SolicitacaoAutomaticaPorCatalogo",
+                            resultado: "Sucesso"),
+                        cancellationToken: cancellationToken);
+                }
+            }
         }
 
         return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);

@@ -181,6 +181,75 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task PortalStatusAprovacaoDeveBloquearAcessoAoChamadoDeOutroSolicitante()
+    {
+        const string solicitanteA = "solicitante.aprovacao.a@empresa.com";
+        const string solicitanteB = "solicitante.aprovacao.b@empresa.com";
+
+        using (var clienteA = _factory.CreateClient())
+        {
+            AddDevHeaders(clienteA, solicitanteA, "Solicitante A", "Solicitante");
+            _ = await clienteA.GetAsync("/api/me");
+        }
+
+        using (var clienteB = _factory.CreateClient())
+        {
+            AddDevHeaders(clienteB, solicitanteB, "Solicitante B", "Solicitante");
+            _ = await clienteB.GetAsync("/api/me");
+        }
+
+        await _factory.SeedPortalChamadosAsync(solicitanteA, solicitanteB);
+        var chamadoDoSolicitanteB = await ObterChamadoPorCodigoAsync("SGX-2026-900002");
+
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, solicitanteA, "Solicitante A", "Solicitante");
+
+        var response = await client.GetAsync($"/api/portal/chamados/{chamadoDoSolicitanteB.Id}/aprovacao");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PortalStatusAprovacaoRetornaDadosOrientativosSemCamposAdministrativos()
+    {
+        const string solicitante = "solicitante.aprovacao.status@empresa.com";
+        const string solicitanteOutro = "solicitante.aprovacao.outro@empresa.com";
+
+        using (var clientBootstrap = _factory.CreateClient())
+        {
+            AddDevHeaders(clientBootstrap, solicitante, "Solicitante", "Solicitante");
+            _ = await clientBootstrap.GetAsync("/api/me");
+        }
+
+        using (var clientBootstrapOutro = _factory.CreateClient())
+        {
+            AddDevHeaders(clientBootstrapOutro, solicitanteOutro, "Solicitante Outro", "Solicitante");
+            _ = await clientBootstrapOutro.GetAsync("/api/me");
+        }
+
+        await _factory.SeedPortalChamadosAsync(solicitante, solicitanteOutro);
+        var chamado = await ObterChamadoPorCodigoAsync("SGX-2026-900001");
+        await CriarAprovacaoNoChamadoAsync(chamado.Id, chamado.SolicitanteId, StatusAprovacaoChamado.Reprovado, "Necessario anexar evidencias.");
+
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, solicitante, "Solicitante", "Solicitante");
+
+        var response = await client.GetAsync($"/api/portal/chamados/{chamado.Id}/aprovacao");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(payload);
+
+        Assert.Equal(chamado.Id.ToString(), json.RootElement.GetProperty("chamadoId").GetString());
+        Assert.True(json.RootElement.GetProperty("requerAprovacao").GetBoolean());
+        Assert.Equal((int)StatusAprovacaoChamado.Reprovado, json.RootElement.GetProperty("statusAprovacao").GetInt32());
+        Assert.Equal("Necessario anexar evidencias.", json.RootElement.GetProperty("justificativaDecisao").GetString());
+        Assert.Equal("Seu chamado foi reprovado. Verifique a justificativa.", json.RootElement.GetProperty("mensagemOrientativa").GetString());
+        Assert.False(json.RootElement.TryGetProperty("aprovadorNome", out _));
+        Assert.False(json.RootElement.TryGetProperty("aprovadorId", out _));
+    }
+
+    [Fact]
     public async Task AdminChamadosBloqueiaSolicitante()
     {
         using var client = _factory.CreateClient();
@@ -994,6 +1063,51 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
         var usuario = await dbContext.Usuarios.FirstAsync(x => x.Email == email);
         return usuario.Id;
+    }
+
+    private async Task<(Guid Id, Guid SolicitanteId)> ObterChamadoPorCodigoAsync(string codigo, CancellationToken cancellationToken = default)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+        var chamado = await dbContext.Chamados.FirstAsync(x => x.Codigo == codigo, cancellationToken);
+        return (chamado.Id, chamado.SolicitanteId);
+    }
+
+    private async Task CriarAprovacaoNoChamadoAsync(
+        Guid chamadoId,
+        Guid solicitanteId,
+        StatusAprovacaoChamado status,
+        string justificativaDecisao,
+        CancellationToken cancellationToken = default)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+        var admin = await dbContext.Usuarios.FirstAsync(cancellationToken);
+
+        var aprovacao = new AprovacaoChamado(
+            chamadoId,
+            TipoOrigemAprovacaoChamado.Manual,
+            admin.Id,
+            admin.Login,
+            solicitanteId,
+            "Fluxo portal",
+            "Solicitacao portal");
+
+        if (status == StatusAprovacaoChamado.Aprovado)
+        {
+            aprovacao.Aprovar(admin.Id, admin.Id, admin.Login, justificativaDecisao);
+        }
+        else if (status == StatusAprovacaoChamado.Reprovado)
+        {
+            aprovacao.Reprovar(admin.Id, admin.Id, admin.Login, justificativaDecisao);
+        }
+        else if (status == StatusAprovacaoChamado.Cancelado)
+        {
+            aprovacao.Cancelar(admin.Id, admin.Login, justificativaDecisao);
+        }
+
+        dbContext.AprovacoesChamado.Add(aprovacao);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private static async Task<string?> ObterMensagemErroAsync(HttpResponseMessage response)

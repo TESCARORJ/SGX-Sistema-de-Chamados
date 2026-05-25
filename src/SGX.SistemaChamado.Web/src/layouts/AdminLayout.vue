@@ -35,10 +35,37 @@ const menu: MenuItem[] = [
     requiredAnyPermissions: [permissoes.dashboardVisualizar],
   },
   {
-    label: 'Chamados',
+    label: 'Atendimento',
     icon: 'support_agent',
-    to: '/admin/chamados',
-    requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
+    requiredAnyPermissions: [
+      permissoes.chamadosVisualizar,
+      permissoes.chamadosVisualizarTodos,
+      permissoes.aprovacaoChamadosVisualizar,
+      permissoes.aprovacaoChamadosGerenciar,
+      permissoes.aprovacaoChamadosAprovar,
+      permissoes.aprovacaoChamadosReprovar,
+      permissoes.aprovacaoChamadosCancelar,
+    ],
+    children: [
+      {
+        label: 'Fila de chamados',
+        icon: 'list_alt',
+        to: '/admin/chamados',
+        requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Aprovacao de chamados',
+        icon: 'fact_check',
+        to: '/admin/atendimento/aprovacao-chamados',
+        requiredAnyPermissions: [
+          permissoes.aprovacaoChamadosVisualizar,
+          permissoes.aprovacaoChamadosGerenciar,
+          permissoes.aprovacaoChamadosAprovar,
+          permissoes.aprovacaoChamadosReprovar,
+          permissoes.aprovacaoChamadosCancelar,
+        ],
+      },
+    ],
   },
   {
     label: 'SLA',
@@ -336,6 +363,7 @@ const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offlin
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
+  if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovacao de chamados'
   if (route.path === '/admin/notificacoes') return 'Central de NotificaÃƒÂ§ÃƒÂµes'
   if (route.path.startsWith('/admin/sla/alertas')) return 'Alertas de SLA'
   if (route.path.startsWith('/admin/sla/calendarios')) return 'CalendÃ¡rios de SLA'

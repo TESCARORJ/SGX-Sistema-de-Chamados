@@ -6,6 +6,7 @@ using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -34,10 +35,17 @@ public sealed class AssumirChamadoUseCase(
 
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Responsavel)
+            .Include(x => x.Aprovacoes)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var responsavelAnterior = chamado.Responsavel?.Nome;
+
+        var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+        if (estadoAprovacao.BloqueiaAvancoAtendimento)
+        {
+            throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+        }
 
         if (chamado.ResponsavelId.HasValue && chamado.ResponsavelId.Value != usuario.Id && !AdminUseCaseHelpers.EhAdministrador(usuario))
         {

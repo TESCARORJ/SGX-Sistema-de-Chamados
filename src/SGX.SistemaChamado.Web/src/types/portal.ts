@@ -1,4 +1,5 @@
 import type { AnexoChamado } from './anexo'
+import type { StatusAprovacaoChamado } from './aprovacaoChamados'
 import type { ComentarioChamado } from './comentario'
 
 export type SituacaoSlaChamado =
@@ -116,6 +117,15 @@ export interface ChamadoResumoPortal {
   resolvidoEm: string | null
   estaPausado: boolean
   totalMinutosPausado: number
+  requerAprovacao: boolean
+  aprovacaoPendente: boolean
+  statusAprovacao: StatusAprovacaoChamado | null
+  aprovacaoChamadoId: string | null
+  aprovacaoSolicitadaEm: string | null
+  aprovacaoDecididaEm: string | null
+  justificativaAprovacao: string | null
+  justificativaReprovacao: string | null
+  mensagemOrientativaAprovacao: string
 }
 
 export interface ListaChamadosPortalResponse {
@@ -185,6 +195,27 @@ export interface ChamadoDetalhePortal {
   anexos: AnexoChamado[]
   historico: HistoricoChamado[]
   sla: SlaResumo | null
+  requerAprovacao: boolean
+  aprovacaoPendente: boolean
+  statusAprovacao: StatusAprovacaoChamado | null
+  aprovacaoChamadoId: string | null
+  aprovacaoSolicitadaEm: string | null
+  aprovacaoDecididaEm: string | null
+  justificativaAprovacao: string | null
+  justificativaReprovacao: string | null
+  mensagemOrientativaAprovacao: string
+}
+
+export interface PortalStatusAprovacaoChamado {
+  chamadoId: string
+  requerAprovacao: boolean
+  aprovacaoPendente: boolean
+  statusAprovacao: StatusAprovacaoChamado | null
+  aprovacaoChamadoId: string | null
+  solicitadaEm: string | null
+  decididaEm: string | null
+  justificativaDecisao: string | null
+  mensagemOrientativa: string
 }
 
 export interface CriarChamadoRequest {

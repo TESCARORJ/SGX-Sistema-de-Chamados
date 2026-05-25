@@ -1,4 +1,5 @@
 import type { AnexoChamado } from './anexo'
+import type { StatusAprovacaoChamado } from './aprovacaoChamados'
 import type { ComentarioChamado } from './comentario'
 
 export type SituacaoSlaChamado =
@@ -137,6 +138,10 @@ export interface ChamadoAdminResumo {
   resolvidoEm: string | null
   estaPausado: boolean
   totalMinutosPausado: number
+  requerAprovacao: boolean
+  aprovacaoPendente: boolean
+  statusAprovacao: StatusAprovacaoChamado | null
+  aprovacaoChamadoId: string | null
 }
 
 export interface ListaChamadosAdminResponse {
@@ -222,6 +227,10 @@ export interface ChamadoAdminDetalhe {
   origem: string
   abertoEm: string
   encerradoEm: string | null
+  requerAprovacao: boolean
+  aprovacaoPendente: boolean
+  statusAprovacao: StatusAprovacaoChamado | null
+  aprovacaoChamadoId: string | null
   comentarios: ComentarioChamado[]
   anexos: AnexoChamado[]
   historico: HistoricoAdmin[]

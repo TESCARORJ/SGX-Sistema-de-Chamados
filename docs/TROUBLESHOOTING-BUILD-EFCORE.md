@@ -17,6 +17,47 @@ No SGX, o caso mais comum e:
 
 Quando isso ocorre, o build pode ficar parcial (alguns assemblies atualizados e outros nao).
 
+### Erro MSB3021/MSB3027 - DLL/PDB bloqueado pelo debugger
+Este erro ocorre quando a API ainda esta em execucao/depuracao e o build tenta sobrescrever arquivos em `bin/Debug`.
+
+No log, normalmente aparece quem esta bloqueando, por exemplo:
+- `Microsoft .NET Core Debugger`
+- `.NET Host`
+
+Importante:
+- isso nao e erro de migration;
+- isso nao e erro de codigo de dominio;
+- nao deve ser resolvido criando migration.
+
+Correcao recomendada:
+1. Pare a depuracao no Visual Studio/VS Code.
+2. Mate processos travados (manual ou script).
+3. Limpe `bin/obj`.
+4. Rode `clean` e `build` novamente.
+
+Comandos manuais:
+
+```powershell
+Stop-Process -Id 15032,18696 -Force
+
+dotnet clean SGX.SistemaChamado.sln
+
+Remove-Item -Recurse -Force ".\src\SGX.SistemaChamado.Api\bin" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force ".\src\SGX.SistemaChamado.Api\obj" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force ".\src\SGX.SistemaChamado.Infrastructure\bin" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force ".\src\SGX.SistemaChamado.Infrastructure\obj" -ErrorAction SilentlyContinue
+
+dotnet build SGX.SistemaChamado.sln -c Debug
+```
+
+Scripts de apoio:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/dev-kill-locked-build-pids.ps1 -ProcessIds 15032,18696
+powershell -ExecutionPolicy Bypass -File scripts/dev-unlock-dotnet-build.ps1
+powershell -ExecutionPolicy Bypass -File scripts/dev-unlock-dotnet-build.ps1 -ForceKill
+```
+
 ## O que e PendingModelChangesWarning
 No EF Core, o warning indica diferenca entre:
 - modelo atual carregado em runtime; e

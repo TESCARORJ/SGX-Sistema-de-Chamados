@@ -1782,3 +1782,15 @@ Pendencias evolutivas:
 - indicadores de chamados por ativo;
 - regra patrimonial avancada para descartado/extraviado;
 - inventario por agente automatico futuramente.
+
+## Sprint Aprovacao de Chamados 6 - Fechamento funcional e homologacao
+
+Area: Aprovacao de chamados
+Categoria: Atendimento
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+
+Situacao atual:
+Aprovacao de chamados implementada funcionalmente. O modulo contempla fundacao tecnica, backend administrativo, aprovacao manual, aprovacao automatica por Catalogo de Servicos, bloqueios operacionais para chamados pendentes ou reprovados, frontend administrativo, acompanhamento no portal do solicitante, historico do chamado, auditoria, permissoes, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras como multiplos niveis de aprovacao, alcadas, delegacao, notificacoes avancadas e relatorios.

@@ -1,6 +1,7 @@
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Services.Sla;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -50,6 +51,18 @@ internal static class AdminUseCaseHelpers
             TipoHistoricoChamado.AtivoRemovido => string.IsNullOrWhiteSpace(detalhe)
                 ? "Vinculo de ativo removido do chamado"
                 : detalhe,
+            TipoHistoricoChamado.AprovacaoSolicitada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Aprovacao solicitada"
+                : detalhe,
+            TipoHistoricoChamado.ChamadoAprovado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Chamado aprovado"
+                : detalhe,
+            TipoHistoricoChamado.ChamadoReprovado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Chamado reprovado"
+                : detalhe,
+            TipoHistoricoChamado.AprovacaoCancelada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Aprovacao cancelada"
+                : detalhe,
             _ => detalhe ?? tipo.ToString()
         };
 
@@ -57,6 +70,7 @@ internal static class AdminUseCaseHelpers
     {
         var agora = DateTime.UtcNow;
         var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
+        var aprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
 
         return new ChamadoAdminResumoResponse
         {
@@ -96,7 +110,11 @@ internal static class AdminUseCaseHelpers
             PrazoResolucaoEm = chamado.ChamadoSla?.PrazoResolucao,
             ResolvidoEm = chamado.ChamadoSla?.DataResolucao,
             EstaPausado = chamado.ChamadoSla?.Pausado ?? false,
-            TotalMinutosPausado = chamado.ChamadoSla?.MinutosPausados ?? 0
+            TotalMinutosPausado = chamado.ChamadoSla?.MinutosPausados ?? 0,
+            RequerAprovacao = aprovacao.RequerAprovacao,
+            AprovacaoPendente = aprovacao.AprovacaoPendente,
+            StatusAprovacao = aprovacao.StatusAprovacao,
+            AprovacaoChamadoId = aprovacao.AprovacaoChamadoId
         };
     }
 
@@ -104,6 +122,7 @@ internal static class AdminUseCaseHelpers
     {
         var agora = DateTime.UtcNow;
         var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
+        var aprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
 
         return new ChamadoAdminDetalheResponse
         {
@@ -137,6 +156,10 @@ internal static class AdminUseCaseHelpers
             Origem = chamado.Origem.ToString(),
             AbertoEm = chamado.AbertoEm,
             EncerradoEm = chamado.EncerradoEm,
+            RequerAprovacao = aprovacao.RequerAprovacao,
+            AprovacaoPendente = aprovacao.AprovacaoPendente,
+            StatusAprovacao = aprovacao.StatusAprovacao,
+            AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
             Comentarios = chamado.Comentarios
                 .Where(x => x.Ativo)
                 .OrderBy(x => x.CriadoEm)

@@ -26,6 +26,7 @@ public sealed class DbContextModelTests
         var eventoAuditoriaEntity = context.Model.FindEntityType(typeof(EventoAuditoria));
         var baseConhecimentoArtigoEntity = context.Model.FindEntityType(typeof(BaseConhecimentoArtigo));
         var chamadoArtigoConhecimentoEntity = context.Model.FindEntityType(typeof(ChamadoArtigoConhecimento));
+        var aprovacaoChamadoEntity = context.Model.FindEntityType(typeof(AprovacaoChamado));
         var catalogoServicoEntity = context.Model.FindEntityType(typeof(CatalogoServico));
         var tipoAtivoInventarioEntity = context.Model.FindEntityType(typeof(TipoAtivoInventario));
         var inventarioAtivoEntity = context.Model.FindEntityType(typeof(InventarioAtivo));
@@ -42,6 +43,7 @@ public sealed class DbContextModelTests
         Assert.NotNull(eventoAuditoriaEntity);
         Assert.NotNull(baseConhecimentoArtigoEntity);
         Assert.NotNull(chamadoArtigoConhecimentoEntity);
+        Assert.NotNull(aprovacaoChamadoEntity);
         Assert.NotNull(catalogoServicoEntity);
         Assert.NotNull(tipoAtivoInventarioEntity);
         Assert.NotNull(inventarioAtivoEntity);
@@ -57,6 +59,7 @@ public sealed class DbContextModelTests
         Assert.Equal("eventos_auditoria", eventoAuditoriaEntity!.GetTableName());
         Assert.Equal("base_conhecimento_artigos", baseConhecimentoArtigoEntity!.GetTableName());
         Assert.Equal("chamados_artigos_conhecimento", chamadoArtigoConhecimentoEntity!.GetTableName());
+        Assert.Equal("aprovacoes_chamado", aprovacaoChamadoEntity!.GetTableName());
         Assert.Equal("catalogo_servicos", catalogoServicoEntity!.GetTableName());
         Assert.Equal("tipos_ativo_inventario", tipoAtivoInventarioEntity!.GetTableName());
         Assert.Equal("inventario_ativos", inventarioAtivoEntity!.GetTableName());
@@ -84,5 +87,10 @@ public sealed class DbContextModelTests
             .FirstOrDefault(x => x.GetDatabaseName() == "ux_inventario_ativos_codigo");
         Assert.NotNull(indiceCodigoInventario);
         Assert.True(indiceCodigoInventario!.IsUnique);
+
+        var indiceAprovacaoPendente = aprovacaoChamadoEntity.GetIndexes()
+            .FirstOrDefault(x => x.GetDatabaseName() == "ux_aprovacoes_chamado_chamado_id_pendente_ativo");
+        Assert.NotNull(indiceAprovacaoPendente);
+        Assert.True(indiceAprovacaoPendente!.IsUnique);
     }
 }

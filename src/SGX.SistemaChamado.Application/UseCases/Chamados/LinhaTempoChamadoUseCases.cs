@@ -186,6 +186,10 @@ public sealed class ListarLinhaTempoChamadoUseCase(
             TipoHistoricoChamado.CategoriaAlterada => ("categoria", "Categoria", "Categoria alterada", true),
             TipoHistoricoChamado.AtivoVinculado => ("ativo", "Ativo", "Ativo vinculado", false),
             TipoHistoricoChamado.AtivoRemovido => ("ativo", "Ativo", "Vinculo de ativo removido", false),
+            TipoHistoricoChamado.AprovacaoSolicitada => ("aprovacao", "Aprovacao", "Aprovacao solicitada", false),
+            TipoHistoricoChamado.ChamadoAprovado => ("aprovacao", "Aprovacao", "Chamado aprovado", false),
+            TipoHistoricoChamado.ChamadoReprovado => ("aprovacao", "Aprovacao", "Chamado reprovado", false),
+            TipoHistoricoChamado.AprovacaoCancelada => ("aprovacao", "Aprovacao", "Aprovacao cancelada", false),
             TipoHistoricoChamado.Encerrado => ("encerramento", "Encerramento", "Chamado encerrado", false),
             TipoHistoricoChamado.Reaberto => ("reabertura", "Reabertura", "Chamado reaberto", false),
             TipoHistoricoChamado.IntegracaoEmail => ("historico", "Historico", "Atualizacao interna", true),
@@ -198,7 +202,11 @@ public sealed class ListarLinhaTempoChamadoUseCase(
             or TipoHistoricoChamado.Encerrado
             or TipoHistoricoChamado.Reaberto
             or TipoHistoricoChamado.AtivoVinculado
-            or TipoHistoricoChamado.AtivoRemovido)
+            or TipoHistoricoChamado.AtivoRemovido
+            or TipoHistoricoChamado.AprovacaoSolicitada
+            or TipoHistoricoChamado.ChamadoAprovado
+            or TipoHistoricoChamado.ChamadoReprovado
+            or TipoHistoricoChamado.AprovacaoCancelada)
         {
             return true;
         }

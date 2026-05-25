@@ -25,7 +25,9 @@ import { chamadoInventarioAtivoService } from '../services/chamadoInventarioAtiv
 import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminService'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
+import { aprovacaoChamadosAdminService } from '../services/aprovacaoChamadosAdminService'
 import { useAuthStore } from '../stores/authStore'
+import { StatusAprovacaoChamado, TipoOrigemAprovacaoChamado } from '../types/aprovacaoChamados'
 import type {
   AdminContextoResponse,
   ArtigoConhecimentoDisponivelParaVinculo,
@@ -60,9 +62,15 @@ const showVincularArtigo = ref(false)
 const showConfirmarRemocaoVinculo = ref(false)
 const showVincularAtivo = ref(false)
 const showConfirmarRemocaoAtivo = ref(false)
+const showAcaoAprovacao = ref(false)
+const showSolicitarAprovacao = ref(false)
 
 const comentarioMensagem = ref('')
 const comentarioInterno = ref(false)
+const acaoAprovacaoSelecionada = ref<'aprovar' | 'reprovar' | 'cancelar' | null>(null)
+const justificativaAcaoAprovacao = ref('')
+const origemDescricaoSolicitacaoAprovacao = ref('')
+const justificativaSolicitacaoAprovacao = ref('')
 const artigosConhecimento = ref<ChamadoArtigoConhecimento[]>([])
 const erroBaseConhecimento = ref<string | null>(null)
 const loadingArtigosConhecimento = ref(false)
@@ -106,6 +114,23 @@ const podeVincularArtigoConhecimento = computed(() =>
 const podeVincularAtivoInventario = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.inventarioAtivosVincularChamado)
 )
+const podeVisualizar = computed(
+  () =>
+    fallbackAdminSemPermissoes.value ||
+    authStore.possuiAlgumaPermissao([permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos])
+)
+const podeSolicitarAprovacaoPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.aprovacaoChamadosGerenciar)
+)
+const podeAprovarAprovacaoPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.aprovacaoChamadosAprovar)
+)
+const podeReprovarAprovacaoPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.aprovacaoChamadosReprovar)
+)
+const podeCancelarAprovacaoPermissao = computed(() =>
+  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.aprovacaoChamadosCancelar)
+)
 
 const podeAssumir = computed(() => {
   if (!podeAssumirPermissao.value) {
@@ -121,6 +146,88 @@ const chamadoEncerrado = computed(() => detalhe.value?.status.toLowerCase().incl
 const chamadoReabrivel = computed(() => {
   const status = detalhe.value?.status.toLowerCase() ?? ''
   return status.includes('encerrado') || status.includes('resolvido')
+})
+const statusAprovacaoDescricao = computed(() => {
+  if (detalhe.value?.statusAprovacao === null || detalhe.value?.statusAprovacao === undefined) {
+    return 'Nao aplicavel'
+  }
+
+  switch (detalhe.value.statusAprovacao) {
+    case StatusAprovacaoChamado.Pendente:
+      return 'Pendente'
+    case StatusAprovacaoChamado.Aprovado:
+      return 'Aprovado'
+    case StatusAprovacaoChamado.Reprovado:
+      return 'Reprovado'
+    case StatusAprovacaoChamado.Cancelado:
+      return 'Cancelado'
+    default:
+      return 'Nao informado'
+  }
+})
+const corStatusAprovacao = computed(() => {
+  if (detalhe.value?.statusAprovacao === null || detalhe.value?.statusAprovacao === undefined) {
+    return 'grey-6'
+  }
+
+  switch (detalhe.value.statusAprovacao) {
+    case StatusAprovacaoChamado.Pendente:
+      return 'warning'
+    case StatusAprovacaoChamado.Aprovado:
+      return 'positive'
+    case StatusAprovacaoChamado.Reprovado:
+      return 'negative'
+    case StatusAprovacaoChamado.Cancelado:
+      return 'grey-7'
+    default:
+      return 'grey-6'
+  }
+})
+const aprovacaoPendente = computed(() => detalhe.value?.aprovacaoPendente ?? false)
+const aprovacaoReprovada = computed(() => detalhe.value?.statusAprovacao === StatusAprovacaoChamado.Reprovado)
+const aprovacaoCancelada = computed(() => detalhe.value?.statusAprovacao === StatusAprovacaoChamado.Cancelado)
+const aprovacaoAprovada = computed(() => detalhe.value?.statusAprovacao === StatusAprovacaoChamado.Aprovado)
+const podeSolicitarAprovacaoManual = computed(
+  () =>
+    Boolean(detalhe.value) &&
+    podeSolicitarAprovacaoPermissao.value &&
+    !aprovacaoPendente.value
+)
+const podeAprovarAprovacaoRapido = computed(
+  () =>
+    Boolean(detalhe.value?.aprovacaoChamadoId) &&
+    aprovacaoPendente.value &&
+    podeAprovarAprovacaoPermissao.value
+)
+const podeReprovarAprovacaoRapido = computed(
+  () =>
+    Boolean(detalhe.value?.aprovacaoChamadoId) &&
+    aprovacaoPendente.value &&
+    podeReprovarAprovacaoPermissao.value
+)
+const podeCancelarAprovacaoRapido = computed(
+  () =>
+    Boolean(detalhe.value?.aprovacaoChamadoId) &&
+    aprovacaoPendente.value &&
+    podeCancelarAprovacaoPermissao.value
+)
+const justificativaAcaoAprovacaoObrigatoria = computed(
+  () => acaoAprovacaoSelecionada.value === 'reprovar' || acaoAprovacaoSelecionada.value === 'cancelar'
+)
+const tituloAcaoAprovacao = computed(() => {
+  if (acaoAprovacaoSelecionada.value === 'aprovar') return 'Confirmar aprovacao'
+  if (acaoAprovacaoSelecionada.value === 'reprovar') return 'Confirmar reprovacao'
+  return 'Confirmar cancelamento'
+})
+const labelAcaoAprovacao = computed(() => {
+  if (acaoAprovacaoSelecionada.value === 'aprovar') return 'Aprovar'
+  if (acaoAprovacaoSelecionada.value === 'reprovar') return 'Reprovar'
+  return 'Cancelar aprovacao'
+})
+const corAcaoAprovacao = computed(() => {
+  if (acaoAprovacaoSelecionada.value === 'aprovar') return 'positive'
+  if (acaoAprovacaoSelecionada.value === 'reprovar') return 'negative'
+  return 'warning'
 })
 
 const slaProximo = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento')
@@ -423,6 +530,101 @@ async function reabrir(mensagem: string): Promise<void> {
     registrarSucesso('Chamado reaberto com sucesso.')
   } catch (error) {
     registrarErro(error, 'Não foi possível concluir a ação.')
+  } finally {
+    processing.value = false
+  }
+}
+
+function abrirAcaoAprovacao(tipo: 'aprovar' | 'reprovar' | 'cancelar'): void {
+  acaoAprovacaoSelecionada.value = tipo
+  justificativaAcaoAprovacao.value = ''
+  showAcaoAprovacao.value = true
+}
+
+function fecharAcaoAprovacao(): void {
+  showAcaoAprovacao.value = false
+  acaoAprovacaoSelecionada.value = null
+  justificativaAcaoAprovacao.value = ''
+}
+
+function abrirSolicitarAprovacaoManual(): void {
+  origemDescricaoSolicitacaoAprovacao.value = ''
+  justificativaSolicitacaoAprovacao.value = ''
+  showSolicitarAprovacao.value = true
+}
+
+function abrirDetalheAprovacao(): void {
+  if (!detalhe.value?.aprovacaoChamadoId) {
+    return
+  }
+
+  router.push(`/admin/atendimento/aprovacao-chamados/${detalhe.value.aprovacaoChamadoId}`)
+}
+
+async function confirmarAcaoAprovacao(): Promise<void> {
+  if (!detalhe.value?.aprovacaoChamadoId || !acaoAprovacaoSelecionada.value) {
+    return
+  }
+
+  if (justificativaAcaoAprovacaoObrigatoria.value && !justificativaAcaoAprovacao.value.trim()) {
+    registrarErro(new Error('Informe a justificativa para continuar.'), 'Nao foi possivel concluir a acao.')
+    return
+  }
+
+  processing.value = true
+  erro.value = null
+
+  try {
+    const justificativa = justificativaAcaoAprovacao.value.trim()
+
+    if (acaoAprovacaoSelecionada.value === 'aprovar') {
+      await aprovacaoChamadosAdminService.aprovar(detalhe.value.aprovacaoChamadoId, {
+        justificativaDecisao: justificativa || undefined,
+      })
+      registrarSucesso('Aprovacao registrada com sucesso.')
+    } else if (acaoAprovacaoSelecionada.value === 'reprovar') {
+      await aprovacaoChamadosAdminService.reprovar(detalhe.value.aprovacaoChamadoId, {
+        justificativaDecisao: justificativa,
+      })
+      registrarSucesso('Reprovacao registrada com sucesso.')
+    } else {
+      await aprovacaoChamadosAdminService.cancelar(detalhe.value.aprovacaoChamadoId, {
+        justificativaDecisao: justificativa,
+      })
+      registrarSucesso('Cancelamento registrado com sucesso.')
+    }
+
+    fecharAcaoAprovacao()
+    await recarregarDetalhe()
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel concluir a acao de aprovacao.')
+  } finally {
+    processing.value = false
+  }
+}
+
+async function solicitarAprovacaoManual(): Promise<void> {
+  if (!detalhe.value) {
+    return
+  }
+
+  processing.value = true
+  erro.value = null
+
+  try {
+    await aprovacaoChamadosAdminService.solicitar(detalhe.value.id, {
+      tipoOrigem: TipoOrigemAprovacaoChamado.Manual,
+      origemDescricao: origemDescricaoSolicitacaoAprovacao.value.trim() || undefined,
+      justificativaSolicitacao: justificativaSolicitacaoAprovacao.value.trim() || undefined,
+    })
+
+    showSolicitarAprovacao.value = false
+    origemDescricaoSolicitacaoAprovacao.value = ''
+    justificativaSolicitacaoAprovacao.value = ''
+    await recarregarDetalhe()
+    registrarSucesso('Solicitacao de aprovacao registrada com sucesso.')
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel solicitar aprovacao manual.')
   } finally {
     processing.value = false
   }
@@ -772,6 +974,98 @@ onMounted(carregar)
         </div>
       </AppSectionCard>
 
+      <AppSectionCard titulo="Aprovacao" subtitulo="Controle de liberacao do chamado para seguimento do atendimento.">
+        <template #actions>
+          <div class="row q-gutter-xs">
+            <q-btn
+              v-if="detalhe.aprovacaoChamadoId"
+              flat
+              color="primary"
+              icon="visibility"
+              label="Ver aprovacao"
+              @click="abrirDetalheAprovacao"
+            />
+            <q-btn
+              v-if="podeSolicitarAprovacaoManual"
+              flat
+              color="secondary"
+              icon="add_task"
+              label="Solicitar aprovacao"
+              @click="abrirSolicitarAprovacaoManual"
+            />
+          </div>
+        </template>
+
+        <q-banner v-if="aprovacaoPendente" rounded class="bg-orange-1 text-orange-10 q-mb-sm">
+          Este chamado aguarda aprovacao antes de seguir para atendimento.
+        </q-banner>
+        <q-banner v-else-if="aprovacaoReprovada" rounded class="bg-red-1 text-negative q-mb-sm">
+          Este chamado foi reprovado e permanece bloqueado para avancar atendimento.
+        </q-banner>
+        <q-banner v-else-if="aprovacaoCancelada" rounded class="bg-grey-2 text-grey-8 q-mb-sm">
+          A aprovacao foi cancelada. Sem outra pendencia ativa, o chamado pode seguir fluxo normal.
+        </q-banner>
+        <q-banner v-else-if="aprovacaoAprovada" rounded class="bg-green-1 text-positive q-mb-sm">
+          Aprovacao concluida. Chamado liberado para atendimento.
+        </q-banner>
+
+        <q-list separator>
+          <q-item>
+            <q-item-section>
+              <q-item-label caption>Requer aprovacao</q-item-label>
+              <q-item-label>{{ detalhe.requerAprovacao ? 'Sim' : 'Nao' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Aprovacao pendente</q-item-label>
+              <q-item-label>{{ detalhe.aprovacaoPendente ? 'Sim' : 'Nao' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Status da aprovacao</q-item-label>
+              <q-item-label>
+                <q-chip dense square text-color="white" :color="corStatusAprovacao">
+                  {{ statusAprovacaoDescricao }}
+                </q-chip>
+              </q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Id da aprovacao</q-item-label>
+              <q-item-label>{{ detalhe.aprovacaoChamadoId || '-' }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+
+        <div
+          v-if="podeAprovarAprovacaoRapido || podeReprovarAprovacaoRapido || podeCancelarAprovacaoRapido"
+          class="row q-gutter-sm q-mt-md"
+        >
+          <q-btn
+            v-if="podeAprovarAprovacaoRapido"
+            color="positive"
+            icon="check"
+            label="Aprovar"
+            :loading="processing"
+            @click="abrirAcaoAprovacao('aprovar')"
+          />
+          <q-btn
+            v-if="podeReprovarAprovacaoRapido"
+            color="negative"
+            icon="close"
+            label="Reprovar"
+            :loading="processing"
+            @click="abrirAcaoAprovacao('reprovar')"
+          />
+          <q-btn
+            v-if="podeCancelarAprovacaoRapido"
+            color="warning"
+            text-color="black"
+            icon="cancel"
+            label="Cancelar"
+            :loading="processing"
+            @click="abrirAcaoAprovacao('cancelar')"
+          />
+        </div>
+      </AppSectionCard>
+
       <AppSectionCard
         v-if="podeVisualizar"
         titulo="Ativo vinculado"
@@ -1069,6 +1363,72 @@ onMounted(carregar)
       titulo="Chamado não encontrado"
       mensagem="Não foi possível carregar o chamado solicitado ou ele não está disponível."
     />
+
+    <q-dialog v-model="showAcaoAprovacao">
+      <q-card class="sgx-card" style="width: min(640px, 94vw)">
+        <q-card-section class="text-h6">{{ tituloAcaoAprovacao }}</q-card-section>
+
+        <q-card-section class="column q-gutter-sm">
+          <div class="text-body2 text-grey-8">
+            Esta decisao sera registrada no historico da aprovacao e do chamado.
+          </div>
+
+          <q-input
+            v-model="justificativaAcaoAprovacao"
+            outlined
+            type="textarea"
+            autogrow
+            :label="justificativaAcaoAprovacaoObrigatoria ? 'Justificativa (obrigatoria)' : 'Justificativa (opcional)'"
+            :rules="justificativaAcaoAprovacaoObrigatoria ? [(v) => !!String(v || '').trim() || 'Informe a justificativa'] : []"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Voltar" :disable="processing" @click="fecharAcaoAprovacao" />
+          <q-btn :color="corAcaoAprovacao" :label="labelAcaoAprovacao" :loading="processing" @click="confirmarAcaoAprovacao" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showSolicitarAprovacao">
+      <q-card class="sgx-card" style="width: min(700px, 94vw)">
+        <q-card-section class="text-h6">Solicitar aprovacao manual</q-card-section>
+
+        <q-card-section class="column q-gutter-sm">
+          <q-banner rounded class="bg-blue-1 text-primary">
+            Esta solicitacao usa origem manual e segue as validacoes do backend.
+          </q-banner>
+
+          <q-input
+            outlined
+            model-value="Manual"
+            label="Tipo de origem"
+            disable
+          />
+          <q-input
+            v-model="origemDescricaoSolicitacaoAprovacao"
+            outlined
+            label="Origem descricao"
+            maxlength="200"
+            :disable="processing"
+          />
+          <q-input
+            v-model="justificativaSolicitacaoAprovacao"
+            outlined
+            type="textarea"
+            autogrow
+            label="Justificativa da solicitacao"
+            maxlength="2000"
+            :disable="processing"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" :disable="processing" @click="showSolicitarAprovacao = false" />
+          <q-btn color="primary" label="Solicitar aprovacao" :loading="processing" @click="solicitarAprovacaoManual" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <ModalAtribuirResponsavel
       v-model="showAtribuir"

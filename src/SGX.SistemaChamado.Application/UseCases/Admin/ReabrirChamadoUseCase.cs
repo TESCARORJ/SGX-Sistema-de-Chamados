@@ -6,6 +6,7 @@ using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -37,10 +38,17 @@ public sealed class ReabrirChamadoUseCase(
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Status)
             .Include(x => x.ChamadoSla)
+            .Include(x => x.Aprovacoes)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var statusAnterior = chamado.Status.Nome;
         var encerradoAnterior = chamado.EncerradoEm;
+        var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+
+        if (estadoAprovacao.BloqueiaAvancoAtendimento)
+        {
+            throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio);
+        }
 
         var podeReabrir = chamado.EncerradoEm.HasValue ||
             chamado.Status.Codigo is StatusChamadoEnum.Encerrado or StatusChamadoEnum.Resolvido;

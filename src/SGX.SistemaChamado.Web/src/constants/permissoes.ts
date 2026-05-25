@@ -45,6 +45,11 @@
   inventarioAtivosInativar: 'InventarioAtivos.Inativar',
   inventarioAtivosMovimentar: 'InventarioAtivos.Movimentar',
   inventarioAtivosVincularChamado: 'InventarioAtivos.VincularChamado',
+  aprovacaoChamadosVisualizar: 'AprovacaoChamados.Visualizar',
+  aprovacaoChamadosGerenciar: 'AprovacaoChamados.Gerenciar',
+  aprovacaoChamadosAprovar: 'AprovacaoChamados.Aprovar',
+  aprovacaoChamadosReprovar: 'AprovacaoChamados.Reprovar',
+  aprovacaoChamadosCancelar: 'AprovacaoChamados.Cancelar',
 } as const
 
 export const permissoesCriticas = [

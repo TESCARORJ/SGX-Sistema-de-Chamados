@@ -16,5 +16,9 @@ public enum TipoHistoricoChamado
     ArtigoConhecimentoDesvinculado = 12,
     ChamadoCriadoPorCatalogoServico = 13,
     AtivoVinculado = 14,
-    AtivoRemovido = 15
+    AtivoRemovido = 15,
+    AprovacaoSolicitada = 16,
+    ChamadoAprovado = 17,
+    ChamadoReprovado = 18,
+    AprovacaoCancelada = 19
 }

@@ -28,6 +28,7 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<InventarioAtivo>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            PortalUseCasesTestFactory.Repo<AprovacaoChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
@@ -172,6 +173,9 @@ public sealed class AbrirChamadoUseCaseTests
 
         Assert.Equal("Aberto", response.Status);
         Assert.Equal(OrigemChamado.Portal, context.Chamados.Single().Origem);
+        Assert.DoesNotContain(context.AprovacoesChamado, x => x.ChamadoId == response.Id && x.Ativo);
+        Assert.False(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
         Assert.Contains(
             context.HistoricosChamado,
             x => x.Tipo == TipoHistoricoChamado.Criado && x.Descricao == "Chamado criado pelo portal");
@@ -456,6 +460,72 @@ public sealed class AbrirChamadoUseCaseTests
     }
 
     [Fact]
+    public async Task DeveCriarAprovacaoPendenteAutomaticaQuandoServicoCatalogoRequerAprovacao()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            requerAprovacao: true);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Catalogo com aprovacao obrigatoria",
+            Descricao = "Solicitacao deve gerar aprovacao pendente",
+            CatalogoServicoId = servico.Id
+        });
+
+        var aprovacao = await context.AprovacoesChamado.SingleAsync(x => x.ChamadoId == response.Id);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, aprovacao.Status);
+        Assert.Equal(TipoOrigemAprovacaoChamado.CatalogoServico, aprovacao.TipoOrigem);
+        Assert.Equal(servico.Nome, aprovacao.OrigemDescricao);
+        Assert.Contains(context.HistoricosChamado, x => x.ChamadoId == response.Id && x.Tipo == TipoHistoricoChamado.AprovacaoSolicitada);
+        Assert.True(response.RequerAprovacao);
+        Assert.True(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, response.StatusAprovacao);
+        Assert.NotNull(response.AprovacaoChamadoId);
+    }
+
+    [Fact]
+    public async Task NaoDeveCriarAprovacaoAutomaticaQuandoServicoCatalogoNaoRequerAprovacao()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            requerAprovacao: false);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Catalogo sem aprovacao obrigatoria",
+            Descricao = "Solicitacao segue fluxo normal",
+            CatalogoServicoId = servico.Id
+        });
+
+        Assert.DoesNotContain(context.AprovacoesChamado, x => x.ChamadoId == response.Id && x.Ativo);
+        Assert.False(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Null(response.StatusAprovacao);
+        Assert.Null(response.AprovacaoChamadoId);
+    }
+
+    [Fact]
     public async Task DeveImpedirAberturaComServicoArquivado()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
@@ -590,6 +660,7 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<InventarioAtivo>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            PortalUseCasesTestFactory.Repo<AprovacaoChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
@@ -606,7 +677,8 @@ public sealed class AbrirChamadoUseCaseTests
         StatusCatalogoServico status,
         VisibilidadeCatalogoServico visibilidade,
         bool ativo = true,
-        bool permiteAberturaChamado = true)
+        bool permiteAberturaChamado = true,
+        bool requerAprovacao = false)
     {
         var nome = $"Servico Catalogo {Guid.NewGuid():N}";
         var servico = new CatalogoServico(
@@ -622,7 +694,7 @@ public sealed class AbrirChamadoUseCaseTests
             null,
             visibilidade,
             permiteAberturaChamado,
-            false,
+            requerAprovacao,
             1,
             criador.Id,
             criador.Login);

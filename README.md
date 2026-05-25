@@ -157,6 +157,8 @@ npm run build
 Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarning` no startup:
 
 - `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
+- `scripts/dev-unlock-dotnet-build.ps1`
+- `scripts/dev-kill-locked-build-pids.ps1`
 - `scripts/dev-reset-build-locks.ps1`
 - `scripts/check-ef-model.ps1`
 - `scripts/diagnose-pending-migration.ps1`

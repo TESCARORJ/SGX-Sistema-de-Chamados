@@ -33,6 +33,7 @@ public sealed class ListarChamadosAdminUseCase(
             .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
             .Include(x => x.InventarioAtivo)
+            .Include(x => x.Aprovacoes)
             .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
             .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .Where(x => x.Ativo)

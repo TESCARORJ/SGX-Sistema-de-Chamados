@@ -6,6 +6,7 @@ using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
+using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -38,6 +39,7 @@ public sealed class AlterarStatusChamadoUseCase(
             .Include(x => x.Prioridade)
             .Include(x => x.Categoria)
             .Include(x => x.Responsavel)
+            .Include(x => x.Aprovacoes)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
@@ -46,6 +48,15 @@ public sealed class AlterarStatusChamadoUseCase(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.StatusId && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Status informado nao encontrado ou inativo.");
+
+        if (novoStatus.Codigo is StatusChamadoEnum.EmAtendimento or StatusChamadoEnum.Resolvido or StatusChamadoEnum.Encerrado)
+        {
+            var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+            if (estadoAprovacao.BloqueiaAvancoAtendimento)
+            {
+                throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+            }
+        }
 
         var statusAnterior = chamado.Status;
         chamado.AlterarStatus(novoStatus.Id, usuario.Login);

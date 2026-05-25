@@ -36,4 +36,13 @@ describe('portalService', () => {
       prioridadeId: 'prio-1',
     })
   })
+
+  it('deve consultar status de aprovacao de chamado no portal', async () => {
+    const { portalService } = await import('./portalService')
+    getMock.mockResolvedValueOnce({ chamadoId: 'ch-1', requerAprovacao: true })
+
+    await portalService.obterStatusAprovacaoChamado('ch-1')
+
+    expect(getMock).toHaveBeenCalledWith('/api/portal/chamados/ch-1/aprovacao')
+  })
 })

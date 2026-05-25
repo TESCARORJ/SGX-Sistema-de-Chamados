@@ -30,6 +30,7 @@ public sealed class DetalharMeuChamadoUseCase(
             .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
             .Include(x => x.InventarioAtivo)
+            .Include(x => x.Aprovacoes)
             .Include(x => x.Solicitante)
             .Include(x => x.Responsavel)
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)

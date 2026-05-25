@@ -38,6 +38,7 @@ public sealed class Chamado : AuditableEntity
     public ICollection<ComentarioChamado> Comentarios { get; private set; } = [];
     public ICollection<AnexoChamado> Anexos { get; private set; } = [];
     public ICollection<ChamadoArtigoConhecimento> ArtigosConhecimento { get; private set; } = [];
+    public ICollection<AprovacaoChamado> Aprovacoes { get; private set; } = [];
     public ICollection<EventoSla> EventosSla { get; private set; } = [];
     public SlaControle? SlaControle { get; private set; }
     public ChamadoSla? ChamadoSla { get; private set; }

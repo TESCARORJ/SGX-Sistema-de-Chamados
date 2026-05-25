@@ -42,4 +42,9 @@ public static class PermissoesConstants
     public const string InventarioAtivosInativar = "InventarioAtivos.Inativar";
     public const string InventarioAtivosMovimentar = "InventarioAtivos.Movimentar";
     public const string InventarioAtivosVincularChamado = "InventarioAtivos.VincularChamado";
+    public const string AprovacaoChamadosVisualizar = "AprovacaoChamados.Visualizar";
+    public const string AprovacaoChamadosGerenciar = "AprovacaoChamados.Gerenciar";
+    public const string AprovacaoChamadosAprovar = "AprovacaoChamados.Aprovar";
+    public const string AprovacaoChamadosReprovar = "AprovacaoChamados.Reprovar";
+    public const string AprovacaoChamadosCancelar = "AprovacaoChamados.Cancelar";
 }

@@ -76,6 +76,15 @@ public sealed class ChamadoDetalheResponse
     public string? Responsavel { get; init; }
     public DateTime AbertoEm { get; init; }
     public DateTime? EncerradoEm { get; init; }
+    public bool RequerAprovacao { get; init; }
+    public bool AprovacaoPendente { get; init; }
+    public StatusAprovacaoChamado? StatusAprovacao { get; init; }
+    public Guid? AprovacaoChamadoId { get; init; }
+    public DateTime? AprovacaoSolicitadaEm { get; init; }
+    public DateTime? AprovacaoDecididaEm { get; init; }
+    public string? JustificativaAprovacao { get; init; }
+    public string? JustificativaReprovacao { get; init; }
+    public string MensagemOrientativaAprovacao { get; init; } = string.Empty;
     public IReadOnlyCollection<ComentarioChamadoResponse> Comentarios { get; init; } = [];
     public IReadOnlyCollection<AnexoChamadoResponse> Anexos { get; init; } = [];
     public IReadOnlyCollection<HistoricoChamadoResponse> Historico { get; init; } = [];

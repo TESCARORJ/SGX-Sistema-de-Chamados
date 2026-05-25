@@ -7,6 +7,7 @@ import type {
   FiltroChamadosPortal,
   ListaChamadosPortalResponse,
   PortalContextoResponse,
+  PortalStatusAprovacaoChamado,
 } from '../types/portal'
 import type { ComentarioChamado } from '../types/comentario'
 import type { AnexoChamado } from '../types/anexo'
@@ -35,6 +36,8 @@ export const portalService = {
     httpClient.get<ListaChamadosPortalResponse>(`/api/portal/chamados${buildQuery(filtros)}`),
 
   obterChamado: (id: string) => httpClient.get<ChamadoDetalhePortal>(`/api/portal/chamados/${id}`),
+  obterStatusAprovacaoChamado: (chamadoId: string) =>
+    httpClient.get<PortalStatusAprovacaoChamado>(`/api/portal/chamados/${chamadoId}/aprovacao`),
 
   criarChamado: (payload: CriarChamadoRequest) =>
     httpClient.post<ChamadoCriadoResponse>('/api/portal/chamados', payload),

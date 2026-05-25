@@ -37,6 +37,15 @@ public sealed class ChamadoResumoResponse
     public DateTime? ResolvidoEm { get; init; }
     public bool EstaPausado { get; init; }
     public int TotalMinutosPausado { get; init; }
+    public bool RequerAprovacao { get; init; }
+    public bool AprovacaoPendente { get; init; }
+    public StatusAprovacaoChamado? StatusAprovacao { get; init; }
+    public Guid? AprovacaoChamadoId { get; init; }
+    public DateTime? AprovacaoSolicitadaEm { get; init; }
+    public DateTime? AprovacaoDecididaEm { get; init; }
+    public string? JustificativaAprovacao { get; init; }
+    public string? JustificativaReprovacao { get; init; }
+    public string MensagemOrientativaAprovacao { get; init; } = string.Empty;
 }
 
 public sealed class ListaChamadosPortalResponse

@@ -61,6 +61,13 @@ O modulo e institucional e multiárea, nao restrito a TI. Departamentos como RH,
 - Bloqueia servico sem visibilidade para o perfil.
 - Bloqueia servico com `PermiteAberturaChamado = false`.
 
+## Integracao com aprovacao de chamados (Sprint 3)
+- Quando CatalogoServico.RequerAprovacao = true, a abertura cria automaticamente uma AprovacaoChamado pendente.
+- A aprovacao automatica e criada com TipoOrigem = CatalogoServico e OrigemDescricao = nome do servico.
+- O chamado passa a expor sinalizadores de aprovacao nos DTOs (RequerAprovacao, AprovacaoPendente, StatusAprovacao, AprovacaoChamadoId).
+- Chamados com aprovacao pendente ou reprovada ficam bloqueados para avancar atendimento ate decisao valida.
+- Historico AprovacaoSolicitada e registrado no momento da abertura automatica.
+
 ## Historico do chamado
 Quando o chamado e aberto por catalogo, o sistema registra evento especifico de historico (`ChamadoCriadoPorCatalogoServico`) com referencia do servico utilizado.
 

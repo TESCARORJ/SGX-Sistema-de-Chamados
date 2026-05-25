@@ -29,6 +29,65 @@ public sealed class DetalharChamadoAdminUseCaseTests
         Assert.Contains(response.Anexos, item => item.NomeArquivo == "evidencia.pdf");
     }
 
+    [Fact]
+    public async Task DetalheAdminDeveIndicarAprovacaoPendente()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.Chamado.Id,
+            TipoOrigemAprovacaoChamado.CatalogoServico,
+            dados.Solicitante.Id,
+            dados.Solicitante.Login,
+            dados.Solicitante.Id,
+            "Servico teste",
+            "Aprovacao automatica por catalogo");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.True(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, response.StatusAprovacao);
+        Assert.Equal(aprovacao.Id, response.AprovacaoChamadoId);
+    }
+
+    [Fact]
+    public async Task DetalheAdminDeveRefletirAprovacaoAprovada()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var aprovacao = new AprovacaoChamado(
+            dados.Chamado.Id,
+            TipoOrigemAprovacaoChamado.CatalogoServico,
+            dados.Solicitante.Id,
+            dados.Solicitante.Login,
+            dados.Solicitante.Id,
+            "Servico teste",
+            "Aprovacao automatica por catalogo");
+        aprovacao.Aprovar(dados.Solicitante.Id, dados.Solicitante.Id, dados.Solicitante.Login, "Aprovado");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.True(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Aprovado, response.StatusAprovacao);
+        Assert.Equal(aprovacao.Id, response.AprovacaoChamadoId);
+    }
+
     private static async Task<(Chamado Chamado, Usuario Solicitante, UsuarioContextoAplicacao ContextoAdmin)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "admin.det@empresa.com", TipoPerfil.Administrador);

@@ -44,6 +44,36 @@ public sealed class ReabrirChamadoUseCaseTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Teste" }));
     }
 
+    [Fact]
+    public async Task BloqueiaReabrirQuandoAprovacaoPendente()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedEncerradoAsync(context);
+        await AdicionarAprovacaoAsync(context, dados.Chamado, StatusAprovacaoChamado.Pendente);
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrir" }));
+
+        Assert.Equal("Este chamado aguarda aprovacao antes de seguir para atendimento.", ex.Message);
+    }
+
+    [Fact]
+    public async Task BloqueiaReabrirQuandoAprovacaoReprovada()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedEncerradoAsync(context);
+        await AdicionarAprovacaoAsync(context, dados.Chamado, StatusAprovacaoChamado.Reprovado);
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrir" }));
+
+        Assert.Equal("Este chamado foi reprovado e nao pode seguir para atendimento.", ex.Message);
+    }
+
     private static ReabrirChamadoUseCase CriarUseCase(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
@@ -75,6 +105,38 @@ public sealed class ReabrirChamadoUseCaseTests
         var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante, categoria, StatusChamadoEnum.Aberto, null, "REA2");
 
         return (chamado, AdminUseCasesTestFactory.Contexto(admin, "Administrador"));
+    }
+
+    private static async Task AdicionarAprovacaoAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        Chamado chamado,
+        StatusAprovacaoChamado status)
+    {
+        var admin = context.Usuarios.First(x => x.Email == "admin@empresa.com");
+        var aprovacao = new AprovacaoChamado(
+            chamado.Id,
+            TipoOrigemAprovacaoChamado.Manual,
+            admin.Id,
+            admin.Login,
+            chamado.SolicitanteId,
+            "Origem",
+            "Justificativa");
+
+        if (status == StatusAprovacaoChamado.Aprovado)
+        {
+            aprovacao.Aprovar(admin.Id, admin.Id, admin.Login, "Aprovado");
+        }
+        else if (status == StatusAprovacaoChamado.Reprovado)
+        {
+            aprovacao.Reprovar(admin.Id, admin.Id, admin.Login, "Reprovado");
+        }
+        else if (status == StatusAprovacaoChamado.Cancelado)
+        {
+            aprovacao.Cancelar(admin.Id, admin.Login, "Cancelado");
+        }
+
+        await context.AprovacoesChamado.AddAsync(aprovacao);
+        await context.SaveChangesAsync();
     }
 }
 

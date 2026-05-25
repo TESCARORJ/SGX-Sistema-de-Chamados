@@ -4,6 +4,7 @@ using SGX.SistemaChamado.Application.UseCases.Portal;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace SGX.SistemaChamado.Tests;
 
@@ -39,6 +40,40 @@ public sealed class ListarMeusChamadosUseCaseTests
 
         Assert.Single(response.Items);
         Assert.Contains("U2", response.Items.First().Titulo);
+    }
+
+    [Fact]
+    public async Task ListagemPortalDeveRetornarIndicadorDeAprovacaoPendente()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var chamado = await context.Chamados.FirstAsync(x => x.SolicitanteId == dados.Usuario1Contexto.Id);
+        var aprovacao = new AprovacaoChamado(
+            chamado.Id,
+            TipoOrigemAprovacaoChamado.Manual,
+            dados.Usuario1Contexto.Id,
+            dados.Usuario1Contexto.Login,
+            dados.Usuario1Contexto.Id,
+            "Fluxo de aprovacao",
+            "Validacao inicial");
+        context.AprovacoesChamado.Add(aprovacao);
+        await context.SaveChangesAsync();
+
+        var useCase = new ListarMeusChamadosUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.Usuario1Contexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosPortalRequest());
+
+        var item = Assert.Single(response.Items);
+        Assert.True(item.RequerAprovacao);
+        Assert.True(item.AprovacaoPendente);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, item.StatusAprovacao);
+        Assert.Equal(aprovacao.Id, item.AprovacaoChamadoId);
+        Assert.Equal(aprovacao.SolicitadaEm, item.AprovacaoSolicitadaEm);
+        Assert.Null(item.AprovacaoDecididaEm);
+        Assert.Equal("Seu chamado esta aguardando aprovacao antes de seguir para atendimento.", item.MensagemOrientativaAprovacao);
     }
 
     private static async Task<(UsuarioContextoAplicacao Usuario1Contexto, UsuarioContextoAplicacao Usuario2Contexto)> SeedChamados(SGXSistemaChamadoDbContext context)

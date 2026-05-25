@@ -17,6 +17,11 @@ public interface IDetalharMeuChamadoUseCase
     Task<ChamadoDetalheResponse> ExecutarAsync(Guid chamadoId, CancellationToken cancellationToken = default);
 }
 
+public interface IObterStatusAprovacaoChamadoPortalUseCase
+{
+    Task<PortalStatusAprovacaoChamadoDto> ExecutarAsync(Guid chamadoId, CancellationToken cancellationToken = default);
+}
+
 public interface IComentarChamadoUseCase
 {
     Task<ComentarioChamadoResponse> ExecutarAsync(Guid chamadoId, ComentarioChamadoRequest request, CancellationToken cancellationToken = default);

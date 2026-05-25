@@ -24,6 +24,8 @@ const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
 const AdminNotificacoesView = () => import('../views/AdminNotificacoesView.vue')
 const AdminDetalheChamadoView = () => import('../views/AdminDetalheChamadoView.vue')
+const AprovacaoChamadosListPage = () => import('../views/AprovacaoChamadosListPage.vue')
+const AprovacaoChamadosDetalhePage = () => import('../views/AprovacaoChamadosDetalhePage.vue')
 const UsuariosAdminView = () => import('../views/UsuariosAdminView.vue')
 const UsuarioAdminDetalheView = () => import('../views/UsuarioAdminDetalheView.vue')
 const PerfisAdminView = () => import('../views/PerfisAdminView.vue')
@@ -181,6 +183,16 @@ const routes: RouteRecordRaw[] = [
         path: 'chamados/:id',
         name: 'admin-chamados-detalhe',
         component: AdminDetalheChamadoView,
+      },
+      {
+        path: 'atendimento/aprovacao-chamados',
+        name: 'admin-atendimento-aprovacao-chamados',
+        component: AprovacaoChamadosListPage,
+      },
+      {
+        path: 'atendimento/aprovacao-chamados/:id',
+        name: 'admin-atendimento-aprovacao-chamados-detalhe',
+        component: AprovacaoChamadosDetalhePage,
       },
       {
         path: 'cadastros/usuarios',

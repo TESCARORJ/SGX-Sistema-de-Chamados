@@ -13,6 +13,7 @@ public sealed class PortalController(
     IObterPortalContextoUseCase obterPortalContextoUseCase,
     IListarMeusChamadosUseCase listarMeusChamadosUseCase,
     IDetalharMeuChamadoUseCase detalharMeuChamadoUseCase,
+    IObterStatusAprovacaoChamadoPortalUseCase obterStatusAprovacaoChamadoPortalUseCase,
     IAbrirChamadoUseCase abrirChamadoUseCase,
     IComentarChamadoUseCase comentarChamadoUseCase,
     IAnexarArquivoChamadoUseCase anexarArquivoChamadoUseCase,
@@ -63,6 +64,24 @@ public sealed class PortalController(
         {
             var detalhe = await detalharMeuChamadoUseCase.ExecutarAsync(id, cancellationToken);
             return Ok(detalhe);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/aprovacao")]
+    public async Task<IActionResult> ObterStatusAprovacaoChamado(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await obterStatusAprovacaoChamadoPortalUseCase.ExecutarAsync(chamadoId, cancellationToken);
+            return Ok(response);
         }
         catch (UnauthorizedAccessException)
         {

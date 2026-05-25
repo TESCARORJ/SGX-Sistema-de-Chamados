@@ -72,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<IAbrirChamadoUseCase, AbrirChamadoUseCase>();
         services.AddScoped<IListarMeusChamadosUseCase, ListarMeusChamadosUseCase>();
         services.AddScoped<IDetalharMeuChamadoUseCase, DetalharMeuChamadoUseCase>();
+        services.AddScoped<IObterStatusAprovacaoChamadoPortalUseCase, ObterStatusAprovacaoChamadoPortalUseCase>();
         services.AddScoped<IComentarChamadoUseCase, ComentarChamadoUseCase>();
         services.AddScoped<IAnexarArquivoChamadoUseCase, AnexarArquivoChamadoUseCase>();
         services.AddScoped<IObterPortalContextoUseCase, ObterPortalContextoUseCase>();
@@ -177,6 +178,7 @@ public static class DependencyInjection
         services.AddScoped<IReativarArtigoBaseConhecimentoUseCase, ReativarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IAdminCatalogoServicosUseCases, CatalogoServicosAdminUseCases>();
         services.AddScoped<IAdminInventarioAtivosUseCases, InventarioAtivosAdminUseCases>();
+        services.AddScoped<IAdminAprovacaoChamadosUseCases, AprovacaoChamadosAdminUseCases>();
         services.AddScoped<IListarArtigosConhecimentoDoChamadoUseCase, ListarArtigosConhecimentoDoChamadoUseCase>();
         services.AddScoped<IVincularArtigoConhecimentoAoChamadoUseCase, VincularArtigoConhecimentoAoChamadoUseCase>();
         services.AddScoped<IRemoverArtigoConhecimentoDoChamadoUseCase, RemoverArtigoConhecimentoDoChamadoUseCase>();
