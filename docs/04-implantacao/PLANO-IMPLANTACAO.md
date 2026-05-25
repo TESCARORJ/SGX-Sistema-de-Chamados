@@ -1,38 +1,38 @@
-# Plano de Implantacao - SGX Sistema de Chamados
+# Plano de Implantação - SGX Sistema de Chamados
 
 ## 1. Objetivo
 
-Este documento define o plano inicial de implantacao do SGX Sistema de Chamados em ambiente de homologacao e, futuramente, em producao.
+Este documento define o plano inicial de implantação do SGX Sistema de Chamados em ambiente de homologação e, futuramente, em produção.
 
-O objetivo e estabelecer requisitos minimos de infraestrutura, seguranca, configuracao, publicacao, backup, monitoramento e responsabilidades.
+O objetivo é estabelecer requisitos mínimos de infraestrutura, segurança, configuração, publicação, backup, monitoramento e responsabilidades.
 
-## 2. Modelos de implantacao possiveis
+## 2. Modelos de implantação possíveis
 
 ### 2.1 Ambiente institucional / servidor do cliente
 
-Neste modelo, o SGX e instalado em infraestrutura do cliente ou da organizacao.
+Neste modelo, o SGX é instalado em infraestrutura do cliente ou da organização.
 
-Caracteristicas:
+Características:
 
 - maior controle institucional;
 - dados ficam no ambiente do cliente;
 - depende da equipe interna para rede, DNS, SSL, backup e monitoramento;
-- recomendado para orgaos publicos ou ambientes com maior exigencia de controle.
+- recomendado para órgãos públicos ou ambientes com maior exigência de controle.
 
 ### 2.2 VPS ou servidor dedicado gerenciado
 
-Neste modelo, o SGX e publicado em uma VPS ou servidor dedicado sob gestao da equipe responsavel pelo produto.
+Neste modelo, o SGX é publicado em uma VPS ou servidor dedicado sob gestão da equipe responsável pelo produto.
 
-Caracteristicas:
+Características:
 
-- maior controle tecnico pelo fornecedor;
-- implantacao mais rapida;
-- exige contrato claro de hospedagem, backup, seguranca e suporte;
+- maior controle técnico pelo fornecedor;
+- implantação mais rápida;
+- exige contrato claro de hospedagem, backup, segurança e suporte;
 - adequado para MVP comercial ou pilotos controlados.
 
-### 2.3 SaaS por subdominio
+### 2.3 SaaS por subdomínio
 
-Neste modelo, cada cliente acessa uma instancia ou contexto pelo subdominio.
+Neste modelo, cada cliente acessa uma instância ou contexto pelo subdomínio.
 
 Exemplo:
 
@@ -40,37 +40,37 @@ Exemplo:
 cliente.sgxsistemadechamados.com.br
 ```
 
-Caracteristicas:
+Características:
 
 - melhor modelo para escala comercial;
-- exige estrategia de multi-tenant ou instancias separadas;
-- exige politica forte de isolamento de dados;
-- exige observabilidade, billing, suporte e governanca de ambientes.
+- exige estratégia de multi-tenant ou instâncias separadas;
+- exige política forte de isolamento de dados;
+- exige observabilidade, billing, suporte e governança de ambientes.
 
-### 2.4 Ambiente hibrido
+### 2.4 Ambiente híbrido
 
-Modelo em que a aplicacao fica hospedada em infraestrutura controlada, mas autentica com Microsoft Entra ID e integra com recursos do cliente.
+Modelo em que a aplicação fica hospedada em infraestrutura controlada, mas autentica com Microsoft Entra ID e integra com recursos do cliente.
 
-Caracteristicas:
+Características:
 
-- bom equilibrio entre controle e praticidade;
-- exige alinhamento com equipe de identidade, seguranca e rede;
+- bom equilíbrio entre controle e praticidade;
+- exige alinhamento com equipe de identidade, segurança e rede;
 - adequado para pilotos institucionais.
 
-## 3. Recomendacao para a fase atual
+## 3. Recomendação para a fase atual
 
-Para transformar o MVP em produto, a recomendacao e iniciar com:
+Para transformar o MVP em produto, a recomendação é iniciar com:
 
-**Ambiente de homologacao controlado em VPS ou servidor institucional.**
+**Ambiente de homologação controlado em VPS ou servidor institucional.**
 
-Somente apos homologacao, definir se a primeira producao sera:
+Somente após homologação, definir se a primeira produção será:
 
 - servidor do cliente;
 - VPS gerenciada;
-- SaaS por subdominio;
-- modelo hibrido.
+- SaaS por subdomínio;
+- modelo híbrido.
 
-## 4. Componentes da solucao
+## 4. Componentes da solução
 
 O SGX possui os seguintes componentes principais:
 
@@ -78,15 +78,15 @@ O SGX possui os seguintes componentes principais:
 - API Backend: ASP.NET Core / .NET.
 - Banco de Dados: PostgreSQL.
 - Worker de E-mail: Worker Service para leitura/processamento IMAP.
-- Integracao de Identidade: Microsoft Entra ID.
-- Armazenamento de anexos: diretorio controlado ou estrategia futura de storage.
+- Integração de Identidade: Microsoft Entra ID.
+- Armazenamento de anexos: diretório controlado ou estratégia futura de storage.
 - Logs e auditoria: registros internos e eventos de auditoria.
 
-## 5. Requisitos minimos de ambiente de homologacao
+## 5. Requisitos mínimos de ambiente de homologação
 
 ### Servidor
 
-Requisitos sugeridos para homologacao:
+Requisitos sugeridos para homologação:
 
 - 2 vCPU;
 - 4 GB RAM;
@@ -95,27 +95,27 @@ Requisitos sugeridos para homologacao:
 - acesso SSH restrito;
 - firewall ativo;
 - Nginx ou proxy reverso equivalente;
-- certificado SSL valido;
+- certificado SSL válido;
 - Docker/Docker Compose, se adotado no empacotamento.
 
 ### Banco de dados
 
 - PostgreSQL dedicado ao ambiente;
-- usuario especifico da aplicacao;
+- usuário específico da aplicação;
 - senha forte;
 - acesso externo bloqueado, salvo necessidade controlada;
 - backup definido;
-- rotina de restore testada antes de producao.
+- rotina de restore testada antes de produção.
 
 ### Rede e DNS
 
-- dominio ou subdominio definido;
+- domínio ou subdomínio definido;
 - certificado HTTPS;
-- portas expostas somente quando necessario;
-- API e frontend acessiveis via HTTPS;
+- portas expostas somente quando necessário;
+- API e frontend acessíveis via HTTPS;
 - CORS configurado somente para origens permitidas.
 
-## 6. Variaveis e configuracoes principais
+## 6. Variáveis e configurações principais
 
 ### Backend
 
@@ -149,39 +149,39 @@ Requisitos sugeridos para homologacao:
 - servidor IMAP;
 - porta;
 - SSL/TLS;
-- usuario da caixa;
-- senha ou OAuth, conforme politica institucional;
+- usuário da caixa;
+- senha ou OAuth, conforme política institucional;
 - pasta monitorada;
 - intervalo de leitura;
-- regras de categoria, prioridade e departamento padrao;
+- regras de categoria, prioridade e departamento padrão;
 - limite de anexos;
-- extensoes permitidas e bloqueadas.
+- extensões permitidas e bloqueadas.
 
-## 7. Integracao Microsoft Entra ID
+## 7. Integração Microsoft Entra ID
 
-Para homologacao real, a equipe responsavel pelo Microsoft Entra ID deve validar:
+Para homologação real, a equipe responsável pelo Microsoft Entra ID deve validar:
 
 - App Registration do frontend SPA;
-- App Registration ou exposicao de API;
+- App Registration ou exposição de API;
 - Redirect URI;
 - Logout URI;
 - escopos da API;
 - Tenant ID;
 - Client ID;
 - Audience;
-- permissoes concedidas;
+- permissões concedidas;
 - Conditional Access;
 - MFA;
-- grupos/claims, se aplicavel;
-- dominios permitidos;
-- comportamento para usuarios externos.
+- grupos/claims, se aplicável;
+- domínios permitidos;
+- comportamento para usuários externos.
 
 Diretriz:
 
 - Microsoft Entra ID autentica.
-- SGX autoriza internamente por usuarios, perfis e permissoes.
+- SGX autoriza internamente por usuários, perfis e permissões.
 
-## 8. Integracao de e-mail
+## 8. Integração de e-mail
 
 A abertura por e-mail deve ser validada em ambiente real ou equivalente.
 
@@ -189,106 +189,106 @@ Validar:
 
 - caixa institucional;
 - leitura IMAP;
-- autenticacao basica ou OAuth;
-- criacao de chamado por e-mail novo;
-- deduplicacao por MessageId;
-- correlacao de respostas;
-- comentarios por resposta;
+- autenticação básica ou OAuth;
+- criação de chamado por e-mail novo;
+- deduplicação por MessageId;
+- correlação de respostas;
+- comentários por resposta;
 - anexos permitidos;
-- rejeicao de anexos invalidos;
+- rejeição de anexos inválidos;
 - logs administrativos;
 - falhas de processamento;
 - monitoramento do Worker.
 
 ## 9. Anexos e arquivos
 
-Validar politica de armazenamento de anexos:
+Validar política de armazenamento de anexos:
 
-- diretorio de armazenamento;
-- permissao de escrita apenas pela aplicacao;
-- bloqueio de extensoes perigosas;
+- diretório de armazenamento;
+- permissão de escrita apenas pela aplicação;
+- bloqueio de extensões perigosas;
 - limite de tamanho;
-- nomes fisicos seguros;
-- nao exposicao de caminho interno;
+- nomes físicos seguros;
+- não exposição de caminho interno;
 - backup dos anexos;
-- varredura antivirus como evolucao recomendada.
+- varredura antivírus como evolução recomendada.
 
 ## 10. Backup e restore
 
-Antes de producao, definir:
+Antes de produção, definir:
 
 - backup do banco;
 - backup dos anexos;
 - periodicidade;
-- retencao;
+- retenção;
 - local seguro de armazenamento;
-- responsavel;
+- responsável;
 - procedimento de restore;
 - teste de restore.
 
-Checklist minimo:
+Checklist mínimo:
 
 | Item | Status |
 |---|---|
 | Backup do banco definido | Pendente |
 | Backup dos anexos definido | Pendente |
 | Restore testado | Pendente |
-| Responsavel definido | Pendente |
-| Retencao definida | Pendente |
+| Responsável definido | Pendente |
+| Retenção definida | Pendente |
 
 ## 11. Logs, monitoramento e observabilidade
 
-Para homologacao:
+Para homologação:
 
 - logs da API;
 - logs do Worker;
-- logs de erro do frontend, quando aplicavel;
+- logs de erro do frontend, quando aplicável;
 - eventos de auditoria no banco;
-- logs de integracao de e-mail;
-- health check basico.
+- logs de integração de e-mail;
+- health check básico.
 
-Para producao:
+Para produção:
 
 - monitoramento de disponibilidade;
 - alertas de indisponibilidade;
 - alertas de erro recorrente no Worker;
-- alertas de falha de autenticacao/integracao;
-- metricas de performance;
-- retencao de logs;
-- integracao futura com ferramenta de observabilidade.
+- alertas de falha de autenticação/integração;
+- métricas de performance;
+- retenção de logs;
+- integração futura com ferramenta de observabilidade.
 
-## 12. Seguranca minima antes de producao
+## 12. Segurança mínima antes de produção
 
-Antes de producao, validar:
+Antes de produção, validar:
 
-- HTTPS obrigatorio;
-- segredos fora do codigo-fonte;
+- HTTPS obrigatório;
+- segredos fora do código-fonte;
 - senha inicial removida/rotacionada;
 - login local de desenvolvimento desabilitado;
 - CORS restrito;
-- banco sem exposicao publica desnecessaria;
-- permissoes de arquivos restritas;
-- usuario de banco com menor privilegio necessario;
+- banco sem exposição pública desnecessária;
+- permissões de arquivos restritas;
+- usuário de banco com menor privilégio necessário;
 - backup protegido;
-- politicas de senha local, quando login local estiver habilitado;
+- políticas de senha local, quando login local estiver habilitado;
 - lockout;
 - auditoria ativa;
 - MFA via Microsoft Entra ID;
-- revisao de endpoints administrativos.
+- revisão de endpoints administrativos.
 
-## 13. Plano de publicacao sugerido
+## 13. Plano de publicação sugerido
 
-### Etapa 1 - Preparacao
+### Etapa 1 - Preparação
 
 - Definir ambiente.
 - Definir URL.
 - Configurar banco.
-- Configurar variaveis.
+- Configurar variáveis.
 - Configurar Entra ID.
 - Configurar caixa de e-mail.
 - Configurar SSL.
 
-### Etapa 2 - Deploy tecnico
+### Etapa 2 - Deploy técnico
 
 - Publicar API.
 - Publicar frontend.
@@ -298,7 +298,7 @@ Antes de producao, validar:
 - Validar logs.
 - Validar acesso.
 
-### Etapa 3 - Validacao tecnica
+### Etapa 3 - Validação técnica
 
 - Testar login.
 - Testar `GET /api/me`.
@@ -309,17 +309,17 @@ Antes de producao, validar:
 - Testar SLA.
 - Testar dashboard.
 
-### Etapa 4 - Homologacao funcional
+### Etapa 4 - Homologação funcional
 
-- Executar plano de homologacao.
-- Registrar evidencias.
-- Registrar pendencias.
-- Corrigir falhas criticas.
+- Executar plano de homologação.
+- Registrar evidências.
+- Registrar pendências.
+- Corrigir falhas críticas.
 - Obter aceite formal.
 
-### Etapa 5 - Preparacao para producao
+### Etapa 5 - Preparação para produção
 
-- Revisar seguranca.
+- Revisar segurança.
 - Definir backup.
 - Definir suporte.
 - Definir monitoramento.
@@ -328,7 +328,7 @@ Antes de producao, validar:
 
 ## 14. Plano de rollback
 
-Antes de producao, documentar:
+Antes de produção, documentar:
 
 - como voltar para a ferramenta anterior;
 - como preservar chamados criados no SGX durante piloto;
@@ -336,35 +336,35 @@ Antes de producao, documentar:
 - como bloquear novos acessos temporariamente;
 - como restaurar banco e anexos;
 - quem decide o rollback;
-- tempo maximo aceitavel de indisponibilidade.
+- tempo máximo aceitável de indisponibilidade.
 
 ## 15. Responsabilidades
 
-| Area | Responsabilidade |
+| Área | Responsabilidade |
 |---|---|
-| Desenvolvimento SGX | Codigo, deploy da aplicacao, ajustes e documentacao tecnica. |
+| Desenvolvimento SGX | Código, deploy da aplicação, ajustes e documentação técnica. |
 | Infraestrutura | Servidor, rede, DNS, SSL, firewall e backup. |
-| Identidade / Azure | App Registration, tenant, MFA, Conditional Access e permissoes. |
-| Service Desk / TI | Homologacao funcional, criterios de aceite e operacao. |
-| Gestao de TI | Decisao de implantacao, priorizacao e aceite. |
-| Seguranca | Revisao de riscos, acessos, logs e politicas. |
+| Identidade / Azure | App Registration, tenant, MFA, Conditional Access e permissões. |
+| Service Desk / TI | Homologação funcional, critérios de aceite e operação. |
+| Gestão de TI | Decisão de implantação, priorização e aceite. |
+| Segurança | Revisão de riscos, acessos, logs e políticas. |
 
-## 16. Criterios minimos para producao
+## 16. Critérios mínimos para produção
 
-O SGX somente deve ir para producao se:
+O SGX somente deve ir para produção se:
 
-- homologacao principal estiver aprovada;
-- nao houver falha critica aberta;
-- login e permissoes estiverem validados;
+- homologação principal estiver aprovada;
+- não houver falha crítica aberta;
+- login e permissões estiverem validados;
 - e-mail estiver validado ou formalmente fora do escopo inicial;
 - backup e restore estiverem definidos;
 - SSL e DNS estiverem configurados;
-- logs estiverem acessiveis;
-- responsaveis de suporte estiverem definidos;
+- logs estiverem acessíveis;
+- responsáveis de suporte estiverem definidos;
 - plano de rollback estiver aprovado.
 
-## 17. Conclusao
+## 17. Conclusão
 
-A implantacao do SGX deve ser conduzida como processo formal de produto, nao apenas como publicacao tecnica.
+A implantação do SGX deve ser conduzida como processo formal de produto, não apenas como publicação técnica.
 
-A fase correta apos o MVP avancado e a criacao de um ambiente de homologacao controlado, com validacao de seguranca, integracoes, fluxos funcionais, evidencias e aceite institucional.
+A fase correta após o MVP avançado é a criação de um ambiente de homologação controlado, com validação de segurança, integrações, fluxos funcionais, evidências e aceite institucional.
