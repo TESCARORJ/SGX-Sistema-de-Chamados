@@ -1,209 +1,209 @@
-# SGX Sistema de Chamados - Apresentacao para Diretoria de TI
+# SGX Sistema de Chamados - Apresentação para Diretoria de TI
 
 ## 1. Objetivo do documento
 
-Este documento consolida uma visao executiva do SGX Sistema de Chamados para avaliacao pela Diretoria de TI, com foco em transformar o MVP em um produto institucional de Service Desk / ITSM.
+Este documento consolida uma visão executiva do SGX Sistema de Chamados para avaliação pela Diretoria de TI, com foco em transformar o MVP em um produto institucional de Service Desk / ITSM.
 
-A proposta e apresentar:
+A proposta é apresentar:
 
 - o problema que o sistema resolve;
-- o que ja foi implementado;
-- o nivel atual de maturidade;
-- os riscos e pendencias;
-- o plano para homologacao;
+- o que já foi implementado;
+- o nível atual de maturidade;
+- os riscos e pendências;
+- o plano para homologação;
 - o caminho para transformar o MVP em produto.
 
 ## 2. Contexto atual
 
-Organizacoes que utilizam ferramentas de Service Desk precisam registrar, classificar, priorizar, acompanhar e medir chamados de forma rastreavel.
+Organizações que utilizam ferramentas de Service Desk precisam registrar, classificar, priorizar, acompanhar e medir chamados de forma rastreável.
 
-O SGX Sistema de Chamados nasceu como uma solucao propria para abertura, atendimento, acompanhamento, SLA, gestao administrativa e integracao de chamados por e-mail.
+O SGX Sistema de Chamados nasceu como uma solução própria para abertura, atendimento, acompanhamento, SLA, gestão administrativa e integração de chamados por e-mail.
 
-O sistema evoluiu de um MVP para uma base funcional mais ampla, com modulos de atendimento, seguranca, SLA, catalogo de servicos, base de conhecimento, inventario/ativos, auditoria, dashboard e gestao ITSM.
+O sistema evoluiu de um MVP para uma base funcional mais ampla, com módulos de atendimento, segurança, SLA, catálogo de serviços, base de conhecimento, inventário/ativos, auditoria, dashboard e gestão ITSM.
 
 ## 3. Proposta do SGX
 
-O SGX propoe uma plataforma institucional de Service Desk com controle interno, integracao corporativa e possibilidade de evolucao gradual conforme a necessidade da organizacao.
+O SGX propõe uma plataforma institucional de Service Desk com controle interno, integração corporativa e possibilidade de evolução gradual conforme a necessidade da organização.
 
-A proposta central e:
+A proposta central é:
 
-- centralizar a abertura e acompanhamento de chamados;
+- centralizar a abertura e o acompanhamento de chamados;
 - permitir atendimento administrativo estruturado;
-- organizar classificacao, prioridade, departamento, categoria e localidade;
-- controlar SLA e indicadores de gestao;
+- organizar classificação, prioridade, departamento, categoria e localidade;
+- controlar SLA e indicadores de gestão;
 - permitir abertura por portal e por e-mail;
-- manter historico, comentarios e anexos;
-- oferecer base de conhecimento e catalogo de servicos;
-- vincular chamados a ativos de inventario;
-- manter auditoria de acoes relevantes;
-- autenticar com Microsoft Entra ID e autorizar internamente por perfis e permissoes.
+- manter histórico, comentários e anexos;
+- oferecer base de conhecimento e catálogo de serviços;
+- vincular chamados a ativos de inventário;
+- manter auditoria de ações relevantes;
+- autenticar com Microsoft Entra ID e autorizar internamente por perfis e permissões.
 
 ## 4. Status executivo do MVP
 
-Status recomendado para comunicacao executiva:
+Status recomendado para comunicação executiva:
 
-**MVP avancado / Produto em preparacao para homologacao institucional.**
+**MVP avançado / Produto em preparação para homologação institucional.**
 
-O sistema ja possui varios modulos implementados funcionalmente, mas ainda nao deve ser comunicado como produto final pronto para producao sem:
+O sistema já possui vários módulos implementados funcionalmente, mas ainda não deve ser comunicado como produto final pronto para produção sem:
 
-- homologacao institucional com usuarios reais;
-- evidencias formais por modulo;
-- validacao de ambiente real;
-- validacao de integracao Microsoft Entra ID real;
-- validacao de caixa IMAP real;
-- hardening de seguranca;
-- plano de suporte, operacao e monitoramento;
-- definicao de modelo de implantacao.
+- homologação institucional com usuários reais;
+- evidências formais por módulo;
+- validação de ambiente real;
+- validação de integração Microsoft Entra ID real;
+- validação de caixa IMAP real;
+- hardening de segurança;
+- plano de suporte, operação e monitoramento;
+- definição de modelo de implantação.
 
-## 5. Modulos ja implementados ou em fase avancada
+## 5. Módulos já implementados ou em fase avançada
 
 ### Atendimento e chamados
 
 - Portal do solicitante.
-- Area administrativa.
+- Área administrativa.
 - Abertura e acompanhamento de chamados.
-- Comentarios publicos e internos.
-- Historico e linha do tempo.
+- Comentários públicos e internos.
+- Histórico e linha do tempo.
 - Upload e download de anexos.
 - Regras de visibilidade por perfil.
 
-### Integracao por e-mail
+### Integração por e-mail
 
 - Worker IMAP.
-- Criacao de chamado a partir de e-mail novo.
-- Correlacao de resposta por codigo do chamado e cabecalhos de e-mail.
-- Comentario publico a partir de resposta por e-mail.
+- Criação de chamado a partir de e-mail novo.
+- Correlação de resposta por código do chamado e cabeçalhos de e-mail.
+- Comentário público a partir de resposta por e-mail.
 - Tratamento de anexos permitidos.
 - Logs administrativos de processamento de e-mail.
 
-### Seguranca e identidade
+### Segurança e identidade
 
-- Autenticacao com Microsoft Entra ID.
-- Autorizacao interna por usuarios, perfis e permissoes.
+- Autenticação com Microsoft Entra ID.
+- Autorização interna por usuários, perfis e permissões.
 - Perfis Administrador, Atendente e Solicitante.
-- Permissoes granulares por modulo e acao.
-- Login local para cenarios controlados.
+- Permissões granulares por módulo e ação.
+- Login local para cenários controlados.
 - Bootstrap seguro de administrador inicial.
 
-### SLA e gestao
+### SLA e gestão
 
-- Politicas e metas de SLA.
+- Políticas e metas de SLA.
 - SLA aplicado ao chamado.
-- Primeira resposta e resolucao.
+- Primeira resposta e resolução.
 - Pausa e retomada.
 - Alertas e eventos de SLA.
 - Dashboard de SLA.
-- Calendario corporativo e horario comercial.
+- Calendário corporativo e horário comercial.
 
-### Governanca
+### Governança
 
 - Roadmap ITSM administrativo.
-- Documentacao ITSM dentro do sistema.
+- Documentação ITSM dentro do sistema.
 - Auditoria de eventos relevantes.
 - Consulta administrativa de auditoria.
 - Checklist por item de roadmap.
-- Pendencias tecnicas e de homologacao registradas.
+- Pendências técnicas e de homologação registradas.
 
-### Conhecimento e servicos
+### Conhecimento e serviços
 
 - Base de Conhecimento.
-- Publicacao e consulta de artigos.
+- Publicação e consulta de artigos.
 - Visibilidade por perfil.
-- Vinculo de artigo com chamado.
-- Catalogo de Servicos.
-- Abertura de chamado orientada por servico.
-- Aplicacao automatica de classificacao operacional pelo servico.
+- Vínculo de artigo com chamado.
+- Catálogo de Serviços.
+- Abertura de chamado orientada por serviço.
+- Aplicação automática de classificação operacional pelo serviço.
 
 ### Infraestrutura / ativos
 
-- Inventario de ativos.
+- Inventário de ativos.
 - Tipos de ativos.
-- Historico e movimentacao de ativos.
-- Vinculo de ativo com chamado.
+- Histórico e movimentação de ativos.
+- Vínculo de ativo com chamado.
 - Consulta de chamados por ativo.
-- Frontend administrativo de inventario.
+- Frontend administrativo de inventário.
 
 ## 6. Pontos fortes para a Diretoria de TI
 
-- Codigo e documentacao versionados no GitHub.
+- Código e documentação versionados no GitHub.
 - Arquitetura organizada em camadas.
 - Stack moderna: .NET, Vue, Quasar, PostgreSQL e EF Core.
-- Separacao entre autenticacao corporativa e autorizacao interna.
+- Separação entre autenticação corporativa e autorização interna.
 - Base funcional superior a um MVP simples.
-- Evolucao alinhada a praticas ITSM.
-- Possibilidade de implantacao controlada em ambiente institucional.
-- Capacidade de evoluir para produto proprio, com menor dependencia de ferramentas externas.
+- Evolução alinhada a práticas ITSM.
+- Possibilidade de implantação controlada em ambiente institucional.
+- Capacidade de evoluir para produto próprio, com menor dependência de ferramentas externas.
 
-## 7. Pontos de atencao
+## 7. Pontos de atenção
 
-- Ainda ha pendencias de homologacao institucional.
-- Algumas funcionalidades estao implementadas funcionalmente, mas sem aceite formal.
-- A integracao por e-mail precisa ser validada com caixa real.
-- A autenticacao Microsoft precisa ser validada no tenant real.
-- O modulo de inventario ainda nao e uma CMDB completa.
-- Gerenciamento de mudancas ainda precisa de modulo especifico.
-- Observadores, grupos tecnicos avancados, pesquisa de satisfacao, regras de fechamento e integracao com Zabbix devem entrar no roadmap de produto.
-- E necessario formalizar ambiente de homologacao, producao, backup, monitoramento e suporte.
+- Ainda há pendências de homologação institucional.
+- Algumas funcionalidades estão implementadas funcionalmente, mas sem aceite formal.
+- A integração por e-mail precisa ser validada com caixa real.
+- A autenticação Microsoft precisa ser validada no tenant real.
+- O módulo de inventário ainda não é uma CMDB completa.
+- O Gerenciamento de Mudanças ainda precisa de módulo específico.
+- Observadores, grupos técnicos avançados, pesquisa de satisfação, regras de fechamento e integração com Zabbix devem entrar no roadmap de produto.
+- É necessário formalizar ambiente de homologação, produção, backup, monitoramento e suporte.
 
-## 8. Aderencia ITSM / ITIL - resumo executivo
+## 8. Aderência ITSM / ITIL - resumo executivo
 
-| Pratica / Capacidade | Situacao no SGX | Observacao executiva |
+| Prática / Capacidade | Situação no SGX | Observação executiva |
 |---|---|---|
-| Gerenciamento de Incidentes | Parcialmente implementado | Chamados, SLA, historico, atendimento e prioridade ja existem; falta formalizar tipo de chamado como incidente. |
-| Gerenciamento de Requisicoes | Parcialmente implementado | Catalogo de Servicos e abertura orientada por servico ja existem; falta classificacao formal como requisicao. |
-| Gerenciamento de Mudancas | Planejado | Deve ser criado como modulo especifico. |
-| SLA | Implementado funcionalmente | Necessita homologacao institucional e validacao com dados reais. |
-| Base de Conhecimento | Implementado funcionalmente | Necessita homologacao e evidencias reais. |
-| Catalogo de Servicos | Implementado funcionalmente | Necessita homologacao e formularios dinamicos futuros. |
-| Ativos / Inventario | Implementado funcionalmente | Base pronta para evoluir para CMDB. |
-| CMDB | Parcial / futuro | Requer modelagem de relacionamentos, impacto e dependencias. |
-| Auditoria | Implementado funcionalmente | Boa base para governanca e rastreabilidade. |
-| Dashboard | Implementado funcionalmente | Necessita validacao com massa real e refinamento visual. |
+| Gerenciamento de Incidentes | Parcialmente implementado | Chamados, SLA, histórico, atendimento e prioridade já existem; falta formalizar tipo de chamado como incidente. |
+| Gerenciamento de Requisições | Parcialmente implementado | Catálogo de Serviços e abertura orientada por serviço já existem; falta classificação formal como requisição. |
+| Gerenciamento de Mudanças | Planejado | Deve ser criado como módulo específico. |
+| SLA | Implementado funcionalmente | Necessita homologação institucional e validação com dados reais. |
+| Base de Conhecimento | Implementado funcionalmente | Necessita homologação e evidências reais. |
+| Catálogo de Serviços | Implementado funcionalmente | Necessita homologação e formulários dinâmicos futuros. |
+| Ativos / Inventário | Implementado funcionalmente | Base pronta para evoluir para CMDB. |
+| CMDB | Parcial / futuro | Requer modelagem de relacionamentos, impacto e dependências. |
+| Auditoria | Implementado funcionalmente | Boa base para governança e rastreabilidade. |
+| Dashboard | Implementado funcionalmente | Necessita validação com massa real e refinamento visual. |
 | MFA | Dependente do Entra ID | MFA deve ser governado por Microsoft Entra ID / Conditional Access. |
 
 ## 9. Roadmap executivo sugerido
 
 ### 30 dias
 
-- Consolidar documentacao executiva.
-- Criar matriz de aderencia ITIL.
-- Preparar ambiente de homologacao.
-- Validar fluxo de chamados com usuarios reais.
-- Validar autenticacao Microsoft Entra ID real.
+- Consolidar documentação executiva.
+- Criar matriz de aderência ITIL.
+- Preparar ambiente de homologação.
+- Validar fluxo de chamados com usuários reais.
+- Validar autenticação Microsoft Entra ID real.
 - Validar abertura por e-mail com caixa institucional.
-- Registrar evidencias de tela dos modulos principais.
+- Registrar evidências de tela dos módulos principais.
 
 ### 60 dias
 
-- Homologar SLA, dashboard, catalogo de servicos e base de conhecimento.
-- Ajustar pendencias funcionais identificadas na homologacao.
-- Definir modelo de implantacao.
-- Definir plano de suporte e operacao.
+- Homologar SLA, dashboard, catálogo de serviços e base de conhecimento.
+- Ajustar pendências funcionais identificadas na homologação.
+- Definir modelo de implantação.
+- Definir plano de suporte e operação.
 - Criar material de treinamento para administrador, atendente e solicitante.
-- Definir escopo minimo da primeira versao de produto.
+- Definir escopo mínimo da primeira versão de produto.
 
 ### 90 dias
 
-- Fechar aceite institucional da primeira versao.
-- Preparar ambiente de producao.
-- Executar hardening de seguranca.
-- Implantar monitoramento, logs, backup e rotina de sustentacao.
-- Definir roadmap pos-producao: mudancas, CMDB, Zabbix, satisfacao, observadores, grupos tecnicos e relatorios avancados.
+- Fechar aceite institucional da primeira versão.
+- Preparar ambiente de produção.
+- Executar hardening de segurança.
+- Implantar monitoramento, logs, backup e rotina de sustentação.
+- Definir roadmap pós-produção: mudanças, CMDB, Zabbix, satisfação, observadores, grupos técnicos e relatórios avançados.
 
-## 10. Decisao esperada da Diretoria de TI
+## 10. Decisão esperada da Diretoria de TI
 
-A decisao recomendada nao e aprovar uso imediato em producao sem validacao.
+A decisão recomendada não é aprovar uso imediato em produção sem validação.
 
-A decisao recomendada e:
+A decisão recomendada é:
 
-1. Autorizar a criacao de ambiente formal de homologacao.
-2. Autorizar validacao com usuarios reais.
-3. Definir responsaveis de TI para homologacao funcional.
-4. Validar integracoes corporativas: Microsoft Entra ID e e-mail.
-5. Definir se o SGX seguira como produto institucional, produto comercial ou solucao interna sob governanca da TI.
+1. Autorizar a criação de ambiente formal de homologação.
+2. Autorizar validação com usuários reais.
+3. Definir responsáveis de TI para homologação funcional.
+4. Validar integrações corporativas: Microsoft Entra ID e e-mail.
+5. Definir se o SGX seguirá como produto institucional, produto comercial ou solução interna sob governança da TI.
 
-## 11. Recomendacao final
+## 11. Recomendação final
 
-O SGX deve ser tratado como um MVP avancado com potencial real de produto.
+O SGX deve ser tratado como um MVP avançado com potencial real de produto.
 
-O proximo passo correto e executar uma homologacao institucional controlada, com evidencias, criterios de aceite e plano de implantacao. Somente apos essa etapa o sistema deve ser posicionado como produto pronto para producao.
+O próximo passo correto é executar uma homologação institucional controlada, com evidências, critérios de aceite e plano de implantação. Somente após essa etapa o sistema deve ser posicionado como produto pronto para produção.
