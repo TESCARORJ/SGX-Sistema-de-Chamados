@@ -45,15 +45,15 @@ const podeGerencial = computed(() => possuiPermissao(permissoes.relatoriosAvanca
 const podeExportar = computed(() => possuiPermissao(permissoes.relatoriosAvancadosExportar))
 
 const colunasMaisSolicitados = [
-  { name: 'nomeServico', label: 'Servico', field: 'nomeServico', align: 'left' as const },
+  { name: 'nomeServico', label: 'Serviço', field: 'nomeServico', align: 'left' as const },
   { name: 'departamentoResponsavel', label: 'Departamento', field: 'departamentoResponsavel', align: 'left' as const },
-  { name: 'totalChamados', label: 'Total chamados', field: 'totalChamados', align: 'right' as const },
-  { name: 'totalComAprovacao', label: 'Com aprovacao', field: 'totalComAprovacao', align: 'right' as const },
+  { name: 'totalChamados', label: 'Total de chamados', field: 'totalChamados', align: 'right' as const },
+  { name: 'totalComAprovacao', label: 'Com aprovação', field: 'totalComAprovacao', align: 'right' as const },
 ]
 
 const colunasDepartamento = [
   { name: 'departamentoNome', label: 'Departamento', field: 'departamentoNome', align: 'left' as const },
-  { name: 'totalServicos', label: 'Total servicos', field: 'totalServicos', align: 'right' as const },
+  { name: 'totalServicos', label: 'Total de serviços', field: 'totalServicos', align: 'right' as const },
   { name: 'servicosPublicados', label: 'Publicados', field: 'servicosPublicados', align: 'right' as const },
   { name: 'chamadosAbertos', label: 'Chamados abertos', field: 'chamadosAbertos', align: 'right' as const },
 ]
@@ -87,7 +87,7 @@ async function carregar(): Promise<void> {
     maisSolicitados.value = solicitadosResp
     porDepartamento.value = departamentoResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios de catalogo de servicos.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios de catálogo de serviços.'
   } finally {
     loading.value = false
   }
@@ -101,9 +101,9 @@ function exportarDados(): void {
   const linhas = [
     ...(resumo.value
       ? [
-          { grupo: 'Resumo', indicador: 'Total servicos', valor: resumo.value.totalServicos },
-          { grupo: 'Resumo', indicador: 'Servicos publicados', valor: resumo.value.servicosPublicados },
-          { grupo: 'Resumo', indicador: 'Chamados por catalogo', valor: resumo.value.chamadosAbertosPorCatalogo },
+          { grupo: 'Resumo', indicador: 'Total de serviços', valor: resumo.value.totalServicos },
+          { grupo: 'Resumo', indicador: 'Serviços publicados', valor: resumo.value.servicosPublicados },
+          { grupo: 'Resumo', indicador: 'Chamados por catálogo', valor: resumo.value.chamadosAbertosPorCatalogo },
         ]
       : []),
     ...maisSolicitados.value.map((item) => ({ grupo: 'Mais solicitados', indicador: item.nomeServico, valor: item.totalChamados })),
@@ -119,7 +119,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Catalogo de servicos" subtitulo="Analise de demanda por servico e distribuicao por departamento.">
+    <PageHeader titulo="Relatórios - Catálogo de serviços" subtitulo="Análise de demanda por serviço e distribuição por departamento.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -129,11 +129,11 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios de catalogo de servicos.
+      Você não possui permissão para visualizar relatórios de catálogo de serviços.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Periodo e departamento para leitura do catalogo.">
+      <AppSectionCard titulo="Filtros" subtitulo="Período e departamento para leitura do catálogo.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-4"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-4"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
@@ -142,28 +142,28 @@ onMounted(() => {
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo && !porDepartamento.length" mensagem="Carregando relatorios de catalogo..." />
+      <LoadingState v-else-if="loading && !resumo && !porDepartamento.length" mensagem="Carregando relatórios de catálogo..." />
 
       <template v-else>
         <div v-if="resumo" class="row q-col-gutter-md">
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total servicos" :valor="resumo.totalServicos" icon="inventory_2" color="primary" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total de serviços" :valor="resumo.totalServicos" icon="inventory_2" color="primary" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Publicados" :valor="resumo.servicosPublicados" icon="task_alt" color="positive" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Ativos" :valor="resumo.servicosAtivos" icon="check_circle" color="info" /></div>
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Chamados por catalogo" :valor="resumo.chamadosAbertosPorCatalogo" icon="support_agent" color="warning" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Chamados por catálogo" :valor="resumo.chamadosAbertosPorCatalogo" icon="support_agent" color="warning" /></div>
         </div>
 
-        <AppSectionCard v-if="maisSolicitados.length" titulo="Servicos mais solicitados">
+        <AppSectionCard v-if="maisSolicitados.length" titulo="Serviços mais solicitados">
           <q-table flat :rows="maisSolicitados" :columns="colunasMaisSolicitados" row-key="catalogoServicoId" hide-pagination />
         </AppSectionCard>
 
-        <AppSectionCard v-if="porDepartamento.length" titulo="Catalogo por departamento">
+        <AppSectionCard v-if="porDepartamento.length" titulo="Catálogo por departamento">
           <q-table flat :rows="porDepartamento" :columns="colunasDepartamento" row-key="departamentoId" hide-pagination />
         </AppSectionCard>
 
         <EmptyState
           v-if="!resumo && !maisSolicitados.length && !porDepartamento.length"
-          titulo="Sem dados de catalogo"
-          mensagem="Nao ha resultados para os filtros informados."
+          titulo="Sem dados de catálogo"
+          mensagem="Não há resultados para os filtros informados."
           icon="inventory_2"
         />
       </template>

@@ -6,10 +6,10 @@ describe('RelatoriosChamadosPage', () => {
     const caminho = new URL('./RelatoriosChamadosPage.vue', import.meta.url)
     const fonte = readFileSync(caminho, 'utf-8')
 
-    expect(fonte).toContain('Relatorios - Chamados')
-    expect(fonte).toContain('Total chamados')
-    expect(fonte).toContain('Serie temporal')
-    expect(fonte).toContain('Distribuicao')
+    expect(fonte).toContain('Relatórios - Chamados')
+    expect(fonte).toContain('Total de chamados')
+    expect(fonte).toContain('Série temporal')
+    expect(fonte).toContain('Distribuição')
   })
 
   it('deve possuir estados de erro e vazio', () => {

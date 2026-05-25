@@ -16,17 +16,6 @@ public sealed class ListarMeusChamadosUseCase(
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
         var query = chamadoRepository.Query()
             .AsNoTracking()
-            .Include(x => x.Status)
-            .Include(x => x.Prioridade)
-            .Include(x => x.Categoria)
-            .Include(x => x.Subcategoria)
-            .Include(x => x.TipoSolicitacao)
-            .Include(x => x.LocalUnidade)
-            .Include(x => x.Departamento)
-            .Include(x => x.InventarioAtivo)
-            .Include(x => x.Aprovacoes)
-            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
-            .Include(x => x.ChamadoSla).ThenInclude(x => x.CalendarioCorporativo)
             .AsQueryable();
 
         var podeVisaoAmpliada = request.VisaoAmpliada && PortalUseCaseHelpers.PodeVisaoAmpliada(usuarioAtual);
@@ -77,9 +66,49 @@ public sealed class ListarMeusChamadosUseCase(
         var items = await query
             .OrderByDescending(x => x.AtualizadoEm ?? x.CriadoEm)
             .ThenByDescending(x => x.AbertoEm)
+            .ThenByDescending(x => x.Id)
             .Skip((pagina - 1) * tamanhoPagina)
             .Take(tamanhoPagina)
+            .Include(x => x.Status)
+            .Include(x => x.Prioridade)
+            .Include(x => x.Categoria)
+            .Include(x => x.Subcategoria)
+            .Include(x => x.TipoSolicitacao)
+            .Include(x => x.LocalUnidade)
+            .Include(x => x.Departamento)
+            .Include(x => x.InventarioAtivo)
+            .Include(x => x.ChamadoSla).ThenInclude(x => x.PoliticaSla)
             .ToListAsync(cancellationToken);
+
+        if (items.Count > 0)
+        {
+            var chamadosIds = items
+                .Select(x => x.Id)
+                .ToArray();
+
+            var aprovacoesAtivas = await chamadoRepository.Query()
+                .AsNoTracking()
+                .Where(x => chamadosIds.Contains(x.Id))
+                .SelectMany(x => x.Aprovacoes.Where(aprovacao => aprovacao.Ativo))
+                .ToListAsync(cancellationToken);
+
+            var aprovacoesPorChamado = aprovacoesAtivas
+                .GroupBy(x => x.ChamadoId)
+                .ToDictionary(x => x.Key, x => x.ToArray());
+
+            foreach (var chamado in items)
+            {
+                if (!aprovacoesPorChamado.TryGetValue(chamado.Id, out var aprovacoesDoChamado))
+                {
+                    continue;
+                }
+
+                foreach (var aprovacao in aprovacoesDoChamado)
+                {
+                    chamado.Aprovacoes.Add(aprovacao);
+                }
+            }
+        }
 
         return new ListaChamadosPortalResponse
         {

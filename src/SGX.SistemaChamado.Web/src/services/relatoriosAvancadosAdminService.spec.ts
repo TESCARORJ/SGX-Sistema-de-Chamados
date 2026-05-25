@@ -35,11 +35,11 @@ describe('relatoriosAvancadosAdminService', () => {
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/chamados/resumo?dataInicial=2026-01-01&dataFinal=2026-01-31&departamentoId=dep-1&apenasAtivos=true&limiteRanking=10'
+      '/api/admin/relatorios-avancados/chamados/resumo?DataInicial=2026-01-01&DataFinal=2026-01-31&DepartamentoId=dep-1&ApenasAtivos=true&LimiteRanking=10'
     )
   })
 
-  it('nao deve enviar filtros vazios ou guid vazio', async () => {
+  it('nao deve enviar filtros vazios, guid vazio e agrupamentos em endpoint de resumo', async () => {
     const { relatoriosAvancadosAdminService } = await import('./relatoriosAvancadosAdminService')
     getMock.mockResolvedValueOnce({})
 
@@ -48,12 +48,14 @@ describe('relatoriosAvancadosAdminService', () => {
       dataFinal: '2026-05-31T23:59:59',
       departamentoId: '00000000-0000-0000-0000-000000000000',
       status: '',
+      agrupamento: 0 as any,
+      agruparPor: 0 as any,
       // cobertura de limpeza para valores nao utilizados
       subcategoriaId: undefined,
     } as any)
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/chamados/resumo?dataInicial=2026-05-01T00%3A00%3A00&dataFinal=2026-05-31T23%3A59%3A59'
+      '/api/admin/relatorios-avancados/chamados/resumo?DataInicial=2026-05-01T00%3A00%3A00&DataFinal=2026-05-31T23%3A59%3A59'
     )
   })
 
@@ -63,7 +65,7 @@ describe('relatoriosAvancadosAdminService', () => {
 
     await relatoriosAvancadosAdminService.obterResumoSla({ dataInicial: '2026-02-01', dataFinal: '2026-02-28' })
 
-    expect(getMock).toHaveBeenCalledWith('/api/admin/relatorios-avancados/sla/resumo?dataInicial=2026-02-01&dataFinal=2026-02-28')
+    expect(getMock).toHaveBeenCalledWith('/api/admin/relatorios-avancados/sla/resumo?DataInicial=2026-02-01&DataFinal=2026-02-28')
   })
 
   it('deve obter resumo de aprovacoes', async () => {
@@ -77,7 +79,7 @@ describe('relatoriosAvancadosAdminService', () => {
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/aprovacoes/resumo?dataInicial=2026-03-01&dataFinal=2026-03-31&statusAprovacao=Aprovada'
+      '/api/admin/relatorios-avancados/aprovacoes/resumo?DataInicial=2026-03-01&DataFinal=2026-03-31&StatusAprovacao=Aprovada'
     )
   })
 
@@ -92,7 +94,7 @@ describe('relatoriosAvancadosAdminService', () => {
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/inventario-ativos/resumo?dataInicial=2026-04-01&dataFinal=2026-04-30&statusOperacional=Operacional'
+      '/api/admin/relatorios-avancados/inventario-ativos/resumo?DataInicial=2026-04-01&DataFinal=2026-04-30&StatusOperacional=Operacional'
     )
   })
 
@@ -108,7 +110,7 @@ describe('relatoriosAvancadosAdminService', () => {
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/catalogo-servicos/mais-solicitados?dataInicial=2026-05-01&dataFinal=2026-05-31&limiteRanking=5&apenasAtivos=false'
+      '/api/admin/relatorios-avancados/catalogo-servicos/mais-solicitados?DataInicial=2026-05-01&DataFinal=2026-05-31&LimiteRanking=5&ApenasAtivos=false'
     )
   })
 
@@ -123,7 +125,25 @@ describe('relatoriosAvancadosAdminService', () => {
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/auditoria/resumo?dataInicial=2026-05-01&dataFinal=2026-05-20&entidade=Chamado'
+      '/api/admin/relatorios-avancados/auditoria/resumo?DataInicial=2026-05-01&DataFinal=2026-05-20&Entidade=Chamado'
+    )
+  })
+
+  it('nao deve enviar campos de outro contrato no endpoint de inventario', async () => {
+    const { relatoriosAvancadosAdminService } = await import('./relatoriosAvancadosAdminService')
+    getMock.mockResolvedValueOnce([])
+
+    await relatoriosAvancadosAdminService.obterInventarioAtivosChamadosRecorrentes({
+      dataInicial: '2026-05-01',
+      dataFinal: '2026-05-31',
+      limiteRanking: 5,
+      // nao pertence ao contrato de inventario
+      apenasAtivos: false as any,
+      agrupamento: 3 as any,
+    } as any)
+
+    expect(getMock).toHaveBeenCalledWith(
+      '/api/admin/relatorios-avancados/inventario-ativos/chamados-recorrentes?DataInicial=2026-05-01&DataFinal=2026-05-31&LimiteRanking=5'
     )
   })
 })

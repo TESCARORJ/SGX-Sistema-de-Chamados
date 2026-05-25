@@ -1424,14 +1424,22 @@ public sealed class RelatoriosAvancadosAdminUseCases(
             .ThenBy(x => x.Nome)
             .ToArray();
 
-        var totalPorDia = await queryAuditoria
+        var totalPorDiaBruto = await queryAuditoria
             .GroupBy(x => x.DataEvento.Date)
-            .Select(grupo => new PontoSerieTemporalDto(
-                grupo.Key,
-                grupo.Count(),
-                grupo.Key.ToString("yyyy-MM-dd")))
+            .Select(grupo => new
+            {
+                Referencia = grupo.Key,
+                Quantidade = grupo.Count()
+            })
             .OrderBy(x => x.Referencia)
             .ToListAsync(cancellationToken);
+
+        var totalPorDia = totalPorDiaBruto
+            .Select(item => new PontoSerieTemporalDto(
+                item.Referencia,
+                item.Quantidade,
+                item.Referencia.ToString("yyyy-MM-dd")))
+            .ToArray();
 
         return new RelatorioAuditoriaResumoDto(
             totalAcoesAuditadas,

@@ -53,10 +53,10 @@ const colunasDistribuicao = [
 ]
 
 const colunasRecorrentes = [
-  { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left' as const },
+  { name: 'codigo', label: 'Código', field: 'codigo', align: 'left' as const },
   { name: 'nome', label: 'Nome', field: 'nome', align: 'left' as const },
   { name: 'tipoAtivo', label: 'Tipo', field: 'tipoAtivo', align: 'left' as const },
-  { name: 'totalChamados', label: 'Total chamados', field: 'totalChamados', align: 'right' as const },
+  { name: 'totalChamados', label: 'Total de chamados', field: 'totalChamados', align: 'right' as const },
   { name: 'chamadosAbertos', label: 'Abertos', field: 'chamadosAbertos', align: 'right' as const },
 ]
 
@@ -99,7 +99,7 @@ async function carregar(): Promise<void> {
     recorrentes.value = recorrentesResp
     porDepartamento.value = departamentoResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios de inventario.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios de inventário.'
   } finally {
     loading.value = false
   }
@@ -118,7 +118,7 @@ function exportarDados(): void {
           { grupo: 'Resumo', indicador: 'Ativos inativos', valor: resumo.value.ativosInativos },
         ]
       : []),
-    ...recorrentes.value.map((item) => ({ grupo: 'Recorrencia', indicador: `${item.codigo} - ${item.nome}`, valor: item.totalChamados })),
+    ...recorrentes.value.map((item) => ({ grupo: 'Recorrência', indicador: `${item.codigo} - ${item.nome}`, valor: item.totalChamados })),
   ]
 
   exportarCsv('relatorio-inventario-ativos.csv', linhas)
@@ -131,7 +131,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Inventario/Ativos" subtitulo="Visao consolidada de ativos, criticidade e recorrencia de chamados.">
+    <PageHeader titulo="Relatórios - Inventário/Ativos" subtitulo="Visão consolidada de ativos, criticidade e recorrência de chamados.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -141,31 +141,31 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar || !podeGerencial" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar os relatorios de inventario.
+      Você não possui permissão para visualizar os relatórios de inventário.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Recorte de periodo e dimensoes de inventario.">
+      <AppSectionCard titulo="Filtros" subtitulo="Recorte de período e dimensões de inventário.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.departamentoId" outlined dense label="Departamento ID" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoAtivoInventarioId" outlined dense label="Tipo ativo ID" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoAtivoInventarioId" outlined dense label="Tipo de ativo ID" /></div>
         </div>
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatorios de inventario..." />
+      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatórios de inventário..." />
 
       <template v-else-if="resumo">
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total ativos" :valor="resumo.totalAtivos" icon="inventory" color="primary" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Ativos ativos" :valor="resumo.ativosAtivos" icon="check_circle" color="positive" /></div>
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Em manutencao" :valor="resumo.totalEmManutencao" icon="build" color="warning" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Em manutenção" :valor="resumo.totalEmManutencao" icon="build" color="warning" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Com defeito" :valor="resumo.totalComDefeito" icon="error" color="negative" /></div>
         </div>
 
-        <AppSectionCard v-if="porStatus" titulo="Distribuicao por status">
+        <AppSectionCard v-if="porStatus" titulo="Distribuição por status">
           <div class="row q-col-gutter-md">
             <div class="col-12 col-lg-4">
               <div class="text-subtitle2 q-mb-sm">Operacional</div>
@@ -186,15 +186,15 @@ onMounted(() => {
           <q-table flat :rows="recorrentes" :columns="colunasRecorrentes" row-key="inventarioAtivoId" hide-pagination />
         </AppSectionCard>
 
-        <AppSectionCard v-if="porDepartamento.length" titulo="Inventario por departamento">
+        <AppSectionCard v-if="porDepartamento.length" titulo="Inventário por departamento">
           <q-table flat :rows="porDepartamento" :columns="colunasDepartamento" row-key="departamentoNome" hide-pagination />
         </AppSectionCard>
       </template>
 
       <EmptyState
         v-else
-        titulo="Sem dados de inventario"
-        mensagem="Nao ha resultados para os filtros informados."
+        titulo="Sem dados de inventário"
+        mensagem="Não há resultados para os filtros informados."
         icon="inventory"
       />
     </template>

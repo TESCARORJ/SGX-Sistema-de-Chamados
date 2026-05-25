@@ -49,11 +49,11 @@ const podeExportar = computed(() => possuiPermissao(permissoes.relatoriosAvancad
 const colunasTempo = [
   { name: 'grupo', label: 'Grupo', field: 'grupo', align: 'left' as const },
   { name: 'totalDecididas', label: 'Total decididas', field: 'totalDecididas', align: 'right' as const },
-  { name: 'tempoMedioDecisaoHoras', label: 'Tempo medio (h)', field: 'tempoMedioDecisaoHoras', align: 'right' as const },
+  { name: 'tempoMedioDecisaoHoras', label: 'Tempo médio (h)', field: 'tempoMedioDecisaoHoras', align: 'right' as const },
 ]
 
 const colunasOrigem = [
-  { name: 'tipoOrigem', label: 'Tipo origem', field: 'tipoOrigem', align: 'left' as const },
+  { name: 'tipoOrigem', label: 'Tipo de origem', field: 'tipoOrigem', align: 'left' as const },
   { name: 'total', label: 'Total', field: 'total', align: 'right' as const },
   { name: 'pendentes', label: 'Pendentes', field: 'pendentes', align: 'right' as const },
   { name: 'aprovadas', label: 'Aprovadas', field: 'aprovadas', align: 'right' as const },
@@ -89,7 +89,7 @@ async function carregar(): Promise<void> {
     tempoMedio.value = tempoResp
     porOrigem.value = origemResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios de aprovacoes.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios de aprovações.'
   } finally {
     loading.value = false
   }
@@ -103,7 +103,7 @@ function exportarDados(): void {
   const linhas = [
     ...(resumo.value
       ? [
-          { grupo: 'Resumo', indicador: 'Total aprovacoes', valor: resumo.value.totalAprovacoes },
+          { grupo: 'Resumo', indicador: 'Total de aprovações', valor: resumo.value.totalAprovacoes },
           { grupo: 'Resumo', indicador: 'Pendentes', valor: resumo.value.pendentes },
           { grupo: 'Resumo', indicador: 'Aprovadas', valor: resumo.value.aprovadas },
           { grupo: 'Resumo', indicador: 'Reprovadas', valor: resumo.value.reprovadas },
@@ -122,7 +122,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Aprovacoes" subtitulo="Acompanhe gargalos, tempo medio e distribuicao por origem.">
+    <PageHeader titulo="Relatórios - Aprovações" subtitulo="Acompanhe gargalos, tempo médio e distribuição por origem.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -132,21 +132,21 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios de aprovacoes.
+      Você não possui permissão para visualizar relatórios de aprovações.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Periodo e filtros simples de aprovacao.">
+      <AppSectionCard titulo="Filtros" subtitulo="Período e filtros simples de aprovação.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.statusAprovacao" outlined dense label="Status aprovacao" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoOrigemAprovacao" outlined dense label="Tipo origem" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.statusAprovacao" outlined dense label="Status da aprovação" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoOrigemAprovacao" outlined dense label="Tipo de origem" /></div>
         </div>
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo && !tempoMedio.length && !porOrigem.length" mensagem="Carregando relatorios de aprovacoes..." />
+      <LoadingState v-else-if="loading && !resumo && !tempoMedio.length && !porOrigem.length" mensagem="Carregando relatórios de aprovações..." />
 
       <template v-else>
         <div v-if="resumo" class="row q-col-gutter-md">
@@ -156,7 +156,7 @@ onMounted(() => {
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Reprovadas" :valor="resumo.reprovadas" icon="cancel" color="negative" /></div>
         </div>
 
-        <AppSectionCard v-if="tempoMedio.length" titulo="Tempo medio de decisao">
+        <AppSectionCard v-if="tempoMedio.length" titulo="Tempo médio de decisão">
           <q-table flat :rows="tempoMedio" :columns="colunasTempo" row-key="grupo" hide-pagination>
             <template #body-cell-tempoMedioDecisaoHoras="props">
               <q-td :props="props" class="text-right">{{ props.row.tempoMedioDecisaoHoras == null ? '-' : Number(props.row.tempoMedioDecisaoHoras).toFixed(2) }}</q-td>
@@ -164,14 +164,14 @@ onMounted(() => {
           </q-table>
         </AppSectionCard>
 
-        <AppSectionCard v-if="porOrigem.length" titulo="Aprovacoes por origem">
+        <AppSectionCard v-if="porOrigem.length" titulo="Aprovações por origem">
           <q-table flat :rows="porOrigem" :columns="colunasOrigem" row-key="tipoOrigem" hide-pagination />
         </AppSectionCard>
 
         <EmptyState
           v-if="!resumo && !tempoMedio.length && !porOrigem.length"
-          titulo="Sem dados de aprovacoes"
-          mensagem="Nao ha resultados para os filtros informados."
+          titulo="Sem dados de aprovações"
+          mensagem="Não há resultados para os filtros informados."
           icon="fact_check"
         />
       </template>

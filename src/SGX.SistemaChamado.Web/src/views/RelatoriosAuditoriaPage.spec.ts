@@ -6,8 +6,8 @@ describe('RelatoriosAuditoriaPage', () => {
     const caminho = new URL('./RelatoriosAuditoriaPage.vue', import.meta.url)
     const fonte = readFileSync(caminho, 'utf-8')
 
-    expect(fonte).toContain('Relatorios - Auditoria')
-    expect(fonte).toContain('Auditoria por usuario')
+    expect(fonte).toContain('Relatórios - Auditoria')
+    expect(fonte).toContain('Auditoria por usuário')
     expect(fonte).toContain('Auditoria por entidade')
     expect(fonte).toContain('totalAcoesAuditadas')
   })

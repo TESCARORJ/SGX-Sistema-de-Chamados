@@ -46,16 +46,16 @@ const podeAuditoria = computed(() => possuiPermissao(permissoes.relatoriosAvanca
 const podeExportar = computed(() => possuiPermissao(permissoes.relatoriosAvancadosExportar))
 
 const colunasUsuario = [
-  { name: 'usuarioNome', label: 'Usuario', field: 'usuarioNome', align: 'left' as const },
-  { name: 'totalAcoes', label: 'Total acoes', field: 'totalAcoes', align: 'right' as const },
-  { name: 'ultimaAcaoEm', label: 'Ultima acao', field: 'ultimaAcaoEm', align: 'left' as const },
+  { name: 'usuarioNome', label: 'Usuário', field: 'usuarioNome', align: 'left' as const },
+  { name: 'totalAcoes', label: 'Total de ações', field: 'totalAcoes', align: 'right' as const },
+  { name: 'ultimaAcaoEm', label: 'Última ação', field: 'ultimaAcaoEm', align: 'left' as const },
 ]
 
 const colunasEntidade = [
   { name: 'entidade', label: 'Entidade', field: 'entidade', align: 'left' as const },
-  { name: 'totalAcoes', label: 'Total acoes', field: 'totalAcoes', align: 'right' as const },
-  { name: 'usuariosDistintos', label: 'Usuarios distintos', field: 'usuariosDistintos', align: 'right' as const },
-  { name: 'ultimaAcaoEm', label: 'Ultima acao', field: 'ultimaAcaoEm', align: 'left' as const },
+  { name: 'totalAcoes', label: 'Total de ações', field: 'totalAcoes', align: 'right' as const },
+  { name: 'usuariosDistintos', label: 'Usuários distintos', field: 'usuariosDistintos', align: 'right' as const },
+  { name: 'ultimaAcaoEm', label: 'Última ação', field: 'ultimaAcaoEm', align: 'left' as const },
 ]
 
 function construirFiltros(): FiltroRelatorioAuditoria {
@@ -99,7 +99,7 @@ async function carregar(): Promise<void> {
     porUsuario.value = usuarioResp
     porEntidade.value = entidadeResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios de auditoria.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios de auditoria.'
   } finally {
     loading.value = false
   }
@@ -113,8 +113,8 @@ function exportarDados(): void {
   const linhas = [
     ...(resumo.value
       ? [
-          { grupo: 'Resumo', indicador: 'Total acoes auditadas', valor: resumo.value.totalAcoesAuditadas },
-          { grupo: 'Resumo', indicador: 'Usuarios com acoes', valor: resumo.value.usuariosComAcoes },
+          { grupo: 'Resumo', indicador: 'Total de ações auditadas', valor: resumo.value.totalAcoesAuditadas },
+          { grupo: 'Resumo', indicador: 'Usuários com ações', valor: resumo.value.usuariosComAcoes },
           { grupo: 'Resumo', indicador: 'Entidades afetadas', valor: resumo.value.entidadesAfetadas },
         ]
       : []),
@@ -131,7 +131,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Auditoria" subtitulo="Rastreabilidade por usuario, entidade e tipo de acao.">
+    <PageHeader titulo="Relatórios - Auditoria" subtitulo="Rastreabilidade por usuário, entidade e tipo de ação.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -141,31 +141,31 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar || !podeAuditoria" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios de auditoria.
+      Você não possui permissão para visualizar relatórios de auditoria.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Periodo e filtros de entidade/acao para trilha de auditoria.">
+      <AppSectionCard titulo="Filtros" subtitulo="Período e filtros de entidade/ação para trilha de auditoria.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.entidade" outlined dense label="Entidade" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoAcao" outlined dense label="Tipo acao" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.tipoAcao" outlined dense label="Tipo de ação" /></div>
           <div class="col-12"><q-input v-model="filtros.termo" outlined dense label="Termo" /></div>
         </div>
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatorios de auditoria..." />
+      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatórios de auditoria..." />
 
       <template v-else-if="resumo">
         <div class="row q-col-gutter-md">
-          <div class="col-12 col-sm-6 col-lg-4"><MetricCard titulo="Total de acoes" :valor="resumo.totalAcoesAuditadas" icon="manage_search" color="primary" /></div>
-          <div class="col-12 col-sm-6 col-lg-4"><MetricCard titulo="Usuarios com acoes" :valor="resumo.usuariosComAcoes" icon="group" color="info" /></div>
+          <div class="col-12 col-sm-6 col-lg-4"><MetricCard titulo="Total de ações" :valor="resumo.totalAcoesAuditadas" icon="manage_search" color="primary" /></div>
+          <div class="col-12 col-sm-6 col-lg-4"><MetricCard titulo="Usuários com ações" :valor="resumo.usuariosComAcoes" icon="group" color="info" /></div>
           <div class="col-12 col-sm-6 col-lg-4"><MetricCard titulo="Entidades afetadas" :valor="resumo.entidadesAfetadas" icon="fact_check" color="negative" /></div>
         </div>
 
-        <AppSectionCard v-if="porUsuario.length" titulo="Auditoria por usuario">
+        <AppSectionCard v-if="porUsuario.length" titulo="Auditoria por usuário">
           <q-table flat :rows="porUsuario" :columns="colunasUsuario" row-key="usuarioNome" hide-pagination>
             <template #body-cell-ultimaAcaoEm="props">
               <q-td :props="props">{{ formatarData(props.row.ultimaAcaoEm) }}</q-td>
@@ -182,10 +182,10 @@ onMounted(() => {
         </AppSectionCard>
       </template>
 
-      <EmptyState
+        <EmptyState
         v-else
         titulo="Sem dados de auditoria"
-        mensagem="Nao ha resultados para os filtros informados."
+        mensagem="Não há resultados para os filtros informados."
         icon="manage_search"
       />
     </template>

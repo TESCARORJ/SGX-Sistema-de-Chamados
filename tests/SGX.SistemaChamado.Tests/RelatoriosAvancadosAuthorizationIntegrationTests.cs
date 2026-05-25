@@ -363,6 +363,36 @@ public sealed class RelatoriosAvancadosAuthorizationIntegrationTests : IClassFix
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/api/admin/relatorios-avancados/chamados/resumo")]
+    [InlineData("/api/admin/relatorios-avancados/sla/resumo")]
+    [InlineData("/api/admin/relatorios-avancados/aprovacoes/resumo")]
+    [InlineData("/api/admin/relatorios-avancados/catalogo-servicos/mais-solicitados")]
+    [InlineData("/api/admin/relatorios-avancados/inventario-ativos/chamados-recorrentes")]
+    [InlineData("/api/admin/relatorios-avancados/auditoria/resumo")]
+    public async Task EndpointsDoDashboardComPeriodoUtcValidoNaoRetornamBadRequest(string endpoint)
+    {
+        await DefinirPermissaoAtivaAsync(PermissoesConstants.RelatoriosAvancadosVisualizar, true);
+        await DefinirPermissaoAtivaAsync(PermissoesConstants.RelatoriosAvancadosGerencial, true);
+        await DefinirPermissaoAtivaAsync(PermissoesConstants.RelatoriosAvancadosAuditoria, true);
+
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, $"admin.relatorios.periodoutc.{Guid.NewGuid():N}@empresa.com", "Admin Relatorios", "Administrador");
+        _ = await client.GetAsync("/api/me");
+
+        const string dataInicialUtc = "2026-04-25T00:00:00.000Z";
+        const string dataFinalUtc = "2026-05-25T23:59:59.999Z";
+        var query = endpoint.Contains("mais-solicitados", StringComparison.OrdinalIgnoreCase)
+            || endpoint.Contains("chamados-recorrentes", StringComparison.OrdinalIgnoreCase)
+            || endpoint.Contains("auditoria/resumo", StringComparison.OrdinalIgnoreCase)
+            ? $"?DataInicial={dataInicialUtc}&DataFinal={dataFinalUtc}&LimiteRanking=5"
+            : $"?DataInicial={dataInicialUtc}&DataFinal={dataFinalUtc}";
+
+        var response = await client.GetAsync($"{endpoint}{query}");
+
+        Assert.NotEqual(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task DefinirPermissaoAtivaAsync(string permissaoCodigo, bool ativa, CancellationToken cancellationToken = default)
     {
         using var scope = _factory.Services.CreateScope();

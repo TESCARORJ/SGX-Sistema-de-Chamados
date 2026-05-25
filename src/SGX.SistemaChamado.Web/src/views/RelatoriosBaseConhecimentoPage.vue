@@ -88,7 +88,7 @@ async function carregar(): Promise<void> {
     porStatus.value = statusResp
     vinculos.value = vinculosResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios da base de conhecimento.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios da base de conhecimento.'
   } finally {
     loading.value = false
   }
@@ -107,7 +107,7 @@ function exportarDados(): void {
           { grupo: 'Resumo', indicador: 'Arquivados', valor: resumo.value.artigosArquivados },
         ]
       : []),
-    ...vinculos.value.map((item) => ({ grupo: 'Vinculos', indicador: item.titulo, valor: item.totalChamadosVinculados })),
+    ...vinculos.value.map((item) => ({ grupo: 'Vínculos', indicador: item.titulo, valor: item.totalChamadosVinculados })),
   ]
 
   exportarCsv('relatorio-base-conhecimento.csv', linhas)
@@ -120,7 +120,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Base de conhecimento" subtitulo="Status, visibilidade e vinculos de artigos com chamados.">
+    <PageHeader titulo="Relatórios - Base de conhecimento" subtitulo="Status, visibilidade e vínculos de artigos com chamados.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -130,11 +130,11 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar || !podeGerencial" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios da base de conhecimento.
+      Você não possui permissão para visualizar relatórios da base de conhecimento.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Periodo e status para recorte da base de conhecimento.">
+      <AppSectionCard titulo="Filtros" subtitulo="Período e status para recorte da base de conhecimento.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
@@ -144,17 +144,17 @@ onMounted(() => {
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatorios da base de conhecimento..." />
+      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatórios da base de conhecimento..." />
 
       <template v-else-if="resumo">
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total artigos" :valor="resumo.totalArtigos" icon="menu_book" color="primary" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Publicados" :valor="resumo.artigosPublicados" icon="task_alt" color="positive" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Rascunho" :valor="resumo.artigosRascunho" icon="edit_note" color="warning" /></div>
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Com vinculo" :valor="resumo.artigosVinculadosChamados" icon="link" color="info" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Com vínculo" :valor="resumo.artigosVinculadosChamados" icon="link" color="info" /></div>
         </div>
 
-        <AppSectionCard v-if="porStatus" titulo="Distribuicao por status e visibilidade">
+        <AppSectionCard v-if="porStatus" titulo="Distribuição por status e visibilidade">
           <div class="row q-col-gutter-md">
             <div class="col-12 col-lg-6">
               <div class="text-subtitle2 q-mb-sm">Status</div>
@@ -172,10 +172,10 @@ onMounted(() => {
         </AppSectionCard>
       </template>
 
-      <EmptyState
+        <EmptyState
         v-else
         titulo="Sem dados de base de conhecimento"
-        mensagem="Nao ha resultados para os filtros informados."
+        mensagem="Não há resultados para os filtros informados."
         icon="menu_book"
       />
     </template>

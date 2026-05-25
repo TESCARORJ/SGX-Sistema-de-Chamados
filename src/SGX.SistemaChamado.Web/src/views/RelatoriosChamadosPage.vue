@@ -49,7 +49,7 @@ const podeOperacional = computed(() => possuiPermissao(permissoes.relatoriosAvan
 const podeExportar = computed(() => possuiPermissao(permissoes.relatoriosAvancadosExportar))
 
 const colunasSerie = [
-  { name: 'periodo', label: 'Periodo', field: 'periodo', align: 'left' as const },
+  { name: 'periodo', label: 'Período', field: 'periodo', align: 'left' as const },
   { name: 'abertos', label: 'Abertos', field: 'abertos', align: 'right' as const },
   { name: 'encerrados', label: 'Encerrados', field: 'encerrados', align: 'right' as const },
   { name: 'reabertos', label: 'Reabertos', field: 'reabertos', align: 'right' as const },
@@ -64,9 +64,9 @@ const colunasDistribuicao = [
 const colunasProdutividade = [
   { name: 'atendenteNome', label: 'Atendente', field: 'atendenteNome', align: 'left' as const },
   { name: 'chamadosAssumidos', label: 'Assumidos', field: 'chamadosAssumidos', align: 'right' as const },
-  { name: 'chamadosConcluidos', label: 'Concluidos', field: 'chamadosConcluidos', align: 'right' as const },
+  { name: 'chamadosConcluidos', label: 'Concluídos', field: 'chamadosConcluidos', align: 'right' as const },
   { name: 'chamadosEmAberto', label: 'Em aberto', field: 'chamadosEmAberto', align: 'right' as const },
-  { name: 'percentualConclusao', label: '% conclusao', field: 'percentualConclusao', align: 'right' as const },
+  { name: 'percentualConclusao', label: '% conclusão', field: 'percentualConclusao', align: 'right' as const },
 ]
 
 const vazio = computed(() => {
@@ -113,7 +113,7 @@ async function carregar(): Promise<void> {
     distribuicao.value = distribuicaoResp
     produtividade.value = produtividadeResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar o relatorio de chamados.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar o relatório de chamados.'
   } finally {
     loading.value = false
   }
@@ -130,8 +130,8 @@ function exportarDados(): void {
     { grupo: 'Resumo', indicador: 'Total em atendimento', valor: resumo.value.totalEmAtendimento },
     { grupo: 'Resumo', indicador: 'Total encerrados', valor: resumo.value.totalEncerradosOuConcluidos },
     { grupo: 'Resumo', indicador: 'Total reabertos', valor: resumo.value.totalReabertos },
-    ...((distribuicao.value?.itens ?? []).map((item) => ({ grupo: 'Distribuicao', indicador: item.nome, valor: item.quantidade }))),
-    ...((serieTemporal.value?.itens ?? []).map((item) => ({ grupo: 'Serie temporal', indicador: item.periodo, valor: item.abertos + item.encerrados + item.reabertos }))),
+    ...((distribuicao.value?.itens ?? []).map((item) => ({ grupo: 'Distribuição', indicador: item.nome, valor: item.quantidade }))),
+    ...((serieTemporal.value?.itens ?? []).map((item) => ({ grupo: 'Série temporal', indicador: item.periodo, valor: item.abertos + item.encerrados + item.reabertos }))),
   ]
 
   exportarCsv('relatorio-chamados.csv', linhas)
@@ -144,7 +144,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - Chamados" subtitulo="Resumo, serie temporal, distribuicao e produtividade de atendimento.">
+    <PageHeader titulo="Relatórios - Chamados" subtitulo="Resumo, série temporal, distribuição e produtividade de atendimento.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -161,11 +161,11 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios de chamados.
+      Você não possui permissão para visualizar relatórios de chamados.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Periodo e recortes basicos para o relatorio.">
+      <AppSectionCard titulo="Filtros" subtitulo="Período e recortes básicos para o relatório.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-2"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-2"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
@@ -177,21 +177,21 @@ onMounted(() => {
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatorio de chamados..." />
+      <LoadingState v-else-if="loading && !resumo" mensagem="Carregando relatório de chamados..." />
 
       <template v-else-if="resumo">
         <div class="row q-col-gutter-md">
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total chamados" :valor="resumo.totalChamados" icon="support_agent" color="primary" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total de chamados" :valor="resumo.totalChamados" icon="support_agent" color="primary" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Abertos" :valor="resumo.totalAbertos" icon="inbox" color="warning" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Encerrados" :valor="resumo.totalEncerradosOuConcluidos" icon="task_alt" color="positive" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Reabertos" :valor="resumo.totalReabertos" icon="restart_alt" color="info" /></div>
         </div>
 
-        <AppSectionCard v-if="serieTemporal?.itens?.length" titulo="Serie temporal">
+        <AppSectionCard v-if="serieTemporal?.itens?.length" titulo="Série temporal">
           <q-table flat :rows="serieTemporal.itens" :columns="colunasSerie" row-key="periodo" hide-pagination />
         </AppSectionCard>
 
-        <AppSectionCard v-if="distribuicao?.itens?.length" titulo="Distribuicao">
+        <AppSectionCard v-if="distribuicao?.itens?.length" titulo="Distribuição">
           <q-table flat :rows="distribuicao.itens" :columns="colunasDistribuicao" row-key="chave" hide-pagination>
             <template #body-cell-percentual="props">
               <q-td :props="props" class="text-right">{{ Number(props.row.percentual).toFixed(2) }}%</q-td>
@@ -210,7 +210,7 @@ onMounted(() => {
         <EmptyState
           v-if="vazio"
           titulo="Sem dados de chamados"
-          mensagem="Nao ha resultados para os filtros informados."
+          mensagem="Não há resultados para os filtros informados."
           icon="support_agent"
         />
       </template>

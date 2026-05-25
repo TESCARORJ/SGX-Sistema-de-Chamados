@@ -35,7 +35,7 @@ const menu: MenuItem[] = [
     requiredAnyPermissions: [permissoes.dashboardVisualizar],
   },
   {
-    label: 'Relatorios',
+    label: 'Relatórios',
     icon: 'analytics',
     requiredAnyPermissions: [
       permissoes.relatoriosAvancadosVisualizar,
@@ -45,7 +45,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'Relatorios avancados',
+        label: 'Relatórios avançados',
         icon: 'dashboard',
         to: '/admin/relatorios/avancados',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
@@ -63,19 +63,19 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
       {
-        label: 'Aprovacoes',
+        label: 'Aprovações',
         icon: 'fact_check',
         to: '/admin/relatorios/aprovacoes',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
       {
-        label: 'Catalogo de servicos',
+        label: 'Catálogo de serviços',
         icon: 'inventory_2',
         to: '/admin/relatorios/catalogo-servicos',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
       {
-        label: 'Inventario/Ativos',
+        label: 'Inventário/Ativos',
         icon: 'memory',
         to: '/admin/relatorios/inventario-ativos',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosGerencial],
@@ -114,7 +114,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
       },
       {
-        label: 'Aprovacao de chamados',
+        label: 'Aprovação de chamados',
         icon: 'fact_check',
         to: '/admin/atendimento/aprovacao-chamados',
         requiredAnyPermissions: [
@@ -138,7 +138,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'PolÃ­ticas',
+        label: 'Políticas',
         icon: 'rule',
         to: '/admin/sla/policies',
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaCriar, permissoes.slaEditar],
@@ -150,7 +150,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
       },
       {
-        label: 'CalendÃ¡rios',
+        label: 'Calendários',
         icon: 'event_available',
         to: '/admin/sla/calendarios',
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
@@ -164,7 +164,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'NotificaÃ§Ãµes',
+    label: 'Notificações',
     icon: 'notifications_active',
     to: '/admin/notificacoes',
     requiredAnyPermissions: [permissoes.notificacoesVisualizar],
@@ -181,7 +181,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'UsuÃ¡rios',
+        label: 'Usuários',
         icon: 'group',
         to: '/admin/cadastros/usuarios',
         requiredAnyPermissions: [permissoes.usuariosVisualizar, permissoes.usuariosGerenciar],
@@ -217,7 +217,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.cadastrosVisualizar],
       },
       {
-        label: 'Tipos de Solicitacao',
+        label: 'Tipos de Solicitação',
         icon: 'sell',
         to: '/admin/cadastros/tipos-solicitacao',
         requiredAnyPermissions: [permissoes.cadastrosVisualizar],
@@ -262,7 +262,7 @@ const menu: MenuItem[] = [
         ],
       },
       {
-        label: 'Catalogo de servicos',
+        label: 'Catálogo de serviços',
         icon: 'inventory_2',
         to: '/admin/conhecimento/catalogo-servicos',
         requiredAnyPermissions: [
@@ -286,7 +286,7 @@ const menu: MenuItem[] = [
     ],
     children: [
       {
-        label: 'Inventario / Ativos',
+        label: 'Inventário/Ativos',
         icon: 'inventory',
         to: '/admin/infraestrutura/inventario-ativos',
         requiredAnyPermissions: [
@@ -299,12 +299,12 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'ConfiguraÃ§Ãµes',
+    label: 'Configurações',
     icon: 'settings',
     requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
     children: [
       {
-        label: 'ParÃ¢metros do Sistema',
+        label: 'Parâmetros do Sistema',
         icon: 'tune',
         to: '/admin/configuracoes/parametros',
         requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
@@ -312,7 +312,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'IntegraÃ§Ãµes',
+    label: 'Integrações',
     icon: 'hub',
     requiredAnyPermissions: [
       permissoes.integracoesEmailVisualizar,
@@ -335,7 +335,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'GestÃ£o ITSM',
+    label: 'Gestão ITSM',
     icon: 'insights',
     requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
     children: [
@@ -346,7 +346,7 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
       },
       {
-        label: 'DocumentaÃ§Ã£o',
+        label: 'Documentação',
         icon: 'library_books',
         to: '/admin/gestao-itsm/documentacao',
         requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
@@ -354,7 +354,7 @@ const menu: MenuItem[] = [
     ],
   },
   {
-    label: 'GovernanÃ§a',
+    label: 'Governança',
     icon: 'fact_check',
     requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
     children: [
@@ -422,33 +422,33 @@ const podeVisualizarNotificacoes = computed(() =>
 const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
-  if (route.path.startsWith('/admin/relatorios/avancados')) return 'Relatorios avancados'
-  if (route.path.startsWith('/admin/relatorios/chamados')) return 'Relatorios - Chamados'
-  if (route.path.startsWith('/admin/relatorios/sla')) return 'Relatorios - SLA'
-  if (route.path.startsWith('/admin/relatorios/aprovacoes')) return 'Relatorios - Aprovacoes'
-  if (route.path.startsWith('/admin/relatorios/catalogo-servicos')) return 'Relatorios - Catalogo'
-  if (route.path.startsWith('/admin/relatorios/inventario-ativos')) return 'Relatorios - Inventario'
-  if (route.path.startsWith('/admin/relatorios/base-conhecimento')) return 'Relatorios - Base de conhecimento'
-  if (route.path.startsWith('/admin/relatorios/auditoria')) return 'Relatorios - Auditoria'
+  if (route.path.startsWith('/admin/relatorios/avancados')) return 'Relatórios avançados'
+  if (route.path.startsWith('/admin/relatorios/chamados')) return 'Relatórios - Chamados'
+  if (route.path.startsWith('/admin/relatorios/sla')) return 'Relatórios - SLA'
+  if (route.path.startsWith('/admin/relatorios/aprovacoes')) return 'Relatórios - Aprovações'
+  if (route.path.startsWith('/admin/relatorios/catalogo-servicos')) return 'Relatórios - Catálogo de serviços'
+  if (route.path.startsWith('/admin/relatorios/inventario-ativos')) return 'Relatórios - Inventário/Ativos'
+  if (route.path.startsWith('/admin/relatorios/base-conhecimento')) return 'Relatórios - Base de conhecimento'
+  if (route.path.startsWith('/admin/relatorios/auditoria')) return 'Relatórios - Auditoria'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
-  if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovacao de chamados'
-  if (route.path === '/admin/notificacoes') return 'Central de NotificaÃƒÂ§ÃƒÂµes'
+  if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovação de chamados'
+  if (route.path === '/admin/notificacoes') return 'Central de Notificações'
   if (route.path.startsWith('/admin/sla/alertas')) return 'Alertas de SLA'
-  if (route.path.startsWith('/admin/sla/calendarios')) return 'CalendÃ¡rios de SLA'
+  if (route.path.startsWith('/admin/sla/calendarios')) return 'Calendários de SLA'
   if (route.path.startsWith('/admin/sla/painel')) return 'Painel de SLA'
-  if (route.path.startsWith('/admin/sla')) return 'PolÃ­ticas de SLA'
+  if (route.path.startsWith('/admin/sla')) return 'Políticas de SLA'
   if (route.path.startsWith('/admin/chamados/')) return 'Detalhe do Chamado'
   if (route.path.startsWith('/admin/cadastros')) return 'Cadastros'
   if (route.path.startsWith('/admin/conhecimento/base-conhecimento')) return 'Base de conhecimento'
-  if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catalogo de servicos'
-  if (route.path.startsWith('/admin/infraestrutura/inventario-ativos')) return 'Inventario / Ativos'
-  if (route.path.startsWith('/admin/configuracoes')) return 'ConfiguraÃƒÂ§ÃƒÂµes'
-  if (route.path.startsWith('/admin/integracoes')) return 'IntegraÃƒÂ§ÃƒÂµes'
-  if (route.path.startsWith('/admin/governanca/auditoria')) return 'HistÃ³rico / Auditoria'
-  if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'DocumentaÃ§Ã£o ITSM'
-  if (route.path.startsWith('/admin/gestao-itsm')) return 'GestÃ£o ITSM'
+  if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catálogo de serviços'
+  if (route.path.startsWith('/admin/infraestrutura/inventario-ativos')) return 'Inventário/Ativos'
+  if (route.path.startsWith('/admin/configuracoes')) return 'Configurações'
+  if (route.path.startsWith('/admin/integracoes')) return 'Integrações'
+  if (route.path.startsWith('/admin/governanca/auditoria')) return 'Histórico / Auditoria'
+  if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'Documentação ITSM'
+  if (route.path.startsWith('/admin/gestao-itsm')) return 'Gestão ITSM'
   if (route.path.startsWith('/admin/roadmap-itsm')) return 'Roadmap ITSM'
-  return 'ÃƒÂrea Administrativa'
+  return 'Área Administrativa'
 })
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
@@ -528,7 +528,7 @@ async function visualizarComoSolicitante(): Promise<void> {
     await authStore.iniciarEmulacaoSolicitante()
     await router.replace('/portal')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
+    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
       type: 'negative',
       message,
@@ -549,7 +549,7 @@ async function visualizarComoAtendente(): Promise<void> {
     await authStore.iniciarEmulacaoAtendente()
     await router.replace('/admin/chamados')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
+    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
       type: 'negative',
       message,
@@ -570,7 +570,7 @@ async function voltarParaAdministrador(): Promise<void> {
     await authStore.encerrarEmulacao()
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'NÃƒÂ£o foi possÃƒÂ­vel concluir a aÃƒÂ§ÃƒÂ£o.'
+    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
       type: 'negative',
       message,
@@ -578,7 +578,7 @@ async function voltarParaAdministrador(): Promise<void> {
 
     if (
       message.includes('Contexto original da emulacao nao encontrado') ||
-      message.includes('Contexto original da emulaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrado')
+      message.includes('Contexto original da emulação não encontrado')
     ) {
       await router.replace('/login')
     }
@@ -691,7 +691,7 @@ watch(
             :loading="emulacaoSolicitanteCarregando"
             @click="visualizarComoSolicitante"
           >
-            <q-tooltip>Simula a experiÃƒÂªncia do Solicitante em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiência do Solicitante em ambiente local.</q-tooltip>
           </q-btn>
 
           <q-btn
@@ -703,7 +703,7 @@ watch(
             :loading="emulacaoAtendenteCarregando"
             @click="visualizarComoAtendente"
           >
-            <q-tooltip>Simula a experiÃƒÂªncia do Atendente em ambiente local.</q-tooltip>
+            <q-tooltip>Simula a experiência do Atendente em ambiente local.</q-tooltip>
           </q-btn>
         </div>
 
@@ -741,7 +741,7 @@ watch(
                     v-for="child in item.children"
                     :key="child.label"
                     clickable
-                    inset-level="0.5"
+                    :inset-level="0.5"
                     :active="Boolean(child.to && rotaAtiva(child.to))"
                     active-class="menu-item-active"
                     @click="child.to && navegarPara(child.to)"
@@ -793,7 +793,7 @@ watch(
           </template>
 
           <div class="text-weight-medium">Visualizando como Atendente Demo</div>
-          <div class="text-caption">VocÃƒÂª estÃƒÂ¡ visualizando como Atendente Demo.</div>
+          <div class="text-caption">Você está visualizando como Atendente Demo.</div>
 
           <template #action>
             <q-btn

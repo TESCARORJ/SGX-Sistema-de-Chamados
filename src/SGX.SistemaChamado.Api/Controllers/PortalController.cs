@@ -53,8 +53,15 @@ public sealed class PortalController(
             TamanhoPagina = tamanhoPagina
         };
 
-        var response = await listarMeusChamadosUseCase.ExecutarAsync(filtro, cancellationToken);
-        return Ok(response);
+        try
+        {
+            var response = await listarMeusChamadosUseCase.ExecutarAsync(filtro, cancellationToken);
+            return Ok(response);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested || HttpContext.RequestAborted.IsCancellationRequested)
+        {
+            return StatusCode(499);
+        }
     }
 
     [HttpGet("chamados/{id:guid}")]

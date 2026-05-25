@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
@@ -9,15 +9,9 @@ import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { permissoes } from '../constants/permissoes'
 import { relatoriosAvancadosAdminService } from '../services/relatoriosAvancadosAdminService'
-import { HttpRequestError } from '../services/httpClient'
 import { useAuthStore } from '../stores/authStore'
+import { criarFiltrosResumoDashboard, mapearMensagemErroDashboard } from './relatoriosAvancadosDashboard.helpers'
 import type {
-  FiltroRelatorioAprovacoes,
-  FiltroRelatorioAuditoria,
-  FiltroRelatorioCatalogo,
-  FiltroRelatorioChamados,
-  FiltroRelatorioInventario,
-  FiltroRelatorioSla,
   RelatorioAprovacoesResumo,
   RelatorioAuditoriaResumo,
   RelatorioChamadosResumo,
@@ -27,6 +21,7 @@ import type {
 } from '../types/relatoriosAvancados'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const loading = ref(false)
@@ -62,127 +57,34 @@ function possuiPermissao(codigo: string): boolean {
 const podeVisualizar = computed(() => possuiPermissao(permissoes.relatoriosAvancadosVisualizar))
 const podeGerencial = computed(() => possuiPermissao(permissoes.relatoriosAvancadosGerencial))
 const podeAuditoria = computed(() => possuiPermissao(permissoes.relatoriosAvancadosAuditoria))
-const podeVerSecaoTecnica = computed(() => usuarioEhAdministrador.value || podeGerencial.value)
-
-const periodosAmigaveis: Record<string, string> = {
-  Hoje: 'Hoje',
-  Ontem: 'Ontem',
-  Ultimos7Dias: 'Ultimos 7 dias',
-  Ultimos30Dias: 'Ultimos 30 dias',
-  MesAtual: 'Mes atual',
-  MesAnterior: 'Mes anterior',
-  TrimestreAtual: 'Trimestre atual',
-  AnoAtual: 'Ano atual',
-  Personalizado: 'Personalizado',
-}
-
-const filtrosAmigaveis: Record<string, string> = {
-  DataInicial: 'Periodo',
-  DataFinal: 'Periodo',
-  DepartamentoId: 'Departamento',
-  LocalUnidadeId: 'Local/Unidade',
-  UsuarioResponsavelId: 'Responsavel',
-  TipoAtivoInventarioId: 'Tipo de ativo',
-  StatusOperacional: 'Status operacional',
-  StatusPatrimonial: 'Status patrimonial',
-  Criticidade: 'Criticidade',
-  CategoriaId: 'Categoria',
-  SubcategoriaId: 'Subcategoria',
-  PrioridadeId: 'Prioridade',
-  Status: 'Status do chamado',
-  StatusId: 'Status do chamado',
-  StatusArtigo: 'Status do artigo',
-  VisibilidadeArtigo: 'Visibilidade do artigo',
-  AtendenteId: 'Atendente',
-  SolicitanteId: 'Solicitante',
-  CatalogoServicoId: 'Servico do catalogo',
-  UsuarioId: 'Usuario',
-  Entidade: 'Entidade auditada',
-  TipoAcao: 'Tipo de acao',
-  Termo: 'Busca textual',
-  TipoOrigemAprovacao: 'Origem da aprovacao',
-  StatusAprovacao: 'Status da aprovacao',
-  InventarioAtivoId: 'Ativo relacionado',
-  Origem: 'Origem',
-  Ativo: 'Apenas registros ativos',
-  ApenasAtivos: 'Apenas registros ativos',
-  Agrupamento: 'Agrupamento',
-  AgruparPor: 'Agrupamento',
-}
-
-const permissoesAmigaveis: Record<string, string> = {
-  'RelatoriosAvancados.Visualizar': 'Visualizar relatorios',
-  'RelatoriosAvancados.Exportar': 'Exportar dados',
-  'RelatoriosAvancados.Gerencial': 'Acessar relatorios gerenciais',
-  'RelatoriosAvancados.Operacional': 'Acessar relatorios operacionais',
-  'RelatoriosAvancados.Auditoria': 'Acessar relatorios de auditoria',
-}
-
-function normalizarListaUnica(itens: string[]): string[] {
-  return Array.from(new Set(itens)).sort((a, b) => a.localeCompare(b))
-}
-
-const periodosSuportadosAmigaveis = computed(() => {
-  const itens = metadados.value?.periodosSuportados ?? []
-  return normalizarListaUnica(itens.map((item) => periodosAmigaveis[item] ?? item))
-})
-
-const filtrosDisponiveisAmigaveis = computed(() => {
-  const itens = metadados.value?.filtrosDisponiveis ?? []
-  return normalizarListaUnica(itens.map((item) => filtrosAmigaveis[item] ?? item))
-})
-
-const permissoesRelevantesAmigaveis = computed(() => {
-  const itens = metadados.value?.permissoesRelevantes ?? []
-  return normalizarListaUnica(itens.map((item) => permissoesAmigaveis[item] ?? item))
-})
-
-function formatarDataIsoLocal(data: Date): string {
-  const ano = data.getFullYear()
-  const mes = String(data.getMonth() + 1).padStart(2, '0')
-  const dia = String(data.getDate()).padStart(2, '0')
-  return `${ano}-${mes}-${dia}`
-}
-
-function formatarDataHoraPadrao(data: Date, fimDoDia: boolean): string {
-  const dataBase = formatarDataIsoLocal(data)
-  return fimDoDia ? `${dataBase}T23:59:59` : `${dataBase}T00:00:00`
-}
-
-function criarFiltroPeriodoPadrao(): Pick<FiltroRelatorioChamados, 'dataInicial' | 'dataFinal'> {
-  const hoje = new Date()
-  const dataInicial = new Date(hoje)
-  dataInicial.setDate(dataInicial.getDate() - 30)
-
-  return {
-    dataInicial: formatarDataHoraPadrao(dataInicial, false),
-    dataFinal: formatarDataHoraPadrao(hoje, true),
-  }
-}
+const podeConsultarSla = computed(() => podeVisualizar.value && podeGerencial.value)
+const podeConsultarAprovacoes = computed(() => podeVisualizar.value && podeGerencial.value)
+const podeConsultarCatalogo = computed(() => podeVisualizar.value && podeGerencial.value)
+const podeConsultarInventario = computed(() => podeVisualizar.value && podeGerencial.value)
+const podeConsultarAuditoria = computed(() => podeVisualizar.value && podeAuditoria.value)
 
 function formatarCardServicoMaisSolicitado(): { valor: string | number; subtitulo?: string } {
   if (erroCards.value.catalogo) {
     return { valor: erroCards.value.catalogo }
   }
 
-  if (!podeGerencial.value) {
-    return { valor: 'Sem permissao' }
+  if (!podeConsultarCatalogo.value) {
+    return { valor: 'Sem permissão' }
   }
 
   const item = rankingCatalogoMaisSolicitados.value[0]
   if (!item) {
-    return { valor: 'Sem dados no periodo' }
+    return { valor: 'Sem dados no período' }
   }
 
   return {
-    valor: item.nomeServico,
-    subtitulo: `${item.totalChamados} chamados`,
+    valor: `${item.nomeServico} - ${item.totalChamados} chamados`,
   }
 }
 
 function formatarCardAtivoRecorrente(): { valor: string | number; subtitulo?: string } {
-  if (!podeGerencial.value) {
-    return { valor: 'Sem permissao' }
+  if (!podeConsultarInventario.value) {
+    return { valor: 'Sem permissão' }
   }
 
   if (erroCards.value.inventario) {
@@ -191,32 +93,12 @@ function formatarCardAtivoRecorrente(): { valor: string | number; subtitulo?: st
 
   const item = ativosRecorrentes.value[0]
   if (!item) {
-    return { valor: 'Sem dados no periodo' }
+    return { valor: 'Sem dados no período' }
   }
 
   return {
-    valor: item.nome,
-    subtitulo: `${item.totalChamados} chamados`,
+    valor: `${item.codigo} - ${item.totalChamados} chamados`,
   }
-}
-
-function mapearMensagemErroDashboard(error: unknown): string {
-  if (error instanceof HttpRequestError) {
-    if (error.status === 400) return 'Filtro invalido'
-    if (error.status === 401 || error.status === 403) return 'Sem permissao'
-    if (error.status === 404) return 'Endpoint nao encontrado'
-    if (error.status >= 500) return 'Erro interno ao carregar'
-    return 'Erro ao carregar'
-  }
-
-  if (error instanceof Error) {
-    const mensagem = error.message.toLowerCase()
-    if (mensagem.includes('failed to fetch') || mensagem.includes('network')) {
-      return 'API indisponivel'
-    }
-  }
-
-  return 'Erro ao carregar'
 }
 
 const cardsResumo = computed(() => {
@@ -224,79 +106,112 @@ const cardsResumo = computed(() => {
 
   cards.push({
     titulo: 'Total de chamados',
-    valor: erroCards.value.chamados ?? (resumoChamados.value?.totalChamados ?? 'Sem dados no periodo'),
+    valor: erroCards.value.chamados ?? (resumoChamados.value?.totalChamados ?? 'Sem dados no período'),
     icon: 'support_agent',
     color: 'primary',
   })
 
-  if (podeGerencial.value) {
-    cards.push({
-      titulo: 'Cumprimento de SLA',
-      valor: erroCards.value.sla
+  cards.push({
+    titulo: 'Cumprimento de SLA',
+    valor: !podeConsultarSla.value
+      ? 'Sem permissão'
+      : erroCards.value.sla
         ? erroCards.value.sla
         : resumoSla.value?.percentualCumprimento !== null && resumoSla.value?.percentualCumprimento !== undefined
           ? `${Number(resumoSla.value.percentualCumprimento).toFixed(1)}%`
-          : 'Sem dados no periodo',
-      icon: 'schedule',
-      color: 'positive',
-    })
-  }
+          : resumoSla.value?.totalChamadosComSla === 0
+            ? '0%'
+            : 'Sem dados no período',
+    icon: 'schedule',
+    color: 'positive',
+  })
 
   cards.push({
-    titulo: 'Aprovacoes pendentes',
-    valor: !podeGerencial.value
-      ? 'Sem permissao'
+    titulo: 'Aprovações pendentes',
+    valor: !podeConsultarAprovacoes.value
+      ? 'Sem permissão'
       : erroCards.value.aprovacoes
         ? erroCards.value.aprovacoes
-        : (resumoAprovacoes.value?.pendentes ?? 'Sem dados no periodo'),
+        : (resumoAprovacoes.value?.pendentes ?? 'Sem dados no período'),
     icon: 'fact_check',
     color: 'warning',
   })
 
   const servicoMaisSolicitado = formatarCardServicoMaisSolicitado()
   cards.push({
-    titulo: 'Servicos mais usados',
+    titulo: 'Serviços mais usados',
     valor: servicoMaisSolicitado.valor,
     subtitulo: servicoMaisSolicitado.subtitulo,
     icon: 'inventory_2',
     color: 'info',
   })
 
-  if (podeGerencial.value) {
-    const ativoRecorrente = formatarCardAtivoRecorrente()
-    cards.push({
-      titulo: 'Ativos com chamados',
-      valor: ativoRecorrente.valor,
-      subtitulo: ativoRecorrente.subtitulo,
-      icon: 'memory',
-      color: 'purple',
-    })
-  }
+  const ativoRecorrente = formatarCardAtivoRecorrente()
+  cards.push({
+    titulo: 'Ativos com chamados',
+    valor: ativoRecorrente.valor,
+    subtitulo: ativoRecorrente.subtitulo,
+    icon: 'memory',
+    color: 'purple',
+  })
 
-  if (podeAuditoria.value) {
-    cards.push({
-      titulo: 'Acoes de auditoria',
-      valor: erroCards.value.auditoria
+  cards.push({
+    titulo: 'Ações de auditoria',
+    valor: !podeConsultarAuditoria.value
+      ? 'Sem permissão'
+      : erroCards.value.auditoria
         ? erroCards.value.auditoria
-        : (resumoAuditoria.value?.totalAcoesAuditadas ?? 'Sem dados no periodo'),
-      icon: 'manage_search',
-      color: 'negative',
-    })
-  }
+        : (resumoAuditoria.value?.totalAcoesAuditadas ?? 'Sem dados no período'),
+    icon: 'manage_search',
+    color: 'negative',
+  })
 
   return cards
 })
 
-const atalhos = computed(() => [
-  { titulo: 'Relatorios avancados', rota: '/admin/relatorios/avancados', icon: 'analytics', visivel: podeVisualizar.value },
-  { titulo: 'Chamados', rota: '/admin/relatorios/chamados', icon: 'support_agent', visivel: podeVisualizar.value },
-  { titulo: 'SLA', rota: '/admin/relatorios/sla', icon: 'schedule', visivel: podeVisualizar.value },
-  { titulo: 'Aprovacoes', rota: '/admin/relatorios/aprovacoes', icon: 'fact_check', visivel: podeVisualizar.value },
-  { titulo: 'Catalogo de servicos', rota: '/admin/relatorios/catalogo-servicos', icon: 'inventory_2', visivel: podeVisualizar.value },
-  { titulo: 'Inventario/Ativos', rota: '/admin/relatorios/inventario-ativos', icon: 'memory', visivel: podeVisualizar.value },
-  { titulo: 'Base de conhecimento', rota: '/admin/relatorios/base-conhecimento', icon: 'menu_book', visivel: podeVisualizar.value },
-  { titulo: 'Auditoria', rota: '/admin/relatorios/auditoria', icon: 'manage_search', visivel: podeAuditoria.value },
-])
+const rotaAtualRelatoriosAvancados = '/admin/relatorios/avancados'
+
+const atalhosDetalhados = [
+  { titulo: 'Chamados', rota: '/admin/relatorios/chamados', icon: 'support_agent', visivel: () => podeVisualizar.value },
+  { titulo: 'SLA', rota: '/admin/relatorios/sla', icon: 'schedule', visivel: () => podeVisualizar.value },
+  { titulo: 'Aprovações', rota: '/admin/relatorios/aprovacoes', icon: 'fact_check', visivel: () => podeVisualizar.value },
+  { titulo: 'Catálogo de serviços', rota: '/admin/relatorios/catalogo-servicos', icon: 'inventory_2', visivel: () => podeVisualizar.value },
+  { titulo: 'Inventário/Ativos', rota: '/admin/relatorios/inventario-ativos', icon: 'memory', visivel: () => podeVisualizar.value },
+  { titulo: 'Base de conhecimento', rota: '/admin/relatorios/base-conhecimento', icon: 'menu_book', visivel: () => podeVisualizar.value },
+  { titulo: 'Auditoria', rota: '/admin/relatorios/auditoria', icon: 'manage_search', visivel: () => podeAuditoria.value },
+]
+
+function normalizarRota(rota: string): string {
+  return rota.endsWith('/') && rota.length > 1 ? rota.slice(0, -1) : rota
+}
+
+const atalhos = computed(() => {
+  const rotaAtualNormalizada = normalizarRota(route.path)
+  const rotaDashboardNormalizada = normalizarRota(rotaAtualRelatoriosAvancados)
+
+  return atalhosDetalhados.filter((item) => {
+    if (!item.visivel()) {
+      return false
+    }
+
+    const rotaItemNormalizada = normalizarRota(item.rota)
+    if (rotaAtualNormalizada === rotaDashboardNormalizada && rotaItemNormalizada === rotaDashboardNormalizada) {
+      return false
+    }
+
+    return true
+  })
+})
+
+function registrarFalhaCard(card: keyof typeof erroCards.value, motivo: unknown): void {
+  const mensagem = mapearMensagemErroDashboard(motivo)
+  erroCards.value[card] = mensagem
+  houveFalhaParcial.value = true
+
+  if (import.meta.env.DEV) {
+    console.warn(`[RelatoriosAvancadosDashboard] Falha ao carregar card "${card}"`, motivo)
+  }
+}
 
 async function carregar(): Promise<void> {
   if (!podeVisualizar.value) {
@@ -316,50 +231,24 @@ async function carregar(): Promise<void> {
   }
 
   try {
-    const filtroPeriodoPadrao = criarFiltroPeriodoPadrao()
-
-    const chamadasFiltro: FiltroRelatorioChamados = {
-      ...filtroPeriodoPadrao,
-      apenasAtivos: false,
-    }
-    const slaFiltro: FiltroRelatorioSla = {
-      ...filtroPeriodoPadrao,
-      apenasAtivos: false,
-    }
-    const aprovacoesFiltro: FiltroRelatorioAprovacoes = {
-      ...filtroPeriodoPadrao,
-      apenasAtivos: false,
-    }
-    const catalogoFiltro: FiltroRelatorioCatalogo = {
-      ...filtroPeriodoPadrao,
-      limiteRanking: 5,
-      apenasAtivos: false,
-    }
-    const inventarioFiltro: FiltroRelatorioInventario = {
-      ...filtroPeriodoPadrao,
-      limiteRanking: 5,
-    }
-    const auditoriaFiltro: FiltroRelatorioAuditoria = {
-      ...filtroPeriodoPadrao,
-      limiteRanking: 5,
-    }
+    const filtrosResumo = criarFiltrosResumoDashboard()
 
     const metadadosPromise = relatoriosAvancadosAdminService.obterMetadados()
-    const chamadosPromise = relatoriosAvancadosAdminService.obterResumoChamados(chamadasFiltro)
-    const slaPromise = podeGerencial.value
-      ? relatoriosAvancadosAdminService.obterResumoSla(slaFiltro)
+    const chamadosPromise = relatoriosAvancadosAdminService.obterResumoChamados(filtrosResumo.chamados)
+    const slaPromise = podeConsultarSla.value
+      ? relatoriosAvancadosAdminService.obterResumoSla(filtrosResumo.sla)
       : Promise.resolve(null)
-    const aprovacoesPromise = podeGerencial.value
-      ? relatoriosAvancadosAdminService.obterResumoAprovacoes(aprovacoesFiltro)
+    const aprovacoesPromise = podeConsultarAprovacoes.value
+      ? relatoriosAvancadosAdminService.obterResumoAprovacoes(filtrosResumo.aprovacoes)
       : Promise.resolve(null)
-    const catalogoMaisSolicitadosPromise = podeGerencial.value
-      ? relatoriosAvancadosAdminService.obterCatalogoServicosMaisSolicitados(catalogoFiltro)
+    const catalogoMaisSolicitadosPromise = podeConsultarCatalogo.value
+      ? relatoriosAvancadosAdminService.obterCatalogoServicosMaisSolicitados(filtrosResumo.catalogo)
       : Promise.resolve([])
-    const inventarioPromise = podeGerencial.value
-      ? relatoriosAvancadosAdminService.obterInventarioAtivosChamadosRecorrentes(inventarioFiltro)
+    const inventarioPromise = podeConsultarInventario.value
+      ? relatoriosAvancadosAdminService.obterInventarioAtivosChamadosRecorrentes(filtrosResumo.inventario)
       : Promise.resolve([])
-    const auditoriaPromise = podeAuditoria.value
-      ? relatoriosAvancadosAdminService.obterResumoAuditoria(auditoriaFiltro)
+    const auditoriaPromise = podeConsultarAuditoria.value
+      ? relatoriosAvancadosAdminService.obterResumoAuditoria(filtrosResumo.auditoria)
       : Promise.resolve(null)
 
     const resultados = await Promise.allSettled([
@@ -379,43 +268,37 @@ async function carregar(): Promise<void> {
     if (resultados[1].status === 'fulfilled') {
       resumoChamados.value = resultados[1].value as RelatorioChamadosResumo
     } else {
-      erroCards.value.chamados = mapearMensagemErroDashboard(resultados[1].reason)
-      houveFalhaParcial.value = true
+      registrarFalhaCard('chamados', resultados[1].reason)
     }
 
     if (resultados[2].status === 'fulfilled') {
       resumoSla.value = resultados[2].value as RelatorioSlaResumo | null
-    } else if (podeGerencial.value) {
-      erroCards.value.sla = mapearMensagemErroDashboard(resultados[2].reason)
-      houveFalhaParcial.value = true
+    } else if (podeConsultarSla.value) {
+      registrarFalhaCard('sla', resultados[2].reason)
     }
 
     if (resultados[3].status === 'fulfilled') {
       resumoAprovacoes.value = resultados[3].value as RelatorioAprovacoesResumo | null
-    } else if (podeGerencial.value) {
-      erroCards.value.aprovacoes = mapearMensagemErroDashboard(resultados[3].reason)
-      houveFalhaParcial.value = true
+    } else if (podeConsultarAprovacoes.value) {
+      registrarFalhaCard('aprovacoes', resultados[3].reason)
     }
 
     if (resultados[4].status === 'fulfilled') {
       rankingCatalogoMaisSolicitados.value = (resultados[4].value as Array<{ nomeServico: string; totalChamados: number }>) ?? []
-    } else if (podeGerencial.value) {
-      erroCards.value.catalogo = mapearMensagemErroDashboard(resultados[4].reason)
-      houveFalhaParcial.value = true
+    } else if (podeConsultarCatalogo.value) {
+      registrarFalhaCard('catalogo', resultados[4].reason)
     }
 
     if (resultados[5].status === 'fulfilled') {
       ativosRecorrentes.value = (resultados[5].value as RelatorioInventarioAtivosChamadosRecorrentes[]) ?? []
-    } else if (podeGerencial.value) {
-      erroCards.value.inventario = mapearMensagemErroDashboard(resultados[5].reason)
-      houveFalhaParcial.value = true
+    } else if (podeConsultarInventario.value) {
+      registrarFalhaCard('inventario', resultados[5].reason)
     }
 
     if (resultados[6].status === 'fulfilled') {
       resumoAuditoria.value = resultados[6].value as RelatorioAuditoriaResumo | null
-    } else if (podeAuditoria.value) {
-      erroCards.value.auditoria = mapearMensagemErroDashboard(resultados[6].reason)
-      houveFalhaParcial.value = true
+    } else if (podeConsultarAuditoria.value) {
+      registrarFalhaCard('auditoria', resultados[6].reason)
     }
 
     if (resultados[0].status === 'rejected' && resultados[1].status === 'rejected') {
@@ -423,8 +306,8 @@ async function carregar(): Promise<void> {
     }
   } catch (error) {
     const mensagemAmigavel = mapearMensagemErroDashboard(error)
-    erro.value = mensagemAmigavel === 'API indisponivel'
-      ? 'API indisponivel. Verifique se a API backend esta em execucao e acessivel.'
+    erro.value = mensagemAmigavel === 'API indisponível'
+      ? 'API indisponível. Verifique se a API backend está em execução e acessível.'
       : mensagemAmigavel
   } finally {
     loading.value = false
@@ -438,23 +321,23 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios avancados" subtitulo="Painel administrativo consolidado de relatorios operacionais, gerenciais e institucionais.">
+    <PageHeader titulo="Relatórios avançados" subtitulo="Painel administrativo consolidado de relatórios operacionais, gerenciais e institucionais.">
       <template #actions>
         <q-btn color="primary" icon="refresh" label="Recarregar" :loading="loading" @click="carregar" />
       </template>
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar os relatorios avancados.
+      Você não possui permissão para visualizar os relatórios avançados.
     </q-banner>
 
     <template v-else>
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !metadados" mensagem="Carregando dashboard de relatorios..." />
+      <LoadingState v-else-if="loading && !metadados" mensagem="Carregando dashboard de relatórios..." />
 
       <template v-else>
         <q-banner v-if="houveFalhaParcial" rounded class="bg-amber-1 text-amber-10 q-mb-md">
-          Alguns indicadores nao puderam ser carregados. Os demais dados permanecem disponiveis.
+          Alguns indicadores não puderam ser carregados. Os demais dados permanecem disponíveis.
         </q-banner>
 
         <div v-if="cardsResumo.length" class="row q-col-gutter-md">
@@ -463,47 +346,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <AppSectionCard titulo="Acesso rapido" subtitulo="Escolha um relatorio para detalhar filtros, distribuicoes e rankings.">
+        <AppSectionCard titulo="Acesso rápido" subtitulo="Escolha um relatório para detalhar filtros, distribuições e rankings.">
           <div class="row q-col-gutter-sm">
-            <div v-for="item in atalhos.filter((x) => x.visivel)" :key="item.rota" class="col-12 col-sm-6 col-lg-3">
+            <div v-for="item in atalhos" :key="item.rota" class="col-12 col-sm-6 col-lg-3">
               <q-btn outline color="primary" class="full-width" :icon="item.icon" :label="item.titulo" @click="router.push(item.rota)" />
             </div>
           </div>
-        </AppSectionCard>
-
-        <AppSectionCard
-          v-if="metadados && podeVerSecaoTecnica"
-          titulo="Informacoes tecnicas dos relatorios"
-          subtitulo="Capacidades informadas pelo backend para montagem dos relatorios."
-        >
-          <q-expansion-item
-            icon="build"
-            label="Detalhes tecnicos"
-            caption="Visualizacao de apoio para diagnostico e validacao de integracao."
-            header-class="text-primary"
-            expand-separator
-          >
-            <div class="row q-col-gutter-md q-pa-sm">
-              <div class="col-12 col-lg-4">
-                <div class="text-subtitle2 q-mb-sm">Periodos suportados</div>
-                <q-list dense bordered>
-                  <q-item v-for="periodo in periodosSuportadosAmigaveis" :key="periodo"><q-item-section>{{ periodo }}</q-item-section></q-item>
-                </q-list>
-              </div>
-              <div class="col-12 col-lg-4">
-                <div class="text-subtitle2 q-mb-sm">Filtros disponiveis</div>
-                <q-list dense bordered>
-                  <q-item v-for="filtro in filtrosDisponiveisAmigaveis" :key="filtro"><q-item-section>{{ filtro }}</q-item-section></q-item>
-                </q-list>
-              </div>
-              <div class="col-12 col-lg-4">
-                <div class="text-subtitle2 q-mb-sm">Permissoes relevantes</div>
-                <q-list dense bordered>
-                  <q-item v-for="permissao in permissoesRelevantesAmigaveis" :key="permissao"><q-item-section>{{ permissao }}</q-item-section></q-item>
-                </q-list>
-              </div>
-            </div>
-          </q-expansion-item>
         </AppSectionCard>
 
         <EmptyState

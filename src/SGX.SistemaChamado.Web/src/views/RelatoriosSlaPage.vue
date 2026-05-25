@@ -49,7 +49,7 @@ const podeExportar = computed(() => possuiPermissao(permissoes.relatoriosAvancad
 
 const colunasViolacoes = [
   { name: 'numeroProtocolo', label: 'Protocolo', field: 'numeroProtocolo', align: 'left' as const },
-  { name: 'titulo', label: 'Titulo', field: 'titulo', align: 'left' as const },
+  { name: 'titulo', label: 'Título', field: 'titulo', align: 'left' as const },
   { name: 'departamento', label: 'Departamento', field: 'departamento', align: 'left' as const },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left' as const },
   { name: 'horasExcedidas', label: 'Horas excedidas', field: 'horasExcedidas', align: 'right' as const },
@@ -60,7 +60,7 @@ const colunasCumprimento = [
   { name: 'totalComSla', label: 'Total com SLA', field: 'totalComSla', align: 'right' as const },
   { name: 'dentroSla', label: 'Dentro SLA', field: 'dentroSla', align: 'right' as const },
   { name: 'foraSla', label: 'Fora SLA', field: 'foraSla', align: 'right' as const },
-  { name: 'percentualCumprimento', label: '% cumprimento', field: 'percentualCumprimento', align: 'right' as const },
+  { name: 'percentualCumprimento', label: '% de cumprimento', field: 'percentualCumprimento', align: 'right' as const },
 ]
 
 const vazio = computed(() => {
@@ -100,7 +100,7 @@ async function carregar(): Promise<void> {
     porDepartamento.value = departamentoResp
     porPrioridade.value = prioridadeResp
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os relatorios de SLA.'
+    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os relatórios de SLA.'
   } finally {
     loading.value = false
   }
@@ -120,7 +120,7 @@ function exportarDados(): void {
         ]
       : []),
     ...violacoes.value.map((item) => ({
-      grupo: 'Violacao',
+      grupo: 'Violação',
       indicador: item.numeroProtocolo,
       valor: item.horasExcedidas ?? 0,
     })),
@@ -136,7 +136,7 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatorios - SLA" subtitulo="Cumprimento de prazos, violacoes e desempenho por grupo.">
+    <PageHeader titulo="Relatórios - SLA" subtitulo="Cumprimento de prazos, violações e desempenho por grupo.">
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="search" label="Aplicar filtros" :loading="loading" @click="carregar" />
@@ -146,11 +146,11 @@ onMounted(() => {
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Voce nao possui permissao para visualizar relatorios de SLA.
+      Você não possui permissão para visualizar relatórios de SLA.
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Recorte de periodo e dimensoes para os indicadores de SLA.">
+      <AppSectionCard titulo="Filtros" subtitulo="Recorte de período e dimensões para os indicadores de SLA.">
         <div class="row q-col-gutter-sm">
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataInicial" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-3"><q-input v-model="filtros.dataFinal" type="date" outlined dense label="Data final" /></div>
@@ -160,14 +160,14 @@ onMounted(() => {
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && vazio" mensagem="Carregando relatorios de SLA..." />
+      <LoadingState v-else-if="loading && vazio" mensagem="Carregando relatórios de SLA..." />
 
       <template v-else>
         <div v-if="resumo" class="row q-col-gutter-md">
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Total com SLA" :valor="resumo.totalChamadosComSla" icon="schedule" color="primary" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Dentro SLA" :valor="resumo.totalDentroSla" icon="task_alt" color="positive" /></div>
           <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="Fora SLA" :valor="resumo.totalForaSla" icon="warning" color="negative" /></div>
-          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="% cumprimento" :valor="resumo.percentualCumprimento ?? '-'" icon="percent" color="info" /></div>
+          <div class="col-12 col-sm-6 col-lg-3"><MetricCard titulo="% de cumprimento" :valor="resumo.percentualCumprimento ?? '-'" icon="percent" color="info" /></div>
         </div>
 
         <AppSectionCard v-if="porDepartamento.length" titulo="SLA por departamento">
@@ -186,7 +186,7 @@ onMounted(() => {
           </q-table>
         </AppSectionCard>
 
-        <AppSectionCard v-if="violacoes.length" titulo="Violacoes de SLA">
+        <AppSectionCard v-if="violacoes.length" titulo="Violações de SLA">
           <q-table flat :rows="violacoes" :columns="colunasViolacoes" row-key="chamadoId" hide-pagination>
             <template #body-cell-horasExcedidas="props">
               <q-td :props="props" class="text-right">{{ props.row.horasExcedidas == null ? '-' : Number(props.row.horasExcedidas).toFixed(2) }}</q-td>
@@ -197,7 +197,7 @@ onMounted(() => {
         <EmptyState
           v-if="!resumo && !porDepartamento.length && !porPrioridade.length && !violacoes.length"
           titulo="Sem dados de SLA"
-          mensagem="Nao ha resultados para os filtros informados."
+          mensagem="Não há resultados para os filtros informados."
           icon="schedule"
         />
       </template>

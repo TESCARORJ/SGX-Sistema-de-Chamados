@@ -255,10 +255,18 @@ Percentual: 90%
   - `GET /api/admin/relatorios-avancados/sla/resumo` (quando houver permissao gerencial)
   - `GET /api/admin/relatorios-avancados/inventario-ativos/chamados-recorrentes` (quando houver permissao gerencial)
   - `GET /api/admin/relatorios-avancados/auditoria/resumo` (somente com permissao de auditoria)
-- periodo padrao do dashboard definido como `Ultimos30Dias` (enviado como `DataInicial` e `DataFinal`);
-- para visao consolidada, os cards de chamados/aprovacoes/catalogo no dashboard enviam `ApenasAtivos=false`, evitando zeragem artificial por filtro padrao restritivo;
+- periodo padrao do dashboard definido como ultimos 30 dias corridos:
+  - `DataInicial = hoje - 30 dias`
+  - `DataFinal = hoje`
+  - formato enviado: `YYYY-MM-DDTHH:mm:ss.fffZ` (UTC, inicio/fim do dia)
+- query string do dashboard com limpeza de filtros antes do envio:
+  - remove `undefined`, `null`, string vazia, array vazio e `Guid.Empty`;
+  - remove `Agrupamento` e `AgruparPor` de endpoints de resumo;
+  - nao envia chaves fora do contrato de cada endpoint;
 - card de "Servicos mais usados" passa a usar ranking de `mais-solicitados` e exibe servico lider com quantidade de chamados;
+- card de "Ativos com chamados" passa a usar o ativo lider em recorrencia (`codigo + quantidade`);
 - sem permissao: card exibe `Sem permissao`;
+- sem permissao de auditoria: endpoint de auditoria nao e chamado e o card exibe `Sem permissao`;
 - falha de endpoint:
   - `400`: `Filtro invalido`
   - `401/403`: `Sem permissao`
@@ -272,8 +280,9 @@ Percentual: 90%
 - exibicao de metadados no dashboard:
   - endpoint de metadados permanece ativo e consumido pelo frontend;
   - tela principal prioriza cards e acesso rapido (visao gerencial);
-  - detalhes tecnicos ficam em secao recolhivel `Informacoes tecnicas dos relatorios`, fechada por padrao;
-  - filtros, periodos e permissoes sao apresentados com nomes amigaveis para diagnostico assistido.
+  - a secao tecnica de metadados foi removida da visualizacao principal para usuario final;
+  - metadados continuam disponiveis no backend em `GET /api/admin/relatorios-avancados/metadados`;
+  - textos da interface foram revisados com ortografia e acentuacao para linguagem orientada ao usuario.
 
 ### Limitacoes conhecidas
 
@@ -339,6 +348,11 @@ Resultado da revisao:
 
 ### Pendencias evolutivas
 
+- construtor de relatorios dinamicos;
+- selecao de fonte de dados;
+- escolha de campos;
+- agrupamentos configuraveis;
+- exportacoes avancadas;
 - homologacao institucional com usuarios reais;
 - evidencias com prints reais;
 - testes E2E completos;
