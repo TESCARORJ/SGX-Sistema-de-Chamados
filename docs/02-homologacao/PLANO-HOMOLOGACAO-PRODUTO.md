@@ -1,59 +1,59 @@
-# Plano de Homologacao do Produto - SGX Sistema de Chamados
+# Plano de Homologação do Produto - SGX Sistema de Chamados
 
 ## 1. Objetivo
 
-Este documento define o plano de homologacao institucional do SGX Sistema de Chamados, com foco em validar se o MVP avancado esta apto a evoluir para produto institucional ou comercial.
+Este documento define o plano de homologação institucional do SGX Sistema de Chamados, com foco em validar se o MVP avançado está apto a evoluir para produto institucional ou comercial.
 
-A homologacao deve comprovar, com evidencias formais, que os principais fluxos funcionais, tecnicos e de seguranca atendem aos criterios minimos definidos para a primeira versao do produto.
+A homologação deve comprovar, com evidências formais, que os principais fluxos funcionais, técnicos e de segurança atendem aos critérios mínimos definidos para a primeira versão do produto.
 
-## 2. Escopo da homologacao
+## 2. Escopo da homologação
 
-A homologacao deve cobrir os seguintes blocos:
+A homologação deve cobrir os seguintes blocos:
 
-- autenticacao e acesso;
-- perfis e permissoes;
+- autenticação e acesso;
+- perfis e permissões;
 - portal do solicitante;
 - abertura de chamado;
 - atendimento administrativo;
-- comentarios, anexos e historico;
+- comentários, anexos e histórico;
 - abertura por e-mail;
 - SLA;
-- dashboard de gestao;
+- dashboard de gestão;
 - cadastros administrativos;
 - base de conhecimento;
-- catalogo de servicos;
-- inventario/ativos;
+- catálogo de serviços;
+- inventário/ativos;
 - auditoria;
-- documentacao ITSM;
-- seguranca basica;
-- implantacao em ambiente de homologacao.
+- documentação ITSM;
+- segurança básica;
+- implantação em ambiente de homologação.
 
-## 3. Fora do escopo da primeira homologacao
+## 3. Fora do escopo da primeira homologação
 
 Os itens abaixo podem permanecer como roadmap futuro, desde que documentados:
 
-- Gerenciamento de Mudancas completo;
+- Gerenciamento de Mudanças completo;
 - CMDB completa;
-- agente automatico de inventario;
-- integracao Zabbix;
-- pesquisa de satisfacao;
-- formularios dinamicos avancados;
-- grupos tecnicos avancados;
+- agente automático de inventário;
+- integração Zabbix;
+- pesquisa de satisfação;
+- formulários dinâmicos avançados;
+- grupos técnicos avançados;
 - observadores;
-- regras de fechamento configuraveis;
-- relatorios executivos exportaveis completos;
-- integracao SIEM;
-- automacoes com IA.
+- regras de fechamento configuráveis;
+- relatórios executivos exportáveis completos;
+- integração SIEM;
+- automações com IA.
 
 ## 4. Ambientes
 
 ### Ambiente local de desenvolvimento
 
-Usado para desenvolvimento, validacao tecnica e testes automatizados.
+Usado para desenvolvimento, validação técnica e testes automatizados.
 
-### Ambiente de homologacao
+### Ambiente de homologação
 
-Ambiente obrigatorio para aceite institucional.
+Ambiente obrigatório para aceite institucional.
 
 Deve conter:
 
@@ -62,67 +62,67 @@ Deve conter:
 - API publicada;
 - frontend publicado;
 - Worker de e-mail configurado;
-- logs acessiveis;
-- backup basico definido;
-- usuarios reais ou massa representativa;
-- configuracao Microsoft Entra ID real ou ambiente controlado equivalente.
+- logs acessíveis;
+- backup básico definido;
+- usuários reais ou massa representativa;
+- configuração Microsoft Entra ID real ou ambiente controlado equivalente.
 
-### Ambiente de producao
+### Ambiente de produção
 
-Somente deve ser preparado apos homologacao aprovada ou aprovada com ressalvas controladas.
+Somente deve ser preparado após homologação aprovada ou aprovada com ressalvas controladas.
 
 ## 5. Perfis envolvidos
 
-A homologacao deve envolver pelo menos:
+A homologação deve envolver pelo menos:
 
-| Perfil | Objetivo da validacao |
+| Perfil | Objetivo da validação |
 |---|---|
-| Administrador | Validar configuracoes, cadastros, permissoes, SLA, catalogo, conhecimento, inventario, auditoria e dashboard. |
-| Atendente | Validar triagem, atendimento, comentarios, anexos, status, SLA, base de conhecimento e vinculo de ativos. |
-| Solicitante | Validar abertura, acompanhamento, comentarios publicos, anexos permitidos, catalogo e base de conhecimento. |
-| Gestor de TI | Validar dashboard, indicadores, governanca e aderencia ao processo. |
-| Responsavel por infraestrutura / identidade | Validar Microsoft Entra ID, e-mail, ambiente, logs e seguranca. |
+| Administrador | Validar configurações, cadastros, permissões, SLA, catálogo, conhecimento, inventário, auditoria e dashboard. |
+| Atendente | Validar triagem, atendimento, comentários, anexos, status, SLA, base de conhecimento e vínculo de ativos. |
+| Solicitante | Validar abertura, acompanhamento, comentários públicos, anexos permitidos, catálogo e base de conhecimento. |
+| Gestor de TI | Validar dashboard, indicadores, governança e aderência ao processo. |
+| Responsável por infraestrutura / identidade | Validar Microsoft Entra ID, e-mail, ambiente, logs e segurança. |
 
-## 6. Criterios gerais de aceite
+## 6. Critérios gerais de aceite
 
-A homologacao sera considerada aprovada quando:
+A homologação será considerada aprovada quando:
 
 - os fluxos principais forem executados com sucesso;
-- as regras de perfil e permissao forem respeitadas;
+- as regras de perfil e permissão forem respeitadas;
 - os dados exibidos estiverem coerentes com o banco;
-- SLA for calculado e exibido corretamente nos cenarios principais;
+- SLA for calculado e exibido corretamente nos cenários principais;
 - abertura por e-mail funcionar em caixa real ou ambiente equivalente validado;
-- autenticacao Microsoft for validada no tenant definido;
-- evidencias forem registradas;
-- pendencias criticas forem corrigidas ou formalmente aceitas como ressalvas;
-- houver registro de responsavel, data, ambiente e resultado.
+- autenticação Microsoft for validada no tenant definido;
+- evidências forem registradas;
+- pendências críticas forem corrigidas ou formalmente aceitas como ressalvas;
+- houver registro de responsável, data, ambiente e resultado.
 
-## 7. Classificacao de resultado
+## 7. Classificação de resultado
 
 | Resultado | Significado |
 |---|---|
-| Aprovado | Funcionalidade validada sem pendencias impeditivas. |
-| Aprovado com ressalvas | Funcionalidade atende ao uso principal, mas possui pendencias controladas. |
-| Reprovado | Funcionalidade possui falha impeditiva ou risco nao aceito. |
-| Nao testado | Cenario nao foi executado. |
+| Aprovado | Funcionalidade validada sem pendências impeditivas. |
+| Aprovado com ressalvas | Funcionalidade atende ao uso principal, mas possui pendências controladas. |
+| Reprovado | Funcionalidade possui falha impeditiva ou risco não aceito. |
+| Não testado | Cenário não foi executado. |
 
-## 8. Evidencias obrigatorias
+## 8. Evidências obrigatórias
 
-Para cada modulo homologado, registrar:
+Para cada módulo homologado, registrar:
 
-- nome do modulo;
-- data da validacao;
-- responsavel pela validacao;
+- nome do módulo;
+- data da validação;
+- responsável pela validação;
 - ambiente utilizado;
-- usuario/perfil utilizado;
+- usuário/perfil utilizado;
 - roteiro executado;
 - resultado;
 - prints das telas principais;
-- observacoes;
-- pendencias;
-- decisao final.
+- observações;
+- pendências;
+- decisão final.
 
-Sugestao de pasta:
+Sugestão de pasta:
 
 ```txt
 docs/02-homologacao/evidencias/
@@ -138,184 +138,184 @@ docs/02-homologacao/evidencias/
   auditoria/
 ```
 
-## 9. Roteiro de homologacao por modulo
+## 9. Roteiro de homologação por módulo
 
-### 9.1 Autenticacao e acesso
+### 9.1 Autenticação e acesso
 
-| Cenario | Perfil | Resultado |
+| Cenário | Perfil | Resultado |
 |---|---|---|
 | Login com Microsoft Entra ID | Todos | Pendente |
-| Validacao de MFA/Conditional Access | Todos | Pendente |
-| Bloqueio de usuario nao autorizado | Usuario externo | Pendente |
-| GET /api/me retorna perfis e permissoes | Todos | Pendente |
-| Logout e expiracao de sessao | Todos | Pendente |
-| Login local controlado, quando aplicavel | Administrador | Pendente |
+| Validação de MFA/Conditional Access | Todos | Pendente |
+| Bloqueio de usuário não autorizado | Usuário externo | Pendente |
+| GET /api/me retorna perfis e permissões | Todos | Pendente |
+| Logout e expiração de sessão | Todos | Pendente |
+| Login local controlado, quando aplicável | Administrador | Pendente |
 
-### 9.2 Perfis e permissoes
+### 9.2 Perfis e permissões
 
-| Cenario | Perfil | Resultado |
+| Cenário | Perfil | Resultado |
 |---|---|---|
-| Administrador acessa area administrativa | Administrador | Pendente |
-| Solicitante nao acessa area administrativa | Solicitante | Pendente |
+| Administrador acessa área administrativa | Administrador | Pendente |
+| Solicitante não acessa área administrativa | Solicitante | Pendente |
 | Atendente acessa apenas recursos permitidos | Atendente | Pendente |
-| Botao/acao sem permissao nao aparece ou e bloqueado | Todos | Pendente |
-| Backend retorna 403 quando permissao ausente | Todos | Pendente |
+| Botão/ação sem permissão não aparece ou é bloqueado | Todos | Pendente |
+| Backend retorna 403 quando permissão ausente | Todos | Pendente |
 
 ### 9.3 Portal do solicitante
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Abrir chamado pelo portal | Pendente |
 | Anexar arquivo permitido | Pendente |
-| Bloquear arquivo invalido | Pendente |
+| Bloquear arquivo inválido | Pendente |
 | Listar chamados do solicitante | Pendente |
 | Abrir detalhe do chamado | Pendente |
-| Enviar comentario publico | Pendente |
-| Visualizar historico publico | Pendente |
+| Enviar comentário público | Pendente |
+| Visualizar histórico público | Pendente |
 
 ### 9.4 Atendimento administrativo
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Listar fila de chamados | Pendente |
-| Filtrar por status, prioridade, categoria e responsavel | Pendente |
+| Filtrar por status, prioridade, categoria e responsável | Pendente |
 | Assumir chamado | Pendente |
 | Alterar status | Pendente |
 | Alterar prioridade/categoria quando permitido | Pendente |
-| Enviar comentario interno | Pendente |
-| Enviar comentario publico | Pendente |
+| Enviar comentário interno | Pendente |
+| Enviar comentário público | Pendente |
 | Anexar arquivo | Pendente |
 | Resolver ou encerrar chamado | Pendente |
-| Reabrir chamado, quando aplicavel | Pendente |
+| Reabrir chamado, quando aplicável | Pendente |
 
 ### 9.5 Abertura por e-mail
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | E-mail novo cria chamado | Pendente |
-| E-mail duplicado nao cria chamado duplicado | Pendente |
-| Resposta por e-mail adiciona comentario | Pendente |
-| Anexo permitido por e-mail e salvo | Pendente |
-| Anexo invalido e rejeitado/logado | Pendente |
-| Log administrativo de e-mail e exibido | Pendente |
-| Falha de processamento e registrada | Pendente |
+| E-mail duplicado não cria chamado duplicado | Pendente |
+| Resposta por e-mail adiciona comentário | Pendente |
+| Anexo permitido por e-mail é salvo | Pendente |
+| Anexo inválido é rejeitado/logado | Pendente |
+| Log administrativo de e-mail é exibido | Pendente |
+| Falha de processamento é registrada | Pendente |
 
 ### 9.6 SLA
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | SLA aplicado na abertura | Pendente |
 | Prazo de primeira resposta calculado | Pendente |
-| Prazo de resolucao calculado | Pendente |
+| Prazo de resolução calculado | Pendente |
 | Primeira resposta registrada | Pendente |
-| Resolucao registrada | Pendente |
+| Resolução registrada | Pendente |
 | Pausa e retomada funcionando | Pendente |
-| Indicador de vencido/proximo do vencimento correto | Pendente |
-| Calendario corporativo aplicado | Pendente |
+| Indicador de vencido/próximo do vencimento correto | Pendente |
+| Calendário corporativo aplicado | Pendente |
 
 ### 9.7 Dashboard
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Cards principais carregam corretamente | Pendente |
-| Filtro por periodo altera indicadores | Pendente |
+| Filtro por período altera indicadores | Pendente |
 | Chamados por status coerentes | Pendente |
 | Chamados por prioridade coerentes | Pendente |
-| SLA vencido/proximo coerente | Pendente |
+| SLA vencido/próximo coerente | Pendente |
 | Produtividade por atendente coerente | Pendente |
-| Resumo da integracao por e-mail coerente | Pendente |
+| Resumo da integração por e-mail coerente | Pendente |
 
 ### 9.8 Cadastros administrativos
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Criar departamento | Pendente |
 | Criar categoria | Pendente |
-| Criar subcategoria vinculada a categoria | Pendente |
+| Criar subcategoria vinculada à categoria | Pendente |
 | Criar prioridade | Pendente |
-| Criar tipo de solicitacao | Pendente |
+| Criar tipo de solicitação | Pendente |
 | Criar local/unidade | Pendente |
-| Inativar cadastro sem excluir historico | Pendente |
-| Bloquear uso de cadastro inativo em nova operacao | Pendente |
+| Inativar cadastro sem excluir histórico | Pendente |
+| Bloquear uso de cadastro inativo em nova operação | Pendente |
 
 ### 9.9 Base de Conhecimento
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Criar artigo | Pendente |
 | Publicar artigo | Pendente |
 | Consultar artigo no portal | Pendente |
-| Bloquear artigo nao publicado | Pendente |
+| Bloquear artigo não publicado | Pendente |
 | Vincular artigo ao chamado | Pendente |
-| Remover vinculo do artigo | Pendente |
+| Remover vínculo do artigo | Pendente |
 | Validar visibilidade por perfil | Pendente |
 
-### 9.10 Catalogo de Servicos
+### 9.10 Catálogo de Serviços
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
-| Criar servico | Pendente |
-| Publicar servico | Pendente |
-| Consultar servico no portal | Pendente |
-| Abrir chamado a partir do servico | Pendente |
+| Criar serviço | Pendente |
+| Publicar serviço | Pendente |
+| Consultar serviço no portal | Pendente |
+| Abrir chamado a partir do serviço | Pendente |
 | Aplicar categoria/subcategoria/prioridade/SLA pelo backend | Pendente |
-| Bloquear servico arquivado/inativo | Pendente |
+| Bloquear serviço arquivado/inativo | Pendente |
 
-### 9.11 Inventario / Ativos
+### 9.11 Inventário / Ativos
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
 | Criar ativo | Pendente |
 | Editar ativo | Pendente |
 | Inativar e reativar ativo | Pendente |
 | Movimentar ativo | Pendente |
-| Visualizar historico do ativo | Pendente |
+| Visualizar histórico do ativo | Pendente |
 | Vincular ativo ao chamado | Pendente |
-| Remover vinculo do ativo | Pendente |
+| Remover vínculo do ativo | Pendente |
 | Consultar chamados relacionados ao ativo | Pendente |
 
 ### 9.12 Auditoria
 
-| Cenario | Resultado |
+| Cenário | Resultado |
 |---|---|
-| Acoes relevantes geram evento de auditoria | Pendente |
+| Ações relevantes geram evento de auditoria | Pendente |
 | Consulta administrativa lista eventos | Pendente |
 | Filtros funcionam | Pendente |
-| Detalhe mostra antes/depois quando aplicavel | Pendente |
-| Usuario, IP e User-Agent sao registrados quando disponiveis | Pendente |
+| Detalhe mostra antes/depois quando aplicável | Pendente |
+| Usuário, IP e User-Agent são registrados quando disponíveis | Pendente |
 
-## 10. Registro consolidado de homologacao
+## 10. Registro consolidado de homologação
 
-| Modulo | Responsavel | Data | Ambiente | Resultado | Observacoes |
+| Módulo | Responsável | Data | Ambiente | Resultado | Observações |
 |---|---|---|---|---|---|
-| Autenticacao |  |  |  | Nao testado |  |
-| Perfis e permissoes |  |  |  | Nao testado |  |
-| Portal |  |  |  | Nao testado |  |
-| Atendimento |  |  |  | Nao testado |  |
-| E-mail |  |  |  | Nao testado |  |
-| SLA |  |  |  | Nao testado |  |
-| Dashboard |  |  |  | Nao testado |  |
-| Cadastros |  |  |  | Nao testado |  |
-| Base de Conhecimento |  |  |  | Nao testado |  |
-| Catalogo de Servicos |  |  |  | Nao testado |  |
-| Inventario/Ativos |  |  |  | Nao testado |  |
-| Auditoria |  |  |  | Nao testado |  |
+| Autenticação |  |  |  | Não testado |  |
+| Perfis e permissões |  |  |  | Não testado |  |
+| Portal |  |  |  | Não testado |  |
+| Atendimento |  |  |  | Não testado |  |
+| E-mail |  |  |  | Não testado |  |
+| SLA |  |  |  | Não testado |  |
+| Dashboard |  |  |  | Não testado |  |
+| Cadastros |  |  |  | Não testado |  |
+| Base de Conhecimento |  |  |  | Não testado |  |
+| Catálogo de Serviços |  |  |  | Não testado |  |
+| Inventário/Ativos |  |  |  | Não testado |  |
+| Auditoria |  |  |  | Não testado |  |
 
-## 11. Criterio para avancar para producao
+## 11. Critério para avançar para produção
 
-O SGX somente deve avancar para producao quando:
+O SGX somente deve avançar para produção quando:
 
-- os modulos essenciais estiverem aprovados ou aprovados com ressalvas controladas;
-- nao houver falha critica de seguranca;
-- autenticacao e autorizacao estiverem validadas;
+- os módulos essenciais estiverem aprovados ou aprovados com ressalvas controladas;
+- não houver falha crítica de segurança;
+- autenticação e autorização estiverem validadas;
 - e-mail e SLA estiverem testados;
 - backup e logs estiverem definidos;
-- responsaveis de suporte estiverem nomeados;
+- responsáveis de suporte estiverem nomeados;
 - plano de rollback estiver definido;
-- a diretoria ou gestor responsavel aprovar formalmente.
+- a diretoria ou gestor responsável aprovar formalmente.
 
-## 12. Conclusao
+## 12. Conclusão
 
-A homologacao deve ser tratada como etapa obrigatoria entre MVP avancado e produto.
+A homologação deve ser tratada como etapa obrigatória entre MVP avançado e produto.
 
-O objetivo nao e apenas testar telas, mas comprovar que o SGX atende aos fluxos principais, respeita seguranca, gera rastreabilidade e pode ser sustentado em ambiente institucional.
+O objetivo não é apenas testar telas, mas comprovar que o SGX atende aos fluxos principais, respeita segurança, gera rastreabilidade e pode ser sustentado em ambiente institucional.
