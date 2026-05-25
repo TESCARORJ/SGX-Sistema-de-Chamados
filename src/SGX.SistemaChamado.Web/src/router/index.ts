@@ -62,6 +62,14 @@ const CatalogoServicosFormPage = () => import('../views/CatalogoServicosFormPage
 const InventarioAtivosListPage = () => import('../views/InventarioAtivosListPage.vue')
 const InventarioAtivosFormPage = () => import('../views/InventarioAtivosFormPage.vue')
 const InventarioAtivosDetalhePage = () => import('../views/InventarioAtivosDetalhePage.vue')
+const RelatoriosAvancadosDashboardPage = () => import('../views/RelatoriosAvancadosDashboardPage.vue')
+const RelatoriosChamadosPage = () => import('../views/RelatoriosChamadosPage.vue')
+const RelatoriosSlaPage = () => import('../views/RelatoriosSlaPage.vue')
+const RelatoriosAprovacoesPage = () => import('../views/RelatoriosAprovacoesPage.vue')
+const RelatoriosCatalogoServicosPage = () => import('../views/RelatoriosCatalogoServicosPage.vue')
+const RelatoriosInventarioAtivosPage = () => import('../views/RelatoriosInventarioAtivosPage.vue')
+const RelatoriosBaseConhecimentoPage = () => import('../views/RelatoriosBaseConhecimentoPage.vue')
+const RelatoriosAuditoriaPage = () => import('../views/RelatoriosAuditoriaPage.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -412,6 +420,46 @@ const routes: RouteRecordRaw[] = [
         path: 'infraestrutura/inventario-ativos/:id/editar',
         name: 'admin-infraestrutura-inventario-ativos-editar',
         component: InventarioAtivosFormPage,
+      },
+      {
+        path: 'relatorios/avancados',
+        name: 'admin-relatorios-avancados-dashboard',
+        component: RelatoriosAvancadosDashboardPage,
+      },
+      {
+        path: 'relatorios/chamados',
+        name: 'admin-relatorios-chamados',
+        component: RelatoriosChamadosPage,
+      },
+      {
+        path: 'relatorios/sla',
+        name: 'admin-relatorios-sla',
+        component: RelatoriosSlaPage,
+      },
+      {
+        path: 'relatorios/aprovacoes',
+        name: 'admin-relatorios-aprovacoes',
+        component: RelatoriosAprovacoesPage,
+      },
+      {
+        path: 'relatorios/catalogo-servicos',
+        name: 'admin-relatorios-catalogo-servicos',
+        component: RelatoriosCatalogoServicosPage,
+      },
+      {
+        path: 'relatorios/inventario-ativos',
+        name: 'admin-relatorios-inventario-ativos',
+        component: RelatoriosInventarioAtivosPage,
+      },
+      {
+        path: 'relatorios/base-conhecimento',
+        name: 'admin-relatorios-base-conhecimento',
+        component: RelatoriosBaseConhecimentoPage,
+      },
+      {
+        path: 'relatorios/auditoria',
+        name: 'admin-relatorios-auditoria',
+        component: RelatoriosAuditoriaPage,
       },
     ],
   },

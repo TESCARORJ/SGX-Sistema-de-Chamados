@@ -47,4 +47,9 @@ public static class PermissoesConstants
     public const string AprovacaoChamadosAprovar = "AprovacaoChamados.Aprovar";
     public const string AprovacaoChamadosReprovar = "AprovacaoChamados.Reprovar";
     public const string AprovacaoChamadosCancelar = "AprovacaoChamados.Cancelar";
+    public const string RelatoriosAvancadosVisualizar = "RelatoriosAvancados.Visualizar";
+    public const string RelatoriosAvancadosExportar = "RelatoriosAvancados.Exportar";
+    public const string RelatoriosAvancadosGerencial = "RelatoriosAvancados.Gerencial";
+    public const string RelatoriosAvancadosOperacional = "RelatoriosAvancados.Operacional";
+    public const string RelatoriosAvancadosAuditoria = "RelatoriosAvancados.Auditoria";
 }

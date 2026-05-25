@@ -49,4 +49,9 @@ public static class PermissionPolicies
     public const string AprovacaoChamadosAprovar = Prefixo + PermissoesConstants.AprovacaoChamadosAprovar;
     public const string AprovacaoChamadosReprovar = Prefixo + PermissoesConstants.AprovacaoChamadosReprovar;
     public const string AprovacaoChamadosCancelar = Prefixo + PermissoesConstants.AprovacaoChamadosCancelar;
+    public const string RelatoriosAvancadosVisualizar = Prefixo + PermissoesConstants.RelatoriosAvancadosVisualizar;
+    public const string RelatoriosAvancadosExportar = Prefixo + PermissoesConstants.RelatoriosAvancadosExportar;
+    public const string RelatoriosAvancadosGerencial = Prefixo + PermissoesConstants.RelatoriosAvancadosGerencial;
+    public const string RelatoriosAvancadosOperacional = Prefixo + PermissoesConstants.RelatoriosAvancadosOperacional;
+    public const string RelatoriosAvancadosAuditoria = Prefixo + PermissoesConstants.RelatoriosAvancadosAuditoria;
 }

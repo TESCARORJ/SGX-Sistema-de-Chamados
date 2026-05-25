@@ -35,6 +35,66 @@ const menu: MenuItem[] = [
     requiredAnyPermissions: [permissoes.dashboardVisualizar],
   },
   {
+    label: 'Relatorios',
+    icon: 'analytics',
+    requiredAnyPermissions: [
+      permissoes.relatoriosAvancadosVisualizar,
+      permissoes.relatoriosAvancadosGerencial,
+      permissoes.relatoriosAvancadosOperacional,
+      permissoes.relatoriosAvancadosAuditoria,
+    ],
+    children: [
+      {
+        label: 'Relatorios avancados',
+        icon: 'dashboard',
+        to: '/admin/relatorios/avancados',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Chamados',
+        icon: 'support_agent',
+        to: '/admin/relatorios/chamados',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'SLA',
+        icon: 'schedule',
+        to: '/admin/relatorios/sla',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Aprovacoes',
+        icon: 'fact_check',
+        to: '/admin/relatorios/aprovacoes',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Catalogo de servicos',
+        icon: 'inventory_2',
+        to: '/admin/relatorios/catalogo-servicos',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Inventario/Ativos',
+        icon: 'memory',
+        to: '/admin/relatorios/inventario-ativos',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosGerencial],
+      },
+      {
+        label: 'Base de conhecimento',
+        icon: 'menu_book',
+        to: '/admin/relatorios/base-conhecimento',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosGerencial],
+      },
+      {
+        label: 'Auditoria',
+        icon: 'manage_search',
+        to: '/admin/relatorios/auditoria',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosAuditoria],
+      },
+    ],
+  },
+  {
     label: 'Atendimento',
     icon: 'support_agent',
     requiredAnyPermissions: [
@@ -362,6 +422,14 @@ const podeVisualizarNotificacoes = computed(() =>
 const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
+  if (route.path.startsWith('/admin/relatorios/avancados')) return 'Relatorios avancados'
+  if (route.path.startsWith('/admin/relatorios/chamados')) return 'Relatorios - Chamados'
+  if (route.path.startsWith('/admin/relatorios/sla')) return 'Relatorios - SLA'
+  if (route.path.startsWith('/admin/relatorios/aprovacoes')) return 'Relatorios - Aprovacoes'
+  if (route.path.startsWith('/admin/relatorios/catalogo-servicos')) return 'Relatorios - Catalogo'
+  if (route.path.startsWith('/admin/relatorios/inventario-ativos')) return 'Relatorios - Inventario'
+  if (route.path.startsWith('/admin/relatorios/base-conhecimento')) return 'Relatorios - Base de conhecimento'
+  if (route.path.startsWith('/admin/relatorios/auditoria')) return 'Relatorios - Auditoria'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
   if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovacao de chamados'
   if (route.path === '/admin/notificacoes') return 'Central de NotificaÃƒÂ§ÃƒÂµes'

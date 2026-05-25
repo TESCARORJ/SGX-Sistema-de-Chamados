@@ -72,6 +72,11 @@ public static class SeedData
     public static readonly Guid PermissaoAprovacaoChamadosAprovarId = Guid.Parse("88888888-8888-8888-8888-888888888859");
     public static readonly Guid PermissaoAprovacaoChamadosReprovarId = Guid.Parse("88888888-8888-8888-8888-888888888860");
     public static readonly Guid PermissaoAprovacaoChamadosCancelarId = Guid.Parse("88888888-8888-8888-8888-888888888861");
+    public static readonly Guid PermissaoRelatoriosAvancadosVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888862");
+    public static readonly Guid PermissaoRelatoriosAvancadosExportarId = Guid.Parse("88888888-8888-8888-8888-888888888863");
+    public static readonly Guid PermissaoRelatoriosAvancadosGerencialId = Guid.Parse("88888888-8888-8888-8888-888888888864");
+    public static readonly Guid PermissaoRelatoriosAvancadosOperacionalId = Guid.Parse("88888888-8888-8888-8888-888888888865");
+    public static readonly Guid PermissaoRelatoriosAvancadosAuditoriaId = Guid.Parse("88888888-8888-8888-8888-888888888866");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -393,7 +398,12 @@ public static class SeedData
         (PermissaoAprovacaoChamadosGerenciarId, "AprovacaoChamados.Gerenciar"),
         (PermissaoAprovacaoChamadosAprovarId, "AprovacaoChamados.Aprovar"),
         (PermissaoAprovacaoChamadosReprovarId, "AprovacaoChamados.Reprovar"),
-        (PermissaoAprovacaoChamadosCancelarId, "AprovacaoChamados.Cancelar")
+        (PermissaoAprovacaoChamadosCancelarId, "AprovacaoChamados.Cancelar"),
+        (PermissaoRelatoriosAvancadosVisualizarId, "RelatoriosAvancados.Visualizar"),
+        (PermissaoRelatoriosAvancadosExportarId, "RelatoriosAvancados.Exportar"),
+        (PermissaoRelatoriosAvancadosGerencialId, "RelatoriosAvancados.Gerencial"),
+        (PermissaoRelatoriosAvancadosOperacionalId, "RelatoriosAvancados.Operacional"),
+        (PermissaoRelatoriosAvancadosAuditoriaId, "RelatoriosAvancados.Auditoria")
     ];
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
@@ -425,7 +435,9 @@ public static class SeedData
         "CatalogoServicos.Visualizar",
         "InventarioAtivos.Visualizar",
         "InventarioAtivos.Movimentar",
-        "InventarioAtivos.VincularChamado"
+        "InventarioAtivos.VincularChamado",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Operacional"
     ];
 
     private static readonly string[] CodigosPermissoesSolicitante =

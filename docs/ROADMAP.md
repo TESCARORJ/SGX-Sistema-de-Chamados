@@ -1,4 +1,4 @@
-# Roadmap SGX Sistema de Chamados
+ï»¿# Roadmap SGX Sistema de Chamados
 
 ## Visao geral
 
@@ -1361,8 +1361,8 @@ Entregas da sprint:
 - enums `StatusCatalogoServico` e `VisibilidadeCatalogoServico`;
 - relacionamentos opcionais com categoria, subcategoria, prioridade, SLA e base de conhecimento;
 - tabela `catalogo_servicos` com indice unico de slug e indices de departamento, status e ativo;
-- permissões `CatalogoServicos.Visualizar`, `CatalogoServicos.Gerenciar`, `CatalogoServicos.Publicar`, `CatalogoServicos.Arquivar`;
-- seed de permissões atualizado;
+- permissï¿½es `CatalogoServicos.Visualizar`, `CatalogoServicos.Gerenciar`, `CatalogoServicos.Publicar`, `CatalogoServicos.Arquivar`;
+- seed de permissï¿½es atualizado;
 - documentacao inicial em `docs/CATALOGO-SERVICOS.md`.
 
 Regras consolidadas:
@@ -1794,3 +1794,34 @@ Percentual: 90%
 
 Situacao atual:
 Aprovacao de chamados implementada funcionalmente. O modulo contempla fundacao tecnica, backend administrativo, aprovacao manual, aprovacao automatica por Catalogo de Servicos, bloqueios operacionais para chamados pendentes ou reprovados, frontend administrativo, acompanhamento no portal do solicitante, historico do chamado, auditoria, permissoes, testes backend/frontend e documentacao. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos e evolucoes futuras como multiplos niveis de aprovacao, alcadas, delegacao, notificacoes avancadas e relatorios.
+
+## Sprint Relatorios Avancados 6 - Fechamento funcional e preparacao de homologacao
+
+Area: Relatorios avancados
+Categoria: Relatorios
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Homologacao funcional preparada
+Percentual: 90%
+
+Objetivo:
+Preparar o fechamento funcional do modulo Relatorios Avancados com checklist de homologacao, estrutura de evidencias, revisoes de UX/seguranca/performance e documentacao final.
+
+Situacao atual:
+Relatorios Avancados implementado funcionalmente. O modulo contempla fundacao tecnica, permissoes, metadados, relatorios de chamados, atendimento, SLA, aprovacoes, catalogo de servicos, inventario/ativos, base de conhecimento e auditoria, alem de frontend administrativo com dashboard, filtros, cards, tabelas, controle por permissoes e exportacao CSV simples de dados carregados. Homologacao funcional preparada com checklist e estrutura de evidencias. Pendem homologacao institucional com usuarios reais, evidencias com prints reais, testes E2E completos, exportacoes avancadas, dashboards configuraveis, cache de indicadores e otimizacoes futuras.
+
+Entregas consolidadas da Sprint 6:
+- checklist formal de homologacao do modulo criado;
+- estrutura de evidencias para validacao funcional/institucional criada;
+- documentacao principal do modulo revisada e consolidada;
+- revisao de UX documentada para dashboard e telas principais;
+- revisao de seguranca documentada sem relaxamento de permissao;
+- revisao basica de performance documentada (AsNoTracking, filtro no banco, projecao DTO);
+- validacoes automatizadas de backend/frontend executadas e registradas.
+
+Pendencias planejadas:
+- homologacao institucional com usuarios reais;
+- evidencias com prints reais;
+- testes E2E completos;
+- exportacoes avancadas e dashboards configuraveis;
+- cache de indicadores, materialized views e otimizacoes para alto volume.

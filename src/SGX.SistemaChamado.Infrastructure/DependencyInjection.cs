@@ -179,6 +179,7 @@ public static class DependencyInjection
         services.AddScoped<IAdminCatalogoServicosUseCases, CatalogoServicosAdminUseCases>();
         services.AddScoped<IAdminInventarioAtivosUseCases, InventarioAtivosAdminUseCases>();
         services.AddScoped<IAdminAprovacaoChamadosUseCases, AprovacaoChamadosAdminUseCases>();
+        services.AddScoped<IAdminRelatoriosAvancadosUseCases, RelatoriosAvancadosAdminUseCases>();
         services.AddScoped<IListarArtigosConhecimentoDoChamadoUseCase, ListarArtigosConhecimentoDoChamadoUseCase>();
         services.AddScoped<IVincularArtigoConhecimentoAoChamadoUseCase, VincularArtigoConhecimentoAoChamadoUseCase>();
         services.AddScoped<IRemoverArtigoConhecimentoDoChamadoUseCase, RemoverArtigoConhecimentoDoChamadoUseCase>();

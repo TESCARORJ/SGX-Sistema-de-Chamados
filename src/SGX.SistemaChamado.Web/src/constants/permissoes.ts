@@ -50,6 +50,11 @@
   aprovacaoChamadosAprovar: 'AprovacaoChamados.Aprovar',
   aprovacaoChamadosReprovar: 'AprovacaoChamados.Reprovar',
   aprovacaoChamadosCancelar: 'AprovacaoChamados.Cancelar',
+  relatoriosAvancadosVisualizar: 'RelatoriosAvancados.Visualizar',
+  relatoriosAvancadosExportar: 'RelatoriosAvancados.Exportar',
+  relatoriosAvancadosGerencial: 'RelatoriosAvancados.Gerencial',
+  relatoriosAvancadosOperacional: 'RelatoriosAvancados.Operacional',
+  relatoriosAvancadosAuditoria: 'RelatoriosAvancados.Auditoria',
 } as const
 
 export const permissoesCriticas = [
