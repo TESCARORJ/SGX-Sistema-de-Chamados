@@ -2,6 +2,11 @@ export type PerfilUsuario = 'Administrador' | 'Atendente' | 'Solicitante'
 export type PermissaoUsuario = string
 export type PerfilEmulado = 'Solicitante' | 'Atendente'
 export type ProvedorPrincipal = 'MicrosoftEntraId' | 'Local' | 'Hibrido'
+export type CodigoProvedorAutenticacao =
+  | 'MicrosoftEntraId'
+  | 'ActiveDirectory'
+  | 'LocalSgx'
+  | 'LocalDevelopment'
 
 export interface UsuarioAutenticado {
   id: string
@@ -12,24 +17,30 @@ export interface UsuarioAutenticado {
   perfis: PerfilUsuario[]
   permissoes: PermissaoUsuario[]
   departamentoId: string | null
-  autenticadoPor: 'MicrosoftEntraId' | 'AzureAd' | 'LocalDevelopment' | 'LocalSgx'
+  autenticadoPor: 'MicrosoftEntraId' | 'AzureAd' | 'ActiveDirectory' | 'LocalDevelopment' | 'LocalSgx'
   deveAlterarSenha: boolean
 }
 
 export interface MeResponse extends UsuarioAutenticado {}
 
 export interface ProvedoresAutenticacaoResponse {
-  provedorPrincipal: ProvedorPrincipal
-  loginMicrosoftHabilitado: boolean
-  loginLocalSgxHabilitado: boolean
-  loginLocalDevelopmentHabilitado: boolean
+  provedores: ProvedorAutenticacaoDto[]
+}
+
+export interface ProvedorAutenticacaoDto {
+  codigo: CodigoProvedorAutenticacao
+  nome: string
+  descricao: string
+  habilitado: boolean
+  principal: boolean
+  ordem: number
 }
 
 export interface LocalLoginResponse {
   accessToken: string
   tokenType: string
   expiresIn: number
-  autenticadoPor: 'LocalSgx'
+  autenticadoPor: 'LocalSgx' | 'ActiveDirectory'
   deveAlterarSenha: boolean
 }
 

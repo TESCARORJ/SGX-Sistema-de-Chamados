@@ -10,8 +10,9 @@ namespace SGX.SistemaChamado.Api.Controllers;
 [Route("api/auth")]
 public sealed class AuthController(
     IAutenticacaoLocalSgxService autenticacaoLocalSgxService,
+    IActiveDirectoryAuthenticationService activeDirectoryAuthenticationService,
     IGestaoSenhaLocalSgxService gestaoSenhaLocalSgxService,
-    IConfiguracaoIntegracaoMicrosoftService configuracaoIntegracaoMicrosoftService,
+    IMetodosLoginAdminService metodosLoginAdminService,
     IUsuarioAtualService usuarioAtualService) : ControllerBase
 {
     [HttpGet("provedores")]
@@ -19,8 +20,40 @@ public sealed class AuthController(
     [ProducesResponseType(typeof(ProvedoresAutenticacaoResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> ObterProvedores(CancellationToken cancellationToken)
     {
-        var response = await configuracaoIntegracaoMicrosoftService.ObterProvedoresAutenticacaoAsync(cancellationToken);
+        var response = await metodosLoginAdminService.ObterProvedoresPublicosAsync(cancellationToken);
         return Ok(response);
+    }
+
+    [HttpPost("ad/login")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(LocalLoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> LoginActiveDirectory([FromBody] LoginActiveDirectoryRequest request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            return BadRequest(new { mensagem = "Payload de login Active Directory inválido." });
+        }
+
+        try
+        {
+            var response = await activeDirectoryAuthenticationService.LoginAsync(request, cancellationToken);
+            return Ok(response);
+        }
+        catch (AcessoNegadoException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { mensagem = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
     }
 
     [HttpPost("local/login")]
@@ -128,4 +161,5 @@ public sealed class AuthController(
         }
     }
 }
+
 

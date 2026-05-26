@@ -136,7 +136,29 @@ public sealed class ListarEventosAuditoriaUseCase(
                 x.Modulo.ToLower().Contains(texto) ||
                 x.Entidade.ToLower().Contains(texto) ||
                 (x.CorrelacaoId != null && x.CorrelacaoId.ToLower().Contains(texto)) ||
+                (x.Metadados != null && x.Metadados.ToLower().Contains(texto)) ||
                 (filtroAcaoTexto.HasValue && x.Acao == filtroAcaoTexto.Value));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Provedor))
+        {
+            var provedor = request.Provedor.Trim().ToLowerInvariant();
+            var filtroProvedor = $"\"provedor\":\"{provedor}\"";
+            query = query.Where(x => x.Metadados != null && x.Metadados.ToLower().Contains(filtroProvedor));
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.TipoEventoAutenticacao))
+        {
+            var tipoEventoAutenticacao = request.TipoEventoAutenticacao.Trim().ToLowerInvariant();
+            var filtroTipoEvento = $"\"tipoeventoautenticacao\":\"{tipoEventoAutenticacao}\"";
+            query = query.Where(x => x.Metadados != null && x.Metadados.ToLower().Contains(filtroTipoEvento));
+        }
+
+        if (request.ResultadoAutenticacao.HasValue)
+        {
+            var resultadoAutenticacao = request.ResultadoAutenticacao.Value.ToString().ToLowerInvariant();
+            var filtroResultado = $"\"resultadoautenticacao\":\"{resultadoAutenticacao}\"";
+            query = query.Where(x => x.Metadados != null && x.Metadados.ToLower().Contains(filtroResultado));
         }
 
         return query;
@@ -201,7 +223,10 @@ public sealed class ListarEventosAuditoriaUseCase(
             x.Nivel,
             x.Sucesso,
             x.IpOrigem,
-            x.CorrelacaoId);
+            x.CorrelacaoId)
+        {
+            Metadados = x.Metadados
+        };
 
     internal static EventoAuditoriaResumoResponse MapResumo(EventoAuditoria x)
         => new(
@@ -217,7 +242,10 @@ public sealed class ListarEventosAuditoriaUseCase(
             x.Nivel,
             x.Sucesso,
             x.IpOrigem,
-            x.CorrelacaoId);
+            x.CorrelacaoId)
+        {
+            Metadados = x.Metadados
+        };
 }
 
 public sealed class ObterEventoAuditoriaUseCase(

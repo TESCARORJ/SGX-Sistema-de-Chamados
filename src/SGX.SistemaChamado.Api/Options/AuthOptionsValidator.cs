@@ -18,17 +18,52 @@ public sealed class AuthOptionsValidator(IHostEnvironment environment) : IValida
             erros.Add("Authentication:ProvedorPrincipal inválido. Use MicrosoftEntraId, Local ou Hibrido.");
         }
 
-        if (options.UsaLoginLocalSgxComoPrincipalOuHibrido() && !options.LoginLocalHabilitado)
+        var configurados = options.ObterCodigosProvedoresConfiguradosNormalizados();
+        var habilitados = options.ObterCodigosProvedoresHabilitadosNormalizados();
+        var principal = options.ObterCodigoProvedorPrincipalNormalizado();
+
+        ValidarCodigosProvedoresBrutos(options.Provedores.Configurados, "Authentication:Provedores:Configurados", erros);
+        ValidarCodigosProvedoresBrutos(options.Provedores.Habilitados, "Authentication:Provedores:Habilitados", erros);
+
+        if (configurados.Length > 0 && !configurados.Contains(principal, StringComparer.OrdinalIgnoreCase))
+        {
+            erros.Add("Authentication:Provedores:Principal deve existir em Authentication:Provedores:Configurados.");
+        }
+
+        if (habilitados.Length > 0 && !habilitados.Contains(principal, StringComparer.OrdinalIgnoreCase))
+        {
+            erros.Add("Authentication:Provedores:Principal deve existir em Authentication:Provedores:Habilitados.");
+        }
+
+        var habilitadosForaConfigurados = habilitados
+            .Where(x => !configurados.Contains(x, StringComparer.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (habilitadosForaConfigurados.Length > 0)
+        {
+            erros.Add(
+                $"Authentication:Provedores:Habilitados contém códigos não configurados: {string.Join(", ", habilitadosForaConfigurados)}.");
+        }
+
+        var localSgxHabilitado = habilitados.Contains(CodigoProvedorAutenticacao.LocalSgx, StringComparer.OrdinalIgnoreCase);
+
+        if (localSgxHabilitado && !options.LoginLocalHabilitado)
+        {
+            erros.Add("Authentication:LoginLocalHabilitado deve ser true quando LocalSgx estiver habilitado.");
+        }
+
+        if (options.UsaLoginLocalSgxComoPrincipalOuHibrido() && !options.LoginLocalHabilitado && !localSgxHabilitado)
         {
             erros.Add("Authentication:LoginLocalHabilitado deve ser true quando ProvedorPrincipal for Local ou Hibrido.");
         }
 
-        if (!environment.IsDevelopment() && options.ModoLocalHabilitado)
+        var localDevelopmentHabilitado = habilitados.Contains(CodigoProvedorAutenticacao.LocalDevelopment, StringComparer.OrdinalIgnoreCase);
+        if (!environment.IsDevelopment() && (options.ModoLocalHabilitado || localDevelopmentHabilitado))
         {
-            erros.Add("Authentication:ModoLocalHabilitado deve ser false fora do ambiente Development.");
+            erros.Add("Authentication:ModoLocalHabilitado e Provedor LocalDevelopment devem ser false fora do ambiente Development.");
         }
 
-        if (options.LoginLocalHabilitado)
+        if (options.LoginLocalHabilitado || localSgxHabilitado)
         {
             if (string.IsNullOrWhiteSpace(options.JwtLocalIssuer))
             {
@@ -73,5 +108,33 @@ public sealed class AuthOptionsValidator(IHostEnvironment environment) : IValida
         }
 
         return erros.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(erros);
+    }
+
+    private static void ValidarCodigosProvedoresBrutos(IEnumerable<string>? codigos, string caminho, ICollection<string> erros)
+    {
+        if (codigos is null)
+        {
+            return;
+        }
+
+        foreach (var codigo in codigos)
+        {
+            var valor = (codigo ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                continue;
+            }
+
+            var valido =
+                string.Equals(valor, CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(valor, CodigoProvedorAutenticacao.ActiveDirectory, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(valor, CodigoProvedorAutenticacao.LocalSgx, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(valor, CodigoProvedorAutenticacao.LocalDevelopment, StringComparison.OrdinalIgnoreCase);
+
+            if (!valido)
+            {
+                erros.Add($"{caminho} contém código inválido: {valor}.");
+            }
+        }
     }
 }

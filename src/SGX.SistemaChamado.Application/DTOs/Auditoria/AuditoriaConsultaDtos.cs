@@ -1,4 +1,5 @@
 using SGX.SistemaChamado.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace SGX.SistemaChamado.Application.DTOs.Auditoria;
 
@@ -17,6 +18,9 @@ public sealed class FiltroEventosAuditoriaRequest
     public string? IpOrigem { get; init; }
     public string? CorrelacaoId { get; init; }
     public string? Texto { get; init; }
+    public string? Provedor { get; init; }
+    public string? TipoEventoAutenticacao { get; init; }
+    public ResultadoEventoAutenticacao? ResultadoAutenticacao { get; init; }
     public int Pagina { get; init; } = 1;
     public int TamanhoPagina { get; init; } = 20;
 }
@@ -44,7 +48,11 @@ public sealed record EventoAuditoriaResumoResponse(
     NivelAuditoria Nivel,
     bool Sucesso,
     string? IpOrigem,
-    string? CorrelacaoId);
+    string? CorrelacaoId)
+{
+    [JsonIgnore]
+    public string? Metadados { get; init; }
+}
 
 public sealed record AuditoriaAgrupamentoResponse(
     string Chave,
@@ -73,6 +81,25 @@ public sealed class AuditoriaDashboardResponse
 public sealed class ListaEventosAuditoriaResponse
 {
     public IReadOnlyCollection<EventoAuditoriaResumoResponse> Items { get; init; } = [];
+    public int Total { get; init; }
+    public int Pagina { get; init; }
+    public int TamanhoPagina { get; init; }
+}
+
+public sealed record EventoAuditoriaAutenticacaoResumoResponse(
+    Guid Id,
+    DateTime DataEvento,
+    string? UsuarioNome,
+    string? UsuarioEmail,
+    string Provedor,
+    string TipoEvento,
+    string Resultado,
+    string? IpOrigem,
+    string Mensagem);
+
+public sealed class ListaEventosAuditoriaAutenticacaoResponse
+{
+    public IReadOnlyCollection<EventoAuditoriaAutenticacaoResumoResponse> Items { get; init; } = [];
     public int Total { get; init; }
     public int Pagina { get; init; }
     public int TamanhoPagina { get; init; }

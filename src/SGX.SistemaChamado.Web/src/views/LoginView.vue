@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { httpClient } from '../services/httpClient'
 import { useAuthStore } from '../stores/authStore'
-import type { ProvedoresAutenticacaoResponse } from '../types/auth'
+import type { CodigoProvedorAutenticacao, ProvedoresAutenticacaoResponse } from '../types/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -13,26 +13,35 @@ const adminLocalNome = 'Administrador SGX'
 
 const emailLocalSgx = ref('')
 const senhaLocalSgx = ref('')
+const usuarioActiveDirectory = ref('')
+const senhaActiveDirectory = ref('')
+const dominioActiveDirectory = ref('')
 const erroLocal = ref<string | null>(null)
 const carregandoProvedores = ref(true)
 const provedores = ref<ProvedoresAutenticacaoResponse | null>(null)
 
-const fallbackLocalDevelopment =
-  !import.meta.env.PROD &&
-  (import.meta.env.DEV || import.meta.env.VITE_AUTH_MODO_LOCAL === 'true')
-
 const autenticando = computed(() => authStore.carregando || authStore.inicializandoSessao)
 const mensagemErro = computed(() => erroLocal.value || authStore.erroAutenticacao || authStore.erro)
 
-const loginMicrosoftDisponivel = computed(() => provedores.value?.loginMicrosoftHabilitado ?? false)
-const loginLocalSgxDisponivel = computed(() => provedores.value?.loginLocalSgxHabilitado ?? false)
-const loginLocalDevelopmentDisponivel = computed(
-  () => provedores.value?.loginLocalDevelopmentHabilitado ?? fallbackLocalDevelopment
+const provedoresDisponiveis = computed(() =>
+  (provedores.value?.provedores ?? [])
+    .filter((provedor) => provedor.habilitado)
+    .sort((a, b) => a.ordem - b.ordem)
 )
+
+function possuiProvedor(codigo: CodigoProvedorAutenticacao): boolean {
+  return provedoresDisponiveis.value.some((provedor) => provedor.codigo === codigo)
+}
+
+const loginMicrosoftDisponivel = computed(() => possuiProvedor('MicrosoftEntraId'))
+const loginActiveDirectoryDisponivel = computed(() => possuiProvedor('ActiveDirectory'))
+const loginLocalSgxDisponivel = computed(() => possuiProvedor('LocalSgx'))
+const loginLocalDevelopmentDisponivel = computed(() => possuiProvedor('LocalDevelopment'))
 
 const possuiAlgumProvedor = computed(
   () =>
     loginMicrosoftDisponivel.value ||
+    loginActiveDirectoryDisponivel.value ||
     loginLocalSgxDisponivel.value ||
     loginLocalDevelopmentDisponivel.value
 )
@@ -44,15 +53,44 @@ async function carregarProvedoresAutenticacao(): Promise<void> {
   try {
     provedores.value = await httpClient.get<ProvedoresAutenticacaoResponse>('/api/auth/provedores')
   } catch {
-    // Mantém a tela utilizável sem erro técnico bloqueante.
     provedores.value = {
-      provedorPrincipal: 'Local',
-      loginMicrosoftHabilitado: false,
-      loginLocalSgxHabilitado: false,
-      loginLocalDevelopmentHabilitado: fallbackLocalDevelopment,
+      provedores: [],
     }
   } finally {
     carregandoProvedores.value = false
+  }
+}
+
+async function entrarComActiveDirectory(): Promise<void> {
+  if (autenticando.value) {
+    return
+  }
+
+  erroLocal.value = null
+
+  const usuario = usuarioActiveDirectory.value.trim()
+  const senha = senhaActiveDirectory.value
+  const dominio = dominioActiveDirectory.value.trim()
+
+  if (!usuario) {
+    erroLocal.value = 'Informe o usuário do Active Directory para continuar.'
+    return
+  }
+
+  if (!senha) {
+    erroLocal.value = 'Informe a senha do Active Directory para continuar.'
+    return
+  }
+
+  try {
+    await authStore.loginActiveDirectory({
+      usuario,
+      senha,
+      dominio: dominio || undefined,
+    })
+    await router.replace(authStore.rotaInicial)
+  } catch (error) {
+    erroLocal.value = error instanceof Error ? error.message : 'Não foi possível concluir o login Active Directory.'
   }
 }
 
@@ -172,8 +210,52 @@ onMounted(() => {
           />
         </q-card-section>
 
-        <q-card-section v-if="loginLocalSgxDisponivel" class="q-px-lg" :class="loginMicrosoftDisponivel ? 'q-pt-none' : 'q-pt-sm'">
-          <div v-if="loginMicrosoftDisponivel" class="row items-center no-wrap q-mb-md">
+        <q-card-section v-if="loginActiveDirectoryDisponivel" class="q-pt-none q-px-lg q-pb-md">
+          <div class="text-body2 text-grey-8 q-mb-sm auth-provider-copy">
+            Entre com sua conta corporativa Active Directory.
+          </div>
+          <q-form class="q-gutter-md" @submit.prevent="entrarComActiveDirectory">
+            <q-input
+              v-model="usuarioActiveDirectory"
+              outlined
+              autocomplete="username"
+              label="Usuário AD"
+              :rules="[(v) => !!String(v || '').trim() || 'Informe o usuário AD']"
+            />
+            <q-input
+              v-model="dominioActiveDirectory"
+              outlined
+              autocomplete="organization"
+              label="Domínio (opcional)"
+            />
+            <q-input
+              v-model="senhaActiveDirectory"
+              outlined
+              type="password"
+              autocomplete="current-password"
+              label="Senha AD"
+              :rules="[(v) => !!String(v || '').trim() || 'Informe a senha AD']"
+            />
+            <q-btn
+              type="submit"
+              color="primary"
+              unelevated
+              icon="domain"
+              class="full-width"
+              size="md"
+              label="Entrar com Active Directory"
+              :loading="autenticando"
+              :disable="autenticando"
+            />
+          </q-form>
+        </q-card-section>
+
+        <q-card-section
+          v-if="loginLocalSgxDisponivel"
+          class="q-px-lg"
+          :class="loginMicrosoftDisponivel || loginActiveDirectoryDisponivel ? 'q-pt-none' : 'q-pt-sm'"
+        >
+          <div v-if="loginMicrosoftDisponivel || loginActiveDirectoryDisponivel" class="row items-center no-wrap q-mb-md">
             <q-separator class="col" inset />
             <div class="q-px-sm text-caption text-grey-7">ou</div>
             <q-separator class="col" inset />

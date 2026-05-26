@@ -108,6 +108,20 @@ public sealed class GestaoSenhaLocalSgxService(
             "Troca de senha local realizada pelo proprio usuario.",
             "AlteracaoSenha",
             cancellationToken);
+        await AuditoriaAutenticacaoHelper.RegistrarEventoAsync(
+            auditoriaService,
+            logger,
+            TipoEventoAutenticacao.TrocaObrigatoriaSenhaConcluida,
+            ResultadoEventoAutenticacao.Sucesso,
+            "Troca de senha local concluida no primeiro acesso.",
+            CodigoProvedorAutenticacao.LocalSgx,
+            usuarioId: usuario.Id,
+            usuarioNome: usuario.Nome,
+            usuarioEmail: usuario.Email,
+            usuarioLogin: usuario.Login,
+            usuarioAlvoId: usuario.Id,
+            usuarioAlvoEmail: usuario.Email,
+            cancellationToken: cancellationToken);
 
         return new MensagemAuthResponse("Senha alterada com sucesso.");
     }
@@ -168,6 +182,20 @@ public sealed class GestaoSenhaLocalSgxService(
             "Solicitacao de recuperacao de senha local registrada.",
             "SolicitacaoRecuperacaoSenha",
             cancellationToken);
+        await AuditoriaAutenticacaoHelper.RegistrarEventoAsync(
+            auditoriaService,
+            logger,
+            TipoEventoAutenticacao.RecuperacaoSenhaSolicitada,
+            ResultadoEventoAutenticacao.Sucesso,
+            "Solicitacao de recuperacao de senha local registrada.",
+            CodigoProvedorAutenticacao.LocalSgx,
+            usuarioId: usuario.Id,
+            usuarioNome: usuario.Nome,
+            usuarioEmail: usuario.Email,
+            usuarioLogin: usuario.Login,
+            usuarioAlvoId: usuario.Id,
+            usuarioAlvoEmail: usuario.Email,
+            cancellationToken: cancellationToken);
 
         return new MensagemAuthResponse(MensagemRecuperacaoGenerica);
     }
@@ -228,6 +256,20 @@ public sealed class GestaoSenhaLocalSgxService(
             "Senha local redefinida por fluxo de recuperacao.",
             "RedefinicaoSenhaRecuperacao",
             cancellationToken);
+        await AuditoriaAutenticacaoHelper.RegistrarEventoAsync(
+            auditoriaService,
+            logger,
+            TipoEventoAutenticacao.RedefinicaoSenhaConcluida,
+            ResultadoEventoAutenticacao.Sucesso,
+            "Redefinicao de senha local concluida por fluxo de recuperacao.",
+            CodigoProvedorAutenticacao.LocalSgx,
+            usuarioId: usuario.Id,
+            usuarioNome: usuario.Nome,
+            usuarioEmail: usuario.Email,
+            usuarioLogin: usuario.Login,
+            usuarioAlvoId: usuario.Id,
+            usuarioAlvoEmail: usuario.Email,
+            cancellationToken: cancellationToken);
 
         return new MensagemAuthResponse("Senha redefinida com sucesso.");
     }

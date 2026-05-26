@@ -7,7 +7,11 @@ public sealed class AzureAdOptionsValidator(
 {
     public ValidateOptionsResult Validate(string? name, AzureAdOptions options)
     {
-        if (!authOptions.Value.UsaMicrosoftComoPrincipalOuHibrido())
+        var auth = authOptions.Value;
+        var microsoftHabilitado = auth.ObterCodigosProvedoresHabilitadosNormalizados()
+            .Contains(CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparer.OrdinalIgnoreCase);
+
+        if (!microsoftHabilitado && !auth.UsaMicrosoftComoPrincipalOuHibrido())
         {
             return ValidateOptionsResult.Success;
         }

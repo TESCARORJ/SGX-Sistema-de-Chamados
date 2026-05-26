@@ -92,6 +92,46 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task LoginLocalSgxPermaneceDisponivelComoContingenciaQuandoMicrosoftEstaDesabilitado()
+    {
+        const string email = "contingencia.local@empresa.com";
+        const string senha = "Senha@123456";
+        await _factory.GarantirUsuarioLocalComSenhaAsync(email, "Administrador Contingencia", senha, TipoPerfil.Administrador);
+
+        using var clientAdmin = _factory.CreateClient();
+        AddDevHeaders(clientAdmin, "admin.contingencia@empresa.com", "Administrador", "Administrador");
+        _ = await clientAdmin.GetAsync("/api/me");
+
+        var atualizacao = await clientAdmin.PutAsJsonAsync("/api/admin/integracoes/microsoft-entra-id", new
+        {
+            habilitado = false,
+            provedorPrincipal = "Local",
+            loginLocalHabilitado = true,
+            tenantId = "",
+            clientId = "",
+            audience = "",
+            issuer = "",
+            authority = "",
+            apiScope = "",
+            redirectUri = "",
+            dominiosPermitidos = Array.Empty<string>(),
+            criarUsuarioAutomaticamente = true,
+            perfilPadraoUsuarioMicrosoft = "Solicitante"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, atualizacao.StatusCode);
+
+        using var clientLogin = _factory.CreateClient();
+        var loginResponse = await clientLogin.PostAsJsonAsync("/api/auth/local/login", new
+        {
+            email,
+            senha
+        });
+
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AuthProvedoresRetornaConfiguracaoEsperada()
     {
         using var client = _factory.CreateClient();
@@ -122,13 +162,189 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
         var payload = await response.Content.ReadAsStringAsync();
         using var json = JsonDocument.Parse(payload);
 
-        var provedorPrincipal = json.RootElement.GetProperty("provedorPrincipal").GetString();
-        Assert.True(
-            provedorPrincipal is "Local" or "Hibrido",
-            $"Provedor principal inesperado: {provedorPrincipal}");
-        _ = json.RootElement.GetProperty("loginMicrosoftHabilitado").GetBoolean();
-        Assert.True(json.RootElement.GetProperty("loginLocalSgxHabilitado").GetBoolean());
-        Assert.True(json.RootElement.GetProperty("loginLocalDevelopmentHabilitado").GetBoolean());
+        var provedores = json.RootElement.GetProperty("provedores").EnumerateArray().ToArray();
+        Assert.NotEmpty(provedores);
+
+        var localSgx = provedores.FirstOrDefault(x => x.GetProperty("codigo").GetString() == "LocalSgx");
+        Assert.True(localSgx.ValueKind != JsonValueKind.Undefined);
+        Assert.True(localSgx.GetProperty("habilitado").GetBoolean());
+        Assert.True(localSgx.GetProperty("principal").GetBoolean());
+
+        var localDevelopment = provedores.FirstOrDefault(x => x.GetProperty("codigo").GetString() == "LocalDevelopment");
+        if (localDevelopment.ValueKind != JsonValueKind.Undefined)
+        {
+            Assert.True(localDevelopment.GetProperty("habilitado").GetBoolean());
+        }
+    }
+
+    [Fact]
+    public async Task LoginActiveDirectoryRetornaBadRequestQuandoProvedorDesabilitado()
+    {
+        using var client = _factory.CreateClient();
+
+        var response = await client.PostAsJsonAsync("/api/auth/ad/login", new
+        {
+            usuario = "thiago",
+            senha = "Senha@123456",
+            dominio = "EMPRESA"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AdminPodeConsultarEModificarMetodosDeLogin()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.auth.methods@empresa.com", "Administrador", "Administrador");
+
+        var getResponse = await client.GetAsync("/api/admin/autenticacao/provedores");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var payloadGet = await getResponse.Content.ReadAsStringAsync();
+        using var jsonGet = JsonDocument.Parse(payloadGet);
+        var provedores = jsonGet.RootElement.GetProperty("provedores").EnumerateArray().ToArray();
+
+        var payloadPut = new
+        {
+            provedores = provedores.Select(p => new
+            {
+                codigo = p.GetProperty("codigo").GetString(),
+                habilitado = p.GetProperty("codigo").GetString() == "LocalSgx",
+                principal = p.GetProperty("codigo").GetString() == "LocalSgx",
+                ordem = p.GetProperty("ordem").GetInt32(),
+                permiteAutoProvisionamento = p.GetProperty("permiteAutoProvisionamento").GetBoolean(),
+                perfilPadraoAutoProvisionamento = p.GetProperty("perfilPadraoAutoProvisionamento").GetString(),
+                rotuloExibicao = p.GetProperty("rotuloExibicao").GetString()
+            }).ToArray()
+        };
+
+        var putResponse = await client.PutAsJsonAsync("/api/admin/autenticacao/provedores", payloadPut);
+        Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+        var authResponse = await client.GetAsync("/api/auth/provedores");
+        Assert.Equal(HttpStatusCode.OK, authResponse.StatusCode);
+        var payloadAuth = await authResponse.Content.ReadAsStringAsync();
+        using var authJson = JsonDocument.Parse(payloadAuth);
+        var publicos = authJson.RootElement.GetProperty("provedores").EnumerateArray().ToArray();
+        Assert.Single(publicos);
+        Assert.Equal("LocalSgx", publicos[0].GetProperty("codigo").GetString());
+    }
+
+    [Fact]
+    public async Task AtendenteSemPermissaoNaoPodeAlterarMetodosDeLogin()
+    {
+        var email = $"atendente.auth.methods.{Guid.NewGuid():N}@empresa.com";
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, email, "Atendente", "Atendente");
+
+        var response = await client.PutAsJsonAsync("/api/admin/autenticacao/provedores", new
+        {
+            provedores = new[]
+            {
+                new
+                {
+                    codigo = "LocalSgx",
+                    habilitado = true,
+                    principal = true,
+                    ordem = 10,
+                    permiteAutoProvisionamento = false,
+                    perfilPadraoAutoProvisionamento = "Solicitante",
+                    rotuloExibicao = "Local SGX"
+                },
+                new
+                {
+                    codigo = "ActiveDirectory",
+                    habilitado = false,
+                    principal = false,
+                    ordem = 20,
+                    permiteAutoProvisionamento = false,
+                    perfilPadraoAutoProvisionamento = "Solicitante",
+                    rotuloExibicao = "Active Directory"
+                },
+                new
+                {
+                    codigo = "MicrosoftEntraId",
+                    habilitado = false,
+                    principal = false,
+                    ordem = 30,
+                    permiteAutoProvisionamento = false,
+                    perfilPadraoAutoProvisionamento = "Solicitante",
+                    rotuloExibicao = "Microsoft Entra ID"
+                },
+                new
+                {
+                    codigo = "LocalDevelopment",
+                    habilitado = false,
+                    principal = false,
+                    ordem = 40,
+                    permiteAutoProvisionamento = false,
+                    perfilPadraoAutoProvisionamento = "Solicitante",
+                    rotuloExibicao = "Local Development"
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+        var evento = await dbContext.EventosAuditoria
+            .OrderByDescending(x => x.DataEvento)
+            .FirstOrDefaultAsync(x =>
+                x.Modulo == "Autenticacao" &&
+                x.Entidade == "MetodosLogin" &&
+                x.Descricao.Contains("Tentativa negada", StringComparison.OrdinalIgnoreCase));
+
+        Assert.NotNull(evento);
+        Assert.False(evento!.Sucesso);
+    }
+
+    [Fact]
+    public async Task AdminPodeConsultarAuditoriaAutenticacao()
+    {
+        const string email = "auditoria.local.sgx@empresa.com";
+        const string senha = "Senha@123456";
+        await _factory.GarantirUsuarioLocalComSenhaAsync(email, "Auditoria Local SGX", senha);
+
+        using (var clientLogin = _factory.CreateClient())
+        {
+            var loginResponse = await clientLogin.PostAsJsonAsync("/api/auth/local/login", new
+            {
+                email,
+                senha
+            });
+
+            Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+        }
+
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.audit.auth@empresa.com", "Administrador", "Administrador");
+
+        var response = await client.GetAsync("/api/admin/auditoria/autenticacao?pagina=1&tamanhoPagina=10&provedor=LocalSgx");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(payload);
+        Assert.True(json.RootElement.TryGetProperty("items", out var items));
+        Assert.Equal(JsonValueKind.Array, items.ValueKind);
+        Assert.NotEmpty(items.EnumerateArray());
+
+        var primeiro = items.EnumerateArray().First();
+        Assert.Equal("LocalSgx", primeiro.GetProperty("provedor").GetString());
+        Assert.True(primeiro.TryGetProperty("tipoEvento", out _));
+        Assert.True(primeiro.TryGetProperty("resultado", out _));
+        Assert.True(primeiro.TryGetProperty("mensagem", out _));
+    }
+
+    [Fact]
+    public async Task AtendenteSemPermissaoNaoPodeConsultarAuditoriaAutenticacao()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.audit.auth@empresa.com", "Atendente", "Atendente");
+
+        var response = await client.GetAsync("/api/admin/auditoria/autenticacao");
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]

@@ -772,6 +772,60 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async loginActiveDirectory(payload: { usuario: string; senha: string; dominio?: string }): Promise<void> {
+      const usuario = payload.usuario?.trim() ?? ''
+      const senha = payload.senha ?? ''
+      const dominio = payload.dominio?.trim() ?? ''
+
+      if (!usuario || !senha) {
+        throw new Error('Informe usuário e senha para login Active Directory.')
+      }
+
+      this.carregando = true
+      this.erro = null
+      this.erroAutenticacao = null
+
+      try {
+        const resposta = await httpClient.post<LocalLoginResponse>('/api/auth/ad/login', {
+          usuario,
+          senha,
+          dominio: dominio || undefined,
+        })
+
+        if (!resposta?.accessToken) {
+          throw new Error('A API não retornou token de acesso para login Active Directory.')
+        }
+
+        setHttpLocalDevHeaders(null)
+        setHttpAuthToken(resposta.accessToken)
+        salvarTokenLocalSgxSessionStorage(resposta.accessToken)
+        limparContextoLocalSessionStorage()
+        limparEmulacaoSessionStorage()
+        this.limparEmulacao()
+        this.token = resposta.accessToken
+
+        await this.carregarMe()
+        if (this.usuario) {
+          this.usuario.deveAlterarSenha = Boolean(resposta.deveAlterarSenha)
+        }
+        this.autenticado = true
+      } catch (error) {
+        limparTokenLocalSgxSessionStorage()
+        this.reset()
+        this.erro =
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível concluir o login Active Directory. Tente novamente.'
+        this.erroAutenticacao = this.erro
+        throw error
+      } finally {
+        this.inicializado = true
+        this.carregandoSessao = false
+        this.inicializandoSessao = false
+        this.carregando = false
+      }
+    },
+
     async loginLocalDev(payload?: { email?: string; nome?: string; perfil?: PerfilUsuario }): Promise<void> {
       if (!this.modoLocal || import.meta.env.PROD) {
         throw new Error('Modo local de autenticacao esta desabilitado.')

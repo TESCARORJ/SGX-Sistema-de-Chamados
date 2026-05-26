@@ -48,6 +48,7 @@ const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
 const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetalheView.vue')
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
 const IntegracaoMicrosoftEntraIdView = () => import('../views/IntegracaoMicrosoftEntraIdView.vue')
+const MetodosLoginAdminView = () => import('../views/MetodosLoginAdminView.vue')
 const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
 const GestaoItsmDocumentacaoView = () => import('../views/GestaoItsmDocumentacaoView.vue')
 const SlaPoliciesAdminView = () => import('../views/SlaPoliciesAdminView.vue')
@@ -55,6 +56,7 @@ const SlaAlertasAdminView = () => import('../views/SlaAlertasAdminView.vue')
 const SlaDashboardAdminView = () => import('../views/SlaDashboardAdminView.vue')
 const SlaCalendariosAdminView = () => import('../views/SlaCalendariosAdminView.vue')
 const AuditoriaAdminView = () => import('../views/AuditoriaAdminView.vue')
+const AuditoriaAutenticacaoAdminView = () => import('../views/AuditoriaAutenticacaoAdminView.vue')
 const BaseConhecimentoListPage = () => import('../views/BaseConhecimentoListPage.vue')
 const BaseConhecimentoFormPage = () => import('../views/BaseConhecimentoFormPage.vue')
 const CatalogoServicosListPage = () => import('../views/CatalogoServicosListPage.vue')
@@ -75,6 +77,7 @@ declare module 'vue-router' {
   interface RouteMeta {
     requiresAuth?: boolean
     perfisPermitidos?: PerfilUsuario[]
+    requiredAnyPermissions?: string[]
   }
 }
 
@@ -321,6 +324,20 @@ const routes: RouteRecordRaw[] = [
         component: IntegracaoMicrosoftEntraIdView,
       },
       {
+        path: 'integracoes/metodos-login',
+        name: 'admin-integracoes-metodos-login',
+        component: MetodosLoginAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+          requiredAnyPermissions: ['AutenticacaoProvedores.Visualizar', 'AutenticacaoProvedores.Gerenciar'],
+        },
+      },
+      {
+        path: 'integracoes/autenticacao/metodos-login',
+        redirect: '/admin/integracoes/metodos-login',
+      },
+      {
         path: 'sla/policies',
         name: 'admin-sla-policies',
         component: SlaPoliciesAdminView,
@@ -374,6 +391,16 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requiresAuth: true,
           perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'governanca/auditoria-autenticacao',
+        name: 'admin-governanca-auditoria-autenticacao',
+        component: AuditoriaAutenticacaoAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+          requiredAnyPermissions: ['AuditoriaAutenticacao.Visualizar'],
         },
       },
       {
@@ -510,6 +537,16 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && perfisPermitidos?.length) {
     const perfisUsuario = authStore.usuario?.perfis ?? []
     const permitido = perfisPermitidos.some((perfil) => perfisUsuario.includes(perfil))
+    if (!permitido) {
+      return '/acesso-negado'
+    }
+  }
+
+  const requiredAnyPermissions = to.meta.requiredAnyPermissions
+  if (to.meta.requiresAuth && requiredAnyPermissions?.length) {
+    const usuarioEhAdministrador = (authStore.usuario?.perfis ?? []).includes('Administrador')
+    const fallbackAdminSemPermissoes = usuarioEhAdministrador && (authStore.usuario?.permissoes?.length ?? 0) === 0
+    const permitido = fallbackAdminSemPermissoes || authStore.possuiAlgumaPermissao(requiredAnyPermissions)
     if (!permitido) {
       return '/acesso-negado'
     }

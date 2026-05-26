@@ -544,6 +544,7 @@ public sealed class UsuarioAtualServiceTests
             new FakeEnvironment { EnvironmentName = environmentName },
             Options.Create(options ?? CriarAuthOptions()),
             Options.Create(azureOptions ?? CriarAzureAdOptions()),
+            new FakeMetodosLoginAdminService(options ?? CriarAuthOptions(), environmentName),
             new FakeConfiguracaoIntegracaoMicrosoftService(
                 options ?? CriarAuthOptions(),
                 azureOptions ?? CriarAzureAdOptions(),
@@ -640,11 +641,31 @@ public sealed class UsuarioAtualServiceTests
         public Task<ProvedoresAutenticacaoResponse> ObterProvedoresAutenticacaoAsync(CancellationToken cancellationToken = default)
         {
             var efetiva = CriarEfetiva();
+            var provedores = new List<ProvedorAutenticacaoDto>();
+            if (efetiva.MicrosoftHabilitado)
+            {
+                provedores.Add(new ProvedorAutenticacaoDto(
+                    Codigo: CodigoProvedorAutenticacao.MicrosoftEntraId,
+                    Nome: "Microsoft Entra ID",
+                    Descricao: string.Empty,
+                    Habilitado: true,
+                    Principal: true,
+                    Ordem: 10));
+            }
+
+            if (efetiva.LoginLocalSgxHabilitado)
+            {
+                provedores.Add(new ProvedorAutenticacaoDto(
+                    Codigo: CodigoProvedorAutenticacao.LocalSgx,
+                    Nome: "Local SGX",
+                    Descricao: string.Empty,
+                    Habilitado: true,
+                    Principal: !efetiva.MicrosoftHabilitado,
+                    Ordem: 30));
+            }
+
             return Task.FromResult(new ProvedoresAutenticacaoResponse(
-                ProvedorPrincipal: efetiva.ProvedorPrincipal,
-                LoginMicrosoftHabilitado: efetiva.MicrosoftHabilitado,
-                LoginLocalSgxHabilitado: efetiva.LoginLocalSgxHabilitado,
-                LoginLocalDevelopmentHabilitado: efetiva.LoginLocalDevelopmentHabilitado));
+                Provedores: provedores));
         }
 
         public Task<ConfiguracaoAutenticacaoEfetiva> ObterConfiguracaoAutenticacaoEfetivaAsync(CancellationToken cancellationToken = default)
@@ -672,6 +693,54 @@ public sealed class UsuarioAtualServiceTests
                 Authority: azureAdOptions.BuildAuthority(),
                 ApiScope: string.Empty,
                 RedirectUri: string.Empty);
+        }
+    }
+
+    private sealed class FakeMetodosLoginAdminService(
+        AuthOptions authOptions,
+        string environmentName) : IMetodosLoginAdminService
+    {
+        public Task<MetodosLoginAdminResponse> ObterConfiguracaoAdminAsync(CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<MetodosLoginAdminResponse> AtualizarConfiguracaoAdminAsync(
+            AtualizarMetodosLoginAdminRequest request,
+            CancellationToken cancellationToken = default)
+            => throw new NotSupportedException();
+
+        public Task<ProvedoresAutenticacaoResponse> ObterProvedoresPublicosAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(new ProvedoresAutenticacaoResponse([]));
+
+        public Task<bool> ProvedorHabilitadoAsync(string codigoProvedor, CancellationToken cancellationToken = default)
+        {
+            var habilitado = authOptions.ObterCodigosProvedoresHabilitadosNormalizados()
+                .Contains(codigoProvedor, StringComparer.OrdinalIgnoreCase);
+            return Task.FromResult(habilitado);
+        }
+
+        public Task<MetodoLoginEfetivo?> ObterMetodoEfetivoAsync(string codigoProvedor, CancellationToken cancellationToken = default)
+        {
+            var habilitado = authOptions.ObterCodigosProvedoresHabilitadosNormalizados()
+                .Contains(codigoProvedor, StringComparer.OrdinalIgnoreCase);
+            var funcional = !string.Equals(codigoProvedor, CodigoProvedorAutenticacao.LocalDevelopment, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase);
+
+            var metodo = new MetodoLoginEfetivo(
+                Codigo: codigoProvedor,
+                Nome: codigoProvedor,
+                Descricao: codigoProvedor,
+                Configurado: true,
+                Habilitado: habilitado,
+                Principal: string.Equals(authOptions.ObterCodigoProvedorPrincipalNormalizado(), codigoProvedor, StringComparison.OrdinalIgnoreCase),
+                Ordem: 10,
+                PermiteAutoProvisionamento: authOptions.CriarUsuarioAutomaticamente,
+                PerfilPadraoAutoProvisionamento: authOptions.PerfilPadraoUsuarioMicrosoft,
+                RotuloExibicao: codigoProvedor,
+                Funcional: funcional,
+                PodeHabilitar: funcional,
+                MotivoBloqueioHabilitar: funcional ? null : "Provedor indisponivel no ambiente atual.");
+
+            return Task.FromResult<MetodoLoginEfetivo?>(metodo);
         }
     }
 }

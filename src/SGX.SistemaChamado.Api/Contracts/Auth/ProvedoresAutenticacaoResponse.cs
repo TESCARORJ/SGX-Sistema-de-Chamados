@@ -1,7 +1,12 @@
-﻿namespace SGX.SistemaChamado.Api.Contracts.Auth;
+namespace SGX.SistemaChamado.Api.Contracts.Auth;
 
 public sealed record ProvedoresAutenticacaoResponse(
-    string ProvedorPrincipal,
-    bool LoginMicrosoftHabilitado,
-    bool LoginLocalSgxHabilitado,
-    bool LoginLocalDevelopmentHabilitado);
+    IReadOnlyCollection<ProvedorAutenticacaoDto> Provedores);
+
+public sealed record ProvedorAutenticacaoDto(
+    string Codigo,
+    string Nome,
+    string Descricao,
+    bool Habilitado,
+    bool Principal,
+    int Ordem);

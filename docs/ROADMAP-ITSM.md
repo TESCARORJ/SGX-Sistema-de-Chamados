@@ -215,6 +215,154 @@ Pendencias evolutivas:
 - Exportar documentacao em PDF.
 - Vincular documentos diretamente aos itens do roadmap.
 
+## Sprint 9 - Execucao assistida da homologacao da autenticacao
+
+Area: Seguranca e Governanca  
+Categoria: Governanca
+
+Status da implementacao: Homologacao assistida executada  
+Status tecnico: Aprovado com ressalvas em 2026-05-26
+
+Objetivo:
+Executar a homologacao pratica assistida do modulo de autenticacao, preencher evidencias e ata institucional, e consolidar parecer final para TI/diretoria.
+
+Entregas consolidadas:
+- `docs/EVIDENCIAS-HOMOLOGACAO-AUTENTICACAO.md` preenchido com os 15 cenarios minimos;
+- classificacao por cenario registrada (`Aprovado`, `Aprovado com ressalvas`, `Reprovado`);
+- `docs/CHECKLIST-EXECUTIVO-AUTENTICACAO.md` preenchido com resumo executivo;
+- `docs/ATA-HOMOLOGACAO-AUTENTICACAO.md` preenchida com parecer final e plano pos-homologacao.
+
+Resultado consolidado da rodada:
+- 15 cenarios executados;
+- 10 aprovados;
+- 5 aprovados com ressalvas;
+- 0 reprovados;
+- parecer final: `Aprovado com ressalvas`.
+
+Ressalvas principais:
+- pendente anexar evidencias visuais (prints) no ambiente publicado;
+- pendente rodada fim-a-fim com contas corporativas reais para AD/LDAPS e Entra ID;
+- pendente assinatura formal da TI/diretoria na ata.
+
+Checklist da sprint:
+- [x] Execucao assistida dos 15 cenarios minimos.
+- [x] Caderno de evidencias preenchido.
+- [x] Checklist executivo preenchido.
+- [x] Ata de homologacao preenchida.
+- [x] Parecer final consolidado.
+- [x] ROADMAP-ITSM atualizado com status real.
+
+Proxima acao:
+- executar rodada presencial no ambiente publicado, anexar prints oficiais por cenario e concluir assinatura institucional da ata.
+
+## Sprint 8 - Evidencias e Ata de Homologacao da Autenticacao
+
+Area: Seguranca e Governanca  
+Categoria: Governanca
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Completo e consolidado em 2026-05-26
+
+Objetivo:
+Preparar o pacote institucional de homologacao da autenticacao para execucao pratica em ambiente homologado, coleta de evidencias e apresentacao para diretoria de TI ou avaliador tecnico.
+
+Entregas consolidadas:
+- modelo de ata institucional de homologacao criado;
+- modelo de evidencias por cenario criado;
+- checklist executivo resumido criado;
+- matriz de resultado institucional (`Aprovado`, `Aprovado com ressalvas`, `Reprovado`) formalizada;
+- secoes de riscos, ressalvas, responsaveis, datas e proximos passos incluidas;
+- `docs/HOMOLOGACAO-AUTENTICACAO.md` atualizado com campos de preenchimento real e referencias do pacote Sprint 8.
+
+Checklist da sprint:
+- [x] Documento `docs/ATA-HOMOLOGACAO-AUTENTICACAO.md` criado.
+- [x] Documento `docs/EVIDENCIAS-HOMOLOGACAO-AUTENTICACAO.md` criado.
+- [x] Documento `docs/CHECKLIST-EXECUTIVO-AUTENTICACAO.md` criado.
+- [x] `docs/HOMOLOGACAO-AUTENTICACAO.md` atualizado com referencia aos novos documentos.
+- [x] `docs/ROADMAP-ITSM.md` atualizado com status da Sprint 8.
+
+Criterio de aceite da sprint:
+- pacote documental institucional pronto para rodada real de homologacao;
+- sem alteracao no codigo do modulo de autenticacao;
+- trilha formal de decisao preparada para governanca e diretoria.
+
+## Sprint 7 - Homologacao operacional e implantacao Cloud/On-Premises
+
+Area: Seguranca e Governanca  
+Categoria: Governanca
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Completo e consolidado em 2026-05-26
+
+Objetivo:
+Consolidar o pacote operacional de homologacao e implantacao do modulo de autenticacao do SGX para cenarios cloud, on-premises e hibridos.
+
+Entregas consolidadas:
+- checklist funcional de homologacao com 20 validacoes obrigatorias e campo de evidencias;
+- runbook operacional para validacao de:
+  - Administrador Local da Instancia;
+  - login `LocalSgx`;
+  - login `ActiveDirectory`;
+  - login `MicrosoftEntraId`;
+  - metodos de login configuraveis;
+  - auditoria de autenticacao;
+- guias de implantacao revisados:
+  - `docs/IMPLANTACAO-CLOUD.md`
+  - `docs/IMPLANTACAO-ON-PREMISES.md`
+  - `docs/IMPLANTACAO-HIBRIDA.md`
+- atualizacao de `README.md` com resumo dos modos de autenticacao e pacote de homologacao.
+
+Checklist da sprint:
+- [x] Documento `docs/HOMOLOGACAO-AUTENTICACAO.md` consolidado com checklist minimo obrigatorio (20 itens).
+- [x] Documento `docs/RUNBOOK-AUTENTICACAO.md` consolidado com roteiro operacional completo.
+- [x] Documento `docs/IMPLANTACAO-CLOUD.md` revisado para operacao cloud.
+- [x] Documento `docs/IMPLANTACAO-ON-PREMISES.md` revisado para operacao on-premises.
+- [x] Documento `docs/IMPLANTACAO-HIBRIDA.md` revisado para operacao hibrida.
+- [x] `README.md` atualizado com resumo dos modos de autenticacao.
+- [x] `ROADMAP-ITSM.md` atualizado com status consolidado.
+
+Status consolidado do modulo de autenticacao (Sprints 1 a 7):
+- provedores configuraveis entregues;
+- Administrador Local da Instancia entregue;
+- Active Directory LDAP/LDAPS entregue;
+- gestao administrativa de metodos de login entregue;
+- auditoria persistida de autenticacao entregue;
+- tela administrativa de auditoria de autenticacao entregue;
+- pacote operacional de homologacao e implantacao entregue.
+
+Criterio de aceite da sprint:
+- documentacao operacional pronta para execucao em homologacao;
+- sem alteracao funcional no modulo de autenticacao;
+- rastreabilidade de validacao por checklist, runbook e evidencias.
+
+## Sprint 6 - Consulta administrativa da Auditoria de Autenticacao (Frontend)
+
+Area: Seguranca e Governanca  
+Categoria: Governanca
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Completo
+
+Entrega consolidada:
+- tela administrativa dedicada criada em `Admin > Governanca > Auditoria de autenticacao`;
+- rota protegida por permissao `AuditoriaAutenticacao.Visualizar`;
+- item de menu condicionado a permissao;
+- filtros por periodo, provedor, resultado, tipo de evento e usuario/e-mail;
+- paginação de resultados;
+- ordenacao por eventos mais recentes;
+- estados de vazio e erro de carregamento;
+- contrato de endpoint de autenticacao ajustado para retorno estruturado (`provedor`, `tipoEvento`, `resultado`, `mensagem`) e filtros dedicados de autenticacao.
+
+Checklist da sprint:
+- [x] Service frontend de auditoria de autenticacao criado.
+- [x] Types/interfaces TypeScript criados.
+- [x] View Vue/Quasar de auditoria de autenticacao criada.
+- [x] Rota protegida registrada.
+- [x] Menu administrativo atualizado.
+- [x] Permissao `AuditoriaAutenticacao.Visualizar` aplicada em menu e rota.
+- [x] Documentacao de auditoria atualizada.
+- [x] Roadmap ITSM atualizado.
+
 ## Sprint Historico/Auditoria 1 - Governanca
 
 Area: Historico/Auditoria
@@ -671,6 +819,57 @@ Pend�ncias de homologa��o:
 
 Mensagem para reuni�o:
 A autentica��o corporativa do SGX est� desenhada para usar Microsoft Entra ID/Azure AD como identidade principal, enquanto o SGX mant�m a autoriza��o interna por perfis e permiss�es. Essa abordagem permite MFA, Conditional Access, acesso fora da rede e melhor governan�a sem transferir regras internas do sistema para o Azure.
+
+## Sprint 2 - Administrador Local da Instancia
+
+Area: Autenticacao corporativa  
+Categoria: Seguranca
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Concluido
+
+Objetivo:
+- consolidar o Administrador Local da Instancia como primeiro acesso administrativo seguro e contingencia operacional.
+
+Checklist tecnico:
+- [x] bootstrap por `SGX_ADMIN_INICIAL_EMAIL`, `SGX_ADMIN_INICIAL_SENHA`, `SGX_ADMIN_INICIAL_NOME`
+- [x] nao criar usuario quando variaveis obrigatorias estao ausentes ou incompletas
+- [x] nao duplicar quando ja existe Administrador ativo
+- [x] rejeitar senha fraca por politica centralizada
+- [x] armazenar senha somente com hash seguro
+- [x] impedir exposicao de senha em logs
+- [x] criar usuario inicial com `DeveAlterarSenha=true`
+- [x] exigir troca de senha no primeiro acesso
+- [x] login local SGX apos troca com `DeveAlterarSenha=false`
+- [x] bloquear login local de usuario inativo
+- [x] validar contingencia administrativa com Microsoft desabilitado
+- [x] documentacao atualizada (`AUTENTICACAO-CORPORATIVA.md` e `ADMINISTRADOR-LOCAL-INSTANCIA.md`)
+
+## Sprint 3 - Active Directory dedicado via LDAP/LDAPS
+
+Area: Autenticacao corporativa  
+Categoria: Seguranca
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Concluido com pendencia de homologacao em AD real
+
+Objetivo:
+- suportar autenticacao on-premises em Active Directory local, com emissao de JWT interno SGX.
+
+Checklist tecnico:
+- [x] `ActiveDirectoryOptions` criado
+- [x] `ActiveDirectoryOptionsValidator` criado
+- [x] `IActiveDirectoryAuthenticationService` criado
+- [x] `ActiveDirectoryAuthenticationService` criado
+- [x] `POST /api/auth/ad/login` implementado
+- [x] emissao de JWT interno com `autenticadoPor=ActiveDirectory`
+- [x] bloqueio quando provedor AD esta desabilitado
+- [x] bloqueio de usuario inativo no SGX com credencial AD valida
+- [x] auto provisionamento configuravel com perfil padrao
+- [x] sem persistencia de senha AD
+- [x] sem log de senha AD
+- [x] testes automatizados de servico/validador e integracao basica
+- [x] documentacao atualizada (`AUTENTICACAO-CORPORATIVA.md` e `CONFIGURACAO-ACTIVE-DIRECTORY.md`)
 
 ## Sprint Autentica��o 7 - Administrador inicial seguro
 
@@ -2310,3 +2509,84 @@ Pendencias planejadas:
 - testes E2E completos;
 - exportacoes avancadas e dashboards configuraveis;
 - cache de indicadores, materialized views e otimizacoes para alto volume.
+
+## Sprint Autenticacao 4 - Gestao administrativa dos metodos de login
+
+Area: Seguranca
+Categoria: Autenticacao
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Sprint 4 concluida apos validacao tecnica
+Percentual: 90%
+
+Objetivo:
+Permitir a gestao administrativa explicita dos metodos de login, com configuracao persistida e aplicacao no endpoint publico do login.
+
+Entregas consolidadas:
+- endpoints administrativos `GET/PUT /api/admin/autenticacao/provedores`;
+- permissoes `AutenticacaoProvedores.Visualizar` e `AutenticacaoProvedores.Gerenciar`;
+- leitura/escrita da configuracao administrativa de provedores;
+- composicao de fallback seguro com configuracao tecnica quando nao ha estado salvo;
+- aplicacao da configuracao efetiva em `GET /api/auth/provedores`;
+- tela administrativa `Metodos de login` no frontend;
+- validacoes de seguranca para impedir estado sem metodo viavel;
+- bloqueio de atribuicao automatica de perfil `Administrador` por AD/Microsoft;
+- testes automatizados de backend/integracao e validacao de build frontend/backend.
+
+Checklist Sprint 4:
+- [x] Provedor habilitado aparece em `/api/auth/provedores`.
+- [x] Provedor desabilitado nao aparece em `/api/auth/provedores`.
+- [x] `LocalDevelopment` nao aparece fora de `Development`.
+- [x] Nao permite salvar sem metodo de login viavel.
+- [x] Nao permite remover ultimo metodo de acesso administrativo sem alternativa.
+- [x] Provedor principal unico validado.
+- [x] Ordem de exibicao respeitada.
+- [x] Auto provisionamento respeita perfil padrao configurado.
+- [x] Usuario sem permissao nao altera metodos de login.
+- [x] Usuario com permissao consulta/altera metodos de login.
+- [x] Documentacao atualizada (`AUTENTICACAO-CORPORATIVA`, `CONFIGURACAO-ACTIVE-DIRECTORY`, `METODOS-DE-LOGIN`).
+
+Pendencias evolutivas:
+- homologacao institucional com politicas corporativas reais de identidade;
+- governanca visual avancada de validacao de conectividade por provedor (sprint futura);
+- trilha de auditoria dedicada para alteracoes administrativas de autenticacao.
+
+## Sprint Autenticacao 5 - Auditoria de autenticacao e metodos de login
+
+Area: Seguranca
+Categoria: Autenticacao
+
+Status da implementacao: Implementado funcionalmente
+Status tecnico: Sprint 5 concluida apos validacao tecnica
+Percentual: 92%
+
+Objetivo:
+Persistir trilha de auditoria para eventos de autenticacao e alteracoes administrativas dos metodos de login.
+
+Entregas consolidadas:
+- classificacao por `TipoEventoAutenticacao` e `ResultadoEventoAutenticacao`;
+- auditoria persistida no banco via `EventoAuditoria` (modulo `Autenticacao`);
+- eventos de login local, AD e Microsoft;
+- eventos de usuario inativo, provedor desabilitado, falha de configuracao e credencial invalida;
+- eventos de auto provisionamento e fluxos de senha local;
+- auditoria administrativa das alteracoes de metodos de login com dados antes/depois;
+- auditoria de tentativa negada por falta de permissao para alterar metodos de login;
+- endpoint dedicado `GET /api/admin/auditoria/autenticacao` com permissao `AuditoriaAutenticacao.Visualizar`;
+- testes automatizados cobrindo cenarios principais e resiliencia (falha de auditoria nao bloqueia login).
+
+Checklist Sprint 5:
+- [x] Login local bem-sucedido gera evento.
+- [x] Login local negado gera evento.
+- [x] Login AD bem-sucedido gera evento.
+- [x] Login AD negado gera evento.
+- [x] Usuario inativo gera evento bloqueado.
+- [x] Alteracao de metodos de login gera evento administrativo.
+- [x] Tentativa sem permissao gera evento negado.
+- [x] Sem vazamento de senha/token nos registros.
+- [x] Falha de auditoria nao impede autenticacao.
+- [x] Documentacao atualizada (`AUTENTICACAO-CORPORATIVA`, `AUDITORIA-AUTENTICACAO`, `METODOS-DE-LOGIN`).
+
+Pendencias evolutivas:
+- filtros especializados por `TipoEventoAutenticacao` e `ResultadoEventoAutenticacao` na UI administrativa;
+- dashboard executivo dedicado para autenticacao e metodos de login;
+- homologacao institucional com politicas de retencao de auditoria por cliente.

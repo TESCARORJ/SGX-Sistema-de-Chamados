@@ -5,6 +5,7 @@ public sealed class AuthOptions
     public const string SectionName = "Authentication";
 
     public string ProvedorPrincipal { get; init; } = ProvedorAutenticacao.MicrosoftEntraId;
+    public ProvedoresAutenticacaoOptions Provedores { get; init; } = new();
     public bool LoginLocalHabilitado { get; init; }
     public bool ModoLocalHabilitado { get; init; }
     public string AdminLocalEmail { get; init; } = "admin@sgxdigital.com";
@@ -20,6 +21,106 @@ public sealed class AuthOptions
     public PoliticaSenhaOptions PoliticaSenha { get; init; } = new();
     public LockoutOptions Lockout { get; init; } = new();
     public RecuperacaoSenhaOptions RecuperacaoSenha { get; init; } = new();
+
+    public bool PossuiConfiguracaoExplicitaProvedoresConfigurados()
+        => (Provedores.Configurados?.Length ?? 0) > 0;
+
+    public bool PossuiConfiguracaoExplicitaProvedoresHabilitados()
+        => (Provedores.Habilitados?.Length ?? 0) > 0;
+
+    public string[] ObterCodigosProvedoresConfiguradosNormalizados()
+    {
+        if (PossuiConfiguracaoExplicitaProvedoresConfigurados())
+        {
+            return NormalizarProvedores(Provedores.Configurados);
+        }
+
+        var legado = new List<string>();
+        if (UsaMicrosoftComoPrincipalOuHibrido())
+        {
+            legado.Add(CodigoProvedorAutenticacao.MicrosoftEntraId);
+        }
+
+        if (UsaLoginLocalSgxComoPrincipalOuHibrido())
+        {
+            legado.Add(CodigoProvedorAutenticacao.LocalSgx);
+        }
+
+        if (ModoLocalHabilitado)
+        {
+            legado.Add(CodigoProvedorAutenticacao.LocalDevelopment);
+        }
+
+        return legado
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    public string[] ObterCodigosProvedoresHabilitadosNormalizados()
+    {
+        if (PossuiConfiguracaoExplicitaProvedoresHabilitados())
+        {
+            return NormalizarProvedores(Provedores.Habilitados);
+        }
+
+        var legado = new List<string>();
+        if (UsaMicrosoftComoPrincipalOuHibrido())
+        {
+            legado.Add(CodigoProvedorAutenticacao.MicrosoftEntraId);
+        }
+
+        if (UsaLoginLocalSgxComoPrincipalOuHibrido() && LoginLocalHabilitado)
+        {
+            legado.Add(CodigoProvedorAutenticacao.LocalSgx);
+        }
+
+        if (ModoLocalHabilitado)
+        {
+            legado.Add(CodigoProvedorAutenticacao.LocalDevelopment);
+        }
+
+        return legado
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    public string ObterCodigoProvedorPrincipalNormalizado()
+    {
+        var principalExplicito = NormalizarCodigoProvedor(Provedores.Principal);
+        if (!string.IsNullOrWhiteSpace(principalExplicito))
+        {
+            return principalExplicito;
+        }
+
+        var legado = ObterProvedorPrincipalNormalizado();
+        if (string.Equals(legado, ProvedorAutenticacao.Local, StringComparison.OrdinalIgnoreCase))
+        {
+            return CodigoProvedorAutenticacao.LocalSgx;
+        }
+
+        return CodigoProvedorAutenticacao.MicrosoftEntraId;
+    }
+
+    public int ObterOrdemProvedor(string codigo, int ordemPadrao)
+    {
+        if (Provedores.Ordem is null || Provedores.Ordem.Count == 0)
+        {
+            return ordemPadrao;
+        }
+
+        foreach (var item in Provedores.Ordem)
+        {
+            var codigoItem = NormalizarCodigoProvedor(item.Key);
+            if (!string.Equals(codigoItem, codigo, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return item.Value > 0 ? item.Value : ordemPadrao;
+        }
+
+        return ordemPadrao;
+    }
 
     public string ObterProvedorPrincipalNormalizado()
     {
@@ -48,6 +149,54 @@ public sealed class AuthOptions
         var provedor = ObterProvedorPrincipalNormalizado();
         return provedor is ProvedorAutenticacao.Local or ProvedorAutenticacao.Hibrido;
     }
+
+    private static string[] NormalizarProvedores(IEnumerable<string>? codigos)
+    {
+        if (codigos is null)
+        {
+            return [];
+        }
+
+        return codigos
+            .Select(NormalizarCodigoProvedor)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray()!;
+    }
+
+    private static string? NormalizarCodigoProvedor(string? codigo)
+    {
+        var valor = (codigo ?? string.Empty).Trim();
+        if (string.Equals(valor, CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparison.OrdinalIgnoreCase))
+        {
+            return CodigoProvedorAutenticacao.MicrosoftEntraId;
+        }
+
+        if (string.Equals(valor, CodigoProvedorAutenticacao.ActiveDirectory, StringComparison.OrdinalIgnoreCase))
+        {
+            return CodigoProvedorAutenticacao.ActiveDirectory;
+        }
+
+        if (string.Equals(valor, CodigoProvedorAutenticacao.LocalSgx, StringComparison.OrdinalIgnoreCase))
+        {
+            return CodigoProvedorAutenticacao.LocalSgx;
+        }
+
+        if (string.Equals(valor, CodigoProvedorAutenticacao.LocalDevelopment, StringComparison.OrdinalIgnoreCase))
+        {
+            return CodigoProvedorAutenticacao.LocalDevelopment;
+        }
+
+        return null;
+    }
+}
+
+public sealed class ProvedoresAutenticacaoOptions
+{
+    public string[] Configurados { get; init; } = [];
+    public string[] Habilitados { get; init; } = [];
+    public string Principal { get; init; } = string.Empty;
+    public Dictionary<string, int> Ordem { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 public sealed class PoliticaSenhaOptions
@@ -76,4 +225,20 @@ public static class ProvedorAutenticacao
     public const string MicrosoftEntraId = "MicrosoftEntraId";
     public const string Local = "Local";
     public const string Hibrido = "Hibrido";
+}
+
+public enum CodigoProvedorAutenticacaoEnum
+{
+    MicrosoftEntraId = 1,
+    ActiveDirectory = 2,
+    LocalSgx = 3,
+    LocalDevelopment = 4
+}
+
+public static class CodigoProvedorAutenticacao
+{
+    public const string MicrosoftEntraId = nameof(CodigoProvedorAutenticacaoEnum.MicrosoftEntraId);
+    public const string ActiveDirectory = nameof(CodigoProvedorAutenticacaoEnum.ActiveDirectory);
+    public const string LocalSgx = nameof(CodigoProvedorAutenticacaoEnum.LocalSgx);
+    public const string LocalDevelopment = nameof(CodigoProvedorAutenticacaoEnum.LocalDevelopment);
 }

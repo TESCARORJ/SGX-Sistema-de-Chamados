@@ -13,6 +13,8 @@ public static class PermissoesConstants
     public const string IntegracoesEmailVisualizar = "IntegracoesEmail.Visualizar";
     public const string IntegracoesMicrosoftVisualizar = "IntegracoesMicrosoft.Visualizar";
     public const string IntegracoesMicrosoftGerenciar = "IntegracoesMicrosoft.Gerenciar";
+    public const string AutenticacaoProvedoresVisualizar = "AutenticacaoProvedores.Visualizar";
+    public const string AutenticacaoProvedoresGerenciar = "AutenticacaoProvedores.Gerenciar";
     public const string UsuariosRedefinirSenha = "Usuarios.RedefinirSenha";
     public const string ChamadosAssumir = "Chamados.Assumir";
     public const string ChamadosAtribuir = "Chamados.Atribuir";
@@ -27,6 +29,7 @@ public static class PermissoesConstants
     public const string SlaExcluir = "Sla.Excluir";
     public const string SlaAtivarDesativar = "Sla.AtivarDesativar";
     public const string AuditoriaVisualizar = "Auditoria.Visualizar";
+    public const string AuditoriaAutenticacaoVisualizar = "AuditoriaAutenticacao.Visualizar";
     public const string AuditoriaGerenciar = "Auditoria.Gerenciar";
     public const string BaseConhecimentoVisualizar = "BaseConhecimento.Visualizar";
     public const string BaseConhecimentoGerenciar = "BaseConhecimento.Gerenciar";

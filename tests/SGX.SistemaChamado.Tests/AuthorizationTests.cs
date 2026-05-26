@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Services;
 
@@ -114,7 +115,7 @@ public sealed class AuthorizationTests
             [PerfisInternos.Atendente],
             [PermissoesConstants.ChamadosAssumir]));
 
-        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor());
+        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor(), NullLogger<PermissionAuthorizationHandler>.Instance);
         var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
         var context = CriarContexto(requirement);
 
@@ -137,7 +138,7 @@ public sealed class AuthorizationTests
             [PerfisInternos.Atendente],
             [PermissoesConstants.ChamadosAtribuir]));
 
-        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor());
+        var handler = new PermissionAuthorizationHandler(service, CriarHttpContextAccessor(), NullLogger<PermissionAuthorizationHandler>.Instance);
         var requirement = new PermissionRequirement(PermissoesConstants.ChamadosAssumir);
         var context = CriarContexto(requirement);
 

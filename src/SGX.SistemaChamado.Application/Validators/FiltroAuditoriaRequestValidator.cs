@@ -27,6 +27,14 @@ public sealed class FiltroEventosAuditoriaRequestValidator : AbstractValidator<F
             .MaximumLength(120)
             .WithMessage("CorrelacaoId deve ter no maximo 120 caracteres.");
 
+        RuleFor(x => x.Provedor)
+            .MaximumLength(80)
+            .WithMessage("Provedor deve ter no maximo 80 caracteres.");
+
+        RuleFor(x => x.TipoEventoAutenticacao)
+            .MaximumLength(120)
+            .WithMessage("TipoEventoAutenticacao deve ter no maximo 120 caracteres.");
+
         RuleFor(x => x)
             .Must(x => !x.DataInicio.HasValue || !x.DataFim.HasValue || x.DataFim.Value.Date >= x.DataInicio.Value.Date)
             .WithMessage("DataFim deve ser maior ou igual a DataInicio.");

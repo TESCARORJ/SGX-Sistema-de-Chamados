@@ -5,7 +5,6 @@ using SGX.SistemaChamado.Api.Authentication;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Exceptions;
 using SGX.SistemaChamado.Api.Options;
-using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -19,12 +18,14 @@ public sealed class UsuarioAtualService(
     IHostEnvironment environment,
     IOptions<AuthOptions> authOptions,
     IOptions<AzureAdOptions> azureAdOptions,
+    IMetodosLoginAdminService metodosLoginAdminService,
     IConfiguracaoIntegracaoMicrosoftService configuracaoIntegracaoMicrosoftService,
     IAuditoriaService? auditoriaService = null) : IUsuarioAtualService
 {
     private const string CacheKey = "sgx.usuario_atual";
     private const string OrigemAutenticacaoMicrosoft = "MicrosoftEntraId";
     private const string OrigemAutenticacaoLocalSgx = "LocalSgx";
+    private const string OrigemAutenticacaoActiveDirectory = "ActiveDirectory";
 
     public async Task<UsuarioAutenticadoContexto> ObterAsync(CancellationToken cancellationToken = default)
     {
@@ -44,10 +45,20 @@ public sealed class UsuarioAtualService(
 
         var autenticadoPorLocalDevelopment =
             string.Equals(principal.Identity.AuthenticationType, AuthSchemes.LocalDevelopment, StringComparison.Ordinal);
+        var autenticadoPorActiveDirectory =
+            string.Equals(ObterClaim(principal, "auth_provider", "autenticado_por"), OrigemAutenticacaoActiveDirectory, StringComparison.Ordinal);
         var autenticadoPorLocalSgx =
-            string.Equals(principal.Identity?.AuthenticationType, AuthSchemes.BearerLocalSgx, StringComparison.Ordinal) ||
+            (string.Equals(principal.Identity?.AuthenticationType, AuthSchemes.BearerLocalSgx, StringComparison.Ordinal) && !autenticadoPorActiveDirectory) ||
             string.Equals(ObterClaim(principal, "auth_provider", "autenticado_por"), OrigemAutenticacaoLocalSgx, StringComparison.Ordinal);
         var configuracaoAuthEfetiva = await configuracaoIntegracaoMicrosoftService.ObterConfiguracaoAutenticacaoEfetivaAsync(cancellationToken);
+        var autenticadoPorMicrosoft = !autenticadoPorLocalDevelopment && !autenticadoPorLocalSgx && !autenticadoPorActiveDirectory;
+        var configuracaoMetodoMicrosoft = autenticadoPorMicrosoft
+            ? await metodosLoginAdminService.ObterMetodoEfetivoAsync(CodigoProvedorAutenticacao.MicrosoftEntraId, cancellationToken)
+            : null;
+        var autoProvisionamentoMicrosoft = configuracaoMetodoMicrosoft?.PermiteAutoProvisionamento
+            ?? configuracaoAuthEfetiva.CriarUsuarioAutomaticamente;
+        var perfilPadraoMicrosoft = configuracaoMetodoMicrosoft?.PerfilPadraoAutoProvisionamento
+            ?? configuracaoAuthEfetiva.PerfilPadraoUsuarioMicrosoft;
 
         var identidade = ObterIdentidadeCorporativa(principal);
 
@@ -56,6 +67,9 @@ public sealed class UsuarioAtualService(
             await RegistrarAutenticacaoCorporativaAsync(
                 false,
                 "Falha de autenticacao corporativa por claims insuficientes.",
+                tipoEvento: TipoEventoAutenticacao.FalhaCredencialInvalida,
+                resultado: ResultadoEventoAutenticacao.Falha,
+                provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                 "Claims de identidade ausentes.",
                 identidadeEmail: identidade.Email,
                 identidadeLogin: identidade.Login,
@@ -64,13 +78,19 @@ public sealed class UsuarioAtualService(
                 "Nao foi possivel identificar o usuario autenticado. Claims esperadas: preferred_username, email, upn ou unique_name.");
         }
 
-        if (!autenticadoPorLocalDevelopment && !autenticadoPorLocalSgx)
+        if (autenticadoPorMicrosoft)
         {
-            if (!configuracaoAuthEfetiva.MicrosoftHabilitado)
+            if (!configuracaoAuthEfetiva.MicrosoftHabilitado
+                || configuracaoMetodoMicrosoft is null
+                || !configuracaoMetodoMicrosoft.Habilitado
+                || !configuracaoMetodoMicrosoft.Funcional)
             {
                 await RegistrarAutenticacaoCorporativaAsync(
                     false,
                     "Falha de autenticacao corporativa por provedor Microsoft desabilitado.",
+                    tipoEvento: TipoEventoAutenticacao.ProvedorDesabilitadoTentativaLogin,
+                    resultado: ResultadoEventoAutenticacao.Negado,
+                    provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                     "Conta Microsoft nao permitida para este ambiente.",
                     identidadeEmail: identidade.Email,
                     identidadeLogin: identidade.Login,
@@ -87,6 +107,9 @@ public sealed class UsuarioAtualService(
                 await RegistrarAutenticacaoCorporativaAsync(
                     false,
                     "Falha de autenticacao corporativa por tenant/token invalido.",
+                    tipoEvento: TipoEventoAutenticacao.FalhaCredencialInvalida,
+                    resultado: ResultadoEventoAutenticacao.Falha,
+                    provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                     ex.Message,
                     identidadeEmail: identidade.Email,
                     identidadeLogin: identidade.Login,
@@ -104,6 +127,9 @@ public sealed class UsuarioAtualService(
                 await RegistrarAutenticacaoCorporativaAsync(
                     false,
                     "Falha de autenticacao corporativa por dominio nao permitido.",
+                    tipoEvento: TipoEventoAutenticacao.FalhaCredencialInvalida,
+                    resultado: ResultadoEventoAutenticacao.Falha,
+                    provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                     ex.Message,
                     identidadeEmail: identidade.Email,
                     identidadeLogin: identidade.Login,
@@ -117,11 +143,18 @@ public sealed class UsuarioAtualService(
 
         if (usuario is null)
         {
-            if (autenticadoPorLocalSgx || (!autenticadoPorLocalDevelopment && !configuracaoAuthEfetiva.CriarUsuarioAutomaticamente))
+            if (autenticadoPorLocalSgx || autenticadoPorActiveDirectory || (autenticadoPorMicrosoft && !autoProvisionamentoMicrosoft))
             {
                 await RegistrarAutenticacaoCorporativaAsync(
                     false,
                     "Falha de autenticacao corporativa por usuario interno nao provisionado.",
+                    tipoEvento: TipoEventoAutenticacao.FalhaCredencialInvalida,
+                    resultado: ResultadoEventoAutenticacao.Negado,
+                    provedor: autenticadoPorActiveDirectory
+                        ? CodigoProvedorAutenticacao.ActiveDirectory
+                        : autenticadoPorLocalSgx
+                            ? CodigoProvedorAutenticacao.LocalSgx
+                            : CodigoProvedorAutenticacao.MicrosoftEntraId,
                     "Usuario nao provisionado no SGX Sistema de Chamados.",
                     identidadeEmail: identidade.Email,
                     identidadeLogin: identidade.Login,
@@ -134,12 +167,15 @@ public sealed class UsuarioAtualService(
                 identidade.Nome,
                 identidade.Email,
                 identidade.Login,
-                configuracaoAuthEfetiva.PerfilPadraoUsuarioMicrosoft,
+                perfilPadraoMicrosoft,
                 cancellationToken);
 
             await RegistrarAutenticacaoCorporativaAsync(
                 true,
                 "Usuario interno criado automaticamente por autenticacao corporativa.",
+                tipoEvento: TipoEventoAutenticacao.AutoProvisionamentoUsuario,
+                resultado: ResultadoEventoAutenticacao.Sucesso,
+                provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                 identidadeEmail: usuario.Email,
                 identidadeLogin: usuario.Login,
                 tenantId: ObterClaim(principal, "tid"),
@@ -153,6 +189,13 @@ public sealed class UsuarioAtualService(
             await RegistrarAutenticacaoCorporativaAsync(
                 false,
                 "Falha de autenticacao corporativa para usuario interno inativo.",
+                tipoEvento: TipoEventoAutenticacao.UsuarioInativoBloqueado,
+                resultado: ResultadoEventoAutenticacao.Bloqueado,
+                provedor: autenticadoPorActiveDirectory
+                    ? CodigoProvedorAutenticacao.ActiveDirectory
+                    : autenticadoPorLocalSgx
+                        ? CodigoProvedorAutenticacao.LocalSgx
+                        : CodigoProvedorAutenticacao.MicrosoftEntraId,
                 "Usuario inativo no SGX Sistema de Chamados.",
                 identidadeEmail: identidade.Email,
                 identidadeLogin: identidade.Login,
@@ -186,6 +229,8 @@ public sealed class UsuarioAtualService(
 
         var autenticadoPor = autenticadoPorLocalDevelopment
             ? AuthSchemes.LocalDevelopment
+            : autenticadoPorActiveDirectory
+                ? OrigemAutenticacaoActiveDirectory
             : autenticadoPorLocalSgx
                 ? OrigemAutenticacaoLocalSgx
                 : OrigemAutenticacaoMicrosoft;
@@ -204,11 +249,14 @@ public sealed class UsuarioAtualService(
 
         httpContext.Items[CacheKey] = contexto;
 
-        if (!autenticadoPorLocalDevelopment && !autenticadoPorLocalSgx)
+        if (!autenticadoPorLocalDevelopment && !autenticadoPorLocalSgx && !autenticadoPorActiveDirectory)
         {
             await RegistrarAutenticacaoCorporativaAsync(
                 true,
                 "Login Microsoft Entra ID realizado com sucesso.",
+                tipoEvento: TipoEventoAutenticacao.LoginMicrosoftEntraIdSucesso,
+                resultado: ResultadoEventoAutenticacao.Sucesso,
+                provedor: CodigoProvedorAutenticacao.MicrosoftEntraId,
                 identidadeEmail: usuario.Email,
                 identidadeLogin: usuario.Login,
                 tenantId: ObterClaim(principal, "tid"),
@@ -488,6 +536,9 @@ public sealed class UsuarioAtualService(
     private async Task RegistrarAutenticacaoCorporativaAsync(
         bool sucesso,
         string descricao,
+        TipoEventoAutenticacao tipoEvento,
+        ResultadoEventoAutenticacao resultado,
+        string provedor,
         string? mensagemErro = null,
         string? identidadeEmail = null,
         string? identidadeLogin = null,
@@ -503,8 +554,8 @@ public sealed class UsuarioAtualService(
 
         await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
         {
-            Modulo = "Autenticacao Corporativa",
-            Entidade = "Autenticacao",
+            Modulo = AuditoriaAutenticacaoHelper.ModuloAutenticacao,
+            Entidade = AuditoriaAutenticacaoHelper.EntidadeAutenticacao,
             EntidadeId = usuarioId?.ToString(),
             Acao = TipoAcaoAuditoria.Login,
             Descricao = descricao,
@@ -514,18 +565,16 @@ public sealed class UsuarioAtualService(
             UsuarioId = usuarioId,
             UsuarioEmail = identidadeEmail,
             UsuarioLogin = identidadeLogin,
-            Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
-                origem: "api",
-                modulo: "Autenticacao Corporativa",
-                entidade: "Autenticacao",
-                entidadeId: usuarioId?.ToString(),
-                codigo: tenantId,
-                nome: identidadeEmail,
-                operacao: "LoginMicrosoft",
-                resultado: sucesso ? "Sucesso" : "Falha",
-                observacao: string.IsNullOrWhiteSpace(usuarioInterno)
-                    ? null
-                    : $"Usuario interno: {usuarioInterno}")
+            Metadados = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                tipoEventoAutenticacao = tipoEvento.ToString(),
+                resultadoAutenticacao = resultado.ToString(),
+                provedor,
+                tenantId,
+                usuarioInterno,
+                identidadeEmail,
+                identidadeLogin
+            })
         }, cancellationToken);
     }
 }

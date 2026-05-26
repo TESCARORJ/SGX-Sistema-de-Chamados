@@ -47,6 +47,11 @@ public static class ServiceCollectionExtensions
             .Bind(configuration.GetSection(AzureAdOptions.SectionName))
             .ValidateOnStart();
 
+        services.AddSingleton<IValidateOptions<ActiveDirectoryOptions>, ActiveDirectoryOptionsValidator>();
+        services.AddOptions<ActiveDirectoryOptions>()
+            .Bind(configuration.GetSection(ActiveDirectoryOptions.SectionName))
+            .ValidateOnStart();
+
         services.AddOptions<SlaMonitoringOptions>()
             .Bind(configuration.GetSection(SlaMonitoringOptions.SectionName))
             .Validate(options => options.IntervalMinutes > 0, "IntervalMinutes deve ser maior que zero.");
@@ -59,8 +64,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPoliticaSenhaService, PoliticaSenhaService>();
         services.AddScoped<ITokenRecuperacaoSenhaService, TokenRecuperacaoSenhaService>();
         services.AddScoped<IAutenticacaoLocalSgxService, AutenticacaoLocalSgxService>();
+        services.AddScoped<IActiveDirectoryCredentialValidator, ActiveDirectoryCredentialValidator>();
+        services.AddScoped<IActiveDirectoryAuthenticationService, ActiveDirectoryAuthenticationService>();
         services.AddScoped<IGestaoSenhaLocalSgxService, GestaoSenhaLocalSgxService>();
         services.AddScoped<IConfiguracaoIntegracaoMicrosoftService, ConfiguracaoIntegracaoMicrosoftService>();
+        services.AddScoped<IMetodosLoginAdminService, MetodosLoginAdminService>();
         services.AddScoped<IAdministradorInicialService, AdministradorInicialService>();
         services.AddScoped<DevelopmentSeedService>();
         services.AddHostedService<SlaMonitoringBackgroundService>();

@@ -9,6 +9,7 @@ namespace SGX.SistemaChamado.Api.Authorization;
 public sealed class PermissionAuthorizationHandler(
     IUsuarioAtualService usuarioAtualService,
     IHttpContextAccessor httpContextAccessor,
+    ILogger<PermissionAuthorizationHandler> logger,
     IAuditoriaService? auditoriaService = null)
     : AuthorizationHandler<PermissionRequirement>
 {
@@ -87,6 +88,19 @@ public sealed class PermissionAuthorizationHandler(
                 resultado: "Negado",
                 observacao: "Permissao insuficiente")
         });
+
+        if (string.Equals(requirement.CodigoPermissao, PermissoesConstants.AutenticacaoProvedoresGerenciar, StringComparison.OrdinalIgnoreCase))
+        {
+            await AuditoriaAutenticacaoHelper.RegistrarEventoAdministrativoAsync(
+                auditoriaService,
+                logger,
+                TipoEventoAutenticacao.TentativaNegadaAlteracaoMetodosLogin,
+                ResultadoEventoAutenticacao.Negado,
+                "Tentativa negada de alteracao dos metodos de login por falta de permissao.",
+                "Administracao",
+                entidadeId: "metodos-login",
+                mensagemTecnica: $"Permissao requerida: {requirement.CodigoPermissao}");
+        }
     }
 
     private static HashSet<string> ObterPermissoesAuditadas(HttpContext httpContext)

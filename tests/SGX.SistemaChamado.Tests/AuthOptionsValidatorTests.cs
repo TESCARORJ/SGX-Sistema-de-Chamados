@@ -70,6 +70,31 @@ public sealed class AuthOptionsValidatorTests
         Assert.True(resultado.Succeeded);
     }
 
+    [Fact]
+    public void DeveFalharQuandoLocalDevelopmentHabilitadoForaDeDevelopmentPeloCatalogo()
+    {
+        var validator = new AuthOptionsValidator(new FakeEnvironment { EnvironmentName = "Production" });
+
+        var resultado = validator.Validate(null, new AuthOptions
+        {
+            ProvedorPrincipal = ProvedorAutenticacao.Local,
+            LoginLocalHabilitado = true,
+            Provedores = new ProvedoresAutenticacaoOptions
+            {
+                Configurados = [CodigoProvedorAutenticacao.LocalSgx, CodigoProvedorAutenticacao.LocalDevelopment],
+                Habilitados = [CodigoProvedorAutenticacao.LocalSgx, CodigoProvedorAutenticacao.LocalDevelopment],
+                Principal = CodigoProvedorAutenticacao.LocalSgx
+            },
+            JwtLocalIssuer = "SGX.Local",
+            JwtLocalAudience = "SGX.Api",
+            JwtLocalChaveAssinatura = "sgx-chave-local-super-segura-com-32-caracteres",
+            JwtLocalExpiracaoMinutos = 120
+        });
+
+        Assert.True(resultado.Failed);
+        Assert.Contains(resultado.Failures!, x => x.Contains("LocalDevelopment", StringComparison.Ordinal));
+    }
+
     private sealed class FakeEnvironment : Microsoft.Extensions.Hosting.IHostEnvironment
     {
         public string EnvironmentName { get; set; } = "Development";

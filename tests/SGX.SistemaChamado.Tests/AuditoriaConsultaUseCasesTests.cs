@@ -63,6 +63,29 @@ public sealed class AuditoriaConsultaUseCasesTests
     }
 
     [Fact]
+    public async Task FiltroDeAutenticacaoPorProvedorTipoEventoEResultadoFunciona()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        await SeedEventosAsync(context);
+        var usuarioContexto = CriarUsuarioAdminContexto();
+
+        var useCase = new ListarEventosAuditoriaUseCase(
+            PortalUseCasesTestFactory.Repo<EventoAuditoria>(context),
+            new FakeUsuarioContextoAplicacaoService(usuarioContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroEventosAuditoriaRequest
+        {
+            Modulo = "Autenticacao",
+            Provedor = "LocalSgx",
+            TipoEventoAutenticacao = "LoginLocalSgxSucesso",
+            ResultadoAutenticacao = ResultadoEventoAutenticacao.Sucesso
+        });
+
+        var evento = Assert.Single(response.Items);
+        Assert.Contains("Autenticacao", evento.Modulo, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task DetalheRetornaDadosAntesDepoisMetadados()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
@@ -170,7 +193,7 @@ public sealed class AuditoriaConsultaUseCasesTests
                 "Login local realizado com sucesso.",
                 null,
                 null,
-                "{\"origem\":\"api\"}",
+                "{\"origem\":\"api\",\"tipoEventoAutenticacao\":\"LoginLocalSgxSucesso\",\"resultadoAutenticacao\":\"Sucesso\",\"provedor\":\"LocalSgx\"}",
                 NivelAuditoria.Informacao,
                 true,
                 null,

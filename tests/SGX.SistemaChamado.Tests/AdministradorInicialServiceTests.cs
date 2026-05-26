@@ -82,6 +82,34 @@ public sealed class AdministradorInicialServiceTests
     }
 
     [Fact]
+    public async Task NaoCriaAdministradorQuandoFaltaQualquerVariavelObrigatoria()
+    {
+        await MutexAmbiente.WaitAsync();
+        try
+        {
+            using var contexto = PortalUseCasesTestFactory.CriarContexto();
+            var logger = new TestLogger<AdministradorInicialService>();
+            var service = CriarService(contexto, logger);
+
+            using var _ = new EscopoVariaveisAmbiente(new Dictionary<string, string?>
+            {
+                [VariavelEmail] = "admin.incompleto@empresa.com",
+                [VariavelSenha] = null,
+                [VariavelNome] = "Administrador Incompleto"
+            });
+
+            await service.SeedAsync();
+
+            Assert.Null(await contexto.Usuarios.FirstOrDefaultAsync(x => x.Email == "admin.incompleto@empresa.com"));
+            Assert.Contains(logger.Messages, x => x.Contains("incompletas", StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            MutexAmbiente.Release();
+        }
+    }
+
+    [Fact]
     public async Task NaoCriaSegundoAdministradorQuandoJaExisteAdministradorAtivo()
     {
         await MutexAmbiente.WaitAsync();

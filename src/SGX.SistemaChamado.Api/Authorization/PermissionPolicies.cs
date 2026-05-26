@@ -15,6 +15,8 @@ public static class PermissionPolicies
     public const string IntegracoesEmailVisualizar = Prefixo + PermissoesConstants.IntegracoesEmailVisualizar;
     public const string IntegracoesMicrosoftVisualizar = Prefixo + PermissoesConstants.IntegracoesMicrosoftVisualizar;
     public const string IntegracoesMicrosoftGerenciar = Prefixo + PermissoesConstants.IntegracoesMicrosoftGerenciar;
+    public const string AutenticacaoProvedoresVisualizar = Prefixo + PermissoesConstants.AutenticacaoProvedoresVisualizar;
+    public const string AutenticacaoProvedoresGerenciar = Prefixo + PermissoesConstants.AutenticacaoProvedoresGerenciar;
     public const string UsuariosRedefinirSenha = Prefixo + PermissoesConstants.UsuariosRedefinirSenha;
     public const string ChamadosAssumir = Prefixo + PermissoesConstants.ChamadosAssumir;
     public const string ChamadosAtribuir = Prefixo + PermissoesConstants.ChamadosAtribuir;
@@ -29,6 +31,7 @@ public static class PermissionPolicies
     public const string SlaExcluir = Prefixo + PermissoesConstants.SlaExcluir;
     public const string SlaAtivarDesativar = Prefixo + PermissoesConstants.SlaAtivarDesativar;
     public const string AuditoriaVisualizar = Prefixo + PermissoesConstants.AuditoriaVisualizar;
+    public const string AuditoriaAutenticacaoVisualizar = Prefixo + PermissoesConstants.AuditoriaAutenticacaoVisualizar;
     public const string AuditoriaGerenciar = Prefixo + PermissoesConstants.AuditoriaGerenciar;
     public const string BaseConhecimentoVisualizar = Prefixo + PermissoesConstants.BaseConhecimentoVisualizar;
     public const string BaseConhecimentoGerenciar = Prefixo + PermissoesConstants.BaseConhecimentoGerenciar;

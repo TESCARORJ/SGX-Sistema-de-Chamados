@@ -144,11 +144,94 @@ public sealed class ConfiguracaoIntegracaoMicrosoftService(
     public async Task<ProvedoresAutenticacaoResponse> ObterProvedoresAutenticacaoAsync(CancellationToken cancellationToken = default)
     {
         var configuracao = await ObterConfiguracaoAutenticacaoEfetivaAsync(cancellationToken);
-        return new ProvedoresAutenticacaoResponse(
-            ProvedorPrincipal: configuracao.ProvedorPrincipal,
-            LoginMicrosoftHabilitado: configuracao.MicrosoftHabilitado,
-            LoginLocalSgxHabilitado: configuracao.LoginLocalSgxHabilitado,
-            LoginLocalDevelopmentHabilitado: configuracao.LoginLocalDevelopmentHabilitado);
+        var auth = authOptions.Value;
+
+        var configurados = auth.ObterCodigosProvedoresConfiguradosNormalizados();
+        var habilitados = auth.ObterCodigosProvedoresHabilitadosNormalizados();
+        var principal = auth.ObterCodigoProvedorPrincipalNormalizado();
+        var possuiHabilitadosExplicitos = auth.PossuiConfiguracaoExplicitaProvedoresHabilitados();
+
+        var microsoftConfigurado = configurados.Contains(CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparer.OrdinalIgnoreCase)
+            || UsaMicrosoftNoFluxo(configuracao.ProvedorPrincipal);
+        var localSgxConfigurado = configurados.Contains(CodigoProvedorAutenticacao.LocalSgx, StringComparer.OrdinalIgnoreCase)
+            || UsaLocalNoFluxo(configuracao.ProvedorPrincipal);
+        var activeDirectoryConfigurado = configurados.Contains(CodigoProvedorAutenticacao.ActiveDirectory, StringComparer.OrdinalIgnoreCase);
+        var localDevelopmentConfigurado = configurados.Contains(CodigoProvedorAutenticacao.LocalDevelopment, StringComparer.OrdinalIgnoreCase)
+            || auth.ModoLocalHabilitado;
+
+        var microsoftHabilitado = microsoftConfigurado
+            && (possuiHabilitadosExplicitos
+                ? habilitados.Contains(CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparer.OrdinalIgnoreCase)
+                : configuracao.MicrosoftHabilitado)
+            && configuracao.MicrosoftHabilitado;
+
+        var localSgxHabilitado = localSgxConfigurado
+            && (possuiHabilitadosExplicitos
+                ? habilitados.Contains(CodigoProvedorAutenticacao.LocalSgx, StringComparer.OrdinalIgnoreCase)
+                : configuracao.LoginLocalSgxHabilitado)
+            && configuracao.LoginLocalSgxHabilitado;
+
+        var activeDirectoryHabilitado = activeDirectoryConfigurado
+            && habilitados.Contains(CodigoProvedorAutenticacao.ActiveDirectory, StringComparer.OrdinalIgnoreCase);
+
+        var localDevelopmentHabilitado = localDevelopmentConfigurado
+            && environment.IsDevelopment()
+            && (possuiHabilitadosExplicitos
+                ? habilitados.Contains(CodigoProvedorAutenticacao.LocalDevelopment, StringComparer.OrdinalIgnoreCase)
+                : configuracao.LoginLocalDevelopmentHabilitado);
+
+        var itens = new List<ProvedorAutenticacaoDto>();
+
+        AdicionarSeHabilitado(
+            itens,
+            CodigoProvedorAutenticacao.MicrosoftEntraId,
+            "Microsoft Entra ID",
+            "Login corporativo federado pelo Microsoft Entra ID.",
+            microsoftHabilitado,
+            auth.ObterOrdemProvedor(CodigoProvedorAutenticacao.MicrosoftEntraId, 10));
+
+        AdicionarSeHabilitado(
+            itens,
+            CodigoProvedorAutenticacao.ActiveDirectory,
+            "Active Directory",
+            "Login corporativo integrado ao Active Directory do cliente.",
+            activeDirectoryHabilitado,
+            auth.ObterOrdemProvedor(CodigoProvedorAutenticacao.ActiveDirectory, 20));
+
+        AdicionarSeHabilitado(
+            itens,
+            CodigoProvedorAutenticacao.LocalSgx,
+            "Local SGX",
+            "Login local SGX com e-mail corporativo e senha.",
+            localSgxHabilitado,
+            auth.ObterOrdemProvedor(CodigoProvedorAutenticacao.LocalSgx, 30));
+
+        AdicionarSeHabilitado(
+            itens,
+            CodigoProvedorAutenticacao.LocalDevelopment,
+            "Local Development",
+            "Login técnico de desenvolvimento exclusivo para ambiente Development.",
+            localDevelopmentHabilitado,
+            auth.ObterOrdemProvedor(CodigoProvedorAutenticacao.LocalDevelopment, 40));
+
+        if (itens.Count == 0)
+        {
+            return new ProvedoresAutenticacaoResponse([]);
+        }
+
+        var principalEfetivo = itens.Any(x => string.Equals(x.Codigo, principal, StringComparison.OrdinalIgnoreCase))
+            ? principal
+            : itens.OrderBy(x => x.Ordem).First().Codigo;
+
+        var provedores = itens
+            .OrderBy(x => x.Ordem)
+            .Select(x => x with
+            {
+                Principal = string.Equals(x.Codigo, principalEfetivo, StringComparison.OrdinalIgnoreCase)
+            })
+            .ToArray();
+
+        return new ProvedoresAutenticacaoResponse(provedores);
     }
 
     public async Task<ConfiguracaoAutenticacaoEfetiva> ObterConfiguracaoAutenticacaoEfetivaAsync(CancellationToken cancellationToken = default)
@@ -156,6 +239,8 @@ public sealed class ConfiguracaoIntegracaoMicrosoftService(
         var parametros = await CarregarParametrosAtivosAsync(cancellationToken);
         var auth = authOptions.Value;
         var azure = azureAdOptions.Value;
+        var provedoresHabilitados = auth.ObterCodigosProvedoresHabilitadosNormalizados();
+        var possuiHabilitadosExplicitos = auth.PossuiConfiguracaoExplicitaProvedoresHabilitados();
 
         var provedorPrincipal = NormalizarProvedorPrincipal(
             ObterValor(parametros, Chaves.ProvedorPrincipal) ?? auth.ObterProvedorPrincipalNormalizado());
@@ -173,9 +258,16 @@ public sealed class ConfiguracaoIntegracaoMicrosoftService(
         var perfilPadraoUsuarioMicrosoft = ObterValor(parametros, Chaves.PerfilPadraoUsuarioMicrosoft) ?? auth.PerfilPadraoUsuarioMicrosoft;
 
         var habilitadoBruto = ObterBoolean(parametros, Chaves.Habilitado);
-        var microsoftHabilitadoBase = habilitadoBruto ?? auth.UsaMicrosoftComoPrincipalOuHibrido();
-        var microsoftNoFluxo = UsaMicrosoftNoFluxo(provedorPrincipal);
-        var localNoFluxo = UsaLocalNoFluxo(provedorPrincipal);
+        var microsoftNoFluxo = UsaMicrosoftNoFluxo(provedorPrincipal)
+            || (possuiHabilitadosExplicitos
+                && provedoresHabilitados.Contains(CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparer.OrdinalIgnoreCase));
+        var localNoFluxo = UsaLocalNoFluxo(provedorPrincipal)
+            || (possuiHabilitadosExplicitos
+                && provedoresHabilitados.Contains(CodigoProvedorAutenticacao.LocalSgx, StringComparer.OrdinalIgnoreCase));
+        var microsoftHabilitadoBase = habilitadoBruto
+            ?? (possuiHabilitadosExplicitos
+                ? provedoresHabilitados.Contains(CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparer.OrdinalIgnoreCase)
+                : auth.UsaMicrosoftComoPrincipalOuHibrido());
         var microsoftConfigurado = !string.IsNullOrWhiteSpace(tenantId)
             && !string.IsNullOrWhiteSpace(clientId)
             && !string.IsNullOrWhiteSpace(audience)
@@ -185,12 +277,19 @@ public sealed class ConfiguracaoIntegracaoMicrosoftService(
             && !string.IsNullOrWhiteSpace(redirectUri);
 
         var microsoftHabilitado = microsoftHabilitadoBase && microsoftNoFluxo && microsoftConfigurado;
-        var localSgxHabilitado = loginLocalHabilitado && localNoFluxo;
+        var localSgxHabilitado = loginLocalHabilitado
+            && localNoFluxo
+            && (!possuiHabilitadosExplicitos
+                || provedoresHabilitados.Contains(CodigoProvedorAutenticacao.LocalSgx, StringComparer.OrdinalIgnoreCase));
+        var localDevelopmentHabilitado = environment.IsDevelopment()
+            && auth.ModoLocalHabilitado
+            && (!possuiHabilitadosExplicitos
+                || provedoresHabilitados.Contains(CodigoProvedorAutenticacao.LocalDevelopment, StringComparer.OrdinalIgnoreCase));
 
         return new ConfiguracaoAutenticacaoEfetiva(
             MicrosoftHabilitado: microsoftHabilitado,
             LoginLocalSgxHabilitado: localSgxHabilitado,
-            LoginLocalDevelopmentHabilitado: environment.IsDevelopment() && auth.ModoLocalHabilitado,
+            LoginLocalDevelopmentHabilitado: localDevelopmentHabilitado,
             ProvedorPrincipal: provedorPrincipal,
             CriarUsuarioAutomaticamente: criarUsuarioAutomaticamente,
             PerfilPadraoUsuarioMicrosoft: (perfilPadraoUsuarioMicrosoft ?? string.Empty).Trim(),
@@ -325,6 +424,28 @@ public sealed class ConfiguracaoIntegracaoMicrosoftService(
         parametro.AtualizarValor(valor, UsuarioTecnico);
         parametro.DefinirDescricao(descricao, UsuarioTecnico);
         parametro.DefinirSensivel(sensivel, UsuarioTecnico);
+    }
+
+    private static void AdicionarSeHabilitado(
+        ICollection<ProvedorAutenticacaoDto> itens,
+        string codigo,
+        string nome,
+        string descricao,
+        bool habilitado,
+        int ordem)
+    {
+        if (!habilitado)
+        {
+            return;
+        }
+
+        itens.Add(new ProvedorAutenticacaoDto(
+            Codigo: codigo,
+            Nome: nome,
+            Descricao: descricao,
+            Habilitado: true,
+            Principal: false,
+            Ordem: ordem));
     }
 
     private static void ValidarObrigatorio(string valor, string mensagem)

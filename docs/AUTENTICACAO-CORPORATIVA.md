@@ -9,9 +9,14 @@ Padronizar a autenticação com múltiplos provedores no SGX Sistema de Chamados
 ## Decisão arquitetural
 
 - `MicrosoftEntraId`: autenticação corporativa via Microsoft Entra ID.
-- `Local`: autenticação local SGX (e-mail e senha do próprio SGX).
-- `Hibrido`: Microsoft Entra ID + login local SGX.
+- `ActiveDirectory`: autenticação corporativa via Active Directory do cliente.
+- `LocalSgx`: autenticação local SGX (e-mail e senha do próprio SGX).
 - `LocalDevelopment`: fluxo técnico separado, exclusivo de `Development`.
+
+Regras de governança:
+- Provedor configurado não significa provedor habilitado.
+- Provedor habilitado significa disponível na tela de login.
+- O provedor autentica; o SGX autoriza por perfis e permissões internos.
 
 ## Status no Roadmap ITSM
 
@@ -27,9 +32,13 @@ O login local de produção (`LocalSgx`) **não** substitui o login local de `De
 
 ### Backend (`Authentication__*`)
 
-- `Authentication__ProvedorPrincipal`: `MicrosoftEntraId` | `Local` | `Hibrido`
-- `Authentication__LoginLocalHabilitado`: `true`/`false`
-- `Authentication__ModoLocalHabilitado`: `true`/`false` (somente `Development`)
+- `Authentication__Provedores__Configurados`: lista de códigos configurados
+- `Authentication__Provedores__Habilitados`: lista de códigos habilitados para login
+- `Authentication__Provedores__Principal`: código principal para priorização na UI
+- `Authentication__Provedores__Ordem__<Codigo>`: ordem de exibição na UI
+- Códigos suportados: `MicrosoftEntraId`, `ActiveDirectory`, `LocalSgx`, `LocalDevelopment`
+- `Authentication__LoginLocalHabilitado`: `true`/`false` (exigido para `LocalSgx`)
+- `Authentication__ModoLocalHabilitado`: `true`/`false` (somente `Development` para `LocalDevelopment`)
 - `Authentication__JwtLocalIssuer`
 - `Authentication__JwtLocalAudience`
 - `Authentication__JwtLocalChaveAssinatura` (mínimo de 32 caracteres)
@@ -46,16 +55,15 @@ O login local de produção (`LocalSgx`) **não** substitui o login local de `De
 
 ### Microsoft Entra ID (`AzureAd__*`)
 
-Obrigatório quando `Authentication__ProvedorPrincipal` for `MicrosoftEntraId` ou `Hibrido`.
+Obrigatório quando `MicrosoftEntraId` estiver habilitado para autenticação.
 
 ## Regras de exibição no login
 
 A tela de login consulta `GET /api/auth/provedores`:
 
-- `MicrosoftEntraId`: exibe Microsoft como principal.
-- `Local`: exibe login local SGX como principal.
-- `Hibrido`: exibe Microsoft e login local SGX.
-- `LocalDevelopment`: aparece somente em `Development` quando `Authentication__ModoLocalHabilitado=true`.
+- O backend retorna somente provedores habilitados e válidos para o ambiente atual.
+- O frontend renderiza somente os provedores retornados pela API.
+- `LocalDevelopment` aparece somente em `Development`, mesmo que esteja configurado/habilitado fora desse ambiente.
 
 Se Microsoft não estiver configurado e o login local SGX estiver habilitado, a tela permanece funcional sem erro técnico bloqueante.
 
@@ -76,6 +84,23 @@ O SGX Sistema de Chamados usa Microsoft Entra ID em modo Single Tenant. Isso sig
 
 ### `GET /api/auth/provedores`
 Retorna os provedores habilitados para a UI.
+
+Resposta:
+
+```json
+{
+  "provedores": [
+    {
+      "codigo": "MicrosoftEntraId",
+      "nome": "Microsoft Entra ID",
+      "descricao": "Login corporativo federado pelo Microsoft Entra ID.",
+      "habilitado": true,
+      "principal": true,
+      "ordem": 10
+    }
+  ]
+}
+```
 
 ### `POST /api/auth/local/login`
 Autentica localmente no SGX e emite JWT assinado pela API.
@@ -165,6 +190,143 @@ Diferenças importantes:
 - `LocalDevelopment`: login técnico somente em Development.
 - Administrador inicial: mecanismo de bootstrap seguro para o primeiro acesso administrativo.
 
+## Sprint 2 - Administrador Local da Instância
+
+Objetivo:
+- consolidar o Administrador Local da Instância como recurso oficial para primeiro acesso, contingência administrativa e configuração inicial do ambiente.
+
+Status técnico:
+- implementado funcionalmente.
+
+Regras aplicadas:
+- criação inicial por configuração explícita via `SGX_ADMIN_INICIAL_EMAIL`, `SGX_ADMIN_INICIAL_SENHA`, `SGX_ADMIN_INICIAL_NOME`;
+- criação somente quando não existe Administrador ativo;
+- senha sempre armazenada com hash seguro (`PasswordHasher<Usuario>`);
+- senha nunca registrada em log;
+- senha fraca rejeitada pela política centralizada;
+- usuário inicial criado com `DeveAlterarSenha=true`;
+- autenticação do administrador local via `LocalSgx`;
+- `LocalDevelopment` permanece exclusivo de `Development` e não substitui o Administrador Local da Instância.
+
+Fluxo esperado:
+1. Operador define variáveis `SGX_ADMIN_INICIAL_*` e configuração de login local SGX.
+2. API inicializa, cria o Administrador Local da Instância e associa perfil `Administrador`.
+3. Primeiro login local retorna `deveAlterarSenha=true`.
+4. Troca de senha obrigatória é concluída.
+5. Próximo login local retorna `deveAlterarSenha=false`.
+
+Detalhamento operacional:
+- consultar `docs/ADMINISTRADOR-LOCAL-INSTANCIA.md`.
+
+## Sprint 3 - Active Directory dedicado (LDAP/LDAPS)
+
+Objetivo:
+- permitir autenticação corporativa on-premises diretamente no Active Directory do cliente.
+
+Regra central:
+- Active Directory autentica.
+- SGX autoriza por perfis e permissões internos.
+
+Endpoint:
+- `POST /api/auth/ad/login`
+
+Payload:
+
+```json
+{
+  "usuario": "thiago",
+  "senha": "********",
+  "dominio": "EMPRESA"
+}
+```
+
+Resposta:
+
+```json
+{
+  "accessToken": "<jwt>",
+  "tokenType": "Bearer",
+  "expiresIn": 7200,
+  "autenticadoPor": "ActiveDirectory",
+  "deveAlterarSenha": false
+}
+```
+
+Regras aplicadas:
+- endpoint AD só funciona com provedor `ActiveDirectory` habilitado;
+- senha AD usada apenas para bind/validação LDAP/LDAPS;
+- senha AD nunca é armazenada no SGX;
+- senha AD nunca aparece em logs;
+- LDAPS é preferencial; LDAP sem TLS exige configuração explícita;
+- usuário inativo no SGX é bloqueado mesmo com credencial AD válida;
+- auto provisionamento opcional por configuração;
+- grupos AD não concedem `Administrador` automaticamente.
+
+Detalhamento de configuração:
+- consultar `docs/CONFIGURACAO-ACTIVE-DIRECTORY.md`.
+
+## Sprint 4 - Gestao administrativa dos metodos de login
+
+Objetivo:
+- permitir que o administrador do SGX configure metodos de login sem depender apenas de appsettings/variaveis de ambiente.
+
+Escopo entregue:
+- endpoints administrativos:
+  - `GET /api/admin/autenticacao/provedores`
+  - `PUT /api/admin/autenticacao/provedores`
+- permissões:
+  - `AutenticacaoProvedores.Visualizar`
+  - `AutenticacaoProvedores.Gerenciar`
+- persistencia administrativa da configuracao de provedores;
+- fallback seguro para configuracao tecnica quando nao houver configuracao administrativa salva;
+- `GET /api/auth/provedores` passa a refletir a configuracao administrativa efetiva.
+
+Regras de seguranca aplicadas:
+- nao permite configuracao sem metodo de login viavel;
+- nao permite remover ultimo metodo de acesso administrativo sem alternativa funcional;
+- `LocalDevelopment` continua exclusivo de `Development`;
+- auto provisionamento por AD/Microsoft nao pode atribuir `Administrador` automaticamente;
+- o SGX continua autorizando internamente por perfis e permissoes.
+
+Frontend:
+- tela administrativa em `Administracao > Integracoes > Autenticacao > Metodos de login`;
+- configuracao de habilitado, principal, ordem, auto provisionamento, perfil padrao e rotulo;
+- login renderiza somente provedores retornados por `GET /api/auth/provedores`.
+
+Detalhamento operacional:
+- consultar `docs/METODOS-DE-LOGIN.md`.
+
+## Sprint 5 - Auditoria de autenticacao e metodos de login
+
+Objetivo:
+- ampliar rastreabilidade e governanca com trilha persistida de autenticacao e administracao dos metodos de login.
+
+Entregas:
+- classificacao de eventos por `TipoEventoAutenticacao` e `ResultadoEventoAutenticacao`;
+- eventos persistidos no banco via `EventoAuditoria` (modulo `Autenticacao`);
+- cobertura dos fluxos:
+  - login `LocalSgx`;
+  - login `ActiveDirectory`;
+  - login `MicrosoftEntraId` (ponto de sucesso no fluxo efetivo);
+  - usuario inativo bloqueado;
+  - auto provisionamento;
+  - troca obrigatoria de senha e recuperacao/redefinicao local;
+  - alteracoes administrativas dos metodos de login;
+  - bloqueios de configuracao insegura;
+  - tentativa negada por falta de permissao para alterar metodos de login.
+
+Endpoint administrativo:
+- `GET /api/admin/auditoria/autenticacao`
+- permissao: `AuditoriaAutenticacao.Visualizar`
+
+Regras de seguranca:
+- sem registro de senha, token, hash, secret ou credencial sensivel;
+- falha de auditoria nao quebra autenticacao;
+- falhas de auditoria sao registradas em log tecnico seguro.
+
+Detalhamento:
+- consultar `docs/AUDITORIA-AUTENTICACAO.md`.
+
 ## Sprint Autenticação 8 - Recuperação de senha e hardening do login local SGX
 
 Objetivo:
@@ -243,7 +405,7 @@ Regras:
 
 ### Campos obrigatórios da integração Microsoft Entra ID
 
-Quando a integração Microsoft estiver habilitada em `MicrosoftEntraId` ou `Hibrido`, são obrigatórios:
+Quando o provedor `MicrosoftEntraId` estiver habilitado, são obrigatórios:
 
 - `Tenant ID`
 - `Client ID`
@@ -256,6 +418,6 @@ Quando a integração Microsoft estiver habilitada em `MicrosoftEntraId` ou `Hib
 Validações:
 
 - O backend rejeita `PUT /api/admin/integracoes/microsoft-entra-id` com qualquer campo obrigatório ausente.
-- Em `Local`, `LoginLocalHabilitado` deve ser `true`.
-- Em `Local` com `LoginLocalHabilitado=false`, a API retorna a mensagem: `Login local SGX deve permanecer habilitado quando o modo Local estiver selecionado.`
+- Em compatibilidade administrativa legada, `ProvedorPrincipal=Local` exige `LoginLocalHabilitado=true`.
+- Em `ProvedorPrincipal=Local` com `LoginLocalHabilitado=false`, a API retorna a mensagem: `Login local SGX deve permanecer habilitado quando o modo Local estiver selecionado.`
 - O sistema rejeita qualquer configuração sem provedor de autenticação ativo.

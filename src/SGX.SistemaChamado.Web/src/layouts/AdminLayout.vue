@@ -350,6 +350,8 @@ const menu: MenuItem[] = [
       permissoes.integracoesEmailVisualizar,
       permissoes.integracoesMicrosoftVisualizar,
       permissoes.integracoesMicrosoftGerenciar,
+      permissoes.autenticacaoProvedoresVisualizar,
+      permissoes.autenticacaoProvedoresGerenciar,
     ],
     children: [
       {
@@ -363,6 +365,15 @@ const menu: MenuItem[] = [
         icon: 'shield',
         to: '/admin/integracoes/microsoft-entra-id',
         requiredAnyPermissions: [permissoes.integracoesMicrosoftVisualizar, permissoes.integracoesMicrosoftGerenciar],
+      },
+      {
+        label: 'Métodos de login',
+        icon: 'login',
+        to: '/admin/integracoes/metodos-login',
+        requiredAnyPermissions: [
+          permissoes.autenticacaoProvedoresVisualizar,
+          permissoes.autenticacaoProvedoresGerenciar,
+        ],
       },
     ],
   },
@@ -388,13 +399,23 @@ const menu: MenuItem[] = [
   {
     label: 'Governança',
     icon: 'fact_check',
-    requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
+    requiredAnyPermissions: [
+      permissoes.auditoriaVisualizar,
+      permissoes.auditoriaGerenciar,
+      permissoes.auditoriaAutenticacaoVisualizar,
+    ],
     children: [
       {
         label: 'Auditoria',
         icon: 'manage_search',
         to: '/admin/governanca/auditoria',
         requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
+      },
+      {
+        label: 'Auditoria de autenticação',
+        icon: 'security',
+        to: '/admin/governanca/auditoria-autenticacao',
+        requiredAnyPermissions: [permissoes.auditoriaAutenticacaoVisualizar],
       },
     ],
   },
@@ -539,7 +560,10 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catálogo de serviços'
   if (route.path.startsWith('/admin/infraestrutura/inventario-ativos')) return 'Inventário/Ativos'
   if (route.path.startsWith('/admin/configuracoes')) return 'Configurações'
+  if (route.path.startsWith('/admin/integracoes/metodos-login')) return 'Métodos de login'
+  if (route.path.startsWith('/admin/integracoes/autenticacao/metodos-login')) return 'Métodos de login'
   if (route.path.startsWith('/admin/integracoes')) return 'Integrações'
+  if (route.path.startsWith('/admin/governanca/auditoria-autenticacao')) return 'Auditoria de autenticação'
   if (route.path.startsWith('/admin/governanca/auditoria')) return 'Histórico / Auditoria'
   if (route.path.startsWith('/admin/gestao-itsm/documentacao')) return 'Documentação ITSM'
   if (route.path.startsWith('/admin/gestao-itsm')) return 'Gestão ITSM'

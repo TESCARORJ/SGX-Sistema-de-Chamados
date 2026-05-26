@@ -25,8 +25,33 @@ tests/
 
 ## Autenticação e autorização
 
-- Microsoft Entra ID autentica identidade corporativa.
-- SGX autoriza por perfis e permissões internos (`Administrador`, `Atendente`, `Solicitante`).
+- Provedores suportados:
+  - `MicrosoftEntraId`
+  - `ActiveDirectory`
+  - `LocalSgx`
+  - `LocalDevelopment` (somente `Development`)
+- O provedor autentica; o SGX autoriza por perfis e permissões internos (`Administrador`, `Atendente`, `Solicitante`).
+- A tela de login consome `GET /api/auth/provedores` e renderiza apenas os métodos retornados.
+- `LocalSgx` permanece como contingência administrativa.
+
+### Modos de autenticacao (resumo operacional)
+
+- `Cloud`:
+  - principal recomendado: `MicrosoftEntraId`;
+  - contingencia obrigatoria: `LocalSgx`;
+  - guia: `docs/IMPLANTACAO-CLOUD.md`.
+- `On-Premises`:
+  - principal recomendado: `ActiveDirectory` via LDAP/LDAPS;
+  - contingencia obrigatoria: `LocalSgx`;
+  - guia: `docs/IMPLANTACAO-ON-PREMISES.md`.
+- `Hibrido`:
+  - provedores combinados: `MicrosoftEntraId` + `ActiveDirectory`;
+  - contingencia obrigatoria: `LocalSgx`;
+  - guia: `docs/IMPLANTACAO-HIBRIDA.md`.
+
+Pacote de homologacao da autenticacao (Sprint 7):
+- checklist funcional: `docs/HOMOLOGACAO-AUTENTICACAO.md`;
+- runbook operacional: `docs/RUNBOOK-AUTENTICACAO.md`.
 
 ## Governanca e auditoria
 
@@ -39,14 +64,16 @@ tests/
 
 Configuração principal no backend:
 
-- `Authentication__ProvedorPrincipal`: `MicrosoftEntraId` | `Local` | `Hibrido`
-- `Authentication__LoginLocalHabilitado`: `true`/`false`
+- `Authentication__Provedores__Configurados`
+- `Authentication__Provedores__Habilitados`
+- `Authentication__Provedores__Principal`
+- `Authentication__Provedores__Ordem__<Codigo>`
 
 Regras:
 
-- `MicrosoftEntraId`: login Microsoft como principal.
-- `Local`: login local SGX como principal.
-- `Hibrido`: Microsoft + login local SGX.
+- Configurado nao significa habilitado.
+- Habilitado significa disponivel na tela de login.
+- `LocalDevelopment` so aparece em `Development`.
 
 ### Microsoft Entra ID (Single Tenant)
 
@@ -166,6 +193,11 @@ Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarn
 ## Documentação
 
 - `docs/AUTENTICACAO-CORPORATIVA.md`
+- `docs/HOMOLOGACAO-AUTENTICACAO.md`
+- `docs/RUNBOOK-AUTENTICACAO.md`
+- `docs/IMPLANTACAO-CLOUD.md`
+- `docs/IMPLANTACAO-ON-PREMISES.md`
+- `docs/IMPLANTACAO-HIBRIDA.md`
 - `docs/CONFIGURACAO-AZURE-AD.md`
 - `docs/ROADMAP.md`
 - `docs/ROADMAP-ITSM.md`
@@ -180,6 +212,7 @@ No painel administrativo, a consulta gerencial fica em:
 - `Admin > Gestão ITSM > Roadmap` (`/admin/gestao-itsm/roadmap`)
 - `Admin > Gestão ITSM > Documentação` (`/admin/gestao-itsm/documentacao`)
 - `Admin > Governança > Auditoria` (`/admin/governanca/auditoria`)
+- `Admin > Governança > Auditoria de autenticação` (`/admin/governanca/auditoria-autenticacao`)
 - A rota legada `/admin/roadmap-itsm` continua funcionando.
 
 ## Correções recentes - Integração Microsoft e senha por Administrador
