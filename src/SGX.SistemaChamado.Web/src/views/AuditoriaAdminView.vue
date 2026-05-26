@@ -1,9 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
@@ -71,49 +72,50 @@ const cardsResumo = computed(() => {
 
   return [
     { titulo: 'Total de eventos', valor: dashboard.value.totalEventos, icon: 'receipt_long', color: 'primary' },
-    { titulo: 'Eventos críticos', valor: dashboard.value.totalEventosCriticos, icon: 'priority_high', color: 'negative' },
+    { titulo: 'Eventos crÃ­ticos', valor: dashboard.value.totalEventosCriticos, icon: 'priority_high', color: 'negative' },
     { titulo: 'Falhas', valor: dashboard.value.totalFalhas, icon: 'error_outline', color: 'warning' },
     { titulo: 'Sucessos', valor: dashboard.value.totalSucessos, icon: 'check_circle', color: 'positive' },
   ]
 })
+const totalPaginaAtual = computed(() => lista.value.items.length)
 
 const opcoesAcao: Array<{ label: string; value: TipoAcaoAuditoria }> = [
   { label: 'Login', value: 'Login' },
   { label: 'Logout', value: 'Logout' },
-  { label: 'Criação', value: 'Criacao' },
-  { label: 'Edição', value: 'Edicao' },
-  { label: 'Exclusão lógica', value: 'ExclusaoLogica' },
-  { label: 'Ativação', value: 'Ativacao' },
-  { label: 'Inativação', value: 'Inativacao' },
-  { label: 'Alteração de status', value: 'AlteracaoStatus' },
-  { label: 'Alteração de permissão', value: 'AlteracaoPermissao' },
-  { label: 'Visualização', value: 'Visualizacao' },
-  { label: 'Exportação', value: 'Exportacao' },
-  { label: 'Importação', value: 'Importacao' },
+  { label: 'CriaÃ§Ã£o', value: 'Criacao' },
+  { label: 'EdiÃ§Ã£o', value: 'Edicao' },
+  { label: 'ExclusÃ£o lÃ³gica', value: 'ExclusaoLogica' },
+  { label: 'AtivaÃ§Ã£o', value: 'Ativacao' },
+  { label: 'InativaÃ§Ã£o', value: 'Inativacao' },
+  { label: 'AlteraÃ§Ã£o de status', value: 'AlteracaoStatus' },
+  { label: 'AlteraÃ§Ã£o de permissÃ£o', value: 'AlteracaoPermissao' },
+  { label: 'VisualizaÃ§Ã£o', value: 'Visualizacao' },
+  { label: 'ExportaÃ§Ã£o', value: 'Exportacao' },
+  { label: 'ImportaÃ§Ã£o', value: 'Importacao' },
   { label: 'Erro', value: 'Erro' },
-  { label: 'Execução de job', value: 'ExecucaoJob' },
-  { label: 'Configuração', value: 'Configuracao' },
-  { label: 'Homologação', value: 'Homologacao' },
+  { label: 'ExecuÃ§Ã£o de job', value: 'ExecucaoJob' },
+  { label: 'ConfiguraÃ§Ã£o', value: 'Configuracao' },
+  { label: 'HomologaÃ§Ã£o', value: 'Homologacao' },
   { label: 'Outro', value: 'Outro' },
 ]
 
 const opcoesNivel: Array<{ label: string; value: NivelAuditoria }> = [
-  { label: 'Informação', value: 'Informacao' },
+  { label: 'InformaÃ§Ã£o', value: 'Informacao' },
   { label: 'Alerta', value: 'Alerta' },
-  { label: 'Crítico', value: 'Critico' },
+  { label: 'CrÃ­tico', value: 'Critico' },
 ]
 
 const colunasTabela = [
   { name: 'dataEvento', label: 'Data/hora', field: 'dataEvento', align: 'left' as const },
-  { name: 'usuario', label: 'Usuário', field: 'usuarioEmail', align: 'left' as const },
-  { name: 'modulo', label: 'Módulo', field: 'modulo', align: 'left' as const },
+  { name: 'usuario', label: 'UsuÃ¡rio', field: 'usuarioEmail', align: 'left' as const },
+  { name: 'modulo', label: 'MÃ³dulo', field: 'modulo', align: 'left' as const },
   { name: 'entidade', label: 'Entidade', field: 'entidade', align: 'left' as const },
-  { name: 'acao', label: 'Ação', field: 'acao', align: 'left' as const },
-  { name: 'descricao', label: 'Descrição', field: 'descricao', align: 'left' as const },
-  { name: 'nivel', label: 'Nível', field: 'nivel', align: 'left' as const },
+  { name: 'acao', label: 'AÃ§Ã£o', field: 'acao', align: 'left' as const },
+  { name: 'descricao', label: 'DescriÃ§Ã£o', field: 'descricao', align: 'left' as const },
+  { name: 'nivel', label: 'NÃ­vel', field: 'nivel', align: 'left' as const },
   { name: 'sucesso', label: 'Sucesso', field: 'sucesso', align: 'left' as const },
   { name: 'ipOrigem', label: 'IP', field: 'ipOrigem', align: 'left' as const },
-  { name: 'acoes', label: 'Ações', field: 'id', align: 'right' as const },
+  { name: 'acoes', label: 'AÃ§Ãµes', field: 'id', align: 'right' as const },
 ]
 
 function construirFiltroEventos(pagina?: number): FiltroAuditoriaRequest {
@@ -189,7 +191,7 @@ async function carregarTudo(pagina?: number): Promise<void> {
   try {
     await Promise.all([carregarDashboard(), carregarEventos(pagina)])
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os eventos de auditoria.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar os eventos de auditoria.'
   } finally {
     loading.value = false
   }
@@ -228,7 +230,7 @@ async function abrirDetalhe(item: EventoAuditoriaResumo): Promise<void> {
   try {
     detalhe.value = await auditoriaService.obterEvento(item.id)
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar o detalhe do evento.'
+    erro.value = error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel carregar o detalhe do evento.'
   } finally {
     detalheLoading.value = false
   }
@@ -248,19 +250,20 @@ onMounted(() => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
-      titulo="Histórico/Auditoria"
-      subtitulo="Consulte eventos auditáveis do SGX Sistema de Chamados."
+      contexto="Governanca e rastreabilidade"
+      titulo="Historico de Auditoria"
+      subtitulo="Consulte trilhas de usuario, acoes, entidades e resultados operacionais do SGX."
     >
       <template #actions>
         <div class="row q-gutter-sm">
           <q-btn color="primary" icon="refresh" label="Recarregar" :loading="loading" @click="carregarTudo(lista.pagina)" />
-          <q-btn flat color="primary" icon="menu_book" label="Ver documentação" @click="irParaDocumentacao" />
+          <q-btn flat color="primary" icon="menu_book" label="Ver documentaÃ§Ã£o" @click="irParaDocumentacao" />
         </div>
       </template>
     </PageHeader>
 
     <q-banner v-if="!podeVisualizarAuditoria" rounded class="bg-orange-1 text-orange-10">
-      Você não possui permissão para consultar auditoria.
+      VocÃª nÃ£o possui permissÃ£o para consultar auditoria.
     </q-banner>
 
     <template v-else>
@@ -268,15 +271,19 @@ onMounted(() => {
         <div v-for="card in cardsResumo" :key="card.titulo" class="col-12 col-sm-6 col-lg-3">
           <MetricCard :titulo="card.titulo" :valor="String(card.valor)" :icon="card.icon" :color="card.color" />
         </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <MetricCard titulo="Pagina atual" :valor="totalPaginaAtual" icon="view_list" color="primary" :loading="loading" />
+        </div>
       </div>
 
-      <AppSectionCard titulo="Filtros avançados" subtitulo="Combine período, usuário, contexto e resultado para refinar a auditoria.">
-        <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
+      <AppSectionCard titulo="Filtros avanÃ§ados" subtitulo="Combine perÃ­odo, usuÃ¡rio, contexto e resultado para refinar a auditoria.">
+        <FilterBar compact>
+          <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
           <div class="col-12 col-md-2"><q-input v-model="filtros.dataInicio" type="date" outlined dense label="Data inicial" /></div>
           <div class="col-12 col-md-2"><q-input v-model="filtros.dataFim" type="date" outlined dense label="Data final" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.usuarioEmail" outlined dense label="Usuário/e-mail" /></div>
-          <div class="col-12 col-md-2"><q-input v-model="filtros.usuarioId" outlined dense label="Usuário ID" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.modulo" outlined dense label="Módulo" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.usuarioEmail" outlined dense label="UsuÃ¡rio/e-mail" /></div>
+          <div class="col-12 col-md-2"><q-input v-model="filtros.usuarioId" outlined dense label="UsuÃ¡rio ID" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.modulo" outlined dense label="MÃ³dulo" /></div>
 
           <div class="col-12 col-md-3"><q-input v-model="filtros.entidade" outlined dense label="Entidade" /></div>
           <div class="col-12 col-md-2"><q-input v-model="filtros.entidadeId" outlined dense label="Entidade ID" /></div>
@@ -288,7 +295,7 @@ onMounted(() => {
               clearable
               emit-value
               map-options
-              label="Ação"
+              label="AÃ§Ã£o"
               :options="opcoesAcao"
             />
           </div>
@@ -300,7 +307,7 @@ onMounted(() => {
               clearable
               emit-value
               map-options
-              label="Nível"
+              label="NÃ­vel"
               :options="opcoesNivel"
             />
           </div>
@@ -321,20 +328,21 @@ onMounted(() => {
           </div>
 
           <div class="col-12 col-md-3"><q-input v-model="filtros.ipOrigem" outlined dense label="IP de origem" /></div>
-          <div class="col-12 col-md-3"><q-input v-model="filtros.correlacaoId" outlined dense label="Correlação" /></div>
+          <div class="col-12 col-md-3"><q-input v-model="filtros.correlacaoId" outlined dense label="CorrelaÃ§Ã£o" /></div>
           <div class="col-12 col-md-6"><q-input v-model="filtros.texto" outlined dense label="Texto" /></div>
 
           <div class="col-12 row justify-end q-gutter-sm">
             <q-btn flat label="Limpar filtros" :disable="loading" @click="limparFiltros" />
             <q-btn color="primary" icon="search" label="Filtrar" type="submit" :loading="loading" />
           </div>
-        </q-form>
+          </q-form>
+        </FilterBar>
       </AppSectionCard>
 
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregarTudo(lista.pagina)" />
-      <LoadingState v-else-if="loading && !lista.items.length" inline mensagem="Carregando histórico de auditoria..." />
+      <LoadingState v-else-if="loading && !lista.items.length" inline mensagem="Carregando histÃ³rico de auditoria..." />
 
-      <AppSectionCard v-else-if="lista.items.length" titulo="Eventos auditáveis" subtitulo="Listagem paginada dos eventos mais recentes.">
+      <AppSectionCard v-else-if="lista.items.length" titulo="Eventos auditÃ¡veis" subtitulo="Listagem paginada dos eventos mais recentes.">
         <q-table
           flat
           :rows="lista.items"
@@ -409,14 +417,20 @@ onMounted(() => {
       <EmptyState
         v-else
         titulo="Sem eventos de auditoria"
-        mensagem="Ainda não há eventos para os filtros informados."
+        mensagem="Ainda nÃ£o hÃ¡ eventos para os filtros informados."
         icon="manage_search"
       />
 
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-6">
-          <AppSectionCard titulo="Eventos por módulo">
-            <q-list separator dense>
+          <AppSectionCard titulo="Eventos por mÃ³dulo">
+            <EmptyState
+              v-if="!(dashboard?.eventosPorModulo?.length ?? 0)"
+              titulo="Sem dados por modulo"
+              mensagem="Nenhum agrupamento disponivel para os filtros atuais."
+              icon="view_module"
+            />
+            <q-list v-else separator dense>
               <q-item v-for="item in (dashboard?.eventosPorModulo ?? []) as AuditoriaAgrupamentoResponse[]" :key="`mod-${item.chave}`">
                 <q-item-section>{{ item.chave }}</q-item-section>
                 <q-item-section side>{{ item.total }}</q-item-section>
@@ -425,8 +439,14 @@ onMounted(() => {
           </AppSectionCard>
         </div>
         <div class="col-12 col-lg-6">
-          <AppSectionCard titulo="Eventos por ação">
-            <q-list separator dense>
+          <AppSectionCard titulo="Eventos por aÃ§Ã£o">
+            <EmptyState
+              v-if="!(dashboard?.eventosPorAcao?.length ?? 0)"
+              titulo="Sem dados por acao"
+              mensagem="Nao ha agrupamentos por acao para os filtros atuais."
+              icon="bolt"
+            />
+            <q-list v-else separator dense>
               <q-item v-for="item in (dashboard?.eventosPorAcao ?? []) as AuditoriaAgrupamentoResponse[]" :key="`acao-${item.chave}`">
                 <q-item-section>{{ item.chave }}</q-item-section>
                 <q-item-section side>{{ item.total }}</q-item-section>
@@ -438,8 +458,14 @@ onMounted(() => {
 
       <div class="row q-col-gutter-md">
         <div class="col-12 col-lg-4">
-          <AppSectionCard titulo="Eventos por usuário">
-            <q-list separator dense>
+          <AppSectionCard titulo="Eventos por usuÃ¡rio">
+            <EmptyState
+              v-if="!(dashboard?.eventosPorUsuario?.length ?? 0)"
+              titulo="Sem dados por usuario"
+              mensagem="Nenhum agrupamento por usuario para o recorte selecionado."
+              icon="person_search"
+            />
+            <q-list v-else separator dense>
               <q-item v-for="item in (dashboard?.eventosPorUsuario ?? []) as AuditoriaAgrupamentoResponse[]" :key="`usr-${item.chave}`">
                 <q-item-section>{{ item.chave }}</q-item-section>
                 <q-item-section side>{{ item.total }}</q-item-section>
@@ -449,7 +475,13 @@ onMounted(() => {
         </div>
         <div class="col-12 col-lg-4">
           <AppSectionCard titulo="Eventos por dia">
-            <q-list separator dense>
+            <EmptyState
+              v-if="!(dashboard?.eventosPorDia?.length ?? 0)"
+              titulo="Sem dados por dia"
+              mensagem="Nao ha consolidacao diaria para os filtros atuais."
+              icon="calendar_today"
+            />
+            <q-list v-else separator dense>
               <q-item v-for="item in (dashboard?.eventosPorDia ?? []) as AuditoriaAgrupamentoDiaResponse[]" :key="`dia-${item.dia}`">
                 <q-item-section>{{ formatarData(item.dia) }}</q-item-section>
                 <q-item-section side>{{ item.total }}</q-item-section>
@@ -458,8 +490,14 @@ onMounted(() => {
           </AppSectionCard>
         </div>
         <div class="col-12 col-lg-4">
-          <AppSectionCard titulo="Últimas falhas">
-            <q-list separator dense>
+          <AppSectionCard titulo="Ãšltimas falhas">
+            <EmptyState
+              v-if="!(dashboard?.ultimasFalhas?.length ?? 0)"
+              titulo="Sem falhas recentes"
+              mensagem="Nao foram registradas falhas no periodo filtrado."
+              icon="task_alt"
+            />
+            <q-list v-else separator dense>
               <q-item v-for="item in dashboard?.ultimasFalhas ?? []" :key="`falha-${item.id}`">
                 <q-item-section>
                   <q-item-label>{{ item.modulo }} / {{ item.acao }}</q-item-label>
@@ -472,8 +510,14 @@ onMounted(() => {
         </div>
       </div>
 
-      <AppSectionCard titulo="Últimos eventos críticos">
-        <q-list separator dense>
+      <AppSectionCard titulo="Ãšltimos eventos crÃ­ticos">
+        <EmptyState
+          v-if="!(dashboard?.ultimosEventosCriticos?.length ?? 0)"
+          titulo="Sem eventos criticos"
+          mensagem="Nao houve ocorrencias criticas nos filtros selecionados."
+          icon="verified"
+        />
+        <q-list v-else separator dense>
           <q-item v-for="item in dashboard?.ultimosEventosCriticos ?? []" :key="`crit-${item.id}`">
             <q-item-section>
               <q-item-label>{{ item.modulo }} / {{ item.acao }}</q-item-label>
@@ -499,21 +543,21 @@ onMounted(() => {
         <template v-else-if="detalhe">
           <q-list dense bordered separator>
             <q-item><q-item-section>Data/hora</q-item-section><q-item-section side>{{ formatarData(detalhe.dataEvento) }}</q-item-section></q-item>
-            <q-item><q-item-section>Usuário</q-item-section><q-item-section side>{{ detalhe.usuarioNome || '-' }}</q-item-section></q-item>
+            <q-item><q-item-section>UsuÃ¡rio</q-item-section><q-item-section side>{{ detalhe.usuarioNome || '-' }}</q-item-section></q-item>
             <q-item><q-item-section>E-mail</q-item-section><q-item-section side>{{ detalhe.usuarioEmail || '-' }}</q-item-section></q-item>
             <q-item><q-item-section>Login</q-item-section><q-item-section side>{{ detalhe.usuarioLogin || '-' }}</q-item-section></q-item>
             <q-item><q-item-section>IP</q-item-section><q-item-section side>{{ detalhe.ipOrigem || '-' }}</q-item-section></q-item>
-            <q-item><q-item-section>Módulo</q-item-section><q-item-section side>{{ detalhe.modulo }}</q-item-section></q-item>
+            <q-item><q-item-section>MÃ³dulo</q-item-section><q-item-section side>{{ detalhe.modulo }}</q-item-section></q-item>
             <q-item><q-item-section>Entidade</q-item-section><q-item-section side>{{ detalhe.entidade }}</q-item-section></q-item>
             <q-item><q-item-section>Entidade ID</q-item-section><q-item-section side>{{ detalhe.entidadeId || '-' }}</q-item-section></q-item>
-            <q-item><q-item-section>Ação</q-item-section><q-item-section side>{{ detalhe.acao }}</q-item-section></q-item>
-            <q-item><q-item-section>Nível</q-item-section><q-item-section side>{{ detalhe.nivel }}</q-item-section></q-item>
-            <q-item><q-item-section>Sucesso</q-item-section><q-item-section side>{{ detalhe.sucesso ? 'Sim' : 'Não' }}</q-item-section></q-item>
-            <q-item><q-item-section>Correlação</q-item-section><q-item-section side>{{ detalhe.correlacaoId || '-' }}</q-item-section></q-item>
+            <q-item><q-item-section>AÃ§Ã£o</q-item-section><q-item-section side>{{ detalhe.acao }}</q-item-section></q-item>
+            <q-item><q-item-section>NÃ­vel</q-item-section><q-item-section side>{{ detalhe.nivel }}</q-item-section></q-item>
+            <q-item><q-item-section>Sucesso</q-item-section><q-item-section side>{{ detalhe.sucesso ? 'Sim' : 'NÃ£o' }}</q-item-section></q-item>
+            <q-item><q-item-section>CorrelaÃ§Ã£o</q-item-section><q-item-section side>{{ detalhe.correlacaoId || '-' }}</q-item-section></q-item>
           </q-list>
 
           <div class="q-mt-md">
-            <div class="text-subtitle2">Descrição</div>
+            <div class="text-subtitle2">DescriÃ§Ã£o</div>
             <q-card flat bordered class="q-pa-sm q-mt-xs">{{ detalhe.descricao }}</q-card>
           </div>
 
@@ -567,3 +611,5 @@ onMounted(() => {
   background: #ffffff;
 }
 </style>
+
+

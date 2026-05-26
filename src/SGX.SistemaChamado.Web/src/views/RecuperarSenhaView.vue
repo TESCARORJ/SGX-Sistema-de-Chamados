@@ -1,4 +1,4 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
@@ -37,7 +37,7 @@ async function enviarSolicitacao(): Promise<void> {
     mensagemErro.value =
       error instanceof Error
         ? error.message
-        : 'Não foi possível processar a solicitação de recuperação.'
+        : 'NÃ£o foi possÃ­vel processar a solicitaÃ§Ã£o de recuperaÃ§Ã£o.'
   } finally {
     carregando.value = false
   }
@@ -48,12 +48,12 @@ async function redefinirSenha(): Promise<void> {
   mensagemErro.value = null
 
   if (!token.value) {
-    mensagemErro.value = 'Token de recuperação inválido.'
+    mensagemErro.value = 'Token de recuperaÃ§Ã£o invÃ¡lido.'
     return
   }
 
   if (!novaSenha.value.trim() || !confirmacaoNovaSenha.value.trim()) {
-    mensagemErro.value = 'Informe a nova senha e a confirmação.'
+    mensagemErro.value = 'Informe a nova senha e a confirmaÃ§Ã£o.'
     return
   }
 
@@ -72,7 +72,7 @@ async function redefinirSenha(): Promise<void> {
     mensagemErro.value =
       error instanceof Error
         ? error.message
-        : 'Não foi possível redefinir a senha.'
+        : 'NÃ£o foi possÃ­vel redefinir a senha.'
   } finally {
     carregando.value = false
   }
@@ -80,22 +80,25 @@ async function redefinirSenha(): Promise<void> {
 </script>
 
 <template>
-  <q-page class="row items-center justify-center q-pa-md recuperar-senha-page">
-    <q-card flat bordered class="recuperar-senha-card">
-      <q-card-section>
-        <div class="text-h6 text-weight-bold">
+  <q-page class="auth-page-shell">
+    <q-card flat bordered class="sgx-card auth-card-shell recuperar-senha-card">
+      <q-card-section class="auth-card-header">
+        <q-chip color="blue-1" text-color="primary" icon="lock_reset" class="recuperar-senha-chip">
+          RecuperaÃ§Ã£o segura
+        </q-chip>
+        <div class="auth-card-title q-mt-sm">
           {{ modoRedefinicao ? 'Redefinir senha' : 'Recuperar senha' }}
         </div>
-        <div class="text-body2 text-grey-8 q-mt-xs">
+        <div class="auth-card-subtitle">
           {{
             modoRedefinicao
-              ? 'Defina uma nova senha para o acesso local SGX.'
-              : 'Informe seu e-mail para receber instruções de redefinição de senha.'
+              ? 'Defina sua nova senha para restabelecer o acesso local SGX.'
+              : 'Informe seu e-mail corporativo para receber as instruÃ§Ãµes de redefiniÃ§Ã£o.'
           }}
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pt-none" v-if="!modoRedefinicao">
+      <q-card-section class="q-pt-none q-px-lg" v-if="!modoRedefinicao">
         <q-form class="q-gutter-md" @submit.prevent="enviarSolicitacao">
           <q-input
             v-model="email"
@@ -110,17 +113,17 @@ async function redefinirSenha(): Promise<void> {
             color="primary"
             unelevated
             class="full-width"
-            label="Enviar instruções"
+            label="Enviar instruÃ§Ãµes"
             :loading="carregando"
             :disable="carregando"
           />
         </q-form>
       </q-card-section>
 
-      <q-card-section class="q-pt-none" v-else>
-        <q-banner rounded class="bg-blue-1 text-primary q-mb-md">
-          A nova senha deve conter mínimo de 12 caracteres, letra maiúscula, letra minúscula,
-          número e caractere especial.
+      <q-card-section class="q-pt-none q-px-lg" v-else>
+        <q-banner rounded class="bg-blue-1 text-primary q-mb-md auth-feedback">
+          A nova senha deve conter mÃ­nimo de 12 caracteres, letra maiÃºscula, letra minÃºscula,
+          nÃºmero e caractere especial.
         </q-banner>
 
         <q-form class="q-gutter-md" @submit.prevent="redefinirSenha">
@@ -142,7 +145,7 @@ async function redefinirSenha(): Promise<void> {
 
           <q-btn
             type="submit"
-            color="secondary"
+            color="primary"
             unelevated
             class="full-width"
             label="Redefinir senha"
@@ -152,31 +155,32 @@ async function redefinirSenha(): Promise<void> {
         </q-form>
       </q-card-section>
 
-      <q-card-section v-if="mensagemSucesso" class="q-pt-none">
-        <q-banner rounded class="bg-green-1 text-positive">{{ mensagemSucesso }}</q-banner>
+      <q-card-section v-if="mensagemSucesso" class="q-pt-none q-px-lg q-pb-sm">
+        <q-banner rounded class="bg-green-1 text-positive auth-feedback">{{ mensagemSucesso }}</q-banner>
       </q-card-section>
 
-      <q-card-section v-if="mensagemErro" class="q-pt-none">
-        <q-banner rounded class="bg-red-1 text-negative">{{ mensagemErro }}</q-banner>
+      <q-card-section v-if="mensagemErro" class="q-pt-none q-px-lg q-pb-sm">
+        <q-banner rounded class="bg-red-1 text-negative auth-feedback">{{ mensagemErro }}</q-banner>
       </q-card-section>
 
-      <q-card-section class="q-pt-none">
-        <router-link to="/login" class="text-primary">Voltar para o login</router-link>
+      <q-card-section class="q-pt-none q-px-lg q-pb-lg">
+        <RouterLink to="/login" class="text-primary text-weight-medium">Voltar para o login</RouterLink>
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <style scoped>
-.recuperar-senha-page {
-  background:
-    radial-gradient(circle at 15% 10%, rgba(2, 132, 199, 0.14), transparent 38%),
-    radial-gradient(circle at 100% 100%, rgba(22, 163, 74, 0.12), transparent 34%),
-    linear-gradient(150deg, #f5f9ff 0%, #eef6ff 100%);
+.recuperar-senha-card {
+  max-width: 580px;
 }
 
-.recuperar-senha-card {
-  width: min(560px, 100%);
-  border-radius: 16px;
+.recuperar-senha-chip {
+  border: 1px solid rgba(11, 94, 215, 0.2);
+  font-weight: 700;
+}
+
+.auth-feedback {
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 </style>

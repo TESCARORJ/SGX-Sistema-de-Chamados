@@ -7,6 +7,7 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
@@ -41,6 +42,12 @@ const fallbackAdminSemPermissoes = computed(
 )
 const podeAssumirChamado = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAssumir)
+)
+const chamadosSemResponsavel = computed(() => chamados.value.filter((item) => !item.responsavelNome).length)
+const chamadosCriticos = computed(() => chamados.value.filter((item) => item.slaVencido || item.slaProximoVencimento).length)
+const chamadosAguardandoAprovacao = computed(() => chamados.value.filter((item) => item.aprovacaoPendente).length)
+const chamadosEmAtendimento = computed(() =>
+  chamados.value.filter((item) => item.status.toLowerCase().includes('atendimento')).length
 )
 
 function podeAssumirComResponsavel(): boolean {
@@ -205,13 +212,37 @@ watch(
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Fila de Chamados" subtitulo="Visualize, priorize e assuma chamados da operação.">
+    <PageHeader
+      contexto="Operacao administrativa"
+      titulo="Fila de Chamados"
+      subtitulo="Visualize, priorize e distribua chamados com base em status, SLA e responsabilidade."
+    >
       <template #actions>
         <q-chip color="primary" text-color="white" icon="confirmation_number" square>
           Total: {{ total }}
         </q-chip>
       </template>
     </PageHeader>
+
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Total na consulta" :value="total" icon="confirmation_number" tone="primary" :loading="loading" />
+      <MetricCard title="Em atendimento" :value="chamadosEmAtendimento" icon="support_agent" tone="info" :loading="loading" />
+      <MetricCard
+        title="Risco de SLA"
+        :value="chamadosCriticos"
+        icon="warning"
+        :tone="chamadosCriticos > 0 ? 'negative' : 'warning'"
+        :loading="loading"
+      />
+      <MetricCard title="Sem responsavel" :value="chamadosSemResponsavel" icon="person_off" tone="warning" :loading="loading" />
+      <MetricCard
+        title="Aprovacao pendente"
+        :value="chamadosAguardandoAprovacao"
+        icon="fact_check"
+        tone="warning"
+        :loading="loading"
+      />
+    </div>
 
     <AppSectionCard titulo="Filtros da fila" subtitulo="Busque por status, prioridade, categoria, responsável e SLA.">
       <FiltrosChamadoAdmin

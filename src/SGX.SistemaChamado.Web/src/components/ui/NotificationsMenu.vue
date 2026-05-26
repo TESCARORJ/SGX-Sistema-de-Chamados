@@ -78,7 +78,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <q-btn flat round dense icon="notifications" class="q-ml-sm">
+  <q-btn flat round dense icon="notifications" class="q-ml-sm" aria-label="Abrir notificações">
     <q-badge v-if="totalNaoLidas > 0" color="negative" rounded floating :label="totalNaoLidas" />
     <q-tooltip>Notificações</q-tooltip>
 

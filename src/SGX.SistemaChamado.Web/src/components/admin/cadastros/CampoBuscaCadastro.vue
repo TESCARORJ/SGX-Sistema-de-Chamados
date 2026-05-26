@@ -22,9 +22,10 @@ const localValue = computed({
     v-model="localValue"
     dense
     outlined
+    debounce="300"
     clearable
     :disable="loading"
-    :label="label || 'Buscar por texto'"
+    :label="label || 'Buscar por nome, codigo ou descricao'"
   >
     <template #prepend>
       <q-icon name="search" />

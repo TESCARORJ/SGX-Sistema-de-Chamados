@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
@@ -91,11 +92,15 @@ onMounted(async () => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Autoatendimento"
       titulo="Base de conhecimento"
       subtitulo="Detalhe do artigo publicado para consulta no portal."
     >
       <template #actions>
-        <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="router.push('/portal/base-conhecimento')" />
+        <div class="row q-gutter-sm">
+          <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="router.push('/portal/base-conhecimento')" />
+          <q-btn flat color="primary" icon="inventory_2" label="Catalogo" @click="router.push('/portal/catalogo-servicos')" />
+        </div>
       </template>
     </PageHeader>
 
@@ -108,28 +113,66 @@ onMounted(async () => {
       @retry="carregar"
     />
 
-    <AppSectionCard v-else-if="artigo" :titulo="artigo.titulo" :subtitulo="artigo.categoriaNome || 'Sem categoria'">
-      <div class="text-caption text-grey-7 q-mb-md">Publicado em {{ formatarData(artigo.publicadoEm) }}</div>
+    <template v-else-if="artigo">
+      <AppSectionCard :titulo="artigo.titulo" :subtitulo="artigo.categoriaNome || 'Sem categoria'">
+        <div class="row q-col-gutter-md">
+          <div class="col-12 col-md-7">
+            <q-banner v-if="artigo.resumo" rounded class="bg-blue-1 text-primary">
+              {{ artigo.resumo }}
+            </q-banner>
+            <q-banner v-else rounded class="bg-grey-2 text-grey-8">
+              Este artigo nao possui resumo cadastrado.
+            </q-banner>
+          </div>
+          <div class="col-12 col-md-5">
+            <q-list bordered separator class="rounded-borders">
+              <q-item>
+                <q-item-section>
+                  <q-item-label caption>Publicado em</q-item-label>
+                  <q-item-label>{{ formatarData(artigo.publicadoEm) }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label caption>Ultima atualizacao</q-item-label>
+                  <q-item-label>{{ formatarData(artigo.atualizadoEm) }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label caption>Categoria</q-item-label>
+                  <q-item-label>{{ artigo.categoriaNome || 'Sem categoria' }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </div>
 
-      <q-banner v-if="artigo.resumo" rounded class="bg-blue-1 text-primary q-mb-md">
-        {{ artigo.resumo }}
-      </q-banner>
+        <div v-if="extrairTags(artigo.tags).length" class="row q-gutter-xs q-mt-md">
+          <q-chip v-for="tag in extrairTags(artigo.tags)" :key="tag" dense square color="grey-3" text-color="grey-9">
+            {{ tag }}
+          </q-chip>
+        </div>
+      </AppSectionCard>
 
-      <div class="conteudo-artigo">{{ artigo.conteudo }}</div>
-
-      <div v-if="extrairTags(artigo.tags).length" class="row q-gutter-xs q-mt-md">
-        <q-chip v-for="tag in extrairTags(artigo.tags)" :key="tag" dense square color="grey-3" text-color="grey-9">
-          {{ tag }}
-        </q-chip>
-      </div>
-    </AppSectionCard>
+      <AppSectionCard titulo="Conteudo do artigo" subtitulo="Orientacoes detalhadas para autoatendimento.">
+        <EmptyState
+          v-if="!artigo.conteudo?.trim()"
+          titulo="Conteudo indisponivel"
+          mensagem="Este artigo ainda nao possui conteudo publicado."
+          icon="article"
+        />
+        <div v-else class="conteudo-artigo">{{ artigo.conteudo }}</div>
+      </AppSectionCard>
+    </template>
   </q-page>
 </template>
 
 <style scoped>
 .conteudo-artigo {
   white-space: pre-wrap;
-  line-height: 1.6;
+  line-height: 1.72;
+  color: #1f2937;
 }
 
 :deep(.conteudo-artigo p) {

@@ -26,26 +26,35 @@ function irParaDestino(): void {
 </script>
 
 <template>
-  <q-page class="row items-center justify-center q-pa-md">
-    <q-card flat bordered class="sgx-card denied-card">
-      <q-card-section class="text-center">
-        <q-icon name="gpp_bad" color="negative" size="52px" />
-        <div class="text-h5 text-weight-bold text-negative q-mt-sm">Acesso negado</div>
-        <div class="text-body2 text-grey-8 q-mt-sm">
-          Seu usuário está autenticado, mas não possui permissão para acessar esta área do sistema.
+  <q-page class="auth-page-shell">
+    <q-card flat bordered class="sgx-card auth-card-shell denied-card">
+      <q-card-section class="text-center auth-card-header">
+        <q-avatar size="64px" color="red-1" text-color="negative">
+          <q-icon name="gpp_bad" size="34px" />
+        </q-avatar>
+        <div class="auth-card-title q-mt-md">Acesso negado</div>
+        <div class="auth-card-subtitle">
+          Seu usuário está autenticado, mas não possui autorização para esta área.
+          Se necessário, solicite a liberação ao administrador do SGX.
         </div>
       </q-card-section>
 
-      <q-card-actions align="right" class="q-pa-md q-gutter-sm">
-        <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="voltar" />
-        <q-btn color="secondary" unelevated icon="login" :label="labelDestino" @click="irParaDestino" />
-      </q-card-actions>
+      <q-card-section class="q-pt-none q-px-lg q-pb-lg">
+        <div class="row q-col-gutter-sm">
+          <div class="col-12 col-sm-6">
+            <q-btn flat color="primary" icon="arrow_back" label="Voltar" class="full-width" @click="voltar" />
+          </div>
+          <div class="col-12 col-sm-6">
+            <q-btn color="primary" unelevated icon="login" :label="labelDestino" class="full-width" @click="irParaDestino" />
+          </div>
+        </div>
+      </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <style scoped>
 .denied-card {
-  width: min(560px, 100%);
+  max-width: 560px;
 }
 </style>

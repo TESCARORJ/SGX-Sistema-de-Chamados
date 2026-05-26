@@ -1,4 +1,4 @@
-<script setup lang="ts">
+ï»¿<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
@@ -57,7 +57,7 @@ async function salvar(): Promise<void> {
     mensagemErro.value =
       error instanceof Error
         ? error.message
-        : 'Não foi possível alterar a senha. Tente novamente.'
+        : 'NÃ£o foi possÃ­vel alterar a senha. Tente novamente.'
   } finally {
     carregando.value = false
   }
@@ -70,23 +70,26 @@ async function sair(): Promise<void> {
 </script>
 
 <template>
-  <q-page class="row items-center justify-center q-pa-md alterar-senha-page">
-    <q-card flat bordered class="alterar-senha-card">
-      <q-card-section>
-        <div class="text-h6 text-weight-bold">Troca obrigatória de senha</div>
-        <div class="text-body2 text-grey-8 q-mt-xs">
-          Para continuar no sistema, atualize sua senha local SGX.
+  <q-page class="auth-page-shell">
+    <q-card flat bordered class="sgx-card auth-card-shell alterar-senha-card">
+      <q-card-section class="auth-card-header">
+        <q-chip color="amber-1" text-color="amber-9" icon="shield_lock" class="alterar-senha-chip">
+          SeguranÃ§a da conta
+        </q-chip>
+        <div class="auth-card-title q-mt-sm">Troca obrigatÃ³ria de senha</div>
+        <div class="auth-card-subtitle">
+          Para continuar, atualize sua credencial local SGX com uma senha forte.
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pt-none">
-        <q-banner rounded class="bg-blue-1 text-primary">
-          Requisitos da nova senha: mínimo de 12 caracteres, letra maiúscula, letra minúscula,
-          número e caractere especial.
+      <q-card-section class="q-pt-none q-px-lg">
+        <q-banner rounded class="bg-blue-1 text-primary auth-feedback">
+          Requisitos da nova senha: mÃ­nimo de 12 caracteres, letra maiÃºscula, letra minÃºscula,
+          nÃºmero e caractere especial.
         </q-banner>
       </q-card-section>
 
-      <q-card-section class="q-pt-none">
+      <q-card-section class="q-pt-none q-px-lg q-pb-md">
         <q-form class="q-gutter-md" @submit.prevent="salvar">
           <q-input
             v-model="senhaAtual"
@@ -133,27 +136,28 @@ async function sair(): Promise<void> {
         </q-form>
       </q-card-section>
 
-      <q-card-section v-if="mensagemSucesso" class="q-pt-none">
-        <q-banner rounded class="bg-green-1 text-positive">{{ mensagemSucesso }}</q-banner>
+      <q-card-section v-if="mensagemSucesso" class="q-pt-none q-px-lg q-pb-sm">
+        <q-banner rounded class="bg-green-1 text-positive auth-feedback">{{ mensagemSucesso }}</q-banner>
       </q-card-section>
 
-      <q-card-section v-if="mensagemErro" class="q-pt-none">
-        <q-banner rounded class="bg-red-1 text-negative">{{ mensagemErro }}</q-banner>
+      <q-card-section v-if="mensagemErro" class="q-pt-none q-px-lg q-pb-lg">
+        <q-banner rounded class="bg-red-1 text-negative auth-feedback">{{ mensagemErro }}</q-banner>
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <style scoped>
-.alterar-senha-page {
-  background:
-    radial-gradient(circle at 0% 0%, rgba(30, 136, 229, 0.16), transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(15, 118, 110, 0.14), transparent 38%),
-    linear-gradient(140deg, #f4f8ff 0%, #edf5ff 100%);
+.alterar-senha-card {
+  max-width: 580px;
 }
 
-.alterar-senha-card {
-  width: min(560px, 100%);
-  border-radius: 16px;
+.alterar-senha-chip {
+  border: 1px solid rgba(180, 83, 9, 0.2);
+  font-weight: 700;
+}
+
+.auth-feedback {
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 </style>

@@ -72,11 +72,13 @@ const classesTom = computed(() => toneMap[toneComputado.value])
 <style scoped>
 .metric-card {
   height: 100%;
+  border-radius: var(--sgx-radius-md);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
+  box-shadow: var(--sgx-shadow-md);
 }
 
 .metric-card__content {
@@ -97,6 +99,7 @@ const classesTom = computed(() => toneMap[toneComputado.value])
   line-height: 1.08;
   font-weight: 800;
   color: var(--sgx-text);
+  overflow-wrap: anywhere;
 }
 
 .metric-card__trend {

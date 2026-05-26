@@ -15,6 +15,25 @@ type MenuItem = {
   requiredAnyPermissions?: string[]
 }
 
+type GrupoMenuKey =
+  | 'atendimento'
+  | 'cadastros'
+  | 'configuracoes'
+  | 'integracoes'
+  | 'sla'
+  | 'gestao-itsm'
+  | 'governanca'
+  | 'conhecimento'
+  | 'infraestrutura'
+  | 'relatorios'
+
+type GrupoMenu = {
+  key: GrupoMenuKey
+  label: string
+  icon: string
+  items: MenuItem[]
+}
+
 const $q = useQuasar()
 const route = useRoute()
 const router = useRouter()
@@ -26,6 +45,19 @@ const emulacaoSolicitanteCarregando = ref(false)
 const emulacaoAtendenteCarregando = ref(false)
 const retornoEmulacaoCarregando = ref(false)
 const buscaGlobal = ref('')
+
+const gruposMenuDefinicao: Array<Omit<GrupoMenu, 'items'>> = [
+  { key: 'atendimento', label: 'Atendimento', icon: 'support_agent' },
+  { key: 'cadastros', label: 'Cadastros', icon: 'dataset' },
+  { key: 'configuracoes', label: 'Configurações', icon: 'settings' },
+  { key: 'integracoes', label: 'Integrações', icon: 'hub' },
+  { key: 'sla', label: 'SLA', icon: 'schedule' },
+  { key: 'gestao-itsm', label: 'Gestão ITSM', icon: 'insights' },
+  { key: 'governanca', label: 'Governança', icon: 'fact_check' },
+  { key: 'conhecimento', label: 'Conhecimento', icon: 'menu_book' },
+  { key: 'infraestrutura', label: 'Infraestrutura', icon: 'memory' },
+  { key: 'relatorios', label: 'Relatórios', icon: 'analytics' },
+]
 
 const menu: MenuItem[] = [
   {
@@ -144,6 +176,12 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaCriar, permissoes.slaEditar],
       },
       {
+        label: 'Painel',
+        icon: 'monitoring',
+        to: '/admin/sla/painel',
+        requiredAnyPermissions: [permissoes.slaVisualizar],
+      },
+      {
         label: 'Alertas',
         icon: 'notifications_active',
         to: '/admin/sla/alertas',
@@ -154,12 +192,6 @@ const menu: MenuItem[] = [
         icon: 'event_available',
         to: '/admin/sla/calendarios',
         requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
-      },
-      {
-        label: 'Painel',
-        icon: 'monitoring',
-        to: '/admin/sla/painel',
-        requiredAnyPermissions: [permissoes.slaVisualizar],
       },
     ],
   },
@@ -340,7 +372,7 @@ const menu: MenuItem[] = [
     requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
     children: [
       {
-        label: 'Roadmap',
+        label: 'Roadmap ITSM',
         icon: 'account_tree',
         to: '/admin/gestao-itsm/roadmap',
         requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
@@ -370,6 +402,7 @@ const menu: MenuItem[] = [
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
+const usuarioPerfil = computed(() => authStore.usuario?.perfis?.[0] || 'Perfil não identificado')
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const quantidadePermissoes = computed(() => authStore.usuario?.permissoes?.length ?? 0)
 const fallbackAdminSemPermissoes = computed(() => usuarioEhAdministrador.value && quantidadePermissoes.value === 0)
@@ -415,6 +448,69 @@ const menuVisivel = computed<MenuItem[]>(() =>
       }
     })
     .filter((item): item is MenuItem => Boolean(item))
+)
+
+function resolverGrupoMenu(item: MenuItem): GrupoMenuKey {
+  switch (item.label) {
+    case 'Cadastros':
+      return 'cadastros'
+    case 'Configurações':
+      return 'configuracoes'
+    case 'Integrações':
+      return 'integracoes'
+    case 'SLA':
+      return 'sla'
+    case 'Gestão ITSM':
+      return 'gestao-itsm'
+    case 'Governança':
+      return 'governanca'
+    case 'Conhecimento':
+      return 'conhecimento'
+    case 'Infraestrutura':
+      return 'infraestrutura'
+    case 'Relatórios':
+      return 'relatorios'
+    case 'Dashboard':
+    case 'Atendimento':
+    case 'Notificações':
+    default:
+      return 'atendimento'
+  }
+}
+
+function normalizarLabelMenu(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const menuAgrupado = computed<GrupoMenu[]>(() =>
+  gruposMenuDefinicao
+    .map((grupo) => {
+      const itensDoGrupo = menuVisivel.value.filter((item) => resolverGrupoMenu(item) === grupo.key)
+
+      const itensNormalizados = itensDoGrupo.flatMap((item) => {
+        const itemEhAgrupadorRedundante =
+          !item.to &&
+          Boolean(item.children?.length) &&
+          normalizarLabelMenu(item.label) === normalizarLabelMenu(grupo.label)
+
+        if (itemEhAgrupadorRedundante) {
+          return item.children ?? []
+        }
+
+        return [item]
+      })
+
+      return {
+        ...grupo,
+        items: itensNormalizados,
+      }
+    })
+    .filter((grupo) => grupo.items.length > 0)
 )
 const podeVisualizarNotificacoes = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.notificacoesVisualizar)
@@ -618,7 +714,7 @@ watch(
 
         <div class="q-ml-sm header-title">
           <div class="text-overline text-grey-7">SGX Sistema de Chamados</div>
-          <q-toolbar-title class="text-subtitle1 text-weight-bold">
+          <q-toolbar-title class="text-subtitle1 text-weight-bold header-title__value">
             {{ tituloPagina }}
           </q-toolbar-title>
         </div>
@@ -630,6 +726,7 @@ watch(
           class="header-search gt-sm"
           dense
           outlined
+          aria-label="Buscar chamados"
           placeholder="Buscar chamados, solicitantes, categorias..."
           @keyup.enter="acionarBuscaGlobal"
         >
@@ -637,7 +734,7 @@ watch(
             <q-icon name="search" />
           </template>
           <template #append>
-            <q-btn flat round dense icon="arrow_forward" @click="acionarBuscaGlobal" />
+            <q-btn flat round dense icon="arrow_forward" aria-label="Executar busca global" @click="acionarBuscaGlobal" />
           </template>
         </q-input>
 
@@ -651,8 +748,13 @@ watch(
               <span class="status-dot" />
               <span class="text-caption text-grey-7">{{ statusUsuario }}</span>
             </div>
+            <div class="text-caption text-grey-7 ellipsis user-chip__perfil">{{ usuarioPerfil }}</div>
           </div>
-          <q-tooltip>{{ usuarioEmail }}</q-tooltip>
+          <q-tooltip>
+            <div>{{ usuarioNome }}</div>
+            <div>{{ usuarioEmail }}</div>
+            <div>{{ usuarioPerfil }}</div>
+          </q-tooltip>
         </q-chip>
       </q-toolbar>
     </q-header>
@@ -672,7 +774,7 @@ watch(
       <div class="admin-sidebar">
         <div class="q-pa-md drawer-brand">
           <q-avatar size="42px" color="secondary" text-color="white" icon="support_agent" />
-          <div>
+          <div v-if="!drawerMini">
             <div class="drawer-brand__title">SGX</div>
             <div class="drawer-brand__name">Sistema de Chamados</div>
             <div class="text-caption drawer-brand__subtitle">Painel administrativo</div>
@@ -687,6 +789,7 @@ watch(
             unelevated
             icon="visibility"
             :label="drawerMini ? '' : 'Visualizar como Solicitante'"
+            aria-label="Visualizar como Solicitante"
             class="full-width drawer-emulacao-btn"
             :loading="emulacaoSolicitanteCarregando"
             @click="visualizarComoSolicitante"
@@ -699,6 +802,7 @@ watch(
             unelevated
             icon="support_agent"
             :label="drawerMini ? '' : 'Visualizar como Atendente'"
+            aria-label="Visualizar como Atendente"
             class="full-width drawer-emulacao-btn"
             :loading="emulacaoAtendenteCarregando"
             @click="visualizarComoAtendente"
@@ -711,48 +815,58 @@ watch(
 
         <div class="admin-sidebar__nav-wrap">
           <q-list class="admin-sidebar__nav" padding>
-            <template v-for="item in menuVisivel" :key="item.label">
-              <q-item
-                v-if="item.to"
-                clickable
-                :active="rotaAtiva(item.to)"
-                active-class="menu-item-active"
-                @click="navegarPara(item.to)"
-              >
-                <q-item-section avatar>
-                  <q-icon :name="item.icon" />
-                </q-item-section>
-                <q-item-section>{{ item.label }}</q-item-section>
-                <q-tooltip v-if="drawerMini">{{ item.label }}</q-tooltip>
-              </q-item>
+            <template v-for="grupo in menuAgrupado" :key="grupo.key">
+              <q-item-label v-if="!drawerMini" header class="menu-group-label row items-center q-gutter-xs">
+                <q-icon :name="grupo.icon" size="16px" />
+                <span>{{ grupo.label }}</span>
+              </q-item-label>
 
-              <q-expansion-item
-                v-else
-                dense-toggle
-                expand-separator
-                :icon="item.icon"
-                :label="item.label"
-                :default-opened="grupoAberto(item.children)"
-                header-class="menu-group"
-                :disable="drawerMini"
-              >
-                <q-list dense>
-                  <q-item
-                    v-for="child in item.children"
-                    :key="child.label"
-                    clickable
-                    :inset-level="0.5"
-                    :active="Boolean(child.to && rotaAtiva(child.to))"
-                    active-class="menu-item-active"
-                    @click="child.to && navegarPara(child.to)"
-                  >
-                    <q-item-section avatar>
-                      <q-icon :name="child.icon" size="18px" />
-                    </q-item-section>
-                    <q-item-section>{{ child.label }}</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-expansion-item>
+              <template v-for="item in grupo.items" :key="item.label">
+                <q-item
+                  v-if="item.to"
+                  clickable
+                  class="menu-entry"
+                  :active="rotaAtiva(item.to)"
+                  active-class="menu-item-active"
+                  @click="navegarPara(item.to)"
+                >
+                  <q-item-section avatar>
+                    <q-icon :name="item.icon" />
+                  </q-item-section>
+                  <q-item-section>{{ item.label }}</q-item-section>
+                  <q-tooltip v-if="drawerMini">{{ item.label }}</q-tooltip>
+                </q-item>
+
+                <q-expansion-item
+                  v-else
+                  dense-toggle
+                  expand-separator
+                  class="menu-entry menu-entry--group"
+                  :icon="item.icon"
+                  :label="item.label"
+                  :default-opened="grupoAberto(item.children)"
+                  header-class="menu-group"
+                  :disable="drawerMini"
+                >
+                  <q-list dense>
+                    <q-item
+                      v-for="child in item.children"
+                      :key="child.label"
+                      clickable
+                      class="menu-entry menu-entry--child"
+                      :inset-level="0.5"
+                      :active="Boolean(child.to && rotaAtiva(child.to))"
+                      active-class="menu-item-active"
+                      @click="child.to && navegarPara(child.to)"
+                    >
+                      <q-item-section avatar>
+                        <q-icon :name="child.icon" size="18px" />
+                      </q-item-section>
+                      <q-item-section>{{ child.label }}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-expansion-item>
+              </template>
             </template>
           </q-list>
         </div>
@@ -765,6 +879,7 @@ watch(
             class="text-grey-8"
             :icon="drawerMini ? 'chevron_right' : 'chevron_left'"
             :label="drawerMini ? '' : 'Recolher menu'"
+            :aria-label="drawerMini ? 'Expandir menu lateral' : 'Recolher menu lateral'"
             :disable="$q.screen.lt.md"
             @click="drawerMini = !drawerMini"
           >
@@ -776,6 +891,7 @@ watch(
             unelevated
             icon="logout"
             :label="drawerMini ? '' : 'Sair'"
+            aria-label="Sair da conta"
             class="full-width drawer-exit-btn"
             @click="logout"
           >
@@ -785,7 +901,7 @@ watch(
       </div>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="admin-page-container">
       <div v-if="emulandoAtendente" class="q-pa-sm q-pa-md">
         <q-banner rounded class="bg-amber-2 text-dark emulacao-banner">
           <template #avatar>
@@ -815,20 +931,26 @@ watch(
 
 <style scoped>
 .admin-layout {
-  background: linear-gradient(180deg, var(--sgx-page-bg) 0%, #eaf0f9 100%);
+  background: linear-gradient(180deg, var(--sgx-page-bg) 0%, var(--sgx-page-bg-alt) 100%);
 }
 
 .admin-header {
-  background: #fdfefe;
-  border-bottom: 1px solid #dde4f0;
+  background: rgba(253, 254, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--sgx-border-soft);
 }
 
 .header-toolbar {
   min-width: 0;
+  gap: var(--sgx-space-2);
 }
 
 .header-title {
   min-width: 0;
+}
+
+.header-title__value {
+  color: var(--sgx-text);
 }
 
 .header-title :deep(.q-toolbar__title) {
@@ -841,8 +963,15 @@ watch(
   width: clamp(220px, 28vw, 430px);
 }
 
+.header-search :deep(.q-field__control) {
+  background: #ffffff;
+}
+
 .user-chip {
-  background: #f1f5f9;
+  background: #ffffff;
+  border: 1px solid var(--sgx-border);
+  border-radius: var(--sgx-radius-md);
+  box-shadow: var(--sgx-shadow-sm);
   max-width: 260px;
   min-width: 0;
 }
@@ -851,11 +980,15 @@ watch(
   max-width: 140px;
 }
 
+.user-chip__perfil {
+  max-width: 160px;
+}
+
 .status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #22c55e;
+  background: var(--sgx-success);
 }
 
 .admin-drawer {
@@ -873,6 +1006,12 @@ watch(
   grid-template-columns: auto 1fr;
   gap: 12px;
   align-items: center;
+  padding: 14px;
+  margin: 12px;
+  border: 1px solid var(--sgx-border);
+  border-radius: var(--sgx-radius-md);
+  background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+  box-shadow: var(--sgx-shadow-sm);
 }
 
 .admin-sidebar {
@@ -885,11 +1024,21 @@ watch(
   flex: 1 1 auto;
   min-height: 220px;
   overflow-y: auto;
-  padding: 8px 10px;
+  padding: 10px;
 }
 
 .admin-sidebar__nav {
   padding: 0 !important;
+}
+
+.menu-group-label {
+  padding: 12px 8px 6px;
+  margin-top: 6px;
+  color: var(--sgx-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .drawer-brand__title {
@@ -897,7 +1046,7 @@ watch(
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: #0b5ed7;
+  color: var(--sgx-primary);
 }
 
 .drawer-brand__name {
@@ -909,24 +1058,40 @@ watch(
 }
 
 .drawer-brand__subtitle {
-  color: #64748b;
+  color: var(--sgx-muted);
 }
 
-:deep(.menu-item-active) {
+:deep(.menu-entry) {
+  margin-bottom: 4px;
+  border-radius: var(--sgx-radius-sm);
+}
+
+:deep(.menu-entry .q-item) {
+  border-radius: var(--sgx-radius-sm);
+}
+
+:deep(.menu-entry.q-item),
+:deep(.menu-entry .q-item),
+:deep(.menu-group) {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+:deep(.menu-item-active),
+:deep(.menu-entry .menu-item-active) {
   background: rgba(11, 94, 215, 0.12);
-  color: #0b5ed7;
-  border-radius: 10px;
-  box-shadow: none;
+  color: var(--sgx-primary);
+  border-radius: var(--sgx-radius-sm);
+  box-shadow: inset 3px 0 0 var(--sgx-primary);
 }
 
 :deep(.menu-group) {
-  border-radius: 10px;
+  border-radius: var(--sgx-radius-sm);
   color: #0f172a;
 }
 
 :deep(.q-item) {
   color: #0f172a;
-  border-radius: 10px;
+  border-radius: var(--sgx-radius-sm);
 }
 
 :deep(.q-item.q-item--clickable:hover),
@@ -936,11 +1101,11 @@ watch(
 
 :deep(.q-item__section--avatar .q-icon),
 :deep(.q-expansion-item__toggle-icon) {
-  color: #0b2f66;
+  color: #1e3a8a;
 }
 
 :deep(.menu-item-active .q-icon) {
-  color: #0b5ed7;
+  color: var(--sgx-primary);
 }
 
 :deep(.q-expansion-item__container > .q-item .q-item__label) {
@@ -956,11 +1121,11 @@ watch(
 }
 
 :deep(.q-separator) {
-  background: #dbe4f1;
+  background: var(--sgx-border-soft);
 }
 
 :deep(.q-drawer--left.q-drawer--bordered) {
-  border-right: 1px solid #dbe4f1;
+  border-right: 1px solid var(--sgx-border-soft);
 }
 
 :deep(.q-expansion-item__container .q-item) {
@@ -968,16 +1133,17 @@ watch(
 }
 
 .drawer-emulacao-btn {
-  background: #1f63d1;
+  background: var(--sgx-primary);
   color: #ffffff !important;
-  border: 1px solid #1a55b2;
+  border: 1px solid #0a50b8;
   min-height: 40px;
-  border-radius: 10px;
+  border-radius: var(--sgx-radius-sm);
 }
 
 .emulacao-acoes {
   display: grid;
   gap: 8px;
+  padding-top: 2px;
 }
 
 .drawer-emulacao-btn :deep(.q-icon) {
@@ -990,14 +1156,18 @@ watch(
 
 .drawer-exit-btn {
   background: transparent;
-  color: #dc2626 !important;
-  border: 1px solid #dc2626;
-  border-radius: 10px;
+  color: var(--sgx-danger) !important;
+  border: 1px solid var(--sgx-danger);
+  border-radius: var(--sgx-radius-sm);
   min-height: 40px;
 }
 
 .drawer-exit-btn:hover {
   background: rgba(220, 38, 38, 0.08) !important;
+}
+
+.admin-page-container {
+  background: rgba(244, 247, 251, 0.6);
 }
 
 @media (max-width: 1430px) {
@@ -1006,6 +1176,10 @@ watch(
   }
 
   .user-chip__name {
+    max-width: 106px;
+  }
+
+  .user-chip__perfil {
     max-width: 106px;
   }
 }
@@ -1018,6 +1192,10 @@ watch(
   .user-chip__name {
     max-width: 90px;
   }
+
+  .user-chip__perfil {
+    max-width: 90px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1025,8 +1203,25 @@ watch(
     display: none;
   }
 
+  .header-search {
+    width: 100%;
+  }
+
   .user-chip {
     padding-right: 6px;
+    min-width: 0;
+  }
+
+  .user-chip__perfil {
+    display: none;
+  }
+
+  .drawer-brand {
+    margin: 10px;
+  }
+
+  .menu-group-label {
+    padding-top: 10px;
   }
 }
 </style>

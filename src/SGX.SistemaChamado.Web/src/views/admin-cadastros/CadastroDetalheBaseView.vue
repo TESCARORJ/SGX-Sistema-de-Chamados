@@ -3,11 +3,13 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import FormCadastro from '../../components/admin/cadastros/FormCadastro.vue'
+import AppSectionCard from '../../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
+import StatusBadge from '../../components/ui/StatusBadge.vue'
 import { permissoes, permissoesCriticas } from '../../constants/permissoes'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
 import { parametrosSistemaService } from '../../services/parametrosSistemaService'
@@ -133,6 +135,14 @@ const modulosPermissoes = computed(() => {
     }))
     .sort((a, b) => a.moduloLabel.localeCompare(b.moduloLabel))
 })
+const subtituloCabecalho = computed(() =>
+  isNovo.value ? 'Criacao de novo cadastro' : 'Detalhe e manutencao de cadastro'
+)
+const subtituloFormulario = computed(() =>
+  isNovo.value
+    ? 'Preencha os campos obrigatorios para concluir o cadastro.'
+    : 'Revise e atualize os dados mantendo o padrao administrativo.'
+)
 
 const form = reactive({
   nome: '',
@@ -801,19 +811,15 @@ watch(
 </script>
 
 <template>
-  <q-page class="sgx-page column q-gutter-md">
+  <q-page class="sgx-page column q-gutter-md cadastro-detalhe">
     <PageHeader
       :titulo="titulo"
-      :subtitulo="isNovo ? 'CriaÃ§Ã£o de novo cadastro' : 'Detalhe e manutenÃ§Ã£o de cadastro'"
+      :subtitulo="subtituloCabecalho"
+      contexto="Gestao administrativa"
     >
       <template #actions>
         <div class="row q-gutter-sm items-center">
-          <q-badge
-            v-if="!isNovo"
-            :color="registroAtivo ? 'positive' : 'grey-7'"
-            text-color="white"
-            :label="registroAtivo ? 'Ativo' : 'Inativo'"
-          />
+          <StatusBadge v-if="!isNovo" :texto="registroAtivo ? 'Ativo' : 'Inativo'" />
           <q-btn flat icon="arrow_back" label="Voltar" @click="router.push(listPath)" />
           <q-btn
             v-if="podeRedefinirSenhaUsuario"
@@ -858,15 +864,19 @@ watch(
     <template v-else>
       <q-banner v-if="erro" class="bg-red-1 text-negative">{{ erro }}</q-banner>
       <q-banner v-if="sucesso" class="bg-green-1 text-positive">{{ sucesso }}</q-banner>
+      <q-banner v-if="entidade === 'parametros'" rounded class="bg-orange-1 text-orange-10">
+        Esta area controla configuracoes sensiveis do sistema. Revise antes de salvar.
+      </q-banner>
 
       <FormCadastro
         :titulo="isNovo ? `${titulo} - Novo` : `${titulo} - Detalhe`"
+        :subtitulo="subtituloFormulario"
         :loading="loading"
         :somente-leitura="somenteLeitura"
         @cancelar="() => router.push(listPath)"
         @salvar="salvar"
       >
-        <div class="row q-col-gutter-md">
+        <div class="row q-col-gutter-md cadastro-detalhe__form-grid">
           <template v-if="entidade === 'usuarios'">
             <div class="col-12 col-md-6">
               <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
@@ -1191,13 +1201,12 @@ watch(
         </div>
       </FormCadastro>
 
-      <q-card
+      <AppSectionCard
         v-if="podeMostrarMatrizPermissoes"
-        flat
-        bordered
-        class="sgx-card q-pa-md q-mt-md"
+        class="q-mt-md"
+        titulo="Permissoes do perfil"
+        subtitulo="Defina acessos por modulo e acao para este perfil."
       >
-        <div class="text-h6">PermissÃµes do perfil</div>
         <div class="text-caption text-grey-7 q-mb-md">
           Defina quais mÃ³dulos e aÃ§Ãµes este perfil pode acessar no SGX Sistema de Chamados.
         </div>
@@ -1304,7 +1313,7 @@ watch(
             {{ sucessoPermissoesPerfil }}
           </q-banner>
         </template>
-      </q-card>
+      </AppSectionCard>
     </template>
 
     <ConfirmDialog
@@ -1331,7 +1340,7 @@ watch(
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">Redefinir senha do usuário</div>
           <q-space />
-          <q-btn icon="close" flat round dense :disable="redefinirSenhaLoading" v-close-popup />
+          <q-btn icon="close" flat round dense aria-label="Fechar redefinição de senha" :disable="redefinirSenhaLoading" v-close-popup />
         </q-card-section>
 
         <q-card-section>
@@ -1377,5 +1386,11 @@ watch(
     </q-dialog>
   </q-page>
 </template>
+
+<style scoped>
+.cadastro-detalhe__form-grid {
+  row-gap: var(--sgx-space-3);
+}
+</style>
 
 

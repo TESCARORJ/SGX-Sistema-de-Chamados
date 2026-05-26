@@ -6,10 +6,10 @@ describe('RelatoriosSlaPage', () => {
     const caminho = new URL('./RelatoriosSlaPage.vue', import.meta.url)
     const fonte = readFileSync(caminho, 'utf-8')
 
-    expect(fonte).toContain('Relatórios - SLA')
+    expect(fonte).toContain('Relatorios - SLA')
     expect(fonte).toContain('Total com SLA')
     expect(fonte).toContain('SLA por departamento')
-    expect(fonte).toContain('Violações de SLA')
+    expect(fonte).toContain('Violacoes de SLA')
   })
 
   it('deve tratar erro e vazio', () => {

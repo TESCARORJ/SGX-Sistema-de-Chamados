@@ -131,32 +131,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-page class="login-page row items-center justify-center q-pa-md">
-    <q-card flat bordered class="sgx-card login-card">
-      <q-card-section class="text-center q-pb-sm">
+  <q-page class="auth-page-shell">
+    <q-card flat bordered class="sgx-card auth-card-shell login-card">
+      <q-card-section class="text-center auth-card-header">
         <q-chip color="blue-1" text-color="primary" icon="verified_user" class="login-brand-chip">
-          SGX
+          Acesso seguro
         </q-chip>
-        <div class="text-h5 text-weight-bold q-mt-sm">SGX Sistema de Chamados</div>
-        <div class="text-subtitle2 text-grey-8 q-mt-xs">Atendimento interno, rastreável e organizado.</div>
-        <div class="text-body2 text-grey-7 q-mt-sm">
-          Escolha o provedor de autenticação para acessar o sistema.
+        <div class="auth-card-title q-mt-sm">SGX Sistema de Chamados</div>
+        <div class="auth-card-subtitle">Service desk corporativo para operação ITSM</div>
+        <div class="auth-card-note q-mt-sm">
+          Autentique-se para acessar o painel com rastreabilidade e segurança.
         </div>
       </q-card-section>
 
-      <q-card-section v-if="carregandoProvedores" class="q-pt-none">
+      <q-card-section v-if="carregandoProvedores" class="q-pt-none q-px-lg">
         <q-linear-progress indeterminate color="primary" />
       </q-card-section>
 
       <template v-else>
-        <q-card-section v-if="!possuiAlgumProvedor" class="q-pt-none">
-          <q-banner rounded class="bg-orange-1 text-warning">
+        <q-card-section v-if="!possuiAlgumProvedor" class="q-pt-none q-px-lg">
+          <q-banner rounded class="bg-orange-1 text-warning auth-feedback">
             Nenhum método de autenticação está configurado. Contate o administrador do sistema.
           </q-banner>
         </q-card-section>
 
-        <q-card-section v-if="loginMicrosoftDisponivel">
-          <div class="text-body2 text-grey-8 q-mb-sm">
+        <q-card-section v-if="loginMicrosoftDisponivel" class="q-pt-none q-px-lg q-pb-md">
+          <div class="text-body2 text-grey-8 q-mb-sm auth-provider-copy">
             Entre com sua conta corporativa Microsoft Entra ID.
           </div>
           <q-btn
@@ -172,15 +172,15 @@ onMounted(() => {
           />
         </q-card-section>
 
-        <q-card-section v-if="loginLocalSgxDisponivel" :class="loginMicrosoftDisponivel ? 'q-pt-none' : ''">
+        <q-card-section v-if="loginLocalSgxDisponivel" class="q-px-lg" :class="loginMicrosoftDisponivel ? 'q-pt-none' : 'q-pt-sm'">
           <div v-if="loginMicrosoftDisponivel" class="row items-center no-wrap q-mb-md">
             <q-separator class="col" inset />
             <div class="q-px-sm text-caption text-grey-7">ou</div>
             <q-separator class="col" inset />
           </div>
 
-          <div class="text-subtitle1 text-weight-medium">Login local SGX</div>
-          <div class="text-body2 text-grey-8 q-mt-xs">Acesso por e-mail e senha com autenticação local da API.</div>
+          <div class="text-subtitle1 text-weight-bold">Acesso por credenciais SGX</div>
+          <div class="text-body2 text-grey-8 q-mt-xs auth-provider-copy">Entre com e-mail corporativo e senha local.</div>
 
           <q-form class="q-gutter-md q-mt-md" @submit.prevent="entrarComEmailSenha">
             <q-input
@@ -203,9 +203,9 @@ onMounted(() => {
 
             <q-btn
               type="submit"
-              color="secondary"
+              color="primary"
               unelevated
-              icon="mail"
+              icon="login"
               class="full-width"
               :loading="autenticando"
               :disable="autenticando"
@@ -218,17 +218,17 @@ onMounted(() => {
           </q-form>
         </q-card-section>
 
-        <q-card-section v-if="loginLocalDevelopmentDisponivel" class="q-pt-none">
+        <q-card-section v-if="loginLocalDevelopmentDisponivel" class="q-pt-none q-px-lg q-pb-lg">
           <div class="row items-center no-wrap q-mb-md">
             <q-separator class="col" inset />
             <div class="q-px-sm text-caption text-grey-7">desenvolvimento</div>
             <q-separator class="col" inset />
           </div>
 
-          <div class="text-subtitle1 text-weight-medium">Login local Development</div>
-          <div class="text-body2 text-grey-8 q-mt-xs">Uso exclusivo para desenvolvimento local.</div>
+          <div class="text-subtitle1 text-weight-bold">Acesso local de desenvolvimento</div>
+          <div class="text-body2 text-grey-8 q-mt-xs auth-provider-copy">Disponível somente para ambiente local de testes.</div>
 
-          <q-banner rounded class="bg-orange-1 text-warning q-mt-md">
+          <q-banner rounded class="bg-orange-1 text-warning q-mt-md auth-feedback">
             Este acesso existe apenas em ambiente Development.
           </q-banner>
 
@@ -245,8 +245,8 @@ onMounted(() => {
         </q-card-section>
       </template>
 
-      <q-card-section v-if="mensagemErro" class="q-pt-none">
-        <q-banner rounded class="bg-red-1 text-negative">
+      <q-card-section v-if="mensagemErro" class="q-pt-none q-px-lg q-pb-lg">
+        <q-banner rounded class="bg-red-1 text-negative auth-feedback">
           {{ mensagemErro }}
         </q-banner>
       </q-card-section>
@@ -255,20 +255,20 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.login-page {
-  background:
-    radial-gradient(circle at 8% 0%, rgba(11, 94, 215, 0.16), transparent 40%),
-    radial-gradient(circle at 100% 100%, rgba(2, 132, 199, 0.14), transparent 38%),
-    linear-gradient(135deg, #f3f7fd 0%, #edf3fb 100%);
-}
-
 .login-card {
-  width: min(560px, 100%);
-  border-radius: 18px;
+  max-width: 580px;
 }
 
 .login-brand-chip {
   border: 1px solid rgba(11, 94, 215, 0.25);
   font-weight: 700;
+}
+
+.auth-provider-copy {
+  line-height: 1.4;
+}
+
+.auth-feedback {
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 </style>

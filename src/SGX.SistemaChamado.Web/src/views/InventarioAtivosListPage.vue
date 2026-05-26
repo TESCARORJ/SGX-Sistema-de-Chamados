@@ -8,8 +8,11 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminService'
@@ -116,6 +119,36 @@ const colunas: QTableColumn<InventarioAtivoListagem>[] = [
   { name: 'acoes', label: 'Acoes', field: 'id', align: 'right' },
 ]
 
+const indicadoresPagina = computed(() => {
+  const totalPagina = ativos.value.length
+  const ativosOperacionais = ativos.value.filter((item) => item.statusOperacional === StatusOperacionalAtivo.Operacional).length
+  const emManutencao = ativos.value.filter((item) => item.statusOperacional === StatusOperacionalAtivo.EmManutencao).length
+  const criticidadeAlta = ativos.value.filter((item) => item.criticidade === CriticidadeAtivo.Alta || item.criticidade === CriticidadeAtivo.Critica).length
+
+  return {
+    totalPagina,
+    ativosOperacionais,
+    emManutencao,
+    criticidadeAlta,
+  }
+})
+
+const filtrosAplicados = computed(() => {
+  let totalFiltros = 0
+
+  if (filtros.termo.trim()) totalFiltros += 1
+  if (filtros.tipoAtivoInventarioId) totalFiltros += 1
+  if (filtros.departamentoId) totalFiltros += 1
+  if (filtros.localUnidadeId) totalFiltros += 1
+  if (filtros.usuarioResponsavelId) totalFiltros += 1
+  if (filtros.statusOperacional) totalFiltros += 1
+  if (filtros.statusPatrimonial) totalFiltros += 1
+  if (filtros.criticidade) totalFiltros += 1
+  if (filtros.ativo !== 'todos') totalFiltros += 1
+
+  return totalFiltros
+})
+
 const tituloConfirmacao = computed(() =>
   tipoAcao.value === 'inativar' ? 'Confirmar inativacao' : 'Confirmar reativacao'
 )
@@ -152,53 +185,6 @@ function extrairMensagemErro(error: unknown, fallback: string): string {
   }
 
   return mensagem
-}
-
-function corStatusOperacional(value: StatusOperacionalAtivo): string {
-  switch (value) {
-    case StatusOperacionalAtivo.Operacional:
-      return 'positive'
-    case StatusOperacionalAtivo.EmManutencao:
-      return 'warning'
-    case StatusOperacionalAtivo.ComDefeito:
-      return 'negative'
-    case StatusOperacionalAtivo.Reservado:
-      return 'blue'
-    default:
-      return 'grey-7'
-  }
-}
-
-function corStatusPatrimonial(value: StatusPatrimonialAtivo): string {
-  switch (value) {
-    case StatusPatrimonialAtivo.EmUso:
-      return 'primary'
-    case StatusPatrimonialAtivo.EmEstoque:
-      return 'teal'
-    case StatusPatrimonialAtivo.Emprestado:
-      return 'indigo'
-    case StatusPatrimonialAtivo.EmTransferencia:
-      return 'warning'
-    case StatusPatrimonialAtivo.Descartado:
-      return 'negative'
-    case StatusPatrimonialAtivo.Extraviado:
-      return 'deep-orange'
-    default:
-      return 'grey-7'
-  }
-}
-
-function corCriticidade(value: CriticidadeAtivo): string {
-  switch (value) {
-    case CriticidadeAtivo.Baixa:
-      return 'positive'
-    case CriticidadeAtivo.Media:
-      return 'blue'
-    case CriticidadeAtivo.Alta:
-      return 'warning'
-    default:
-      return 'negative'
-  }
 }
 
 function abrirNovoAtivo(): void {
@@ -352,10 +338,17 @@ onMounted(async () => {
 </script>
 
 <template>
-  <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Inventario/Ativos" subtitulo="Controle administrativo de ativos com rastreabilidade operacional.">
+  <q-page class="sgx-page column q-gutter-md inventario-lista">
+    <PageHeader
+      titulo="Inventario/Ativos"
+      subtitulo="Controle administrativo de ativos com rastreabilidade operacional e patrimonial."
+      contexto="Infraestrutura"
+    >
       <template #actions>
-        <q-btn v-if="podeGerenciar" color="primary" icon="add" label="Novo ativo" :disable="loading" @click="abrirNovoAtivo" />
+        <div class="row q-gutter-sm">
+          <q-btn flat color="primary" icon="refresh" label="Atualizar" :loading="loading" @click="carregarAtivos" />
+          <q-btn v-if="podeGerenciar" color="primary" icon="add" label="Novo ativo" unelevated :disable="loading" @click="abrirNovoAtivo" />
+        </div>
       </template>
     </PageHeader>
 
@@ -364,8 +357,16 @@ onMounted(async () => {
     </q-banner>
 
     <template v-else>
-      <AppSectionCard titulo="Filtros" subtitulo="Pesquise por codigo, nome e contexto operacional do ativo.">
-        <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
+      <div class="inventario-lista__kpis">
+        <MetricCard titulo="Ativos na pagina" :valor="indicadoresPagina.totalPagina" icon="inventory_2" tone="primary" />
+        <MetricCard titulo="Operacionais" :valor="indicadoresPagina.ativosOperacionais" icon="check_circle" tone="positive" />
+        <MetricCard titulo="Em manutencao" :valor="indicadoresPagina.emManutencao" icon="build" tone="warning" />
+        <MetricCard titulo="Criticidade alta/critica" :valor="indicadoresPagina.criticidadeAlta" icon="priority_high" tone="negative" />
+      </div>
+
+      <AppSectionCard titulo="Filtros" :subtitulo="`Pesquise por codigo, nome e contexto operacional do ativo. Filtros aplicados: ${filtrosAplicados}.`">
+        <FilterBar compact titulo="Refine a consulta" subtitulo="Use combinacoes de filtros para cruzar operacao, patrimonio e responsavel.">
+          <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
           <div class="row q-col-gutter-sm">
             <div class="col-12 col-md-3">
               <q-input
@@ -482,10 +483,11 @@ onMounted(async () => {
           </div>
 
           <div class="row justify-end q-gutter-sm">
-            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
-            <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
+            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" unelevated />
+            <q-btn flat color="primary" label="Limpar filtros" :disable="loading" @click="limparFiltros" />
           </div>
-        </q-form>
+          </q-form>
+        </FilterBar>
       </AppSectionCard>
 
       <q-banner v-if="erro && ativos.length" rounded class="bg-red-1 text-negative">
@@ -506,7 +508,11 @@ onMounted(async () => {
         titulo="Nenhum ativo encontrado"
         mensagem="Nenhum resultado corresponde aos filtros aplicados."
         icon="inventory_2"
-      />
+      >
+        <template v-if="podeGerenciar" #actions>
+          <q-btn color="primary" icon="add" label="Cadastrar ativo" unelevated @click="abrirNovoAtivo" />
+        </template>
+      </EmptyState>
 
       <AppSectionCard v-else titulo="Ativos" :subtitulo="`Total de ativos: ${total}`">
         <q-table
@@ -519,81 +525,102 @@ onMounted(async () => {
           :rows-per-page-options="[0]"
           hide-bottom
         >
+          <template #body-cell-codigo="slotProps">
+            <q-td :props="slotProps">
+              <div class="column">
+                <span class="text-weight-semibold">{{ slotProps.row.codigo }}</span>
+                <span class="text-caption sgx-muted">Atualizado: {{ slotProps.row.atualizadoEm ? new Date(slotProps.row.atualizadoEm).toLocaleDateString('pt-BR') : '-' }}</span>
+              </div>
+            </q-td>
+          </template>
+
           <template #body-cell-statusOperacional="slotProps">
             <q-td :props="slotProps">
-              <q-chip
-                dense
-                square
-                text-color="white"
-                :color="corStatusOperacional(slotProps.row.statusOperacional)"
-              >
-                {{ slotProps.row.statusOperacionalDescricao }}
-              </q-chip>
+              <StatusBadge :texto="slotProps.row.statusOperacionalDescricao" />
             </q-td>
           </template>
 
           <template #body-cell-statusPatrimonial="slotProps">
             <q-td :props="slotProps">
-              <q-chip
-                dense
-                square
-                text-color="white"
-                :color="corStatusPatrimonial(slotProps.row.statusPatrimonial)"
-              >
-                {{ slotProps.row.statusPatrimonialDescricao }}
-              </q-chip>
+              <StatusBadge :texto="slotProps.row.statusPatrimonialDescricao" />
             </q-td>
           </template>
 
           <template #body-cell-criticidade="slotProps">
             <q-td :props="slotProps">
-              <q-chip dense square text-color="white" :color="corCriticidade(slotProps.row.criticidade)">
-                {{ slotProps.row.criticidadeDescricao }}
-              </q-chip>
+              <StatusBadge :texto="slotProps.row.criticidadeDescricao" />
+            </q-td>
+          </template>
+
+          <template #body-cell-tipo="slotProps">
+            <q-td :props="slotProps">
+              <q-chip dense color="blue-1" text-color="primary" icon="category" :label="slotProps.row.tipoAtivoInventarioNome" />
+            </q-td>
+          </template>
+
+          <template #body-cell-patrimonio="slotProps">
+            <q-td :props="slotProps">
+              <q-chip
+                dense
+                square
+                color="grey-2"
+                text-color="grey-9"
+                icon="badge"
+                :label="slotProps.row.numeroPatrimonio || '-'"
+              />
             </q-td>
           </template>
 
           <template #body-cell-ativo="slotProps">
             <q-td :props="slotProps">
-              <q-badge :color="slotProps.row.ativo ? 'positive' : 'grey-6'" text-color="white">
-                {{ slotProps.row.ativo ? 'Ativo' : 'Inativo' }}
-              </q-badge>
+              <StatusBadge :texto="slotProps.row.ativo ? 'Ativo' : 'Inativo'" />
             </q-td>
           </template>
 
           <template #body-cell-acoes="slotProps">
             <q-td :props="slotProps" class="text-right q-gutter-xs">
-              <q-btn flat dense color="primary" icon="visibility" label="Ver detalhes" @click="abrirDetalhe(slotProps.row.id)" />
+              <q-btn flat round dense color="primary" icon="visibility" aria-label="Ver detalhes do ativo" @click="abrirDetalhe(slotProps.row.id)">
+                <q-tooltip>Ver detalhes</q-tooltip>
+              </q-btn>
 
               <q-btn
                 v-if="podeGerenciar && slotProps.row.ativo"
                 flat
+                round
                 dense
                 color="primary"
                 icon="edit"
-                label="Editar"
+                aria-label="Editar ativo"
                 @click="editarAtivo(slotProps.row.id)"
-              />
+              >
+                <q-tooltip>Editar ativo</q-tooltip>
+              </q-btn>
 
               <q-btn
                 v-if="podeInativar && slotProps.row.ativo"
                 flat
+                round
                 dense
                 color="negative"
                 icon="block"
-                label="Inativar"
+                aria-label="Inativar ativo"
                 @click="abrirConfirmacao(slotProps.row, 'inativar')"
-              />
+              >
+                <q-tooltip>Inativar ativo</q-tooltip>
+              </q-btn>
 
               <q-btn
                 v-if="podeInativar && !slotProps.row.ativo"
                 flat
+                round
                 dense
                 color="primary"
                 icon="restart_alt"
-                label="Reativar"
+                aria-label="Reativar ativo"
                 @click="abrirConfirmacao(slotProps.row, 'reativar')"
-              />
+              >
+                <q-tooltip>Reativar ativo</q-tooltip>
+              </q-btn>
             </q-td>
           </template>
         </q-table>
@@ -624,11 +651,33 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.inventario-lista__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sgx-space-4);
+}
+
 :deep(.sgx-table .q-table__middle) {
   overflow-x: auto;
 }
 
+:deep(.sgx-table .q-chip) {
+  max-width: 100%;
+}
+
 :deep(.sgx-table tbody tr:hover) {
   background: rgba(11, 94, 215, 0.04);
+}
+
+@media (max-width: 1100px) {
+  .inventario-lista__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .inventario-lista__kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

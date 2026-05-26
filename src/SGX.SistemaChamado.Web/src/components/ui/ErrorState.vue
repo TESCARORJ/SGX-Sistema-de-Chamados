@@ -15,7 +15,7 @@ function onRetry(): void {
 </script>
 
 <template>
-  <q-card flat bordered class="sgx-card">
+  <q-card flat bordered class="sgx-card" role="alert" aria-live="assertive">
     <q-card-section class="column items-center text-center q-gutter-sm q-py-xl">
       <q-icon name="error_outline" color="negative" size="42px" />
       <div class="text-subtitle1 text-weight-medium">{{ titulo || 'Não foi possível carregar os dados.' }}</div>

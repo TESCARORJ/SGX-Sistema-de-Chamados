@@ -45,7 +45,7 @@ function formatarData(valor: string | null): string {
     <q-card class="sgx-card" style="width: min(960px, 96vw); max-width: 96vw;">
       <q-card-section class="row items-center justify-between">
         <div class="text-h6">Detalhe do log de integracao</div>
-        <q-btn flat icon="close" round @click="fechar" />
+        <q-btn flat icon="close" round aria-label="Fechar detalhe do log" @click="fechar" />
       </q-card-section>
 
       <q-separator />

@@ -70,14 +70,17 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
   >
     <template #body-cell-codigo="slotProps">
       <q-td :props="slotProps">
-        <q-btn
-          flat
-          dense
-          color="primary"
-          class="q-pa-none text-weight-bold"
-          :label="slotProps.row.codigo"
-          @click="emit('detalhar', slotProps.row.id)"
-        />
+        <div class="column q-gutter-xs">
+          <q-btn
+            flat
+            dense
+            color="primary"
+            class="q-pa-none text-weight-bold chamada-codigo"
+            :label="slotProps.row.codigo"
+            @click="emit('detalhar', slotProps.row.id)"
+          />
+          <div class="text-caption text-grey-7 ellipsis">{{ slotProps.row.categoria }}</div>
+        </div>
       </q-td>
     </template>
 
@@ -114,7 +117,7 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
 
     <template #body-cell-acoes="slotProps">
       <q-td :props="slotProps" class="text-right">
-        <div class="row justify-end q-gutter-xs">
+        <div class="row justify-end q-gutter-xs no-wrap">
           <q-btn flat dense color="primary" icon="visibility" label="Ver detalhe" @click="emit('detalhar', slotProps.row.id)" />
           <q-btn
             outline
@@ -129,6 +132,12 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
       </q-td>
     </template>
 
+    <template #no-data>
+      <div class="full-width row flex-center q-pa-lg text-grey-7">
+        Nenhum chamado disponível para os filtros atuais.
+      </div>
+    </template>
+
     <template #item="slotProps">
       <div class="col-12 q-mb-sm">
         <q-card flat bordered class="sgx-card">
@@ -136,7 +145,8 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
             <div class="col">
               <div class="text-caption text-grey-7">{{ slotProps.row.codigo }}</div>
               <div class="text-subtitle1 text-weight-medium">{{ slotProps.row.titulo }}</div>
-              <div class="text-caption text-grey-7 q-mt-xs">Solicitante: {{ slotProps.row.solicitanteNome }}</div>
+              <div class="text-caption text-grey-7 q-mt-xs">Categoria: {{ slotProps.row.categoria }}</div>
+              <div class="text-caption text-grey-7">Solicitante: {{ slotProps.row.solicitanteNome }}</div>
               <div class="text-caption text-grey-7">Responsável: {{ slotProps.row.responsavelNome || '-' }}</div>
               <div class="text-caption text-grey-7">Aberto em: {{ formatarData(slotProps.row.abertoEm) }}</div>
             </div>
@@ -174,11 +184,21 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
 </template>
 
 <style scoped>
+:deep(.sgx-table .q-table__top),
+:deep(.sgx-table .q-table__bottom) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 :deep(.sgx-table .q-table__middle) {
   overflow-x: auto;
 }
 
 :deep(.sgx-table tbody tr:hover) {
   background: rgba(11, 94, 215, 0.04);
+}
+
+.chamada-codigo {
+  letter-spacing: 0.01em;
 }
 </style>

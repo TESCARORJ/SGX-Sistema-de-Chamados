@@ -523,7 +523,7 @@ onMounted(async () => {
             </div>
           </div>
           <div class="col-auto">
-            <q-btn flat round dense icon="close" @click="dialogDetalheAberto = false" />
+            <q-btn flat round dense icon="close" aria-label="Fechar detalhe da notificação" @click="dialogDetalheAberto = false" />
           </div>
         </q-card-section>
 

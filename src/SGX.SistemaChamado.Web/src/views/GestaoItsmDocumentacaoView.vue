@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import {
   categoriasDocumentosItsm,
@@ -40,6 +43,7 @@ const documentoSelecionado = computed<DocumentoItsm | null>(() => {
 const conteudoDocumentoHtml = computed(() =>
   documentoSelecionado.value ? markdownItsmParaHtml(documentoSelecionado.value.conteudo) : ''
 )
+const totalTagsSelecionadas = computed(() => documentoSelecionado.value?.tags.length ?? 0)
 
 watch(documentosFiltrados, (documentos) => {
   if (!documentos.length) {
@@ -62,41 +66,52 @@ function abrirRoadmap(): void {
 </script>
 
 <template>
-  <q-page class="sgx-page gestao-itsm-docs">
+  <q-page class="sgx-page gestao-itsm-docs column q-gutter-md">
     <PageHeader
-      titulo="Documentação ITSM"
-      subtitulo="Consulte a documentação funcional, técnica e de homologação do SGX Sistema de Chamados."
+      contexto="Gestao ITSM e conhecimento"
+      titulo="Documentacao ITSM"
+      subtitulo="Consulte documentacao funcional, tecnica e de homologacao do SGX Sistema de Chamados."
     >
       <template #actions>
         <q-btn color="primary" icon="account_tree" label="Ver Roadmap ITSM" @click="abrirRoadmap" />
       </template>
     </PageHeader>
 
-    <section class="gestao-itsm-docs__toolbar">
-      <q-input
-        v-model="busca"
-        outlined
-        dense
-        clearable
-        class="gestao-itsm-docs__busca"
-        placeholder="Buscar por título, conteúdo, categoria ou tag"
-      >
-        <template #prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Documentos filtrados" :value="documentosFiltrados.length" icon="article" tone="primary" />
+      <MetricCard title="Categoria selecionada" :value="categoriaSelecionada" icon="category" tone="info" />
+      <MetricCard title="Tags do documento" :value="totalTagsSelecionadas" icon="sell" tone="warning" />
+    </div>
 
-      <q-select
-        v-model="categoriaSelecionada"
-        outlined
-        dense
-        emit-value
-        map-options
-        class="gestao-itsm-docs__categoria"
-        :options="opcoesCategoria"
-        label="Categoria"
-      />
-    </section>
+    <AppSectionCard titulo="Filtro de documentacao" subtitulo="Busque por titulo, conteudo, categoria e tags.">
+      <FilterBar compact>
+        <section class="gestao-itsm-docs__toolbar">
+          <q-input
+            v-model="busca"
+            outlined
+            dense
+            clearable
+            class="gestao-itsm-docs__busca"
+            placeholder="Buscar por titulo, conteudo, categoria ou tag"
+          >
+            <template #prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+
+          <q-select
+            v-model="categoriaSelecionada"
+            outlined
+            dense
+            emit-value
+            map-options
+            class="gestao-itsm-docs__categoria"
+            :options="opcoesCategoria"
+            label="Categoria"
+          />
+        </section>
+      </FilterBar>
+    </AppSectionCard>
 
     <section class="gestao-itsm-docs__layout">
       <aside class="gestao-itsm-docs__lista" aria-label="Documentos ITSM">
@@ -173,7 +188,6 @@ function abrirRoadmap(): void {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
   gap: 12px;
-  margin-bottom: 16px;
 }
 
 .gestao-itsm-docs__layout {

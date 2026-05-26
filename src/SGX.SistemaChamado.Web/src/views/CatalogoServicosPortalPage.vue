@@ -4,7 +4,9 @@ import { useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { catalogoServicosPortalService } from '../services/catalogoServicosPortalService'
 import { portalService } from '../services/portalService'
@@ -31,6 +33,8 @@ const filtros = reactive({
 })
 
 const totalPaginas = computed(() => Math.max(1, Math.ceil(total.value / tamanhoPagina.value)))
+const totalPermiteAbertura = computed(() => servicos.value.filter((item) => item.permiteAberturaChamado).length)
+const totalComAprovacao = computed(() => servicos.value.filter((item) => item.requerAprovacao).length)
 
 const opcoesPermiteAbertura = [
   { label: 'Todos', value: 'todos' },
@@ -147,65 +151,79 @@ onMounted(async () => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Autoatendimento"
       titulo="Catalogo de Servicos"
       subtitulo="Consulte os servicos institucionais por departamento e escolha o atendimento que melhor atende sua necessidade."
-    />
+    >
+      <template #actions>
+        <q-btn flat color="primary" icon="menu_book" label="Base de conhecimento" @click="router.push('/portal/base-conhecimento')" />
+      </template>
+    </PageHeader>
+
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Servicos encontrados" :value="total" icon="inventory_2" tone="primary" :loading="loading" />
+      <MetricCard title="Permitem abertura" :value="totalPermiteAbertura" icon="add_task" tone="positive" :loading="loading" />
+      <MetricCard title="Com aprovacao" :value="totalComAprovacao" icon="fact_check" tone="warning" :loading="loading" />
+      <MetricCard title="Pagina atual" :value="pagina" :caption="`de ${totalPaginas}`" icon="layers" tone="info" :loading="loading" />
+    </div>
 
     <AppSectionCard titulo="Busca" subtitulo="Pesquise por nome, descricao e filtros principais do servico.">
-      <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
-        <div class="col-12 col-md-4">
-          <q-input
-            v-model="filtros.termo"
-            outlined
-            label="Buscar servico"
-            placeholder="Nome, descricao ou instrucoes"
-            :disable="loading"
-          />
-        </div>
+      <FilterBar titulo="Pesquisa de servicos" subtitulo="Filtre por departamento, categoria e capacidade de abertura de chamado.">
+        <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
+          <div class="col-12 col-md-4">
+            <q-input
+              v-model="filtros.termo"
+              outlined
+              label="Buscar servico"
+              placeholder="Nome, descricao ou instrucoes"
+              :disable="loading"
+            />
+          </div>
 
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.departamentoResponsavelId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Departamento responsavel"
-            :disable="loading"
-            :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
-          />
-        </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.departamentoResponsavelId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Departamento responsavel"
+              :disable="loading"
+              :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
+            />
+          </div>
 
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.categoriaId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Categoria"
-            :disable="loading"
-            :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-          />
-        </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.categoriaId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Categoria"
+              :disable="loading"
+              :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+            />
+          </div>
 
-        <div class="col-12 col-md-2">
-          <q-select
-            v-model="filtros.permiteAberturaChamado"
-            outlined
-            emit-value
-            map-options
-            label="Abertura"
-            :disable="loading"
-            :options="opcoesPermiteAbertura"
-          />
-        </div>
+          <div class="col-12 col-md-2">
+            <q-select
+              v-model="filtros.permiteAberturaChamado"
+              outlined
+              emit-value
+              map-options
+              label="Abertura"
+              :disable="loading"
+              :options="opcoesPermiteAbertura"
+            />
+          </div>
 
-        <div class="col-12 row justify-end q-gutter-sm">
-          <q-btn type="submit" color="primary" icon="search" label="Buscar" :loading="loading" />
-          <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
-        </div>
-      </q-form>
+          <div class="col-12 row justify-end q-gutter-sm">
+            <q-btn type="submit" color="primary" icon="search" label="Buscar" :loading="loading" />
+            <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
+          </div>
+        </q-form>
+      </FilterBar>
     </AppSectionCard>
 
     <ErrorState v-if="erro" titulo="Nao foi possivel consultar o catalogo" :mensagem="erro" @retry="carregarServicos" />

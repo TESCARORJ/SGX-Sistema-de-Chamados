@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import FormCadastro from '../components/admin/cadastros/FormCadastro.vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
@@ -248,65 +249,73 @@ onMounted(async () => {
           @salvar="salvar"
           @cancelar="voltar"
         >
-          <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-8">
-              <q-input v-model="form.titulo" outlined dense label="Titulo" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
-            </div>
+          <div class="column q-gutter-md">
+            <AppSectionCard titulo="Conteudo do artigo" subtitulo="Defina titulo, resumo e texto principal para publicacao.">
+              <div class="row q-col-gutter-md">
+                <div class="col-12">
+                  <q-input v-model="form.titulo" outlined dense label="Titulo" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+                </div>
 
-            <div class="col-12 col-md-4">
-              <q-select
-                v-model="form.visibilidade"
-                outlined
-                dense
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="opcoesVisibilidade"
-                label="Visibilidade"
-                :rules="[regraObrigatoria]"
-              />
-            </div>
+                <div class="col-12">
+                  <q-input v-model="form.resumo" outlined dense type="textarea" autogrow label="Resumo" :readonly="somenteLeitura" />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.categoriaId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-                label="Categoria"
-              />
-            </div>
+                <div class="col-12">
+                  <q-input
+                    v-model="form.conteudo"
+                    outlined
+                    dense
+                    type="textarea"
+                    autogrow
+                    label="Conteudo"
+                    :readonly="somenteLeitura"
+                    :rules="[regraObrigatoria]"
+                  />
+                </div>
+              </div>
+            </AppSectionCard>
 
-            <div v-if="!isNovo" class="col-12 col-md-3">
-              <q-input v-model="form.statusDescricao" outlined dense readonly label="Status" />
-            </div>
+            <AppSectionCard titulo="Classificacao e publicacao" subtitulo="Controle visibilidade, categoria e metadados de ciclo de vida.">
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-4">
+                  <q-select
+                    v-model="form.visibilidade"
+                    outlined
+                    dense
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="opcoesVisibilidade"
+                    label="Visibilidade"
+                    :rules="[regraObrigatoria]"
+                  />
+                </div>
 
-            <div v-if="!isNovo" class="col-12 col-md-3">
-              <q-input v-model="form.slug" outlined dense readonly label="Slug" />
-            </div>
+                <div class="col-12 col-md-4">
+                  <q-select
+                    v-model="form.categoriaId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="Categoria"
+                  />
+                </div>
 
-            <div class="col-12">
-              <q-input v-model="form.resumo" outlined dense type="textarea" autogrow label="Resumo" :readonly="somenteLeitura" />
-            </div>
+                <div v-if="!isNovo" class="col-12 col-md-2">
+                  <q-input v-model="form.statusDescricao" outlined dense readonly label="Status" />
+                </div>
 
-            <div class="col-12">
-              <q-input
-                v-model="form.conteudo"
-                outlined
-                dense
-                type="textarea"
-                autogrow
-                label="Conteudo"
-                :readonly="somenteLeitura"
-                :rules="[regraObrigatoria]"
-              />
-            </div>
+                <div v-if="!isNovo" class="col-12 col-md-2">
+                  <q-input v-model="form.slug" outlined dense readonly label="Slug" />
+                </div>
+              </div>
+            </AppSectionCard>
 
-            <div class="col-12">
+            <AppSectionCard titulo="Taxonomia" subtitulo="Utilize tags para facilitar busca e reutilizacao do conhecimento.">
               <q-input
                 v-model="form.tags"
                 outlined
@@ -315,7 +324,7 @@ onMounted(async () => {
                 hint="Separe por virgula. Exemplo: senha, vpn, acesso remoto"
                 :readonly="somenteLeitura"
               />
-            </div>
+            </AppSectionCard>
           </div>
         </FormCadastro>
       </template>

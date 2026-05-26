@@ -4,7 +4,9 @@ import { useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { baseConhecimentoPortalService } from '../services/baseConhecimentoPortalService'
 import { portalService } from '../services/portalService'
@@ -28,6 +30,10 @@ const filtros = reactive({
 })
 
 const totalPaginas = computed(() => Math.max(1, Math.ceil(total.value / tamanhoPagina.value)))
+const categoriasComArtigos = computed(() => {
+  const ids = new Set(artigos.value.map((item) => item.categoriaId).filter(Boolean))
+  return ids.size
+})
 
 function extrairMensagemErro(error: unknown, fallback: string): string {
   if (!(error instanceof Error)) {
@@ -135,40 +141,53 @@ onMounted(async () => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Autoatendimento"
       titulo="Base de conhecimento"
       subtitulo="Consulte orientacoes e artigos publicados para resolver duvidas comuns com mais rapidez."
-    />
+    >
+      <template #actions>
+        <q-btn flat color="primary" icon="inventory_2" label="Catalogo de Servicos" @click="router.push('/portal/catalogo-servicos')" />
+      </template>
+    </PageHeader>
+
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Artigos encontrados" :value="total" icon="article" tone="primary" :loading="loading" />
+      <MetricCard title="Categorias na pagina" :value="categoriasComArtigos" icon="category" tone="info" :loading="loading" />
+      <MetricCard title="Pagina atual" :value="pagina" :caption="`de ${totalPaginas}`" icon="layers" tone="warning" :loading="loading" />
+    </div>
 
     <AppSectionCard titulo="Busca" subtitulo="Use termo e categoria para encontrar o artigo certo.">
-      <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
-        <div class="col-12 col-md-6">
-          <q-input
-            v-model="filtros.termo"
-            outlined
-            label="Buscar"
-            placeholder="Titulo, resumo, conteudo ou tags"
-            :disable="loading"
-          />
-        </div>
+      <FilterBar titulo="Pesquisa de artigos" subtitulo="Busque por titulo, resumo, conteudo ou tags.">
+        <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
+          <div class="col-12 col-md-6">
+            <q-input
+              v-model="filtros.termo"
+              outlined
+              label="Buscar"
+              placeholder="Titulo, resumo, conteudo ou tags"
+              :disable="loading"
+            />
+          </div>
 
-        <div class="col-12 col-md-4">
-          <q-select
-            v-model="filtros.categoriaId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Categoria"
-            :disable="loading"
-            :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-          />
-        </div>
+          <div class="col-12 col-md-4">
+            <q-select
+              v-model="filtros.categoriaId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Categoria"
+              :disable="loading"
+              :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+            />
+          </div>
 
-        <div class="col-12 col-md-2 row items-center justify-end q-gutter-sm">
-          <q-btn type="submit" color="primary" icon="search" label="Buscar" :loading="loading" />
-          <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
-        </div>
-      </q-form>
+          <div class="col-12 col-md-2 row items-center justify-end q-gutter-sm">
+            <q-btn type="submit" color="primary" icon="search" label="Buscar" :loading="loading" />
+            <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
+          </div>
+        </q-form>
+      </FilterBar>
     </AppSectionCard>
 
     <ErrorState v-if="erro" :mensagem="erro" @retry="carregarArtigos" />
@@ -188,11 +207,12 @@ onMounted(async () => {
           <div v-for="artigo in artigos" :key="artigo.id" class="col-12 col-md-6 col-lg-4">
             <q-card flat bordered class="sgx-card card-artigo full-height">
               <q-card-section>
-                <div class="text-h6 ellipsis-2-lines">{{ artigo.titulo }}</div>
-                <div class="text-caption text-grey-7 q-mt-xs">
-                  {{ artigo.categoriaNome || 'Sem categoria' }}
+                <div class="row items-start justify-between q-gutter-sm">
+                  <div class="text-h6 ellipsis-2-lines">{{ artigo.titulo }}</div>
+                  <q-chip dense square color="blue-1" text-color="primary">{{ artigo.categoriaNome || 'Sem categoria' }}</q-chip>
                 </div>
-                <div class="text-caption text-grey-7">Publicado em {{ formatarData(artigo.publicadoEm) }}</div>
+                <div class="text-caption text-grey-7 q-mt-xs">Publicado em {{ formatarData(artigo.publicadoEm) }}</div>
+                <div class="text-caption text-grey-7">Atualizado em {{ formatarData(artigo.atualizadoEm) }}</div>
               </q-card-section>
 
               <q-card-section class="q-pt-none">

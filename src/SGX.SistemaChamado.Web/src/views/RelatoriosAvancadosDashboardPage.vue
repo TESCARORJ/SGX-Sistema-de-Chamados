@@ -69,12 +69,12 @@ function formatarCardServicoMaisSolicitado(): { valor: string | number; subtitul
   }
 
   if (!podeConsultarCatalogo.value) {
-    return { valor: 'Sem permissão' }
+    return { valor: 'Sem permissao' }
   }
 
   const item = rankingCatalogoMaisSolicitados.value[0]
   if (!item) {
-    return { valor: 'Sem dados no período' }
+    return { valor: 'Sem dados no periodo' }
   }
 
   return {
@@ -84,7 +84,7 @@ function formatarCardServicoMaisSolicitado(): { valor: string | number; subtitul
 
 function formatarCardAtivoRecorrente(): { valor: string | number; subtitulo?: string } {
   if (!podeConsultarInventario.value) {
-    return { valor: 'Sem permissão' }
+    return { valor: 'Sem permissao' }
   }
 
   if (erroCards.value.inventario) {
@@ -93,7 +93,7 @@ function formatarCardAtivoRecorrente(): { valor: string | number; subtitulo?: st
 
   const item = ativosRecorrentes.value[0]
   if (!item) {
-    return { valor: 'Sem dados no período' }
+    return { valor: 'Sem dados no periodo' }
   }
 
   return {
@@ -106,7 +106,7 @@ const cardsResumo = computed(() => {
 
   cards.push({
     titulo: 'Total de chamados',
-    valor: erroCards.value.chamados ?? (resumoChamados.value?.totalChamados ?? 'Sem dados no período'),
+    valor: erroCards.value.chamados ?? (resumoChamados.value?.totalChamados ?? 'Sem dados no periodo'),
     icon: 'support_agent',
     color: 'primary',
   })
@@ -114,32 +114,32 @@ const cardsResumo = computed(() => {
   cards.push({
     titulo: 'Cumprimento de SLA',
     valor: !podeConsultarSla.value
-      ? 'Sem permissão'
+      ? 'Sem permissao'
       : erroCards.value.sla
         ? erroCards.value.sla
         : resumoSla.value?.percentualCumprimento !== null && resumoSla.value?.percentualCumprimento !== undefined
           ? `${Number(resumoSla.value.percentualCumprimento).toFixed(1)}%`
           : resumoSla.value?.totalChamadosComSla === 0
             ? '0%'
-            : 'Sem dados no período',
+            : 'Sem dados no periodo',
     icon: 'schedule',
     color: 'positive',
   })
 
   cards.push({
-    titulo: 'Aprovações pendentes',
+    titulo: 'Aprovacoes pendentes',
     valor: !podeConsultarAprovacoes.value
-      ? 'Sem permissão'
+      ? 'Sem permissao'
       : erroCards.value.aprovacoes
         ? erroCards.value.aprovacoes
-        : (resumoAprovacoes.value?.pendentes ?? 'Sem dados no período'),
+        : (resumoAprovacoes.value?.pendentes ?? 'Sem dados no periodo'),
     icon: 'fact_check',
     color: 'warning',
   })
 
   const servicoMaisSolicitado = formatarCardServicoMaisSolicitado()
   cards.push({
-    titulo: 'Serviços mais usados',
+    titulo: 'Servicos mais usados',
     valor: servicoMaisSolicitado.valor,
     subtitulo: servicoMaisSolicitado.subtitulo,
     icon: 'inventory_2',
@@ -156,12 +156,12 @@ const cardsResumo = computed(() => {
   })
 
   cards.push({
-    titulo: 'Ações de auditoria',
+    titulo: 'Acoes de auditoria',
     valor: !podeConsultarAuditoria.value
-      ? 'Sem permissão'
+      ? 'Sem permissao'
       : erroCards.value.auditoria
         ? erroCards.value.auditoria
-        : (resumoAuditoria.value?.totalAcoesAuditadas ?? 'Sem dados no período'),
+        : (resumoAuditoria.value?.totalAcoesAuditadas ?? 'Sem dados no periodo'),
     icon: 'manage_search',
     color: 'negative',
   })
@@ -169,14 +169,25 @@ const cardsResumo = computed(() => {
   return cards
 })
 
+const possuiIndicadoresCarregados = computed(() => {
+  return (
+    Boolean(resumoChamados.value) ||
+    Boolean(resumoSla.value) ||
+    Boolean(resumoAprovacoes.value) ||
+    Boolean(resumoAuditoria.value) ||
+    rankingCatalogoMaisSolicitados.value.length > 0 ||
+    ativosRecorrentes.value.length > 0
+  )
+})
+
 const rotaAtualRelatoriosAvancados = '/admin/relatorios/avancados'
 
 const atalhosDetalhados = [
   { titulo: 'Chamados', rota: '/admin/relatorios/chamados', icon: 'support_agent', visivel: () => podeVisualizar.value },
   { titulo: 'SLA', rota: '/admin/relatorios/sla', icon: 'schedule', visivel: () => podeVisualizar.value },
-  { titulo: 'Aprovações', rota: '/admin/relatorios/aprovacoes', icon: 'fact_check', visivel: () => podeVisualizar.value },
-  { titulo: 'Catálogo de serviços', rota: '/admin/relatorios/catalogo-servicos', icon: 'inventory_2', visivel: () => podeVisualizar.value },
-  { titulo: 'Inventário/Ativos', rota: '/admin/relatorios/inventario-ativos', icon: 'memory', visivel: () => podeVisualizar.value },
+  { titulo: 'Aprovacoes', rota: '/admin/relatorios/aprovacoes', icon: 'fact_check', visivel: () => podeVisualizar.value },
+  { titulo: 'Catalogo de servicos', rota: '/admin/relatorios/catalogo-servicos', icon: 'inventory_2', visivel: () => podeVisualizar.value },
+  { titulo: 'Inventario/Ativos', rota: '/admin/relatorios/inventario-ativos', icon: 'memory', visivel: () => podeVisualizar.value },
   { titulo: 'Base de conhecimento', rota: '/admin/relatorios/base-conhecimento', icon: 'menu_book', visivel: () => podeVisualizar.value },
   { titulo: 'Auditoria', rota: '/admin/relatorios/auditoria', icon: 'manage_search', visivel: () => podeAuditoria.value },
 ]
@@ -306,8 +317,8 @@ async function carregar(): Promise<void> {
     }
   } catch (error) {
     const mensagemAmigavel = mapearMensagemErroDashboard(error)
-    erro.value = mensagemAmigavel === 'API indisponível'
-      ? 'API indisponível. Verifique se a API backend está em execução e acessível.'
+    erro.value = mensagemAmigavel === 'API indisponivel'
+      ? 'API indisponivel. Verifique se a API backend esta em execucao e acessivel.'
       : mensagemAmigavel
   } finally {
     loading.value = false
@@ -321,41 +332,89 @@ onMounted(() => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Relatórios avançados" subtitulo="Painel administrativo consolidado de relatórios operacionais, gerenciais e institucionais.">
+    <PageHeader
+      titulo="Relatorios avancados"
+      subtitulo="Painel gerencial consolidado para analise operacional, gerencial e de auditoria."
+      contexto="Relatorios"
+    >
       <template #actions>
-        <q-btn color="primary" icon="refresh" label="Recarregar" :loading="loading" @click="carregar" />
+        <q-btn color="primary" icon="refresh" label="Recarregar painel" unelevated :loading="loading" @click="carregar" />
       </template>
     </PageHeader>
 
     <q-banner v-if="!podeVisualizar" rounded class="bg-orange-1 text-orange-10">
-      Você não possui permissão para visualizar os relatórios avançados.
+      Voce nao possui permissao para visualizar os relatorios avancados.
     </q-banner>
 
     <template v-else>
       <ErrorState v-if="erro" :mensagem="erro" @retry="carregar" />
-      <LoadingState v-else-if="loading && !metadados" mensagem="Carregando dashboard de relatórios..." />
+      <LoadingState v-else-if="loading && !metadados" mensagem="Carregando dashboard de relatorios..." />
 
       <template v-else>
         <q-banner v-if="houveFalhaParcial" rounded class="bg-amber-1 text-amber-10 q-mb-md">
-          Alguns indicadores não puderam ser carregados. Os demais dados permanecem disponíveis.
+          Alguns indicadores nao puderam ser carregados. Os demais dados permanecem disponiveis.
         </q-banner>
 
-        <div v-if="cardsResumo.length" class="row q-col-gutter-md">
-          <div v-for="card in cardsResumo" :key="card.titulo" class="col-12 col-sm-6 col-lg-4">
-            <MetricCard :titulo="card.titulo" :valor="card.valor" :subtitulo="card.subtitulo" :icon="card.icon" :color="card.color" />
-          </div>
+        <div v-if="cardsResumo.length" class="sgx-kpi-grid">
+          <MetricCard
+            v-for="card in cardsResumo"
+            :key="card.titulo"
+            :titulo="card.titulo"
+            :valor="card.valor"
+            :subtitulo="card.subtitulo"
+            :icon="card.icon"
+            :color="card.color"
+          />
         </div>
 
-        <AppSectionCard titulo="Acesso rápido" subtitulo="Escolha um relatório para detalhar filtros, distribuições e rankings.">
-          <div class="row q-col-gutter-sm">
+        <AppSectionCard titulo="Acesso rapido aos relatorios" subtitulo="Navegue para analises especificas por dominio funcional.">
+          <div v-if="atalhos.length" class="row q-col-gutter-md">
             <div v-for="item in atalhos" :key="item.rota" class="col-12 col-sm-6 col-lg-3">
-              <q-btn outline color="primary" class="full-width" :icon="item.icon" :label="item.titulo" @click="router.push(item.rota)" />
+              <q-card flat bordered class="sgx-card dashboard-atalho cursor-pointer" @click="router.push(item.rota)">
+                <q-card-section class="row items-center no-wrap q-gutter-sm">
+                  <q-avatar color="blue-1" text-color="primary" icon="insights" />
+                  <div class="col">
+                    <div class="text-subtitle2 text-weight-bold">{{ item.titulo }}</div>
+                    <div class="text-caption sgx-muted">Abrir relatorio detalhado</div>
+                  </div>
+                  <q-icon :name="item.icon" color="primary" size="20px" />
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+          <EmptyState
+            v-else
+            titulo="Nenhum relatorio disponivel"
+            mensagem="Nao ha relatorios acessiveis para o perfil atual."
+            icon="analytics"
+          />
+        </AppSectionCard>
+
+        <AppSectionCard
+          v-if="metadados"
+          titulo="Contexto dos dados"
+          subtitulo="Metadados recebidos da API para orientar leitura do dashboard."
+        >
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-lg-6">
+              <div class="text-caption sgx-muted q-mb-xs">Periodos suportados</div>
+              <div class="row q-gutter-xs">
+                <q-chip v-for="item in metadados.periodosSuportados" :key="item" dense color="grey-2" text-color="grey-9" :label="item" />
+                <q-chip v-if="!metadados.periodosSuportados.length" dense color="grey-2" text-color="grey-9" label="Sem periodos informados" />
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <div class="text-caption sgx-muted q-mb-xs">Filtros disponiveis</div>
+              <div class="row q-gutter-xs">
+                <q-chip v-for="item in metadados.filtrosDisponiveis" :key="item" dense color="blue-1" text-color="primary" :label="item" />
+                <q-chip v-if="!metadados.filtrosDisponiveis.length" dense color="grey-2" text-color="grey-9" label="Sem filtros catalogados" />
+              </div>
             </div>
           </div>
         </AppSectionCard>
 
         <EmptyState
-          v-if="!cardsResumo.length && !metadados"
+          v-if="!possuiIndicadoresCarregados && !metadados"
           titulo="Sem dados para dashboard"
           mensagem="Nenhum dado de resumo foi retornado para o perfil atual."
           icon="analytics"
@@ -364,3 +423,14 @@ onMounted(() => {
     </template>
   </q-page>
 </template>
+
+<style scoped>
+.dashboard-atalho {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-atalho:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sgx-shadow-md);
+}
+</style>

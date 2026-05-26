@@ -2,8 +2,10 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QTableColumn } from 'quasar'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { slaPoliciesService } from '../services/slaPoliciesService'
 import type {
@@ -19,7 +21,14 @@ const sucesso = ref<string | null>(null)
 const calendarios = ref<CalendarioCorporativoResponse[]>([])
 const calendarioSelecionadoId = ref<string | null>(null)
 
-const calendarioSelecionado = computed(() => calendarios.value.find((item) => item.id === calendarioSelecionadoId.value) ?? calendarios.value[0] ?? null)
+const calendarioSelecionado = computed(
+  () => calendarios.value.find((item) => item.id === calendarioSelecionadoId.value) ?? calendarios.value[0] ?? null
+)
+const totalCalendariosAtivos = computed(() => calendarios.value.filter((item) => item.ativo).length)
+const totalCalendariosInativos = computed(() => calendarios.value.filter((item) => !item.ativo).length)
+const totalCalendariosPadrao = computed(() => calendarios.value.filter((item) => item.padrao).length)
+const totalExcecoesSelecionadas = computed(() => calendarioSelecionado.value?.excecoes.length ?? 0)
+const totalHorariosSelecionados = computed(() => calendarioSelecionado.value?.horariosAtendimento.length ?? 0)
 
 const calendarioForm = reactive({
   nome: '',
@@ -50,11 +59,11 @@ const excecaoForm = reactive({
 const diasSemana = [
   { label: 'Domingo', value: 0 },
   { label: 'Segunda-feira', value: 1 },
-  { label: 'Terça-feira', value: 2 },
+  { label: 'Terca-feira', value: 2 },
   { label: 'Quarta-feira', value: 3 },
   { label: 'Quinta-feira', value: 4 },
   { label: 'Sexta-feira', value: 5 },
-  { label: 'Sábado', value: 6 },
+  { label: 'Sabado', value: 6 },
 ]
 
 const tiposExcecao = [
@@ -65,16 +74,16 @@ const tiposExcecao = [
 ]
 
 const colunasCalendario: QTableColumn<CalendarioCorporativoResponse>[] = [
-  { name: 'nome', label: 'Calendário', field: 'nome', align: 'left' },
+  { name: 'nome', label: 'Calendario', field: 'nome', align: 'left' },
   { name: 'timeZone', label: 'Time zone', field: 'timeZone', align: 'left' },
-  { name: 'padrao', label: 'Padrão', field: 'padrao', align: 'center' },
+  { name: 'padrao', label: 'Padrao', field: 'padrao', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
   { name: 'acoes', label: '', field: 'id', align: 'right' },
 ]
 
 const colunasHorario: QTableColumn<HorarioAtendimentoCalendarioResponse>[] = [
   { name: 'dia', label: 'Dia', field: 'diaSemanaNome', align: 'left' },
-  { name: 'inicio', label: 'Início', field: 'horaInicio', align: 'center' },
+  { name: 'inicio', label: 'Inicio', field: 'horaInicio', align: 'center' },
   { name: 'fim', label: 'Fim', field: 'horaFim', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
   { name: 'acoes', label: '', field: 'id', align: 'right' },
@@ -83,7 +92,7 @@ const colunasHorario: QTableColumn<HorarioAtendimentoCalendarioResponse>[] = [
 const colunasExcecao: QTableColumn<ExcecaoCalendarioCorporativoResponse>[] = [
   { name: 'data', label: 'Data', field: 'data', align: 'left' },
   { name: 'tipo', label: 'Tipo', field: 'tipoDescricao', align: 'left' },
-  { name: 'periodo', label: 'Período', field: 'id', align: 'center' },
+  { name: 'periodo', label: 'Periodo', field: 'id', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
   { name: 'acoes', label: '', field: 'id', align: 'right' },
 ]
@@ -93,11 +102,14 @@ async function carregar(): Promise<void> {
   erro.value = null
   try {
     calendarios.value = await slaPoliciesService.listarCalendarios()
-    if (!calendarioSelecionadoId.value || !calendarios.value.some((item) => item.id === calendarioSelecionadoId.value)) {
+    if (
+      !calendarioSelecionadoId.value ||
+      !calendarios.value.some((item) => item.id === calendarioSelecionadoId.value)
+    ) {
       calendarioSelecionadoId.value = calendarios.value[0]?.id ?? null
     }
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao carregar calendários de SLA.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao carregar calendarios de SLA.'
   } finally {
     loading.value = false
   }
@@ -123,7 +135,7 @@ function editarCalendario(calendario: CalendarioCorporativoResponse): void {
 
 async function salvarCalendario(): Promise<void> {
   if (!calendarioForm.nome.trim()) {
-    erro.value = 'Nome do calendário é obrigatório.'
+    erro.value = 'Nome do calendario e obrigatorio.'
     return
   }
 
@@ -138,7 +150,7 @@ async function salvarCalendario(): Promise<void> {
       })
       await slaPoliciesService.atualizarStatusCalendario(salvo.id, { ativo: calendarioForm.ativo })
       if (calendarioForm.padrao) await slaPoliciesService.definirCalendarioPadrao(salvo.id)
-      sucesso.value = 'Calendário atualizado.'
+      sucesso.value = 'Calendario atualizado.'
     } else {
       const salvo = await slaPoliciesService.criarCalendario({
         nome: calendarioForm.nome.trim(),
@@ -148,12 +160,12 @@ async function salvarCalendario(): Promise<void> {
         timeZone: calendarioForm.timeZone.trim() || 'America/Sao_Paulo',
       })
       calendarioSelecionadoId.value = salvo.id
-      sucesso.value = 'Calendário criado.'
+      sucesso.value = 'Calendario criado.'
     }
 
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Falha ao salvar calendário.'
+    erro.value = error instanceof Error ? error.message : 'Falha ao salvar calendario.'
   } finally {
     salvando.value = false
   }
@@ -161,7 +173,7 @@ async function salvarCalendario(): Promise<void> {
 
 async function definirPadrao(calendario: CalendarioCorporativoResponse): Promise<void> {
   await slaPoliciesService.definirCalendarioPadrao(calendario.id)
-  sucesso.value = 'Calendário padrão atualizado.'
+  sucesso.value = 'Calendario padrao atualizado.'
   await carregar()
 }
 
@@ -200,7 +212,7 @@ async function salvarHorario(): Promise<void> {
   if (horarioForm.id) await slaPoliciesService.atualizarHorarioCalendario(calendario.id, horarioForm.id, payload)
   else await slaPoliciesService.criarHorarioCalendario(calendario.id, payload)
 
-  sucesso.value = 'Horário salvo.'
+  sucesso.value = 'Horario salvo.'
   limparHorario()
   await carregar()
 }
@@ -248,7 +260,7 @@ async function salvarExcecao(): Promise<void> {
   if (excecaoForm.id) await slaPoliciesService.atualizarExcecaoCalendario(calendario.id, excecaoForm.id, payload)
   else await slaPoliciesService.criarExcecaoCalendario(calendario.id, payload)
 
-  sucesso.value = 'Exceção salva.'
+  sucesso.value = 'Excecao salva.'
   limparExcecao()
   await carregar()
 }
@@ -264,102 +276,157 @@ onMounted(carregar)
 </script>
 
 <template>
-  <q-page class="q-pa-md">
-    <PageHeader title="Calendários de SLA" subtitle="Administração > SLA" />
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader
+      contexto="SLA e capacidade operacional"
+      title="Calendarios de SLA"
+      subtitle="Gerencie jornadas, excecoes e calendario padrao usado no horario comercial."
+    />
 
     <q-banner v-if="sucesso" class="bg-positive text-white q-mb-md" rounded>{{ sucesso }}</q-banner>
-    <ErrorState v-if="erro" class="q-mb-md" :mensagem="erro" @tentar-novamente="carregar" />
-    <LoadingState v-if="loading" />
+    <ErrorState v-if="erro" class="q-mb-md" :mensagem="erro" @retry="carregar" />
+    <LoadingState v-if="loading" inline mensagem="Carregando calendarios de SLA..." />
 
-    <div v-else class="row q-col-gutter-md">
-      <div class="col-12 col-lg-7">
-        <AppSectionCard titulo="Calendários corporativos" subtitulo="Expediente usado por políticas de SLA em horário comercial.">
-          <template #actions>
-            <q-btn color="primary" icon="add" label="Novo" @click="novoCalendario" />
-          </template>
-          <q-table :rows="calendarios" :columns="colunasCalendario" row-key="id" flat bordered>
-            <template #body-cell-padrao="props">
-              <q-td class="text-center">
-                <q-badge :color="props.row.padrao ? 'primary' : 'grey-6'">{{ props.row.padrao ? 'Sim' : 'Não' }}</q-badge>
-              </q-td>
-            </template>
-            <template #body-cell-ativo="props">
-              <q-td class="text-center">
-                <q-badge :color="props.row.ativo ? 'positive' : 'negative'">{{ props.row.ativo ? 'Sim' : 'Não' }}</q-badge>
-              </q-td>
-            </template>
-            <template #body-cell-acoes="props">
-              <q-td class="text-right">
-                <q-btn flat dense round icon="edit" color="secondary" @click="editarCalendario(props.row)" />
-                <q-btn flat dense round icon="star" color="primary" :disable="props.row.padrao" @click="definirPadrao(props.row)" />
-                <q-btn flat dense round :icon="props.row.ativo ? 'toggle_on' : 'toggle_off'" @click="alternarStatus(props.row)" />
-              </q-td>
-            </template>
-          </q-table>
-        </AppSectionCard>
+    <template v-else>
+      <div class="sgx-kpi-grid">
+        <MetricCard title="Total de calendarios" :value="calendarios.length" icon="calendar_month" tone="primary" />
+        <MetricCard title="Ativos" :value="totalCalendariosAtivos" icon="task_alt" tone="positive" />
+        <MetricCard title="Inativos" :value="totalCalendariosInativos" icon="pause_circle" tone="warning" />
+        <MetricCard title="Padrao" :value="totalCalendariosPadrao" icon="star" tone="info" />
+        <MetricCard title="Horarios do selecionado" :value="totalHorariosSelecionados" icon="schedule" tone="primary" />
+        <MetricCard title="Excecoes do selecionado" :value="totalExcecoesSelecionadas" icon="event_busy" tone="warning" />
       </div>
 
-      <div class="col-12 col-lg-5">
-        <AppSectionCard titulo="Dados do calendário" subtitulo="Nome, fuso horário e marcação de padrão.">
-          <div class="row q-col-gutter-sm">
-            <div class="col-12"><q-input v-model="calendarioForm.nome" outlined dense label="Nome" /></div>
-            <div class="col-12"><q-input v-model="calendarioForm.descricao" outlined dense type="textarea" autogrow label="Descrição" /></div>
-            <div class="col-12"><q-input v-model="calendarioForm.timeZone" outlined dense label="Time zone" /></div>
-            <div class="col-6"><q-toggle v-model="calendarioForm.ativo" label="Ativo" /></div>
-            <div class="col-6"><q-toggle v-model="calendarioForm.padrao" label="Padrão" /></div>
-            <div class="col-12 row justify-end">
-              <q-btn color="primary" icon="save" label="Salvar" :loading="salvando" @click="salvarCalendario" />
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-lg-7">
+          <AppSectionCard titulo="Calendarios corporativos" subtitulo="Expediente usado por politicas de SLA em horario comercial.">
+            <template #actions>
+              <q-btn color="primary" icon="add" label="Novo" @click="novoCalendario" />
+            </template>
+
+            <EmptyState
+              v-if="!calendarios.length"
+              titulo="Nenhum calendario cadastrado"
+              mensagem="Crie um calendario para habilitar calculo em horario comercial."
+              icon="calendar_month"
+            />
+
+            <q-table v-else :rows="calendarios" :columns="colunasCalendario" row-key="id" flat bordered>
+              <template #body-cell-padrao="props">
+                <q-td class="text-center">
+                  <q-badge :color="props.row.padrao ? 'primary' : 'grey-6'">{{ props.row.padrao ? 'Sim' : 'Nao' }}</q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-ativo="props">
+                <q-td class="text-center">
+                  <q-badge :color="props.row.ativo ? 'positive' : 'negative'">{{ props.row.ativo ? 'Sim' : 'Nao' }}</q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-acoes="props">
+                <q-td class="text-right">
+                  <q-btn flat dense round icon="edit" color="secondary" aria-label="Editar calendário" @click="editarCalendario(props.row)" />
+                  <q-btn flat dense round icon="star" color="primary" aria-label="Definir calendário padrão" :disable="props.row.padrao" @click="definirPadrao(props.row)" />
+                  <q-btn flat dense round :icon="props.row.ativo ? 'toggle_on' : 'toggle_off'" :aria-label="props.row.ativo ? 'Inativar calendário' : 'Ativar calendário'" @click="alternarStatus(props.row)" />
+                </q-td>
+              </template>
+            </q-table>
+          </AppSectionCard>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <AppSectionCard titulo="Dados do calendario" subtitulo="Nome, fuso horario e marcacao de padrao.">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12"><q-input v-model="calendarioForm.nome" outlined dense label="Nome" /></div>
+              <div class="col-12"><q-input v-model="calendarioForm.descricao" outlined dense type="textarea" autogrow label="Descricao" /></div>
+              <div class="col-12"><q-input v-model="calendarioForm.timeZone" outlined dense label="Time zone" /></div>
+              <div class="col-6"><q-toggle v-model="calendarioForm.ativo" label="Ativo" /></div>
+              <div class="col-6"><q-toggle v-model="calendarioForm.padrao" label="Padrao" /></div>
+              <div class="col-12 row justify-end">
+                <q-btn color="primary" icon="save" label="Salvar" :loading="salvando" @click="salvarCalendario" />
+              </div>
             </div>
-          </div>
-        </AppSectionCard>
-      </div>
+          </AppSectionCard>
+        </div>
 
-      <div class="col-12 col-lg-6">
-        <AppSectionCard titulo="Horários de atendimento" subtitulo="Janelas semanais de expediente.">
-          <div class="row q-col-gutter-sm q-mb-md">
-            <div class="col-12 col-sm-4"><q-select v-model="horarioForm.diaSemana" outlined dense emit-value map-options :options="diasSemana" label="Dia" /></div>
-            <div class="col-6 col-sm-2"><q-input v-model="horarioForm.horaInicio" outlined dense type="time" label="Início" /></div>
-            <div class="col-6 col-sm-2"><q-input v-model="horarioForm.horaFim" outlined dense type="time" label="Fim" /></div>
-            <div class="col-6 col-sm-2"><q-toggle v-model="horarioForm.ativo" label="Ativo" /></div>
-            <div class="col-6 col-sm-2"><q-btn color="primary" icon="save" class="full-width" @click="salvarHorario" /></div>
-          </div>
-          <q-table :rows="calendarioSelecionado?.horariosAtendimento ?? []" :columns="colunasHorario" row-key="id" flat bordered dense>
-            <template #body-cell-ativo="props"><q-td class="text-center">{{ props.row.ativo ? 'Sim' : 'Não' }}</q-td></template>
-            <template #body-cell-acoes="props">
-              <q-td class="text-right">
-                <q-btn flat dense round icon="edit" @click="editarHorario(props.row)" />
-                <q-btn flat dense round icon="delete" color="negative" @click="excluirHorario(props.row)" />
-              </q-td>
-            </template>
-          </q-table>
-        </AppSectionCard>
-      </div>
+        <div class="col-12 col-lg-6">
+          <AppSectionCard titulo="Horarios de atendimento" subtitulo="Janelas semanais de expediente.">
+            <div class="row q-col-gutter-sm q-mb-md">
+              <div class="col-12 col-sm-4"><q-select v-model="horarioForm.diaSemana" outlined dense emit-value map-options :options="diasSemana" label="Dia" /></div>
+              <div class="col-6 col-sm-2"><q-input v-model="horarioForm.horaInicio" outlined dense type="time" label="Inicio" /></div>
+              <div class="col-6 col-sm-2"><q-input v-model="horarioForm.horaFim" outlined dense type="time" label="Fim" /></div>
+              <div class="col-6 col-sm-2"><q-toggle v-model="horarioForm.ativo" label="Ativo" /></div>
+              <div class="col-6 col-sm-2"><q-btn color="primary" icon="save" label="Salvar" class="full-width" @click="salvarHorario" /></div>
+            </div>
 
-      <div class="col-12 col-lg-6">
-        <AppSectionCard titulo="Exceções" subtitulo="Feriados, recessos, expediente especial e dias sem expediente.">
-          <div class="row q-col-gutter-sm q-mb-md">
-            <div class="col-12 col-sm-3"><q-input v-model="excecaoForm.data" outlined dense type="date" label="Data" /></div>
-            <div class="col-12 col-sm-4"><q-select v-model="excecaoForm.tipo" outlined dense emit-value map-options :options="tiposExcecao" label="Tipo" /></div>
-            <div class="col-6 col-sm-2"><q-input v-model="excecaoForm.horaInicio" outlined dense type="time" label="Início" :disable="excecaoForm.tipo !== 3" /></div>
-            <div class="col-6 col-sm-2"><q-input v-model="excecaoForm.horaFim" outlined dense type="time" label="Fim" :disable="excecaoForm.tipo !== 3" /></div>
-            <div class="col-12"><q-input v-model="excecaoForm.descricao" outlined dense label="Descrição" /></div>
-            <div class="col-6"><q-toggle v-model="excecaoForm.ativo" label="Ativa" /></div>
-            <div class="col-6 row justify-end"><q-btn color="primary" icon="save" label="Salvar" @click="salvarExcecao" /></div>
-          </div>
-          <q-table :rows="calendarioSelecionado?.excecoes ?? []" :columns="colunasExcecao" row-key="id" flat bordered dense>
-            <template #body-cell-periodo="props">
-              <q-td class="text-center">{{ props.row.horaInicio && props.row.horaFim ? `${props.row.horaInicio} - ${props.row.horaFim}` : '-' }}</q-td>
-            </template>
-            <template #body-cell-ativo="props"><q-td class="text-center">{{ props.row.ativo ? 'Sim' : 'Não' }}</q-td></template>
-            <template #body-cell-acoes="props">
-              <q-td class="text-right">
-                <q-btn flat dense round icon="edit" @click="editarExcecao(props.row)" />
-                <q-btn flat dense round icon="delete" color="negative" @click="excluirExcecao(props.row)" />
-              </q-td>
-            </template>
-          </q-table>
-        </AppSectionCard>
+            <EmptyState
+              v-if="!calendarioSelecionado?.horariosAtendimento?.length"
+              titulo="Sem horarios definidos"
+              mensagem="Cadastre ao menos uma janela para o calendario selecionado."
+              icon="schedule"
+            />
+
+            <q-table
+              v-else
+              :rows="calendarioSelecionado?.horariosAtendimento ?? []"
+              :columns="colunasHorario"
+              row-key="id"
+              flat
+              bordered
+              dense
+            >
+              <template #body-cell-ativo="props"><q-td class="text-center">{{ props.row.ativo ? 'Sim' : 'Nao' }}</q-td></template>
+              <template #body-cell-acoes="props">
+                <q-td class="text-right">
+                  <q-btn flat dense round icon="edit" aria-label="Editar horário" @click="editarHorario(props.row)" />
+                  <q-btn flat dense round icon="delete" color="negative" aria-label="Excluir horário" @click="excluirHorario(props.row)" />
+                </q-td>
+              </template>
+            </q-table>
+          </AppSectionCard>
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <AppSectionCard titulo="Excecoes" subtitulo="Feriados, recessos, expediente especial e dias sem expediente.">
+            <div class="row q-col-gutter-sm q-mb-md">
+              <div class="col-12 col-sm-3"><q-input v-model="excecaoForm.data" outlined dense type="date" label="Data" /></div>
+              <div class="col-12 col-sm-4"><q-select v-model="excecaoForm.tipo" outlined dense emit-value map-options :options="tiposExcecao" label="Tipo" /></div>
+              <div class="col-6 col-sm-2"><q-input v-model="excecaoForm.horaInicio" outlined dense type="time" label="Inicio" :disable="excecaoForm.tipo !== 3" /></div>
+              <div class="col-6 col-sm-2"><q-input v-model="excecaoForm.horaFim" outlined dense type="time" label="Fim" :disable="excecaoForm.tipo !== 3" /></div>
+              <div class="col-12"><q-input v-model="excecaoForm.descricao" outlined dense label="Descricao" /></div>
+              <div class="col-6"><q-toggle v-model="excecaoForm.ativo" label="Ativa" /></div>
+              <div class="col-6 row justify-end"><q-btn color="primary" icon="save" label="Salvar" @click="salvarExcecao" /></div>
+            </div>
+
+            <EmptyState
+              v-if="!calendarioSelecionado?.excecoes?.length"
+              titulo="Sem excecoes cadastradas"
+              mensagem="Use excecoes para feriados, recessos e expedientes especiais."
+              icon="event_busy"
+            />
+
+            <q-table
+              v-else
+              :rows="calendarioSelecionado?.excecoes ?? []"
+              :columns="colunasExcecao"
+              row-key="id"
+              flat
+              bordered
+              dense
+            >
+              <template #body-cell-periodo="props">
+                <q-td class="text-center">{{ props.row.horaInicio && props.row.horaFim ? `${props.row.horaInicio} - ${props.row.horaFim}` : '-' }}</q-td>
+              </template>
+              <template #body-cell-ativo="props"><q-td class="text-center">{{ props.row.ativo ? 'Sim' : 'Nao' }}</q-td></template>
+              <template #body-cell-acoes="props">
+                <q-td class="text-right">
+                  <q-btn flat dense round icon="edit" aria-label="Editar exceção" @click="editarExcecao(props.row)" />
+                  <q-btn flat dense round icon="delete" color="negative" aria-label="Excluir exceção" @click="excluirExcecao(props.row)" />
+                </q-td>
+              </template>
+            </q-table>
+          </AppSectionCard>
+        </div>
       </div>
-    </div>
+    </template>
   </q-page>
 </template>

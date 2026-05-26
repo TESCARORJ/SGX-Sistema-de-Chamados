@@ -8,8 +8,11 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { permissoes } from '../constants/permissoes'
 import { baseConhecimentoAdminService } from '../services/baseConhecimentoAdminService'
 import { cadastrosAdminService } from '../services/cadastrosAdminService'
@@ -109,6 +112,9 @@ const labelConfirmacao = computed(() => {
   if (tipoAcao.value === 'arquivar') return 'Arquivar'
   return 'Reativar'
 })
+const totalPublicados = computed(() => artigos.value.filter((item) => item.status === StatusArtigoConhecimento.Publicado).length)
+const totalRascunhos = computed(() => artigos.value.filter((item) => item.status === StatusArtigoConhecimento.Rascunho).length)
+const totalArquivados = computed(() => artigos.value.filter((item) => item.status === StatusArtigoConhecimento.Arquivado).length)
 
 const corConfirmacao = computed(() => {
   if (tipoAcao.value === 'publicar') return 'positive'
@@ -325,7 +331,7 @@ onMounted(async () => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Base de conhecimento" subtitulo="Gerencie artigos, publicacoes e visibilidade interna do conhecimento.">
+    <PageHeader contexto="Conhecimento e autoatendimento" titulo="Base de conhecimento" subtitulo="Gerencie artigos, publicacoes e visibilidade interna do conhecimento.">
       <template #actions>
         <q-btn v-if="podeGerenciar" color="primary" icon="add" label="Novo artigo" :disable="loading" @click="abrirNovoArtigo" />
       </template>
@@ -336,76 +342,85 @@ onMounted(async () => {
     </q-banner>
 
     <template v-else>
+      <div class="sgx-kpi-grid">
+        <MetricCard title="Artigos na pagina" :value="artigos.length" icon="article" tone="primary" :loading="loading" />
+        <MetricCard title="Publicados" :value="totalPublicados" icon="task_alt" tone="positive" :loading="loading" />
+        <MetricCard title="Rascunhos" :value="totalRascunhos" icon="edit_note" tone="warning" :loading="loading" />
+        <MetricCard title="Arquivados" :value="totalArquivados" icon="archive" tone="negative" :loading="loading" />
+      </div>
+
       <AppSectionCard titulo="Filtros" subtitulo="Busca por titulo, resumo, conteudo e tags, com filtros administrativos.">
-        <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
-          <div class="row q-col-gutter-sm">
-            <div class="col-12 col-md-4">
-              <q-input
-                v-model="filtros.termo"
-                outlined
-                label="Busca"
-                placeholder="Titulo, resumo, conteudo ou tags"
-                :disable="loading"
-              />
+        <FilterBar titulo="Pesquisa administrativa" subtitulo="Refine por status, visibilidade e categoria para encontrar artigos com rapidez.">
+          <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-model="filtros.termo"
+                  outlined
+                  label="Busca"
+                  placeholder="Titulo, resumo, conteudo ou tags"
+                  :disable="loading"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.status"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Status"
+                  :disable="loading"
+                  :options="opcoesStatus"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.visibilidade"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Visibilidade"
+                  :disable="loading"
+                  :options="opcoesVisibilidade"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.categoriaId"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Categoria"
+                  :disable="loading"
+                  :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.ativo"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Ativo"
+                  :disable="loading"
+                  :options="opcoesAtivo"
+                />
+              </div>
             </div>
 
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.status"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Status"
-                :disable="loading"
-                :options="opcoesStatus"
-              />
+            <div class="row justify-end q-gutter-sm">
+              <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
+              <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
             </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.visibilidade"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Visibilidade"
-                :disable="loading"
-                :options="opcoesVisibilidade"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.categoriaId"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Categoria"
-                :disable="loading"
-                :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.ativo"
-                outlined
-                emit-value
-                map-options
-                label="Ativo"
-                :disable="loading"
-                :options="opcoesAtivo"
-              />
-            </div>
-          </div>
-
-          <div class="row justify-end q-gutter-sm">
-            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
-            <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
-          </div>
-        </q-form>
+          </q-form>
+        </FilterBar>
       </AppSectionCard>
 
       <q-banner v-if="erro && artigos.length" rounded class="bg-red-1 text-negative">
@@ -448,9 +463,7 @@ onMounted(async () => {
 
           <template #body-cell-status="slotProps">
             <q-td :props="slotProps">
-              <q-chip dense square text-color="white" :color="statusColor(slotProps.row.status)">
-                {{ slotProps.row.statusDescricao }}
-              </q-chip>
+              <StatusBadge :texto="slotProps.row.statusDescricao" />
             </q-td>
           </template>
 
@@ -464,9 +477,7 @@ onMounted(async () => {
 
           <template #body-cell-ativo="slotProps">
             <q-td :props="slotProps">
-              <q-badge :color="slotProps.row.ativo ? 'positive' : 'grey-6'" text-color="white">
-                {{ slotProps.row.ativo ? 'Ativo' : 'Inativo' }}
-              </q-badge>
+              <StatusBadge :texto="slotProps.row.ativo ? 'Ativo' : 'Inativo'" />
             </q-td>
           </template>
 

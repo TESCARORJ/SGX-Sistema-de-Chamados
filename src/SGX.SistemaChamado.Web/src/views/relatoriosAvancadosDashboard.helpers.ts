@@ -54,9 +54,9 @@ export function criarFiltrosResumoDashboard(dataBase: Date = new Date()): Filtro
 
 export function mapearMensagemErroDashboard(error: unknown): string {
   if (error instanceof HttpRequestError) {
-    if (error.status === 400) return 'Filtro inválido'
-    if (error.status === 401 || error.status === 403) return 'Sem permissão'
-    if (error.status === 404) return 'Endpoint não encontrado'
+    if (error.status === 400) return 'Filtro invalido'
+    if (error.status === 401 || error.status === 403) return 'Sem permissao'
+    if (error.status === 404) return 'Endpoint nao encontrado'
     if (error.status >= 500) return 'Erro interno ao carregar'
     return 'Erro ao carregar'
   }
@@ -64,7 +64,7 @@ export function mapearMensagemErroDashboard(error: unknown): string {
   if (error instanceof Error) {
     const mensagem = error.message.toLowerCase()
     if (mensagem.includes('failed to fetch') || mensagem.includes('network')) {
-      return 'API indisponível'
+      return 'API indisponivel'
     }
   }
 

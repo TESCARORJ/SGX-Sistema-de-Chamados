@@ -2,8 +2,11 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QTableColumn } from 'quasar'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { useAuthStore } from '../stores/authStore'
 import { permissoes } from '../constants/permissoes'
@@ -40,6 +43,10 @@ const filtros = reactive({
   ativo: true as boolean | null,
   texto: '',
 })
+const totalAtivas = computed(() => politicas.value.filter((item) => item.ativo).length)
+const totalInativas = computed(() => politicas.value.filter((item) => !item.ativo).length)
+const totalComHorarioComercial = computed(() => politicas.value.filter((item) => item.usarHorarioComercial).length)
+const totalComPausaSolicitante = computed(() => politicas.value.filter((item) => item.pausarQuandoAguardandoSolicitante).length)
 
 const modalAberto = ref(false)
 const editandoId = ref<string | null>(null)
@@ -288,44 +295,80 @@ onMounted(async () => {
 </script>
 
 <template>
-  <q-page class="q-pa-md">
-    <PageHeader title="Políticas de SLA" subtitle="Administração > SLA" />
+  <q-page class="sgx-page column q-gutter-md">
+    <PageHeader
+      contexto="SLA e governanca operacional"
+      title="Politicas de SLA"
+      subtitle="Gerencie regras de prazo, escopo e metas por prioridade com visao executiva."
+    />
 
     <q-banner v-if="sucesso" class="bg-positive text-white q-mb-md" rounded>
       {{ sucesso }}
     </q-banner>
 
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Total de politicas" :value="politicas.length" icon="rule" tone="primary" :loading="loading" />
+      <MetricCard title="Ativas" :value="totalAtivas" icon="task_alt" tone="positive" :loading="loading" />
+      <MetricCard title="Inativas" :value="totalInativas" icon="pause_circle" tone="warning" :loading="loading" />
+      <MetricCard title="Horario comercial" :value="totalComHorarioComercial" icon="schedule" tone="info" :loading="loading" />
+      <MetricCard
+        title="Pausa aguardando solicitante"
+        :value="totalComPausaSolicitante"
+        icon="hourglass_top"
+        tone="warning"
+        :loading="loading"
+      />
+    </div>
+
     <AppSectionCard title="Configuração de SLA" icon="schedule">
-      <div class="row q-col-gutter-sm q-mb-md">
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.ativo"
-            outlined
-            dense
-            emit-value
-            map-options
-            :options="[
-              { label: 'Ativas', value: true },
-              { label: 'Inativas', value: false },
-              { label: 'Todas', value: null },
-            ]"
-            label="Situação"
-          />
+      <FilterBar
+        titulo="Busca de politicas"
+        subtitulo="Filtre por situacao e texto para localizar regras de SLA."
+        class="q-mb-md"
+        compact
+      >
+        <div class="row q-col-gutter-sm">
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.ativo"
+              outlined
+              dense
+              emit-value
+              map-options
+              :options="[
+                { label: 'Ativas', value: true },
+                { label: 'Inativas', value: false },
+                { label: 'Todas', value: null },
+              ]"
+              label="Situação"
+            />
+          </div>
+          <div class="col-12 col-md-5">
+            <q-input v-model="filtros.texto" outlined dense label="Buscar por nome ou descrição" @keyup.enter="carregarPoliticas" />
+          </div>
+          <div class="col-12 col-md-4 row justify-end q-gutter-sm">
+            <q-btn color="primary" label="Filtrar" @click="carregarPoliticas" />
+            <q-btn v-if="podeCriar" color="secondary" icon="add" label="Nova política" @click="abrirCriacao" />
+          </div>
         </div>
-        <div class="col-12 col-md-5">
-          <q-input v-model="filtros.texto" outlined dense label="Buscar por nome ou descrição" @keyup.enter="carregarPoliticas" />
-        </div>
-        <div class="col-12 col-md-4 row justify-end q-gutter-sm">
-          <q-btn color="primary" label="Filtrar" @click="carregarPoliticas" />
-          <q-btn v-if="podeCriar" color="secondary" icon="add" label="Nova política" @click="abrirCriacao" />
-        </div>
-      </div>
+      </FilterBar>
 
       <LoadingState v-if="loading" />
-      <ErrorState v-else-if="erro" :mensagem="erro" @tentar-novamente="carregarPoliticas" />
+      <ErrorState v-else-if="erro" :mensagem="erro" @retry="carregarPoliticas" />
+      <EmptyState
+        v-else-if="!politicas.length"
+        titulo="Nenhuma politica encontrada"
+        mensagem="Nao ha registros para os filtros informados."
+        icon="rule"
+      />
       <q-table v-else :rows="politicas" :columns="colunas" row-key="id" flat bordered>
         <template #body-cell-escopo="slotProps">
-          <q-td>{{ formatarEscopo(slotProps.row) }}</q-td>
+          <q-td>
+            <div class="text-weight-medium">{{ formatarEscopo(slotProps.row) }}</div>
+            <div class="text-caption text-grey-7 q-mt-xs">
+              {{ slotProps.row.descricao || 'Sem descricao complementar.' }}
+            </div>
+          </q-td>
         </template>
         <template #body-cell-horario="slotProps">
           <q-td>
@@ -351,7 +394,7 @@ onMounted(async () => {
         </template>
         <template #body-cell-acoes="slotProps">
           <q-td class="text-right">
-            <q-btn v-if="podeEditar" flat dense round icon="edit" color="secondary" @click="abrirEdicao(slotProps.row)" />
+            <q-btn v-if="podeEditar" flat dense round icon="edit" color="secondary" aria-label="Editar política de SLA" @click="abrirEdicao(slotProps.row)" />
             <q-btn
               v-if="podeAtivarDesativar"
               flat
@@ -359,6 +402,7 @@ onMounted(async () => {
               round
               :icon="slotProps.row.ativo ? 'toggle_on' : 'toggle_off'"
               :color="slotProps.row.ativo ? 'positive' : 'grey-7'"
+              :aria-label="slotProps.row.ativo ? 'Inativar política de SLA' : 'Ativar política de SLA'"
               @click="alternarStatus(slotProps.row)"
             />
           </q-td>
@@ -371,7 +415,7 @@ onMounted(async () => {
         <q-card-section class="row items-center">
           <div class="text-h6">{{ editandoId ? 'Editar política de SLA' : 'Nova política de SLA' }}</div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense aria-label="Fechar formulário de política de SLA" v-close-popup />
         </q-card-section>
 
         <q-card-section class="row q-col-gutter-sm">
@@ -447,3 +491,5 @@ onMounted(async () => {
     </q-dialog>
   </q-page>
 </template>
+
+

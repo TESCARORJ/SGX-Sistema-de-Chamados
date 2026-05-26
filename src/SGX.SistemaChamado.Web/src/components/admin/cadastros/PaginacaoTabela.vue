@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 const props = defineProps<{
   pagina: number
   tamanhoPagina: number
@@ -16,7 +16,9 @@ const tamanhos = [10, 20, 50, 100]
 
 <template>
   <div class="paginacao-tabela row items-center justify-between q-gutter-sm">
-    <div class="text-caption text-grey-8 paginacao-tabela__total">Total: {{ total }}</div>
+    <div class="text-caption text-grey-8 paginacao-tabela__total">
+      Total: {{ total }} | Pagina {{ pagina }} de {{ Math.max(1, Math.ceil(total / tamanhoPagina)) }}
+    </div>
 
     <div class="row items-center q-gutter-sm paginacao-tabela__controles">
       <q-select
@@ -27,7 +29,7 @@ const tamanhos = [10, 20, 50, 100]
         map-options
         :disable="loading"
         :options="tamanhos.map((item) => ({ label: `${item} / pagina`, value: item }))"
-        label="Pagina"
+        label="Itens por pagina"
         @update:model-value="(value) => emit('update:tamanhoPagina', Number(value))"
       />
 
@@ -62,3 +64,4 @@ const tamanhos = [10, 20, 50, 100]
   }
 }
 </style>
+

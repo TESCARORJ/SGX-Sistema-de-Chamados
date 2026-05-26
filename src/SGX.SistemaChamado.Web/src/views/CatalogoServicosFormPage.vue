@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import FormCadastro from '../components/admin/cadastros/FormCadastro.vue'
+import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
@@ -393,170 +394,182 @@ onMounted(async () => {
           @salvar="salvar"
           @cancelar="voltar"
         >
-          <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-8">
-              <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
-            </div>
+          <div class="column q-gutter-md">
+            <AppSectionCard titulo="Informacoes gerais" subtitulo="Dados principais e descricao funcional do servico.">
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-8">
+                  <q-input v-model="form.nome" outlined dense label="Nome" :readonly="somenteLeitura" :rules="[regraObrigatoria]" />
+                </div>
 
-            <div class="col-12 col-md-4">
-              <q-select
-                v-model="form.visibilidade"
-                outlined
-                dense
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="opcoesVisibilidade"
-                label="Visibilidade"
-                :rules="[regraObrigatoria]"
-              />
-            </div>
+                <div class="col-12 col-md-4">
+                  <q-select
+                    v-model="form.visibilidade"
+                    outlined
+                    dense
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="opcoesVisibilidade"
+                    label="Visibilidade"
+                    :rules="[regraObrigatoria]"
+                  />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.departamentoResponsavelId"
-                outlined
-                dense
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
-                label="Departamento responsavel"
-                :rules="[regraObrigatoria]"
-              />
-            </div>
+                <div class="col-12">
+                  <q-input
+                    v-model="form.descricao"
+                    outlined
+                    dense
+                    type="textarea"
+                    autogrow
+                    label="Descricao"
+                    :readonly="somenteLeitura"
+                    :rules="[regraObrigatoria]"
+                  />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.categoriaId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-                label="Categoria"
-              />
-            </div>
+                <div class="col-12">
+                  <q-input
+                    v-model="form.instrucoesSolicitante"
+                    outlined
+                    dense
+                    type="textarea"
+                    autogrow
+                    label="Instrucoes ao solicitante"
+                    :readonly="somenteLeitura"
+                  />
+                </div>
+              </div>
+            </AppSectionCard>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.subcategoriaId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="subcategoriasFiltradas.map((item) => ({ label: item.nome, value: item.id }))"
-                label="Subcategoria"
-              />
-            </div>
+            <AppSectionCard titulo="Classificacao e referencias" subtitulo="Vincule departamento, categoria, prioridade e base de conhecimento.">
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.departamentoResponsavelId"
+                    outlined
+                    dense
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="Departamento responsavel"
+                    :rules="[regraObrigatoria]"
+                  />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.prioridadePadraoId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="prioridades.map((item) => ({ label: item.nome, value: item.id }))"
-                label="Prioridade padrao"
-              />
-            </div>
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.categoriaId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="Categoria"
+                  />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.slaPadraoId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="politicasSla.map((item) => ({ label: item.nome, value: item.id }))"
-                label="SLA padrao / Politica SLA"
-              />
-            </div>
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.subcategoriaId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="subcategoriasFiltradas.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="Subcategoria"
+                  />
+                </div>
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.artigoBaseConhecimentoId"
-                outlined
-                dense
-                clearable
-                emit-value
-                map-options
-                :disable="somenteLeitura"
-                :options="artigosConhecimento.map((item) => ({ label: item.titulo, value: item.id }))"
-                label="Artigo da base de conhecimento"
-              />
-            </div>
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.prioridadePadraoId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="prioridades.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="Prioridade padrao"
+                  />
+                </div>
 
-            <div class="col-12">
-              <q-input
-                v-model="form.descricao"
-                outlined
-                dense
-                type="textarea"
-                autogrow
-                label="Descricao"
-                :readonly="somenteLeitura"
-                :rules="[regraObrigatoria]"
-              />
-            </div>
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.slaPadraoId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="politicasSla.map((item) => ({ label: item.nome, value: item.id }))"
+                    label="SLA padrao / Politica SLA"
+                  />
+                </div>
 
-            <div class="col-12">
-              <q-input
-                v-model="form.instrucoesSolicitante"
-                outlined
-                dense
-                type="textarea"
-                autogrow
-                label="Instrucoes ao solicitante"
-                :readonly="somenteLeitura"
-              />
-            </div>
+                <div class="col-12 col-md-6">
+                  <q-select
+                    v-model="form.artigoBaseConhecimentoId"
+                    outlined
+                    dense
+                    clearable
+                    emit-value
+                    map-options
+                    :disable="somenteLeitura"
+                    :options="artigosConhecimento.map((item) => ({ label: item.titulo, value: item.id }))"
+                    label="Artigo da base de conhecimento"
+                  />
+                </div>
+              </div>
+            </AppSectionCard>
 
-            <div class="col-12 col-md-3">
-              <q-input
-                v-model.number="form.ordem"
-                outlined
-                dense
-                type="number"
-                min="0"
-                label="Ordem"
-                :readonly="somenteLeitura"
-                :rules="[regraOrdem]"
-              />
-            </div>
+            <AppSectionCard titulo="Disponibilidade e governanca" subtitulo="Controle comportamento de abertura, aprovacao e ciclo de vida.">
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-md-3">
+                  <q-input
+                    v-model.number="form.ordem"
+                    outlined
+                    dense
+                    type="number"
+                    min="0"
+                    label="Ordem"
+                    :readonly="somenteLeitura"
+                    :rules="[regraOrdem]"
+                  />
+                </div>
 
-            <div class="col-12 col-md-3">
-              <q-toggle v-model="form.permiteAberturaChamado" :disable="somenteLeitura" label="Permite abertura de chamado" />
-            </div>
+                <div class="col-12 col-md-3">
+                  <q-toggle v-model="form.permiteAberturaChamado" :disable="somenteLeitura" label="Permite abertura de chamado" />
+                </div>
 
-            <div class="col-12 col-md-3">
-              <q-toggle v-model="form.requerAprovacao" :disable="somenteLeitura" label="Requer aprovacao" />
-            </div>
+                <div class="col-12 col-md-3">
+                  <q-toggle v-model="form.requerAprovacao" :disable="somenteLeitura" label="Requer aprovacao" />
+                </div>
 
-            <div class="col-12 col-md-3">
-              <q-toggle
-                v-model="form.ativo"
-                :disable="somenteLeitura || statusEmEdicao === StatusCatalogoServico.Arquivado"
-                label="Ativo"
-              />
-            </div>
+                <div class="col-12 col-md-3">
+                  <q-toggle
+                    v-model="form.ativo"
+                    :disable="somenteLeitura || statusEmEdicao === StatusCatalogoServico.Arquivado"
+                    label="Ativo"
+                  />
+                </div>
 
-            <div v-if="!isNovo" class="col-12 col-md-3">
-              <q-input v-model="form.statusDescricao" outlined dense readonly label="Status" />
-            </div>
+                <div v-if="!isNovo" class="col-12 col-md-3">
+                  <q-input v-model="form.statusDescricao" outlined dense readonly label="Status" />
+                </div>
 
-            <div v-if="!isNovo" class="col-12 col-md-9">
-              <q-input v-model="form.slug" outlined dense readonly label="Slug" />
-            </div>
+                <div v-if="!isNovo" class="col-12 col-md-9">
+                  <q-input v-model="form.slug" outlined dense readonly label="Slug" />
+                </div>
+              </div>
+            </AppSectionCard>
           </div>
         </FormCadastro>
       </template>

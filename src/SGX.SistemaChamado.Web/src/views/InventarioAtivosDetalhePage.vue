@@ -8,7 +8,9 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminService'
@@ -16,7 +18,6 @@ import { usuariosAdminService } from '../services/usuariosAdminService'
 import { useAuthStore } from '../stores/authStore'
 import type { AtendenteResumo } from '../types/admin'
 import {
-  CriticidadeAtivo,
   StatusOperacionalAtivo,
   StatusPatrimonialAtivo,
   type ChamadoRelacionadoInventarioAtivo,
@@ -116,6 +117,14 @@ const opcoesStatusPatrimonial = [
   { label: 'Extraviado', value: StatusPatrimonialAtivo.Extraviado },
 ]
 
+const detalheSemVinculos = computed(() => {
+  if (!detalhe.value) {
+    return false
+  }
+
+  return !detalhe.value.descricao && !detalhe.value.observacoes
+})
+
 function extrairMensagemErro(error: unknown, fallback: string): string {
   if (!(error instanceof Error)) {
     return fallback
@@ -154,19 +163,6 @@ function formatarMoeda(valor: number | null): string {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)
 }
 
-function corCriticidade(value: CriticidadeAtivo): string {
-  switch (value) {
-    case CriticidadeAtivo.Baixa:
-      return 'positive'
-    case CriticidadeAtivo.Media:
-      return 'blue'
-    case CriticidadeAtivo.Alta:
-      return 'warning'
-    default:
-      return 'negative'
-  }
-}
-
 function navegarParaEditar(): void {
   router.push(`/admin/infraestrutura/inventario-ativos/${ativoId.value}/editar`)
 }
@@ -178,6 +174,22 @@ function abrirConfirmacao(acao: 'inativar' | 'reativar'): void {
 
 function montarDescricaoMudanca(origem: string | null, destino: string | null): string {
   return `${origem || '-'} -> ${destino || '-'}`
+}
+
+function formatarStatusOperacional(valor: StatusOperacionalAtivo | null): string {
+  if (valor === null) {
+    return '-'
+  }
+
+  return opcoesStatusOperacional.find((item) => item.value === valor)?.label ?? String(valor)
+}
+
+function formatarStatusPatrimonial(valor: StatusPatrimonialAtivo | null): string {
+  if (valor === null) {
+    return '-'
+  }
+
+  return opcoesStatusPatrimonial.find((item) => item.value === valor)?.label ?? String(valor)
 }
 
 async function carregarDetalhe(): Promise<void> {
@@ -379,6 +391,7 @@ onMounted(async () => {
     <PageHeader
       :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.nome}` : 'Inventario/Ativos - Detalhe do ativo'"
       subtitulo="Acompanhe dados gerais, historico de movimentacoes e chamados relacionados."
+      contexto="Infraestrutura"
     >
       <template #actions>
         <div class="row q-gutter-xs">
@@ -425,117 +438,159 @@ onMounted(async () => {
     <LoadingState v-else-if="loading" inline mensagem="Carregando detalhe do ativo..." />
 
     <template v-else-if="detalhe">
+      <div class="detalhe-ativo__kpis">
+        <MetricCard titulo="Status do ativo" :valor="detalhe.ativo ? 'Ativo' : 'Inativo'" icon="inventory_2" :tone="detalhe.ativo ? 'positive' : 'warning'" />
+        <MetricCard titulo="Criticidade" :valor="detalhe.criticidadeDescricao" icon="priority_high" tone="negative" />
+        <MetricCard titulo="Eventos de historico" :valor="totalHistorico" icon="history" tone="info" />
+        <MetricCard titulo="Chamados vinculados" :valor="totalChamados" icon="support_agent" tone="primary" />
+      </div>
+
       <AppSectionCard titulo="Dados gerais" subtitulo="Informacoes cadastrais e operacionais do ativo.">
-        <q-list separator>
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Codigo</q-item-label>
-              <q-item-label>{{ detalhe.codigo }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Nome</q-item-label>
-              <q-item-label>{{ detalhe.nome }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Tipo</q-item-label>
-              <q-item-label>{{ detalhe.tipoAtivoInventarioNome }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Ativo</q-item-label>
-              <q-item-label>
-                <q-badge :color="detalhe.ativo ? 'positive' : 'grey-6'" text-color="white">
-                  {{ detalhe.ativo ? 'Ativo' : 'Inativo' }}
-                </q-badge>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
+        <div class="row q-col-gutter-md">
+          <div class="col-12 col-lg-6">
+            <AppSectionCard sem-separador titulo="Identificacao">
+              <q-list separator>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Codigo</q-item-label>
+                    <q-item-label>{{ detalhe.codigo }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Tipo</q-item-label>
+                    <q-item-label>{{ detalhe.tipoAtivoInventarioNome }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Nome</q-item-label>
+                    <q-item-label>{{ detalhe.nome }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Patrimonio</q-item-label>
+                    <q-item-label>{{ detalhe.numeroPatrimonio || '-' }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Numero de serie</q-item-label>
+                    <q-item-label>{{ detalhe.numeroSerie || '-' }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Fabricante</q-item-label>
+                    <q-item-label>{{ detalhe.fabricante || '-' }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Modelo</q-item-label>
+                    <q-item-label>{{ detalhe.modelo || '-' }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </AppSectionCard>
+          </div>
 
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Patrimonio</q-item-label>
-              <q-item-label>{{ detalhe.numeroPatrimonio || '-' }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Serie</q-item-label>
-              <q-item-label>{{ detalhe.numeroSerie || '-' }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Fabricante</q-item-label>
-              <q-item-label>{{ detalhe.fabricante || '-' }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Modelo</q-item-label>
-              <q-item-label>{{ detalhe.modelo || '-' }}</q-item-label>
-            </q-item-section>
-          </q-item>
+          <div class="col-12 col-lg-6">
+            <AppSectionCard sem-separador titulo="Classificacao e status">
+              <q-list separator>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Situacao cadastral</q-item-label>
+                    <q-item-label>
+                      <StatusBadge :texto="detalhe.ativo ? 'Ativo' : 'Inativo'" />
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Criticidade</q-item-label>
+                    <q-item-label>
+                      <StatusBadge :texto="detalhe.criticidadeDescricao" />
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Status operacional</q-item-label>
+                    <q-item-label>
+                      <StatusBadge :texto="detalhe.statusOperacionalDescricao" />
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Status patrimonial</q-item-label>
+                    <q-item-label>
+                      <StatusBadge :texto="detalhe.statusPatrimonialDescricao" />
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Departamento</q-item-label>
+                    <q-item-label>{{ detalhe.departamentoNome || '-' }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label caption>Local / Unidade</q-item-label>
+                    <q-item-label>{{ detalhe.localUnidadeNome || '-' }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section>
+                    <q-item-label caption>Responsavel</q-item-label>
+                    <q-item-label>{{ detalhe.usuarioResponsavelNome || '-' }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </AppSectionCard>
+          </div>
 
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Departamento</q-item-label>
-              <q-item-label>{{ detalhe.departamentoNome || '-' }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Local / Unidade</q-item-label>
-              <q-item-label>{{ detalhe.localUnidadeNome || '-' }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Responsavel</q-item-label>
-              <q-item-label>{{ detalhe.usuarioResponsavelNome || '-' }}</q-item-label>
-            </q-item-section>
-          </q-item>
+          <div class="col-12">
+            <AppSectionCard sem-separador titulo="Ciclo de vida e aquisicao">
+              <div class="row q-col-gutter-sm">
+                <div class="col-12 col-md-3">
+                  <div class="text-caption sgx-muted">Aquisicao</div>
+                  <div class="text-body2 text-weight-medium">{{ formatarData(detalhe.dataAquisicao) }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="text-caption sgx-muted">Fim de garantia</div>
+                  <div class="text-body2 text-weight-medium">{{ formatarData(detalhe.dataFimGarantia) }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="text-caption sgx-muted">Valor de aquisicao</div>
+                  <div class="text-body2 text-weight-medium">{{ formatarMoeda(detalhe.valorAquisicao) }}</div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <div class="text-caption sgx-muted">Fornecedor</div>
+                  <div class="text-body2 text-weight-medium">{{ detalhe.fornecedor || '-' }}</div>
+                </div>
+              </div>
+            </AppSectionCard>
+          </div>
+        </div>
+      </AppSectionCard>
 
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Status operacional</q-item-label>
-              <q-item-label>{{ detalhe.statusOperacionalDescricao }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Status patrimonial</q-item-label>
-              <q-item-label>{{ detalhe.statusPatrimonialDescricao }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Criticidade</q-item-label>
-              <q-item-label>
-                <q-chip dense square text-color="white" :color="corCriticidade(detalhe.criticidade)">
-                  {{ detalhe.criticidadeDescricao }}
-                </q-chip>
-              </q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Aquisicao</q-item-label>
-              <q-item-label>{{ formatarData(detalhe.dataAquisicao) }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Fim de garantia</q-item-label>
-              <q-item-label>{{ formatarData(detalhe.dataFimGarantia) }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Valor</q-item-label>
-              <q-item-label>{{ formatarMoeda(detalhe.valorAquisicao) }}</q-item-label>
-            </q-item-section>
-            <q-item-section>
-              <q-item-label caption>Fornecedor</q-item-label>
-              <q-item-label>{{ detalhe.fornecedor || '-' }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Descricao</q-item-label>
-              <q-item-label class="text-body2">{{ detalhe.descricao || '-' }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item>
-            <q-item-section>
-              <q-item-label caption>Observacoes</q-item-label>
-              <q-item-label class="text-body2">{{ detalhe.observacoes || '-' }}</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
+      <AppSectionCard titulo="Descricao e observacoes" subtitulo="Notas operacionais e contexto complementar do ativo.">
+        <EmptyState
+          v-if="detalheSemVinculos"
+          titulo="Sem descricoes adicionais"
+          mensagem="Este ativo nao possui descricao ou observacoes cadastradas."
+          icon="description"
+        />
+        <div v-else class="row q-col-gutter-md">
+          <div class="col-12 col-lg-6">
+            <q-card flat bordered class="sgx-card detalhe-ativo__bloco-texto">
+              <q-card-section>
+                <div class="text-subtitle2 text-weight-bold q-mb-sm">Descricao</div>
+                <div class="text-body2">{{ detalhe.descricao || '-' }}</div>
+              </q-card-section>
+            </q-card>
+          </div>
+          <div class="col-12 col-lg-6">
+            <q-card flat bordered class="sgx-card detalhe-ativo__bloco-texto">
+              <q-card-section>
+                <div class="text-subtitle2 text-weight-bold q-mb-sm">Observacoes</div>
+                <div class="text-body2">{{ detalhe.observacoes || '-' }}</div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
       </AppSectionCard>
 
       <AppSectionCard titulo="Historico / Movimentacoes" :subtitulo="`Eventos registrados: ${totalHistorico}`">
@@ -570,14 +625,14 @@ onMounted(async () => {
                 v-if="evento.statusOperacionalAnterior !== null || evento.statusOperacionalNovo !== null"
                 caption
               >
-                Status operacional: {{ evento.statusOperacionalAnterior ?? '-' }} -> {{ evento.statusOperacionalNovo ?? '-' }}
+                Status operacional: {{ formatarStatusOperacional(evento.statusOperacionalAnterior) }} -> {{ formatarStatusOperacional(evento.statusOperacionalNovo) }}
               </q-item-label>
 
               <q-item-label
                 v-if="evento.statusPatrimonialAnterior !== null || evento.statusPatrimonialNovo !== null"
                 caption
               >
-                Status patrimonial: {{ evento.statusPatrimonialAnterior ?? '-' }} -> {{ evento.statusPatrimonialNovo ?? '-' }}
+                Status patrimonial: {{ formatarStatusPatrimonial(evento.statusPatrimonialAnterior) }} -> {{ formatarStatusPatrimonial(evento.statusPatrimonialNovo) }}
               </q-item-label>
 
               <q-item-label v-if="evento.observacao" caption>Observacao: {{ evento.observacao }}</q-item-label>
@@ -633,6 +688,18 @@ onMounted(async () => {
         >
           <template #body-cell-criadoEm="slotProps">
             <q-td :props="slotProps">{{ formatarData(slotProps.row.criadoEm) }}</q-td>
+          </template>
+
+          <template #body-cell-status="slotProps">
+            <q-td :props="slotProps">
+              <StatusBadge :texto="slotProps.row.status" />
+            </q-td>
+          </template>
+
+          <template #body-cell-prioridade="slotProps">
+            <q-td :props="slotProps">
+              <StatusBadge :texto="slotProps.row.prioridade" />
+            </q-td>
           </template>
 
           <template #body-cell-encerradoEm="slotProps">
@@ -786,7 +853,29 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.detalhe-ativo__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sgx-space-4);
+}
+
 .dialog-movimentacao {
   width: min(860px, 96vw);
+}
+
+.detalhe-ativo__bloco-texto {
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
+  .detalhe-ativo__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .detalhe-ativo__kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

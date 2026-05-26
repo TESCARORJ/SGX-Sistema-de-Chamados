@@ -6,7 +6,9 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { roadmapItsmService } from '../services/roadmapItsmService'
 import type {
@@ -158,6 +160,15 @@ const opcoesCategoriasAtivas = computed(() =>
     .sort((a, b) => (a.ordem ?? 9999) - (b.ordem ?? 9999) || a.nome.localeCompare(b.nome))
     .map((x) => ({ value: x.id, label: x.nome, cor: x.cor, icone: x.icone }))
 )
+const totalItensAtivos = computed(() => itens.value.filter((item) => item.ativo).length)
+const totalConcluidos = computed(() => itens.value.filter((item) => item.statusImplementacao === 4).length)
+const totalEmAndamento = computed(() => itens.value.filter((item) => item.statusImplementacao === 2).length)
+const totalComPendencia = computed(() => itens.value.filter((item) => item.statusTecnico === 3).length)
+const mediaPercentual = computed(() => {
+  if (!itens.value.length) return 0
+  const total = itens.value.reduce((acc, item) => acc + item.percentualImplementacao, 0)
+  return Math.round(total / itens.value.length)
+})
 
 const podeGerenciarRoadmap = computed(
   () =>
@@ -576,8 +587,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Gestao ITSM e melhoria continua"
       titulo="Roadmap ITSM"
       subtitulo="Acompanhe evolução, status técnico, pendências, critérios de aceite e evidências da implantação ITSM."
     >
@@ -589,26 +601,36 @@ onMounted(async () => {
     <q-banner v-if="sucesso" class="bg-positive text-white q-mb-md">{{ sucesso }}</q-banner>
     <q-banner v-if="erro" class="bg-negative text-white q-mb-md">{{ erro }}</q-banner>
 
+    <div class="sgx-kpi-grid">
+      <MetricCard title="Itens ativos" :value="totalItensAtivos" icon="inventory_2" tone="primary" :loading="loading" />
+      <MetricCard title="Concluidos" :value="totalConcluidos" icon="task_alt" tone="positive" :loading="loading" />
+      <MetricCard title="Em andamento" :value="totalEmAndamento" icon="autorenew" tone="info" :loading="loading" />
+      <MetricCard title="Com pendencia tecnica" :value="totalComPendencia" icon="warning" tone="warning" :loading="loading" />
+      <MetricCard title="Media de progresso" :value="`${mediaPercentual}%`" icon="query_stats" tone="primary" :loading="loading" />
+    </div>
+
     <AppSectionCard title="Itens do roadmap" icon="track_changes">
-      <q-form class="row q-col-gutter-sm q-mb-md">
-        <div class="col-12 col-md-4">
-          <q-select v-model="filtros.status" outlined dense clearable emit-value map-options :options="opcoesStatus" label="Status geral" />
-        </div>
-        <div class="col-12 col-md-4">
-          <q-select v-model="filtros.roadmapCategoriaId" outlined dense clearable emit-value map-options :options="opcoesCategoriasAtivas" label="Categoria" />
-        </div>
-        <div class="col-12 col-md-4 flex items-center justify-end">
-          <q-btn color="primary" label="Filtrar" @click="carregarListaRoadmap" />
-        </div>
-      </q-form>
+      <FilterBar compact titulo="Filtro operacional" subtitulo="Refine a visualizacao por status geral e categoria.">
+        <q-form class="row q-col-gutter-sm q-mb-md">
+          <div class="col-12 col-md-4">
+            <q-select v-model="filtros.status" outlined dense clearable emit-value map-options :options="opcoesStatus" label="Status geral" />
+          </div>
+          <div class="col-12 col-md-4">
+            <q-select v-model="filtros.roadmapCategoriaId" outlined dense clearable emit-value map-options :options="opcoesCategoriasAtivas" label="Categoria" />
+          </div>
+          <div class="col-12 col-md-4 flex items-center justify-end">
+            <q-btn color="primary" label="Filtrar" @click="carregarListaRoadmap" />
+          </div>
+        </q-form>
+      </FilterBar>
 
       <LoadingState v-if="loading" />
-      <ErrorState v-else-if="erro" :mensagem="erro" @tentar-novamente="carregarListaRoadmap" />
+      <ErrorState v-else-if="erro" :mensagem="erro" @retry="carregarListaRoadmap" />
       <EmptyState v-else-if="!itens.length" titulo="Nenhum item encontrado" descricao="Ajuste os filtros para exibir o roadmap." />
       <q-table v-else :rows="itens" :columns="colunasRoadmap" row-key="id" flat bordered>
         <template #body-cell-acoes="slotProps">
           <q-td>
-            <q-btn flat round dense icon="visibility" color="primary" @click="abrirDetalhe(slotProps.row, 'visualizar')" />
+            <q-btn flat round dense icon="visibility" color="primary" aria-label="Visualizar item do roadmap" @click="abrirDetalhe(slotProps.row, 'visualizar')" />
             <q-btn
               v-if="podeGerenciarRoadmap"
               flat
@@ -616,6 +638,7 @@ onMounted(async () => {
               dense
               icon="edit"
               color="secondary"
+              aria-label="Editar item do roadmap"
               @click="abrirDetalhe(slotProps.row, 'editar')"
             />
           </q-td>
@@ -652,15 +675,17 @@ onMounted(async () => {
         </template>
         <template #body-cell-acoes="slotProps">
           <q-td>
-            <q-btn v-if="podeGerenciarCategorias" flat dense round icon="edit" color="secondary" @click="abrirModalCategoria('editar', slotProps.row)" />
+            <q-btn v-if="podeGerenciarCategorias" flat dense round icon="edit" color="secondary" aria-label="Editar categoria do roadmap" @click="abrirModalCategoria('editar', slotProps.row)" />
             <q-btn
               v-if="podeGerenciarCategorias && slotProps.row.ativo"
               flat dense round icon="block" color="negative"
+              aria-label="Inativar categoria do roadmap"
               @click="abrirConfirmacao('Inativar categoria?', async () => { await roadmapItsmService.inativarCategoria(slotProps.row.id); await carregarCategorias() })"
             />
             <q-btn
               v-if="podeGerenciarCategorias && !slotProps.row.ativo"
               flat dense round icon="restart_alt" color="primary"
+              aria-label="Reativar categoria do roadmap"
               @click="abrirConfirmacao('Reativar categoria?', async () => { await roadmapItsmService.reativarCategoria(slotProps.row.id); await carregarCategorias() })"
             />
           </q-td>
@@ -673,7 +698,7 @@ onMounted(async () => {
         <q-card-section class="row items-center q-pb-none">
           <div class="text-h6">{{ modoDetalhe === 'editar' ? 'Editar roadmap' : 'Detalhe do roadmap' }}</div>
           <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
+          <q-btn icon="close" flat round dense aria-label="Fechar detalhe do roadmap" v-close-popup />
         </q-card-section>
 
         <q-card-section v-if="detalheAtual" class="q-gutter-md">
@@ -751,25 +776,29 @@ onMounted(async () => {
               <template #body-cell-acoes="slotProps">
                 <q-td class="text-right">
                   <div class="row no-wrap justify-end items-center q-gutter-xs">
-                    <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" @click="abrirModalChecklist('editar', slotProps.row)" />
+                    <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" aria-label="Editar item do checklist" @click="abrirModalChecklist('editar', slotProps.row)" />
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && !slotProps.row.concluido"
                       flat dense round icon="task_alt" color="positive"
+                      aria-label="Concluir item do checklist"
                       @click="concluirChecklist(slotProps.row)"
                     />
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && slotProps.row.concluido"
                       flat dense round icon="undo" color="warning"
+                      aria-label="Reabrir item do checklist"
                       @click="reabrirChecklist(slotProps.row)"
                     />
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && slotProps.row.ativo"
                       flat dense round icon="delete" color="negative"
+                      aria-label="Inativar item do checklist"
                       @click="excluirChecklist(slotProps.row)"
                     />
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && !slotProps.row.ativo"
                       flat dense round icon="restart_alt" color="primary"
+                      aria-label="Reativar item do checklist"
                       @click="reativarChecklist(slotProps.row)"
                     />
                   </div>
@@ -787,20 +816,23 @@ onMounted(async () => {
               <template #body-cell-ativo="slotProps"><q-td><q-badge :color="slotProps.row.ativo ? 'positive' : 'negative'">{{ slotProps.row.ativo ? 'Sim' : 'Não' }}</q-badge></q-td></template>
               <template #body-cell-acoes="slotProps">
                 <q-td>
-                  <q-btn v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" @click="abrirModalImplementacao('editar', slotProps.row)" />
+                  <q-btn v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" aria-label="Editar implementação futura" @click="abrirModalImplementacao('editar', slotProps.row)" />
                   <q-btn
                     v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar' && slotProps.row.status !== 6"
                     flat dense round icon="task_alt" color="positive"
+                    aria-label="Concluir implementação futura"
                     @click="concluirImplementacao(slotProps.row)"
                   />
                   <q-btn
                     v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar' && slotProps.row.ativo"
                     flat dense round icon="block" color="negative"
+                    aria-label="Inativar implementação futura"
                     @click="inativarImplementacao(slotProps.row)"
                   />
                   <q-btn
                     v-if="podeGerenciarImplementacoes && modoDetalhe === 'editar' && !slotProps.row.ativo"
                     flat dense round icon="restart_alt" color="primary"
+                    aria-label="Reativar implementação futura"
                     @click="reativarImplementacao(slotProps.row)"
                   />
                 </q-td>
@@ -894,6 +926,11 @@ onMounted(async () => {
   color: #000 !important;
   -webkit-text-fill-color: #000 !important;
   opacity: 1 !important;
+}
+
+:deep(.q-table__middle) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 </style>
 

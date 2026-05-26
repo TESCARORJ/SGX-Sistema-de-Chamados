@@ -6,7 +6,9 @@ import { useRouter } from 'vue-router'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
@@ -51,6 +53,11 @@ const columns: QTableColumn<ChamadoResumoPortal>[] = [
 const opcoesStatus = computed(() => status.value.map((item) => ({ label: item.nome, value: item.id })))
 const opcoesPrioridade = computed(() => prioridades.value.map((item) => ({ label: item.nome, value: item.id })))
 const opcoesCategoria = computed(() => categorias.value.map((item) => ({ label: item.nome, value: item.id })))
+const chamadosCriticos = computed(() => chamados.value.filter((item) => item.slaVencido || item.slaProximoVencimento).length)
+const chamadosEmAtendimento = computed(() =>
+  chamados.value.filter((item) => item.status.toLowerCase().includes('atendimento')).length
+)
+const chamadosAguardandoAprovacao = computed(() => chamados.value.filter((item) => item.aprovacaoPendente).length)
 
 function extrairMensagemErro(error: unknown, fallback: string): string {
   if (!(error instanceof Error)) {
@@ -156,59 +163,103 @@ onMounted(async () => {
 
 <template>
   <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Meus chamados" subtitulo="Filtre e acompanhe os chamados abertos pelo seu usuário.">
+    <PageHeader
+      contexto="Portal do solicitante"
+      titulo="Meus chamados"
+      subtitulo="Acompanhe sua fila de atendimento, status de SLA e aprovacoes pendentes."
+    >
       <template #actions>
-        <q-btn color="secondary" icon="add" label="Abrir novo chamado" @click="router.push('/portal/chamados/novo')" />
+        <div class="row q-gutter-sm">
+          <q-btn color="secondary" icon="add" label="Abrir novo chamado" @click="router.push('/portal/chamados/novo')" />
+          <q-btn flat color="primary" icon="inventory_2" label="Catalogo" @click="router.push('/portal/catalogo-servicos')" />
+        </div>
       </template>
     </PageHeader>
 
+    <div class="sgx-kpi-grid">
+      <MetricCard
+        title="Total localizado"
+        :value="total"
+        icon="confirmation_number"
+        tone="primary"
+        :loading="loading"
+        caption="Chamados da consulta atual"
+      />
+      <MetricCard
+        title="Em atendimento"
+        :value="chamadosEmAtendimento"
+        icon="support_agent"
+        tone="info"
+        :loading="loading"
+        caption="Registros desta página"
+      />
+      <MetricCard
+        title="Risco de SLA"
+        :value="chamadosCriticos"
+        icon="warning"
+        :tone="chamadosCriticos > 0 ? 'negative' : 'warning'"
+        :loading="loading"
+        caption="Vencidos ou próximos do vencimento"
+      />
+      <MetricCard
+        title="Aguardando aprovação"
+        :value="chamadosAguardandoAprovacao"
+        icon="fact_check"
+        tone="warning"
+        :loading="loading"
+        caption="Pendências de decisão"
+      />
+    </div>
+
     <AppSectionCard titulo="Filtros" subtitulo="Use os filtros para localizar chamados específicos.">
-      <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
-        <div class="col-12 col-md-3">
-          <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
-        </div>
+      <FilterBar titulo="Consulta operacional" subtitulo="Filtre por contexto, prioridade e classificação.">
+        <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltros">
+          <div class="col-12 col-md-3">
+            <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
+          </div>
 
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.statusId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Status"
-            :options="opcoesStatus"
-          />
-        </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.statusId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Status"
+              :options="opcoesStatus"
+            />
+          </div>
 
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.prioridadeId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Prioridade"
-            :options="opcoesPrioridade"
-          />
-        </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.prioridadeId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Prioridade"
+              :options="opcoesPrioridade"
+            />
+          </div>
 
-        <div class="col-12 col-md-3">
-          <q-select
-            v-model="filtros.categoriaId"
-            outlined
-            clearable
-            emit-value
-            map-options
-            label="Categoria"
-            :options="opcoesCategoria"
-          />
-        </div>
+          <div class="col-12 col-md-3">
+            <q-select
+              v-model="filtros.categoriaId"
+              outlined
+              clearable
+              emit-value
+              map-options
+              label="Categoria"
+              :options="opcoesCategoria"
+            />
+          </div>
 
-        <div class="col-12 row justify-end q-gutter-sm">
-          <q-btn flat color="primary" icon="cleaning_services" label="Limpar" :disable="loading" @click="limparFiltros" />
-          <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
-        </div>
-      </q-form>
+          <div class="col-12 row justify-end q-gutter-sm">
+            <q-btn flat color="primary" icon="cleaning_services" label="Limpar" :disable="loading" @click="limparFiltros" />
+            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
+          </div>
+        </q-form>
+      </FilterBar>
     </AppSectionCard>
 
     <ErrorState v-if="erro" :mensagem="erro" @retry="carregarChamados" />

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed } from 'vue'
 
 type OptionValue = 'todos' | 'ativos' | 'inativos'
@@ -18,9 +18,9 @@ const localValue = computed({
 })
 
 const options: { label: string; value: OptionValue }[] = [
-  { label: 'Todos', value: 'todos' },
-  { label: 'Apenas ativos', value: 'ativos' },
-  { label: 'Apenas inativos', value: 'inativos' },
+  { label: 'Todos os registros', value: 'todos' },
+  { label: 'Somente ativos', value: 'ativos' },
+  { label: 'Somente inativos', value: 'inativos' },
 ]
 </script>
 
@@ -33,6 +33,7 @@ const options: { label: string; value: OptionValue }[] = [
     map-options
     :disable="loading"
     :options="options"
-    label="Situação"
+    label="Situacao"
   />
 </template>
+

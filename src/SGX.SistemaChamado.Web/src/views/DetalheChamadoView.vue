@@ -7,6 +7,7 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
@@ -53,6 +54,9 @@ const linhaTempoVisivel = computed(() => {
 
   return linhaTempo.value.filter((item) => !item.interno)
 })
+const totalComentariosVisiveis = computed(() => comentariosVisiveis.value.length)
+const totalAnexos = computed(() => anexos.value.length)
+const totalEventosLinhaTempo = computed(() => linhaTempoVisivel.value.length)
 
 function formatarData(data: string | null): string {
   if (!data) {
@@ -266,14 +270,23 @@ onMounted(carregar)
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Portal do solicitante"
       :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.titulo}` : 'Detalhe do chamado'"
-      subtitulo="Acompanhe status, comentários, anexos e linha do tempo do atendimento"
+      subtitulo="Acompanhe status, priorizacao, prazos de SLA e andamento completo do atendimento."
     >
       <template #actions>
-        <div class="row q-gutter-sm">
+        <div class="row items-center q-gutter-sm">
+          <q-btn flat color="secondary" icon="add" label="Novo chamado" @click="router.push('/portal/chamados/novo')" />
           <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="router.push('/portal/chamados')" />
           <StatusBadge v-if="detalhe" :texto="detalhe.status" />
           <PrioridadeBadge v-if="detalhe" :texto="detalhe.prioridade" />
+          <SlaBadge
+            v-if="detalhe"
+            :vencido="detalhe.sla?.estaVencido"
+            :proximo="detalhe.sla?.situacao === 'ProximoDoVencimento'"
+            :pausado="detalhe.sla?.estaPausado"
+            :situacao="detalhe.sla?.situacao ?? 'NaoAplicavel'"
+          />
         </div>
       </template>
     </PageHeader>
@@ -283,8 +296,21 @@ onMounted(carregar)
     <LoadingState v-else-if="loading" inline mensagem="Carregando detalhes do chamado..." />
 
     <template v-else-if="detalhe">
+      <div class="sgx-kpi-grid">
+        <MetricCard title="Comentarios visiveis" :value="totalComentariosVisiveis" icon="forum" tone="info" />
+        <MetricCard title="Anexos vinculados" :value="totalAnexos" icon="attach_file" tone="primary" />
+        <MetricCard title="Eventos da linha do tempo" :value="totalEventosLinhaTempo" icon="timeline" tone="warning" />
+        <MetricCard
+          title="Aprovacao"
+          :value="detalhe.aprovacaoPendente ? 'Pendente' : 'Concluida'"
+          :caption="statusAprovacaoTexto"
+          icon="fact_check"
+          :tone="detalhe.aprovacaoPendente ? 'warning' : 'positive'"
+        />
+      </div>
+
       <AppSectionCard titulo="Resumo do chamado" subtitulo="Informações principais da solicitação.">
-        <q-list separator>
+        <q-list separator class="resumo-list">
           <q-item>
             <q-item-section>
               <q-item-label caption>Código</q-item-label>
@@ -504,9 +530,12 @@ onMounted(carregar)
           </q-timeline-entry>
         </q-timeline>
 
-        <q-banner v-else rounded class="bg-blue-1 text-primary">
-          Nenhum evento encontrado na linha do tempo.
-        </q-banner>
+        <EmptyState
+          v-else
+          titulo="Sem eventos na linha do tempo"
+          mensagem="Ainda nao ha atualizacoes adicionais para este chamado."
+          icon="timeline"
+        />
 
         <q-banner v-if="linhaTempoVisivel.length <= 1" rounded class="bg-grey-2 text-grey-9 q-mt-sm">
           Ainda não há atualizações além da abertura do chamado.
@@ -521,3 +550,10 @@ onMounted(carregar)
     />
   </q-page>
 </template>
+
+<style scoped>
+.resumo-list :deep(.q-item) {
+  padding-left: 0;
+  padding-right: 0;
+}
+</style>

@@ -8,8 +8,11 @@ import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 import { permissoes } from '../constants/permissoes'
 import { catalogoServicosAdminService } from '../services/catalogoServicosAdminService'
 import { cadastrosAdminService } from '../services/cadastrosAdminService'
@@ -139,6 +142,9 @@ const subcategoriasFiltradas = computed(() => {
 
   return subcategorias.value.filter((item) => item.categoriaChamadoId === filtros.categoriaId)
 })
+const totalPublicados = computed(() => servicos.value.filter((item) => item.status === StatusCatalogoServico.Publicado).length)
+const totalRascunhos = computed(() => servicos.value.filter((item) => item.status === StatusCatalogoServico.Rascunho).length)
+const totalPermiteAbertura = computed(() => servicos.value.filter((item) => item.permiteAberturaChamado).length)
 
 function extrairMensagemErro(error: unknown, fallback: string): string {
   if (!(error instanceof Error)) {
@@ -376,6 +382,7 @@ onMounted(async () => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Conhecimento e autoatendimento"
       titulo="Catalogo de Servicos"
       subtitulo="Catalogo institucional organizado por departamento responsavel e visibilidade de atendimento."
     >
@@ -389,114 +396,123 @@ onMounted(async () => {
     </q-banner>
 
     <template v-else>
+      <div class="sgx-kpi-grid">
+        <MetricCard title="Servicos na pagina" :value="servicos.length" icon="inventory_2" tone="primary" :loading="loading" />
+        <MetricCard title="Publicados" :value="totalPublicados" icon="task_alt" tone="positive" :loading="loading" />
+        <MetricCard title="Rascunhos" :value="totalRascunhos" icon="edit_note" tone="warning" :loading="loading" />
+        <MetricCard title="Permitem abertura" :value="totalPermiteAbertura" icon="add_task" tone="info" :loading="loading" />
+      </div>
+
       <AppSectionCard titulo="Filtros" subtitulo="Busque por nome, descricao e escopo institucional do servico.">
-        <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
-          <div class="row q-col-gutter-sm">
-            <div class="col-12 col-md-3">
-              <q-input
-                v-model="filtros.termo"
-                outlined
-                label="Busca"
-                placeholder="Nome, descricao ou instrucoes"
-                :disable="loading"
-              />
+        <FilterBar titulo="Pesquisa administrativa" subtitulo="Refine por escopo, status, visibilidade e abertura de chamado.">
+          <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-md-3">
+                <q-input
+                  v-model="filtros.termo"
+                  outlined
+                  label="Busca"
+                  placeholder="Nome, descricao ou instrucoes"
+                  :disable="loading"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="filtros.departamentoResponsavelId"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Departamento responsavel"
+                  :disable="loading"
+                  :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.categoriaId"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Categoria"
+                  :disable="loading"
+                  :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.subcategoriaId"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Subcategoria"
+                  :disable="loading"
+                  :options="subcategoriasFiltradas.map((item) => ({ label: item.nome, value: item.id }))"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.status"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Status"
+                  :disable="loading"
+                  :options="opcoesStatus"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.visibilidade"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Visibilidade"
+                  :disable="loading"
+                  :options="opcoesVisibilidade"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.ativo"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Ativo"
+                  :disable="loading"
+                  :options="opcoesAtivo"
+                />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <q-select
+                  v-model="filtros.permiteAberturaChamado"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Permite abertura"
+                  :disable="loading"
+                  :options="opcoesPermiteAbertura"
+                />
+              </div>
             </div>
 
-            <div class="col-12 col-md-3">
-              <q-select
-                v-model="filtros.departamentoResponsavelId"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Departamento responsavel"
-                :disable="loading"
-                :options="departamentos.map((item) => ({ label: item.nome, value: item.id }))"
-              />
+            <div class="row justify-end q-gutter-sm">
+              <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
+              <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
             </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.categoriaId"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Categoria"
-                :disable="loading"
-                :options="categorias.map((item) => ({ label: item.nome, value: item.id }))"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.subcategoriaId"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Subcategoria"
-                :disable="loading"
-                :options="subcategoriasFiltradas.map((item) => ({ label: item.nome, value: item.id }))"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.status"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Status"
-                :disable="loading"
-                :options="opcoesStatus"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.visibilidade"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Visibilidade"
-                :disable="loading"
-                :options="opcoesVisibilidade"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.ativo"
-                outlined
-                emit-value
-                map-options
-                label="Ativo"
-                :disable="loading"
-                :options="opcoesAtivo"
-              />
-            </div>
-
-            <div class="col-12 col-md-2">
-              <q-select
-                v-model="filtros.permiteAberturaChamado"
-                outlined
-                emit-value
-                map-options
-                label="Permite abertura"
-                :disable="loading"
-                :options="opcoesPermiteAbertura"
-              />
-            </div>
-          </div>
-
-          <div class="row justify-end q-gutter-sm">
-            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
-            <q-btn flat color="primary" label="Limpar" :disable="loading" @click="limparFiltros" />
-          </div>
-        </q-form>
+          </q-form>
+        </FilterBar>
       </AppSectionCard>
 
       <q-banner v-if="erro && servicos.length" rounded class="bg-red-1 text-negative">
@@ -539,9 +555,7 @@ onMounted(async () => {
 
           <template #body-cell-status="slotProps">
             <q-td :props="slotProps">
-              <q-chip dense square text-color="white" :color="corStatus(slotProps.row.status)">
-                {{ slotProps.row.statusDescricao }}
-              </q-chip>
+              <StatusBadge :texto="slotProps.row.statusDescricao" />
             </q-td>
           </template>
 
@@ -555,9 +569,7 @@ onMounted(async () => {
 
           <template #body-cell-permite="slotProps">
             <q-td :props="slotProps">
-              <q-badge :color="slotProps.row.permiteAberturaChamado ? 'positive' : 'grey-6'" text-color="white">
-                {{ slotProps.row.permiteAberturaChamado ? 'Sim' : 'Nao' }}
-              </q-badge>
+              <StatusBadge :texto="slotProps.row.permiteAberturaChamado ? 'Ativo' : 'Inativo'" />
             </q-td>
           </template>
 

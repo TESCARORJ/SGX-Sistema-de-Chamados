@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { QTableColumn } from 'quasar'
@@ -11,7 +11,9 @@ import AppSectionCard from '../../components/ui/AppSectionCard.vue'
 import ConfirmDialog from '../../components/ui/ConfirmDialog.vue'
 import EmptyState from '../../components/ui/EmptyState.vue'
 import ErrorState from '../../components/ui/ErrorState.vue'
+import FilterBar from '../../components/ui/FilterBar.vue'
 import LoadingState from '../../components/ui/LoadingState.vue'
+import MetricCard from '../../components/ui/MetricCard.vue'
 import PageHeader from '../../components/ui/PageHeader.vue'
 import { permissoes } from '../../constants/permissoes'
 import { cadastrosAdminService } from '../../services/cadastrosAdminService'
@@ -58,6 +60,13 @@ const registroSelecionado = ref<{ id: string; ativo: boolean; nome?: string } | 
 const isAdmin = computed(() => authStore.usuario?.perfis.includes('Administrador') ?? false)
 const temRegistros = computed(() => rows.value.length > 0)
 const filtrosAplicados = computed(() => Boolean(texto.value.trim()) || filtroAtivo.value !== 'ativos')
+const totalAtivos = computed(
+  () => rows.value.filter((row) => Boolean((row as { ativo?: boolean }).ativo)).length
+)
+const totalInativos = computed(() => rows.value.length - totalAtivos.value)
+const contextoCabecalho = computed(() =>
+  props.entidade === 'parametros' ? 'Configuracoes administrativas' : 'Cadastros administrativos'
+)
 const podeCriar = computed(() => {
   switch (props.entidade) {
     case 'usuarios':
@@ -98,7 +107,7 @@ const acaoSituacaoLabel = computed(() =>
   registroSelecionado.value?.ativo ? 'Inativar' : 'Reativar'
 )
 const tituloConfirmacaoSituacao = computed(() =>
-  registroSelecionado.value?.ativo ? 'Confirmar inativação' : 'Confirmar reativação'
+  registroSelecionado.value?.ativo ? 'Confirmar inativacao' : 'Confirmar reativacao'
 )
 const mensagemConfirmacaoSituacao = computed(() => {
   const nome = registroSelecionado.value?.nome ? ` "${registroSelecionado.value.nome}"` : ''
@@ -150,7 +159,7 @@ async function carregar(): Promise<void> {
     rows.value = response.items
     total.value = response.total
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível carregar os dados.'
+    erro.value = error instanceof Error ? error.message : 'Nao foi possivel carregar os dados.'
   } finally {
     loading.value = false
   }
@@ -230,7 +239,7 @@ async function alterarSituacao(): Promise<void> {
     registroSelecionado.value = null
     await carregar()
   } catch (error) {
-    erro.value = error instanceof Error ? error.message : 'Não foi possível alterar a situação do cadastro.'
+    erro.value = error instanceof Error ? error.message : 'Nao foi possivel alterar a situacao do cadastro.'
     $q.notify({
       type: 'negative',
       message: erro.value,
@@ -296,51 +305,77 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-page class="sgx-page column q-gutter-md">
-    <PageHeader :titulo="titulo" subtitulo="Lista administrativa com filtros, status e paginação">
+  <q-page class="sgx-page column q-gutter-md cadastro-lista">
+    <PageHeader
+      :titulo="titulo"
+      :contexto="contextoCabecalho"
+      subtitulo="Listagem com filtros, situacao e acoes operacionais"
+    >
       <template #actions>
         <q-btn
           v-if="podeCriar"
           color="primary"
           icon="add"
-          label="Novo"
+          label="Novo cadastro"
+          unelevated
           :disable="loading"
           @click="novo"
         />
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros" subtitulo="Refine os resultados por busca textual e situação">
-      <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
-        <div class="row q-col-gutter-sm">
-          <div class="col-12 col-md-7">
-            <CampoBuscaCadastro v-model="texto" :loading="loading" />
-          </div>
-          <div class="col-12 col-md-5">
-            <CampoAtivoInativo v-model="filtroAtivo" :loading="loading" />
-          </div>
-        </div>
+    <div class="cadastro-lista__kpis">
+      <MetricCard
+        titulo="Registros na pagina"
+        :valor="rows.length"
+        subtitulo="Total exibido apos filtros"
+        icon="summarize"
+      />
+      <MetricCard
+        titulo="Ativos"
+        :valor="totalAtivos"
+        subtitulo="Registros ativos na listagem atual"
+        icon="check_circle"
+        tone="positive"
+      />
+      <MetricCard
+        titulo="Inativos"
+        :valor="totalInativos"
+        subtitulo="Registros inativos na listagem atual"
+        icon="pause_circle"
+        tone="warning"
+      />
+    </div>
 
-        <div class="row justify-end q-gutter-sm">
-          <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" />
-          <q-btn flat label="Limpar" :disable="loading" @click="limparFiltros" />
-        </div>
-      </q-form>
+    <AppSectionCard titulo="Filtros" subtitulo="Refine por texto e situacao para localizar registros">
+      <FilterBar compact>
+        <q-form class="column q-gutter-md" @submit.prevent="aplicarFiltros">
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-md-7">
+              <CampoBuscaCadastro v-model="texto" :loading="loading" />
+            </div>
+            <div class="col-12 col-md-5">
+              <CampoAtivoInativo v-model="filtroAtivo" :loading="loading" />
+            </div>
+          </div>
+
+          <div class="row justify-end q-gutter-sm cadastro-lista__filtro-acoes">
+            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loading" unelevated />
+            <q-btn flat label="Limpar" :disable="loading" @click="limparFiltros" />
+          </div>
+        </q-form>
+      </FilterBar>
     </AppSectionCard>
-
-    <q-banner v-if="erro && temRegistros" rounded class="bg-red-1 text-negative">
-      {{ erro }}
-    </q-banner>
 
     <LoadingState v-if="loading && !temRegistros" mensagem="Carregando lista administrativa..." />
 
     <q-banner v-else-if="!podeDetalhar" rounded class="bg-orange-1 text-orange-10">
-      Você não possui permissão para visualizar esta listagem.
+      Voce nao possui permissao para visualizar esta listagem.
     </q-banner>
 
     <ErrorState
       v-else-if="erro && !temRegistros"
-      titulo="Não foi possível carregar a listagem"
+      titulo="Nao foi possivel carregar a listagem"
       :mensagem="erro"
       @retry="carregar"
     />
@@ -364,18 +399,36 @@ onMounted(() => {
     </EmptyState>
 
     <AppSectionCard v-else :titulo="titulo" subtitulo="Resultados da listagem administrativa">
+      <q-banner v-if="erro && temRegistros" rounded class="bg-red-1 text-negative q-mb-md">
+        {{ erro }}
+      </q-banner>
+
       <TabelaAdministrativa :title="titulo" :rows="rows" :columns="colunas" :loading="loading">
         <template #acoes="{ row }">
-          <q-btn v-if="podeDetalhar" flat dense icon="edit" label="Editar" @click="abrirDetalhe(row)" />
+          <q-btn
+            v-if="podeDetalhar"
+            flat
+            round
+            dense
+            color="primary"
+            icon="edit"
+            aria-label="Visualizar ou editar cadastro"
+            @click="abrirDetalhe(row)"
+          >
+            <q-tooltip>Visualizar ou editar</q-tooltip>
+          </q-btn>
           <q-btn
             v-if="podeAlterarSituacao"
             flat
+            round
             dense
             :icon="row.ativo ? 'block' : 'check_circle'"
-            :label="row.ativo ? 'Inativar' : 'Reativar'"
             :color="row.ativo ? 'negative' : 'positive'"
+            :aria-label="row.ativo ? 'Inativar cadastro' : 'Reativar cadastro'"
             @click="abrirConfirmacaoSituacao(row)"
-          />
+          >
+            <q-tooltip>{{ row.ativo ? 'Inativar registro' : 'Reativar registro' }}</q-tooltip>
+          </q-btn>
         </template>
       </TabelaAdministrativa>
 
@@ -402,3 +455,28 @@ onMounted(() => {
     />
   </q-page>
 </template>
+
+<style scoped>
+.cadastro-lista__kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sgx-space-4);
+}
+
+.cadastro-lista__filtro-acoes {
+  margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+  .cadastro-lista__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .cadastro-lista__kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>
+

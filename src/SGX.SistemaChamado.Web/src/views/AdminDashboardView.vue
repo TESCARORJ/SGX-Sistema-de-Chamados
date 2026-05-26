@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { QTableColumn } from 'quasar'
@@ -8,6 +8,7 @@ import TabelaChamados from '../components/admin/TabelaChamados.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
+import FilterBar from '../components/ui/FilterBar.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
@@ -57,59 +58,79 @@ const produtividadeColumns: QTableColumn<ProdutividadeAtendente>[] = [
   { name: 'media', label: 'Média de resolução', field: 'mediaHorasResolucao', align: 'right', sortable: true },
 ]
 
-const cardsObrigatorios = computed(() => {
+const totalPaginasFila = computed(() => Math.max(1, Math.ceil(totalFila.value / tamanhoPaginaFila.value)))
+
+const cardsExecutivos = computed(() => {
   if (!dashboard.value) {
     return []
   }
 
+  const totalCriticos = dashboard.value.totalVencidos + dashboard.value.totalProximosDoVencimento
+
   return [
     {
       chave: 'abertos',
-      titulo: 'Chamados Abertos',
+      titulo: 'Chamados abertos',
       valor: dashboard.value.totalAbertos,
       subtitulo: `${dashboard.value.totalSemResponsavel} sem responsável`,
       icon: 'drafts',
-      color: 'primary',
+      tone: 'primary' as const,
     },
     {
       chave: 'atendimento',
       titulo: 'Em atendimento',
       valor: dashboard.value.totalEmAtendimento,
-      subtitulo: 'Atendimento ativo',
+      subtitulo: 'Tratativas em andamento',
       icon: 'support_agent',
-      color: 'warning',
+      tone: 'info' as const,
+    },
+    {
+      chave: 'criticos',
+      titulo: 'Chamados críticos',
+      valor: totalCriticos,
+      subtitulo: 'Vencidos + em risco de SLA',
+      icon: 'priority_high',
+      tone: totalCriticos > 0 ? ('negative' as const) : ('warning' as const),
+    },
+    {
+      chave: 'vencidos',
+      titulo: 'SLA vencido',
+      valor: dashboard.value.totalVencidos,
+      subtitulo: 'Exigem ação imediata',
+      icon: 'warning',
+      tone: 'negative' as const,
+    },
+    {
+      chave: 'risco-sla',
+      titulo: 'SLA em risco',
+      valor: dashboard.value.totalProximosDoVencimento,
+      subtitulo: 'Próximos do vencimento',
+      icon: 'schedule',
+      tone: 'warning' as const,
+    },
+    {
+      chave: 'concluidos',
+      titulo: 'Concluídos no período',
+      valor: dashboard.value.totalEncerradosPeriodo,
+      subtitulo: 'Encerramentos realizados',
+      icon: 'task_alt',
+      tone: 'positive' as const,
     },
     {
       chave: 'aguardando',
       titulo: 'Aguardando solicitante',
       valor: dashboard.value.totalAguardandoSolicitante,
-      subtitulo: 'Aguardando retorno',
+      subtitulo: 'Dependentes de retorno',
       icon: 'hourglass_top',
-      color: 'deep-orange',
+      tone: 'warning' as const,
     },
     {
-      chave: 'sla-vencido',
-      titulo: 'SLA vencido',
-      valor: dashboard.value.totalVencidos,
-      subtitulo: 'Prioridade de atuação',
-      icon: 'warning',
-      color: 'negative',
-    },
-    {
-      chave: 'sla-proximo',
-      titulo: 'Próximos do vencimento',
-      valor: dashboard.value.totalProximosDoVencimento,
-      subtitulo: 'Risco de ruptura',
-      icon: 'schedule',
-      color: 'orange-8',
-    },
-    {
-      chave: 'resolvidos-periodo',
-      titulo: 'Resolvidos no período',
-      valor: dashboard.value.totalResolvidosPeriodo,
-      subtitulo: 'Volume entregue',
-      icon: 'task_alt',
-      color: 'positive',
+      chave: 'cumprimento-sla',
+      titulo: 'Cumprimento de SLA',
+      valor: `${dashboard.value.indicadoresSla.percentualCumprimento}%`,
+      subtitulo: 'Indicador consolidado',
+      icon: 'query_stats',
+      tone: 'primary' as const,
     },
   ]
 })
@@ -119,10 +140,15 @@ const semDadosDashboard = computed(() => {
     return false
   }
 
-  return cardsObrigatorios.value.every((card) => card.valor === 0)
+  return cardsExecutivos.value.every((card) => {
+    if (typeof card.valor === 'string') {
+      return card.valor === '0%'
+    }
+
+    return card.valor === 0
+  })
 })
 
-const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
 const totalStatus = computed(
   () => dashboard.value?.chamadosPorStatus.reduce((acc, item) => acc + item.total, 0) ?? 0
 )
@@ -132,7 +158,56 @@ const totalPrioridade = computed(
 const totalCategoria = computed(
   () => dashboard.value?.chamadosPorCategoria.reduce((acc, item) => acc + item.total, 0) ?? 0
 )
-const totalPaginasFila = computed(() => Math.max(1, Math.ceil(totalFila.value / tamanhoPaginaFila.value)))
+
+const aprovacoesPendentesFila = computed(() => filaChamados.value.filter((item) => item.aprovacaoPendente).length)
+const chamadosCriticosFila = computed(() =>
+  filaChamados.value.filter((item) => item.slaVencido || item.slaProximoVencimento).length
+)
+const chamadosSemResponsavelFila = computed(() =>
+  filaChamados.value.filter((item) => !item.responsavelNome).length
+)
+const logsComErro = computed(() => logsEmail.value.filter((item) => Boolean(item.erroResumido)).length)
+
+const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
+
+const atalhosRapidos = [
+  {
+    titulo: 'Fila de chamados',
+    descricao: 'Acompanhar backlog e distribuição.',
+    icon: 'support_agent',
+    rota: '/admin/chamados',
+  },
+  {
+    titulo: 'Painel de SLA',
+    descricao: 'Monitorar riscos, médias e vencimentos.',
+    icon: 'monitoring',
+    rota: '/admin/sla/painel',
+  },
+  {
+    titulo: 'Roadmap ITSM',
+    descricao: 'Evolução de iniciativas estratégicas.',
+    icon: 'account_tree',
+    rota: '/admin/gestao-itsm/roadmap',
+  },
+  {
+    titulo: 'Relatórios avançados',
+    descricao: 'Análises executivas e operacionais.',
+    icon: 'analytics',
+    rota: '/admin/relatorios/avancados',
+  },
+  {
+    titulo: 'Aprovações de chamados',
+    descricao: 'Pendências para decisão e liberação.',
+    icon: 'fact_check',
+    rota: '/admin/atendimento/aprovacao-chamados',
+  },
+  {
+    titulo: 'Auditoria',
+    descricao: 'Rastreabilidade e governança da operação.',
+    icon: 'manage_search',
+    rota: '/admin/governanca/auditoria',
+  },
+]
 
 function formatarData(value: string | null): string {
   if (!value) return '-'
@@ -267,29 +342,40 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-page class="sgx-page column q-gutter-md">
-    <PageHeader titulo="Dashboard" subtitulo="Visão geral da operação de atendimento.">
+  <q-page class="sgx-page dashboard-page column q-gutter-md">
+    <PageHeader
+      titulo="Dashboard Executivo"
+      subtitulo="Visão consolidada da operação de atendimento, SLA e produtividade do service desk."
+    >
       <template #actions>
-        <div class="row q-gutter-sm items-center">
+        <div class="row q-gutter-sm items-center wrap">
+          <q-chip color="blue-1" text-color="primary" icon="assignment" square>
+            Fila atual: {{ totalFila }}
+          </q-chip>
           <q-btn
             color="primary"
-            icon="filter_list"
-            label="Filtros"
+            icon="support_agent"
+            label="Abrir fila"
             @click="router.push('/admin/chamados')"
           />
           <q-btn
             outline
             color="primary"
-            icon="list_alt"
-            label="Ver fila completa"
-            @click="router.push('/admin/chamados')"
+            icon="analytics"
+            label="Relatórios"
+            @click="router.push('/admin/relatorios/avancados')"
           />
         </div>
       </template>
     </PageHeader>
 
-    <AppSectionCard titulo="Filtros do dashboard" subtitulo="Período, departamento, categoria e responsável.">
-      <FiltrosDashboardAdmin :contexto="contexto" :loading="loadingDashboard" @filtrar="aplicarFiltrosDashboard" />
+    <AppSectionCard
+      titulo="Visão geral operacional"
+      subtitulo="Ajuste o período e os recortes para atualizar os indicadores executivos."
+    >
+      <FilterBar compact>
+        <FiltrosDashboardAdmin :contexto="contexto" :loading="loadingDashboard" @filtrar="aplicarFiltrosDashboard" />
+      </FilterBar>
     </AppSectionCard>
 
     <ErrorState v-if="erroDashboard" :mensagem="erroDashboard" @retry="carregarDashboard" />
@@ -301,231 +387,312 @@ onMounted(() => {
     />
 
     <template v-else-if="dashboard">
+      <q-banner rounded class="bg-blue-1 text-primary dashboard-banner">
+        <div class="text-weight-bold">Resumo operacional do período</div>
+        <div class="text-caption">
+          Total monitorado: {{ dashboard.indicadoresSla.totalChamados }} chamados com SLA,
+          {{ dashboard.totalVencidos }} vencidos e {{ dashboard.totalProximosDoVencimento }} em risco.
+        </div>
+      </q-banner>
+
       <div class="sgx-kpi-grid">
-        <div v-for="card in cardsObrigatorios" :key="card.chave">
+        <div v-for="card in cardsExecutivos" :key="card.chave">
           <MetricCard
             :titulo="card.titulo"
             :valor="card.valor"
             :subtitulo="card.subtitulo"
             :icon="card.icon"
-            :tone="
-              card.chave === 'sla-vencido'
-                ? 'negative'
-                : card.chave === 'resolvidos-periodo'
-                  ? 'positive'
-                  : card.chave === 'atendimento'
-                    ? 'info'
-                    : card.chave.includes('proximo') || card.chave.includes('aguardando')
-                      ? 'warning'
-                      : 'primary'
-            "
+            :tone="card.tone"
           />
         </div>
       </div>
 
       <div class="dashboard-triple-grid">
-        <div>
-          <AppSectionCard titulo="Chamados por status" class="full-height">
-            <q-list separator>
-              <q-item v-for="item in dashboard.chamadosPorStatus" :key="item.status">
-                <q-item-section>
-                  <StatusBadge :texto="item.status" />
-                  <q-linear-progress
-                    class="q-mt-xs"
-                    rounded
-                    size="8px"
-                    color="primary"
-                    :value="percentual(item.total, totalStatus)"
-                  />
-                </q-item-section>
-                <q-item-section side>{{ item.total }}</q-item-section>
-              </q-item>
-            </q-list>
-          </AppSectionCard>
-        </div>
+        <AppSectionCard titulo="Distribuição por status" subtitulo="Volume e participação por etapa do atendimento.">
+          <EmptyState
+            v-if="!dashboard.chamadosPorStatus.length"
+            titulo="Sem dados de status"
+            mensagem="Não há dados para o período selecionado."
+          />
 
-        <div>
-          <AppSectionCard titulo="Chamados por prioridade" class="full-height">
-            <q-list separator>
-              <q-item v-for="item in dashboard.chamadosPorPrioridade" :key="item.prioridade">
-                <q-item-section>
-                  <PrioridadeBadge :texto="item.prioridade" />
-                  <q-linear-progress
-                    class="q-mt-xs"
-                    rounded
-                    size="8px"
-                    color="orange-8"
-                    :value="percentual(item.total, totalPrioridade)"
-                  />
-                </q-item-section>
-                <q-item-section side>{{ item.total }}</q-item-section>
-              </q-item>
-            </q-list>
-          </AppSectionCard>
-        </div>
+          <q-list v-else separator>
+            <q-item v-for="item in dashboard.chamadosPorStatus" :key="item.status">
+              <q-item-section>
+                <StatusBadge :texto="item.status" />
+                <q-linear-progress
+                  class="q-mt-xs"
+                  rounded
+                  size="8px"
+                  color="primary"
+                  :value="percentual(item.total, totalStatus)"
+                />
+              </q-item-section>
+              <q-item-section side>{{ item.total }}</q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
 
-        <div>
-          <AppSectionCard titulo="Chamados por categoria" class="full-height">
-            <q-list separator>
-              <q-item v-for="item in dashboard.chamadosPorCategoria" :key="item.categoria">
-                <q-item-section>
-                  <div class="text-body2">{{ item.categoria }}</div>
-                  <q-linear-progress
-                    class="q-mt-xs"
-                    rounded
-                    size="8px"
-                    color="teal"
-                    :value="percentual(item.total, totalCategoria)"
-                  />
-                </q-item-section>
-                <q-item-section side>{{ item.total }}</q-item-section>
-              </q-item>
-            </q-list>
-          </AppSectionCard>
-        </div>
+        <AppSectionCard titulo="Distribuição por prioridade" subtitulo="Classificação dos chamados por criticidade.">
+          <EmptyState
+            v-if="!dashboard.chamadosPorPrioridade.length"
+            titulo="Sem dados de prioridade"
+            mensagem="Não há dados para o período selecionado."
+          />
+
+          <q-list v-else separator>
+            <q-item v-for="item in dashboard.chamadosPorPrioridade" :key="item.prioridade">
+              <q-item-section>
+                <PrioridadeBadge :texto="item.prioridade" />
+                <q-linear-progress
+                  class="q-mt-xs"
+                  rounded
+                  size="8px"
+                  color="orange-8"
+                  :value="percentual(item.total, totalPrioridade)"
+                />
+              </q-item-section>
+              <q-item-section side>{{ item.total }}</q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
+
+        <AppSectionCard titulo="Distribuição por categoria" subtitulo="Principais frentes de demanda na operação.">
+          <EmptyState
+            v-if="!dashboard.chamadosPorCategoria.length"
+            titulo="Sem dados por categoria"
+            mensagem="Não há dados para o período selecionado."
+          />
+
+          <q-list v-else separator>
+            <q-item v-for="item in dashboard.chamadosPorCategoria" :key="item.categoria">
+              <q-item-section>
+                <div class="text-body2 text-weight-medium">{{ item.categoria }}</div>
+                <q-linear-progress
+                  class="q-mt-xs"
+                  rounded
+                  size="8px"
+                  color="teal"
+                  :value="percentual(item.total, totalCategoria)"
+                />
+              </q-item-section>
+              <q-item-section side>{{ item.total }}</q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
       </div>
 
       <div class="dashboard-main-grid">
-        <div>
-          <AppSectionCard titulo="Indicadores de SLA" class="full-height">
-            <div class="q-mb-sm">
-              <SlaBadge
-                :vencido="dashboard.indicadoresSla.totalVencidos > 0"
-                :proximo="dashboard.indicadoresSla.totalVencidos === 0 && dashboard.indicadoresSla.totalProximosDoVencimento > 0"
-                :pausado="false"
+        <AppSectionCard titulo="Indicadores de SLA" subtitulo="Cumprimento, risco e tempos médios de resposta.">
+          <div class="q-mb-sm">
+            <SlaBadge
+              :vencido="dashboard.indicadoresSla.totalVencidos > 0"
+              :proximo="dashboard.indicadoresSla.totalVencidos === 0 && dashboard.indicadoresSla.totalProximosDoVencimento > 0"
+              :pausado="false"
+            />
+          </div>
+
+          <q-list separator>
+            <q-item>
+              <q-item-section>Total de chamados</q-item-section>
+              <q-item-section side>{{ dashboard.indicadoresSla.totalChamados }}</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Dentro do prazo</q-item-section>
+              <q-item-section side>{{ dashboard.indicadoresSla.totalDentroDoPrazo }}</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Vencidos</q-item-section>
+              <q-item-section side>{{ dashboard.indicadoresSla.totalVencidos }}</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Próximos do vencimento</q-item-section>
+              <q-item-section side>{{ dashboard.indicadoresSla.totalProximosDoVencimento }}</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Percentual de cumprimento</q-item-section>
+              <q-item-section side>{{ dashboard.indicadoresSla.percentualCumprimento }}%</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Média de resolução</q-item-section>
+              <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasResolucao) }}</q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Média de primeira resposta</q-item-section>
+              <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasPrimeiraResposta) }}</q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
+
+        <AppSectionCard titulo="Produtividade por atendente" subtitulo="Ranking de atendimento e eficiência operacional.">
+          <EmptyState
+            v-if="!dashboard.produtividadePorAtendente.length"
+            titulo="Sem produtividade registrada"
+            mensagem="Ainda não há dados de produtividade para o período selecionado."
+          />
+
+          <q-table
+            v-else
+            class="produtividade-table"
+            flat
+            :rows="dashboard.produtividadePorAtendente"
+            :columns="produtividadeColumns"
+            row-key="responsavelId"
+            :rows-per-page-options="[10, 20, 50]"
+          >
+            <template #body-cell-media="slotProps">
+              <q-td :props="slotProps">{{ formatHoras(slotProps.row.mediaHorasResolucao) }}</q-td>
+            </template>
+          </q-table>
+        </AppSectionCard>
+      </div>
+
+      <div class="dashboard-bottom-grid">
+        <AppSectionCard
+          titulo="Fila de atendimento"
+          subtitulo="Triagem operacional com filtros e priorização do backlog."
+        >
+          <template #actions>
+            <q-btn flat color="primary" icon="open_in_new" label="Ver todas" @click="router.push('/admin/chamados')" />
+          </template>
+
+          <FilterBar class="q-mb-md" compact>
+            <q-form class="row q-col-gutter-sm" @submit.prevent="aplicarFiltroFila">
+              <div class="col-12 col-md-5">
+                <q-input
+                  v-model="filtrosFila.texto"
+                  outlined
+                  dense
+                  label="Buscar na fila"
+                  placeholder="Código, título ou descrição"
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-select
+                  v-model="filtrosFila.statusId"
+                  outlined
+                  dense
+                  clearable
+                  emit-value
+                  map-options
+                  label="Status"
+                  :options="contexto?.status.map((item) => ({ label: item.nome, value: item.id })) ?? []"
+                />
+              </div>
+              <div class="col-12 col-md-3 row justify-end q-gutter-sm">
+                <q-btn flat color="primary" label="Limpar" :disable="loadingFila" @click="limparFiltroFila" />
+                <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loadingFila" />
+              </div>
+            </q-form>
+          </FilterBar>
+
+          <q-banner v-if="sucessoFila" rounded class="bg-green-1 text-positive q-mb-sm">
+            {{ sucessoFila }}
+          </q-banner>
+
+          <ErrorState v-if="erroFila" :mensagem="erroFila" @retry="carregarFilaChamados" />
+
+          <LoadingState
+            v-else-if="loadingFila && !filaChamados.length"
+            inline
+            mensagem="Carregando fila de chamados..."
+          />
+
+          <EmptyState
+            v-else-if="!filaChamados.length"
+            titulo="Fila sem chamados"
+            mensagem="Nenhum resultado corresponde aos filtros aplicados."
+          />
+
+          <template v-else>
+            <TabelaChamados
+              :rows="filaChamados"
+              :loading="loadingFila || processandoAssumir"
+              :can-force-assume="isAdministrador"
+              @detalhar="(id) => router.push(`/admin/chamados/${id}`)"
+              @assumir="assumirChamado"
+            />
+
+            <div class="row justify-end q-mt-md">
+              <q-pagination
+                v-model="paginaFila"
+                color="primary"
+                boundary-numbers
+                direction-links
+                :max="totalPaginasFila"
+                :max-pages="7"
+                @update:model-value="alterarPaginaFila"
               />
             </div>
+          </template>
+        </AppSectionCard>
 
+        <div class="dashboard-side-stack">
+          <AppSectionCard titulo="Atalhos rápidos" subtitulo="Navegação executiva para módulos estratégicos.">
             <q-list separator>
-              <q-item>
-                <q-item-section>Total de chamados</q-item-section>
-                <q-item-section side>{{ dashboard.indicadoresSla.totalChamados }}</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Dentro do prazo</q-item-section>
-                <q-item-section side>{{ dashboard.indicadoresSla.totalDentroDoPrazo }}</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Vencidos</q-item-section>
-                <q-item-section side>{{ dashboard.indicadoresSla.totalVencidos }}</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Próximos do vencimento</q-item-section>
-                <q-item-section side>{{ dashboard.indicadoresSla.totalProximosDoVencimento }}</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Percentual de cumprimento</q-item-section>
-                <q-item-section side>{{ dashboard.indicadoresSla.percentualCumprimento }}%</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Média de resolução</q-item-section>
-                <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasResolucao) }}</q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>Média de primeira resposta</q-item-section>
-                <q-item-section side>{{ formatHoras(dashboard.indicadoresSla.mediaHorasPrimeiraResposta) }}</q-item-section>
+              <q-item
+                v-for="atalho in atalhosRapidos"
+                :key="atalho.rota"
+                clickable
+                class="atalho-item"
+                @click="router.push(atalho.rota)"
+              >
+                <q-item-section avatar>
+                  <q-avatar size="34px" color="blue-1" text-color="primary">
+                    <q-icon :name="atalho.icon" />
+                  </q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-body2 text-weight-medium">{{ atalho.titulo }}</q-item-label>
+                  <q-item-label caption>{{ atalho.descricao }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-icon name="arrow_forward" color="primary" />
+                </q-item-section>
               </q-item>
             </q-list>
           </AppSectionCard>
-        </div>
 
-        <div>
-          <AppSectionCard titulo="Produtividade por atendente" class="full-height">
-            <q-table
-              class="produtividade-table"
-              flat
-              :rows="dashboard.produtividadePorAtendente"
-              :columns="produtividadeColumns"
-              row-key="responsavelId"
-              :rows-per-page-options="[10, 20, 50]"
-            >
-              <template #body-cell-media="slotProps">
-                <q-td :props="slotProps">{{ formatHoras(slotProps.row.mediaHorasResolucao) }}</q-td>
-              </template>
-            </q-table>
+          <AppSectionCard titulo="Aprovações e alertas" subtitulo="Visão baseada nos dados carregados da fila e integração.">
+            <q-list separator>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>Aprovações pendentes (fila atual)</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="warning" text-color="dark">{{ aprovacoesPendentesFila }}</q-badge>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>Chamados críticos (fila atual)</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="negative">{{ chamadosCriticosFila }}</q-badge>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>Sem responsável (fila atual)</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="primary">{{ chamadosSemResponsavelFila }}</q-badge>
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>Erros na integração de e-mail (amostra)</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="orange-8">{{ logsComErro }}</q-badge>
+                </q-item-section>
+              </q-item>
+            </q-list>
+
+            <div class="text-caption text-grey-7 q-mt-sm">
+              Indicadores desta seção usam os dados reais já carregados na tela atual.
+            </div>
           </AppSectionCard>
-        </div>
-      </div>
 
-      <AppSectionCard
-        titulo="Fila de Chamados"
-        subtitulo="Atendimentos mais recentes para triagem e distribuição da operação."
-      >
-        <template #actions>
-          <q-btn flat color="primary" icon="open_in_new" label="Ver todas" @click="router.push('/admin/chamados')" />
-        </template>
-
-        <q-form class="row q-col-gutter-sm q-mb-md" @submit.prevent="aplicarFiltroFila">
-          <div class="col-12 col-md-5">
-            <q-input
-              v-model="filtrosFila.texto"
-              outlined
-              dense
-              label="Buscar na fila"
-              placeholder="Código, título ou descrição"
-            />
-          </div>
-          <div class="col-12 col-md-4">
-            <q-select
-              v-model="filtrosFila.statusId"
-              outlined
-              dense
-              clearable
-              emit-value
-              map-options
-              label="Status"
-              :options="contexto?.status.map((item) => ({ label: item.nome, value: item.id })) ?? []"
-            />
-          </div>
-          <div class="col-12 col-md-3 row justify-end q-gutter-sm">
-            <q-btn flat color="primary" label="Limpar" :disable="loadingFila" @click="limparFiltroFila" />
-            <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loadingFila" />
-          </div>
-        </q-form>
-
-        <q-banner v-if="sucessoFila" rounded class="bg-green-1 text-positive q-mb-sm">
-          {{ sucessoFila }}
-        </q-banner>
-
-        <ErrorState v-if="erroFila" :mensagem="erroFila" @retry="carregarFilaChamados" />
-
-        <LoadingState
-          v-else-if="loadingFila && !filaChamados.length"
-          inline
-          mensagem="Carregando fila de chamados..."
-        />
-
-        <EmptyState
-          v-else-if="!filaChamados.length"
-          titulo="Fila sem chamados"
-          mensagem="Nenhum resultado corresponde aos filtros aplicados."
-        />
-
-        <template v-else>
-          <TabelaChamados
-            :rows="filaChamados"
-            :loading="loadingFila || processandoAssumir"
-            :can-force-assume="isAdministrador"
-            @detalhar="(id) => router.push(`/admin/chamados/${id}`)"
-            @assumir="assumirChamado"
-          />
-
-          <div class="row justify-end q-mt-md">
-            <q-pagination
-              v-model="paginaFila"
-              color="primary"
-              boundary-numbers
-              direction-links
-              :max="totalPaginasFila"
-              :max-pages="7"
-              @update:model-value="alterarPaginaFila"
-            />
-          </div>
-        </template>
-      </AppSectionCard>
-
-      <div class="dashboard-bottom-grid">
-        <div>
           <AppSectionCard
             titulo="Integração de e-mail"
             subtitulo="Últimos processamentos para monitorar ingestão automática."
@@ -575,37 +742,6 @@ onMounted(() => {
             </q-list>
           </AppSectionCard>
         </div>
-
-        <div>
-          <AppSectionCard titulo="Resumo operacional" subtitulo="Navegação rápida para o time administrativo.">
-            <div class="column q-gutter-sm">
-              <q-btn
-                unelevated
-                color="primary"
-                icon="assignment"
-                label="Gerenciar chamados"
-                class="full-width"
-                @click="router.push('/admin/chamados')"
-              />
-              <q-btn
-                outline
-                color="primary"
-                icon="group"
-                label="Abrir cadastros"
-                class="full-width"
-                @click="router.push('/admin/cadastros/usuarios')"
-              />
-              <q-btn
-                outline
-                color="primary"
-                icon="mail"
-                label="Monitorar e-mail"
-                class="full-width"
-                @click="router.push('/admin/integracoes/email')"
-              />
-            </div>
-          </AppSectionCard>
-        </div>
       </div>
 
       <EmptyState
@@ -619,6 +755,14 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.dashboard-page {
+  padding-bottom: 24px;
+}
+
+.dashboard-banner {
+  border: 1px solid rgba(11, 94, 215, 0.16);
+}
+
 .dashboard-triple-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -635,6 +779,20 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 16px;
+}
+
+.dashboard-side-stack {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.atalho-item {
+  border-radius: var(--sgx-radius-sm);
+}
+
+.atalho-item:hover {
+  background: rgba(11, 94, 215, 0.06);
 }
 
 :deep(.produtividade-table .q-table__middle) {
@@ -656,6 +814,10 @@ onMounted(() => {
   .dashboard-main-grid,
   .dashboard-bottom-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-side-stack {
+    order: 2;
   }
 }
 </style>

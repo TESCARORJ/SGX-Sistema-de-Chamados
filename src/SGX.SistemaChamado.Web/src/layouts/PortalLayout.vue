@@ -1,8 +1,15 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+
+type PortalMenuItem = {
+  label: string
+  icon: string
+  to: string
+  destaque?: boolean
+}
 
 const $q = useQuasar()
 const route = useRoute()
@@ -12,25 +19,21 @@ const authStore = useAuthStore()
 const drawerOpen = ref(!$q.screen.lt.md)
 const retornoEmulacaoCarregando = ref(false)
 
-const menu = [
+const menuNavegacao: PortalMenuItem[] = [
   { label: 'Dashboard', icon: 'space_dashboard', to: '/portal' },
   { label: 'Meus chamados', icon: 'receipt_long', to: '/portal/chamados' },
-  { label: 'Novo chamado', icon: 'add_circle', to: '/portal/chamados/novo' },
-  { label: 'Catálogo de serviços', icon: 'inventory_2', to: '/portal/catalogo-servicos' },
+  { label: 'Novo chamado', icon: 'add_circle', to: '/portal/chamados/novo', destaque: true },
+  { label: 'Catalogo de servicos', icon: 'inventory_2', to: '/portal/catalogo-servicos' },
   { label: 'Base de conhecimento', icon: 'menu_book', to: '/portal/base-conhecimento' },
 ]
 
+const atalhoHeader = computed(() => menuNavegacao.filter((item) => item.to !== '/portal'))
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Solicitante')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
-const emulandoSolicitante = computed(
-  () => authStore.emulandoPerfil && authStore.perfilEmulado === 'Solicitante'
-)
+const emulandoSolicitante = computed(() => authStore.emulandoPerfil && authStore.perfilEmulado === 'Solicitante')
 const iniciaisUsuario = computed(() => {
   const nome = usuarioNome.value.trim()
-
-  if (!nome) {
-    return 'S'
-  }
+  if (!nome) return 'S'
 
   return nome
     .split(' ')
@@ -69,12 +72,12 @@ async function voltarParaAdministrador(): Promise<void> {
   }
 
   retornoEmulacaoCarregando.value = true
-
   try {
     await authStore.encerrarEmulacao()
     await router.replace('/admin')
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
+    const message = error instanceof Error ? error.message : 'Nao foi possivel concluir a acao.'
+
     $q.notify({
       type: 'negative',
       message,
@@ -82,7 +85,7 @@ async function voltarParaAdministrador(): Promise<void> {
 
     if (
       message.includes('Contexto original da emulacao nao encontrado') ||
-      message.includes('Contexto original da emulação não encontrado')
+      message.includes('Contexto original da emulacao nao encontrado')
     ) {
       await router.replace('/login')
     }
@@ -94,13 +97,62 @@ async function voltarParaAdministrador(): Promise<void> {
 
 <template>
   <q-layout view="lHh Lpr lFf" class="portal-layout">
-    <q-header elevated class="portal-header text-dark">
-      <q-toolbar class="q-px-md q-py-sm">
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="drawerOpen = !drawerOpen" />
+    <q-header class="portal-header text-dark">
+      <q-toolbar class="portal-toolbar">
+        <div class="row items-center q-gutter-sm no-wrap">
+          <q-btn flat dense round icon="menu" aria-label="Menu" @click="drawerOpen = !drawerOpen" />
 
-        <q-toolbar-title class="text-weight-bold">SGX Sistema de Chamados</q-toolbar-title>
+          <div
+            class="portal-brand cursor-pointer"
+            role="button"
+            tabindex="0"
+            aria-label="Ir para dashboard do portal"
+            @click="navegarPara('/portal')"
+            @keydown.enter.prevent="navegarPara('/portal')"
+            @keydown.space.prevent="navegarPara('/portal')"
+          >
+            <div class="portal-brand__title">SGX Sistema de Chamados</div>
+            <div class="portal-brand__subtitle">Portal do solicitante</div>
+          </div>
+        </div>
 
-        <q-chip color="blue-1" text-color="primary" icon="person" square>Portal do solicitante</q-chip>
+        <q-space />
+
+        <div class="portal-toolbar__actions gt-sm">
+          <q-btn
+            v-for="item in atalhoHeader"
+            :key="item.to"
+            :flat="!item.destaque"
+            :unelevated="item.destaque"
+            :color="item.destaque ? 'secondary' : 'primary'"
+            :icon="item.icon"
+            :label="item.label"
+            size="sm"
+            @click="navegarPara(item.to)"
+          />
+        </div>
+
+        <q-btn round flat class="q-ml-sm" aria-label="Abrir menu de usuário">
+          <q-avatar size="32px" color="secondary" text-color="white">{{ iniciaisUsuario }}</q-avatar>
+          <q-menu anchor="bottom right" self="top right">
+            <q-list style="min-width: 230px">
+              <q-item>
+                <q-item-section avatar>
+                  <q-avatar size="34px" color="blue-1" text-color="primary">{{ iniciaisUsuario }}</q-avatar>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-medium">{{ usuarioNome }}</q-item-label>
+                  <q-item-label caption>{{ usuarioEmail }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="logout">
+                <q-item-section avatar><q-icon name="logout" /></q-item-section>
+                <q-item-section>Sair</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -108,13 +160,13 @@ async function voltarParaAdministrador(): Promise<void> {
       v-model="drawerOpen"
       show-if-above
       bordered
-      :width="290"
+      :width="298"
       :breakpoint="1024"
       :behavior="$q.screen.lt.md ? 'mobile' : 'desktop'"
       class="portal-drawer"
     >
       <div class="q-pa-md drawer-user">
-        <q-avatar size="42px" color="secondary" text-color="white">
+        <q-avatar size="44px" color="secondary" text-color="white">
           {{ iniciaisUsuario }}
         </q-avatar>
 
@@ -124,11 +176,22 @@ async function voltarParaAdministrador(): Promise<void> {
         </div>
       </div>
 
+      <div class="q-px-md q-pb-sm">
+        <q-btn
+          color="secondary"
+          icon="add"
+          label="Novo chamado"
+          class="full-width"
+          unelevated
+          @click="navegarPara('/portal/chamados/novo')"
+        />
+      </div>
+
       <q-separator />
 
       <q-list padding>
         <q-item
-          v-for="item in menu"
+          v-for="item in menuNavegacao"
           :key="item.label"
           clickable
           :active="rotaAtiva(item.to)"
@@ -157,7 +220,7 @@ async function voltarParaAdministrador(): Promise<void> {
           </template>
 
           <div class="text-weight-medium">Visualizando como Solicitante Demo</div>
-          <div class="text-caption">Você está visualizando o sistema como Solicitante Demo.</div>
+          <div class="text-caption">Voce esta visualizando o sistema como Solicitante Demo.</div>
 
           <template #action>
             <q-btn
@@ -181,16 +244,44 @@ async function voltarParaAdministrador(): Promise<void> {
 .portal-layout {
   background:
     radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.12), transparent 42%),
-    linear-gradient(180deg, #f7faff 0%, #edf3fb 100%);
+    linear-gradient(180deg, var(--sgx-page-bg) 0%, var(--sgx-page-bg-alt) 100%);
 }
 
 .portal-header {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.94);
   border-bottom: 1px solid var(--sgx-border);
+  backdrop-filter: blur(10px);
+}
+
+.portal-toolbar {
+  min-height: 64px;
+  padding: 8px 14px;
+}
+
+.portal-brand {
+  min-width: 0;
+}
+
+.portal-brand__title {
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--sgx-text);
+}
+
+.portal-brand__subtitle {
+  font-size: 0.76rem;
+  color: var(--sgx-muted);
+}
+
+.portal-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .portal-drawer {
-  background: #f8fbff;
+  background: var(--sgx-surface-soft);
 }
 
 .drawer-user {
@@ -202,12 +293,22 @@ async function voltarParaAdministrador(): Promise<void> {
 
 :deep(.menu-item-active) {
   background: rgba(11, 94, 215, 0.12);
-  color: #0b5ed7;
-  border-radius: 10px;
+  color: var(--sgx-primary);
+  border-radius: var(--sgx-radius-sm);
 }
 
 .emulacao-banner {
   border: 1px solid rgba(146, 64, 14, 0.18);
 }
-</style>
 
+@media (max-width: 1023px) {
+  .portal-toolbar {
+    min-height: 58px;
+    padding: 8px 10px;
+  }
+
+  .portal-brand__title {
+    font-size: 0.88rem;
+  }
+}
+</style>

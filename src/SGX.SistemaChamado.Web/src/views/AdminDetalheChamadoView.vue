@@ -16,6 +16,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
 import EmptyState from '../components/ui/EmptyState.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
+import MetricCard from '../components/ui/MetricCard.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
@@ -260,6 +261,11 @@ const atualizadoEm = computed(() => {
 
   return Number.isFinite(maisRecente) ? new Date(maisRecente).toISOString() : null
 })
+const totalComentarios = computed(() => detalhe.value?.comentarios.length ?? 0)
+const totalEventosHistorico = computed(() => detalhe.value?.historico.length ?? 0)
+const totalAnexos = computed(() => detalhe.value?.anexos.length ?? 0)
+const totalEventosSla = computed(() => detalhe.value?.historicoSla.length ?? 0)
+const slaEmRisco = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento' || detalhe.value?.sla?.estaVencido)
 
 function formatarData(value: string | null): string {
   if (!value) return '-'
@@ -866,6 +872,7 @@ onMounted(carregar)
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Operacao administrativa"
       :titulo="detalhe ? `${detalhe.codigo} - ${detalhe.titulo}` : 'Detalhe administrativo do chamado'"
       subtitulo="Gerencie atendimento, atualize status e acompanhe histórico completo."
     >
@@ -885,6 +892,27 @@ onMounted(carregar)
     <LoadingState v-else-if="loading" inline mensagem="Carregando detalhe do chamado..." />
 
     <template v-else-if="detalhe">
+      <div class="sgx-kpi-grid">
+        <MetricCard
+          title="Responsavel"
+          :value="detalhe.responsavel?.nome || 'Nao atribuido'"
+          caption="Fila de atendimento atual"
+          icon="person"
+          :tone="detalhe.responsavel ? 'info' : 'warning'"
+        />
+        <MetricCard
+          title="SLA em risco"
+          :value="slaEmRisco ? 'Sim' : 'Nao'"
+          :caption="detalhe.sla?.situacao || 'NaoAplicavel'"
+          icon="monitoring"
+          :tone="slaEmRisco ? 'negative' : 'positive'"
+        />
+        <MetricCard title="Comentarios" :value="totalComentarios" caption="Registro de tratativas" icon="forum" tone="primary" />
+        <MetricCard title="Historico" :value="totalEventosHistorico" caption="Eventos administrativos" icon="timeline" tone="info" />
+        <MetricCard title="Historico de SLA" :value="totalEventosSla" caption="Mudancas de prazo e alerta" icon="schedule" tone="warning" />
+        <MetricCard title="Anexos" :value="totalAnexos" caption="Evidencias associadas" icon="attach_file" tone="primary" />
+      </div>
+
       <AppSectionCard titulo="Resumo do chamado" subtitulo="Dados principais para triagem e acompanhamento.">
         <q-list separator>
           <q-item>

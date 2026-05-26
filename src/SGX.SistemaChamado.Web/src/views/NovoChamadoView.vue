@@ -287,11 +287,15 @@ onMounted(async () => {
 <template>
   <q-page class="sgx-page column q-gutter-md">
     <PageHeader
+      contexto="Portal do solicitante"
       titulo="Abrir chamado"
-      subtitulo="Informe os dados da solicitacao para que a equipe responsavel possa realizar o atendimento."
+      subtitulo="Registre sua solicitacao com contexto suficiente para classificacao, priorizacao e atendimento."
     >
       <template #actions>
-        <q-btn flat color="primary" icon="arrow_back" label="Voltar" :disable="salvando" @click="cancelar" />
+        <div class="row q-gutter-sm">
+          <q-btn flat color="primary" icon="arrow_back" label="Meus chamados" :disable="salvando" @click="cancelar" />
+          <q-btn flat color="primary" icon="inventory_2" label="Catalogo" :disable="salvando" @click="router.push('/portal/catalogo-servicos')" />
+        </div>
       </template>
     </PageHeader>
 
@@ -307,9 +311,16 @@ onMounted(async () => {
       <q-banner v-if="erroSalvar" rounded class="bg-negative text-white">
         Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.
       </q-banner>
+      <q-banner v-if="!servicoSelecionado" rounded class="bg-blue-1 text-primary">
+        Dica: se preferir, abra chamados pelo Catalogo de Servicos para herdar categoria e prioridade padrao.
+      </q-banner>
 
       <AppSectionCard titulo="Dados da solicitacao" subtitulo="Preencha os campos obrigatorios para abrir o chamado.">
         <div class="column q-gutter-md">
+          <q-banner rounded class="bg-grey-1 text-grey-9">
+            Informe o titulo com objetividade, descreva impacto e inclua detalhes tecnicos relevantes para agilizar o atendimento.
+          </q-banner>
+
           <q-banner v-if="servicoSelecionado" rounded class="bg-blue-1 text-primary">
             <div class="text-subtitle2">Servico selecionado</div>
             <div class="text-body2"><strong>{{ servicoSelecionado.nome }}</strong></div>
@@ -326,104 +337,123 @@ onMounted(async () => {
             </div>
           </q-banner>
 
-          <q-input
-            v-model="form.titulo"
-            outlined
-            maxlength="180"
-            counter
-            label="Titulo *"
-            :rules="[(v) => !!String(v ?? '').trim() || 'Titulo obrigatorio']"
-          />
+          <div class="sgx-form-group">
+            <div class="text-subtitle2 text-weight-semibold">Resumo do incidente</div>
+            <div class="text-caption sgx-muted">Campos obrigatorios para direcionamento inicial.</div>
 
-          <q-input
-            v-model="form.descricao"
-            outlined
-            type="textarea"
-            autogrow
-            maxlength="4000"
-            counter
-            label="Descricao *"
-            :rules="[(v) => !!String(v ?? '').trim() || 'Descricao obrigatoria']"
-          />
+            <q-input
+              v-model="form.titulo"
+              outlined
+              maxlength="180"
+              counter
+              label="Titulo *"
+              :rules="[(v) => !!String(v ?? '').trim() || 'Titulo obrigatorio']"
+            />
 
-          <div class="row q-col-gutter-md">
-            <div v-if="exibirDepartamento" class="col-12 col-md-4">
-              <q-select
-                v-model="form.departamentoId"
-                outlined
-                clearable
-                emit-value
-                map-options
-                label="Departamento"
-                :options="opcoesDepartamento"
-                :disable="aberturaPorCatalogo"
-              />
-            </div>
+            <q-input
+              v-model="form.descricao"
+              outlined
+              type="textarea"
+              autogrow
+              maxlength="4000"
+              counter
+              label="Descricao *"
+              :rules="[(v) => !!String(v ?? '').trim() || 'Descricao obrigatoria']"
+            />
+          </div>
 
-            <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
-              <q-select
-                v-model="form.categoriaId"
-                outlined
-                emit-value
-                map-options
-                label="Categoria *"
-                :options="opcoesCategoria"
-                :rules="[(v) => aberturaPorCatalogo || !!v || 'Categoria obrigatoria']"
-                :disable="aberturaPorCatalogo"
-                @update:model-value="onCategoriaChanged"
-              />
-            </div>
+          <q-separator />
 
-            <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
-              <q-select
-                v-model="form.subcategoriaId"
-                outlined
-                emit-value
-                map-options
-                clearable
-                label="Subcategoria"
-                :options="opcoesSubcategoria"
-                :disable="aberturaPorCatalogo || !form.categoriaId"
-              />
-            </div>
+          <div class="sgx-form-group">
+            <div class="text-subtitle2 text-weight-semibold">Classificacao e prioridade</div>
+            <div class="text-caption sgx-muted">Defina categoria, subcategoria e nivel de urgencia.</div>
 
-            <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
-              <q-select
-                v-model="form.prioridadeId"
-                outlined
-                emit-value
-                map-options
-                label="Prioridade *"
-                :options="opcoesPrioridade"
-                :rules="[(v) => aberturaPorCatalogo || !!v || 'Prioridade obrigatoria']"
-                :disable="aberturaPorCatalogo"
-              />
+            <div class="row q-col-gutter-md">
+              <div v-if="exibirDepartamento" class="col-12 col-md-4">
+                <q-select
+                  v-model="form.departamentoId"
+                  outlined
+                  clearable
+                  emit-value
+                  map-options
+                  label="Departamento"
+                  :options="opcoesDepartamento"
+                  :disable="aberturaPorCatalogo"
+                />
+              </div>
+
+              <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
+                <q-select
+                  v-model="form.categoriaId"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Categoria *"
+                  :options="opcoesCategoria"
+                  :rules="[(v) => aberturaPorCatalogo || !!v || 'Categoria obrigatoria']"
+                  :disable="aberturaPorCatalogo"
+                  @update:model-value="onCategoriaChanged"
+                />
+              </div>
+
+              <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
+                <q-select
+                  v-model="form.subcategoriaId"
+                  outlined
+                  emit-value
+                  map-options
+                  clearable
+                  label="Subcategoria"
+                  :options="opcoesSubcategoria"
+                  :disable="aberturaPorCatalogo || !form.categoriaId"
+                />
+              </div>
+
+              <div :class="exibirDepartamento ? 'col-12 col-md-4' : 'col-12 col-md-6'">
+                <q-select
+                  v-model="form.prioridadeId"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Prioridade *"
+                  :options="opcoesPrioridade"
+                  :rules="[(v) => aberturaPorCatalogo || !!v || 'Prioridade obrigatoria']"
+                  :disable="aberturaPorCatalogo"
+                />
+              </div>
             </div>
           </div>
 
-          <div class="row q-col-gutter-md">
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.tipoSolicitacaoId"
-                outlined
-                emit-value
-                map-options
-                clearable
-                label="Tipo de solicitacao"
-                :options="opcoesTipoSolicitacao"
-              />
-            </div>
+          <q-separator />
 
-            <div class="col-12 col-md-6">
-              <q-select
-                v-model="form.localUnidadeId"
-                outlined
-                emit-value
-                map-options
-                clearable
-                label="Local / Unidade"
-                :options="opcoesLocalUnidade"
-              />
+          <div class="sgx-form-group">
+            <div class="text-subtitle2 text-weight-semibold">Contexto complementar</div>
+            <div class="text-caption sgx-muted">Informacoes opcionais para direcionamento por fila e unidade.</div>
+
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-model="form.tipoSolicitacaoId"
+                  outlined
+                  emit-value
+                  map-options
+                  clearable
+                  label="Tipo de solicitacao"
+                  :options="opcoesTipoSolicitacao"
+                />
+              </div>
+
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-model="form.localUnidadeId"
+                  outlined
+                  emit-value
+                  map-options
+                  clearable
+                  label="Local / Unidade"
+                  :options="opcoesLocalUnidade"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -455,24 +485,32 @@ onMounted(async () => {
               </q-item-section>
 
               <q-item-section side>
-                <q-btn flat dense round icon="delete" color="negative" :disable="salvando" @click="removerAnexo(index)" />
+                <q-btn flat dense round icon="delete" color="negative" aria-label="Remover anexo" :disable="salvando" @click="removerAnexo(index)" />
               </q-item-section>
             </q-item>
           </q-list>
         </div>
       </AppSectionCard>
 
-      <div class="row justify-end q-gutter-sm">
+      <div class="sgx-form-actions row justify-end q-gutter-sm">
         <q-btn flat color="primary" label="Cancelar" :disable="salvando" @click="cancelar" />
-        <q-btn
-          type="submit"
-          color="secondary"
-          icon="send"
-          label="Abrir chamado"
-          :loading="salvando"
-          :disable="salvando"
-        />
+        <q-btn type="submit" color="secondary" icon="send" label="Abrir chamado" :loading="salvando" :disable="salvando" />
       </div>
     </q-form>
   </q-page>
 </template>
+
+<style scoped>
+.sgx-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sgx-form-actions {
+  padding: 12px 14px;
+  border-radius: var(--sgx-radius-md);
+  border: 1px solid var(--sgx-border);
+  background: var(--sgx-card-bg);
+}
+</style>
