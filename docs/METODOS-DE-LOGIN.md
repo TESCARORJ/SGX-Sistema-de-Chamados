@@ -93,3 +93,11 @@ Consulta dedicada:
 
 ## Observacao
 Esta sprint nao altera o contrato de autenticacao AD ja entregue na Sprint 3; ela adiciona governanca administrativa persistida para os metodos de login.
+
+## Sprint 11 - Dependencia tecnica do Active Directory
+
+Com a tela administrativa `Active Directory / LDAP` (Sprint 11):
+- Metodos de login nao substitui configuracao tecnica do AD;
+- o status de viabilidade do provedor `ActiveDirectory` passa a depender da configuracao tecnica efetiva;
+- quando AD nao estiver tecnicamente configurado, o toggle de habilitacao fica bloqueado com motivo exibido na UI;
+- quando AD estiver configurado e ativo, pode ser habilitado normalmente em Metodos de login.

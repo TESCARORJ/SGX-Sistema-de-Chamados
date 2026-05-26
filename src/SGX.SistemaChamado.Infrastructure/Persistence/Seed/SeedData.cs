@@ -80,6 +80,8 @@ public static class SeedData
     public static readonly Guid PermissaoAutenticacaoProvedoresVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888867");
     public static readonly Guid PermissaoAutenticacaoProvedoresGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888868");
     public static readonly Guid PermissaoAuditoriaAutenticacaoVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888869");
+    public static readonly Guid PermissaoIntegracoesActiveDirectoryVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888870");
+    public static readonly Guid PermissaoIntegracoesActiveDirectoryGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888871");
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -375,6 +377,8 @@ public static class SeedData
         (PermissaoRoadmapImplementacoesGerenciarId, "RoadmapImplementacoes.Gerenciar"),
         (PermissaoIntegracoesMicrosoftVisualizarId, "IntegracoesMicrosoft.Visualizar"),
         (PermissaoIntegracoesMicrosoftGerenciarId, "IntegracoesMicrosoft.Gerenciar"),
+        (PermissaoIntegracoesActiveDirectoryVisualizarId, "IntegracoesActiveDirectory.Visualizar"),
+        (PermissaoIntegracoesActiveDirectoryGerenciarId, "IntegracoesActiveDirectory.Gerenciar"),
         (PermissaoAutenticacaoProvedoresVisualizarId, "AutenticacaoProvedores.Visualizar"),
         (PermissaoAutenticacaoProvedoresGerenciarId, "AutenticacaoProvedores.Gerenciar"),
         (PermissaoAuditoriaAutenticacaoVisualizarId, "AuditoriaAutenticacao.Visualizar"),

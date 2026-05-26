@@ -83,3 +83,25 @@ Com gestao administrativa de metodos de login ativa:
 ## Contingencia
 - login local SGX continua como contingencia administrativa se habilitado;
 - `LocalDevelopment` continua exclusivo de `Development`.
+
+## Sprint 11 - Configuracao administrativa AD/LDAP
+
+Menu administrativo:
+- `Configuracoes > Integracoes > Active Directory / LDAP`
+
+Endpoints administrativos:
+- `GET /api/admin/integracoes/active-directory`
+- `PUT /api/admin/integracoes/active-directory`
+- `POST /api/admin/integracoes/active-directory/testar-conexao`
+- `POST /api/admin/integracoes/active-directory/testar-autenticacao`
+
+Permissoes:
+- `IntegracoesActiveDirectory.Visualizar`
+- `IntegracoesActiveDirectory.Gerenciar`
+
+Observacoes operacionais:
+- a tela de AD/LDAP define **configuracao tecnica** do provedor;
+- a tela de Metodos de login define **disponibilidade** do provedor para o usuario final;
+- Active Directory so pode ser habilitado em Metodos de login quando a configuracao tecnica estiver valida;
+- LDAP sem TLS exige confirmacao explicita;
+- senha do teste controlado nunca e persistida.

@@ -186,6 +186,31 @@ public sealed class MetodosLoginAdminServiceTests
             x.Entidade == "MetodosLogin");
     }
 
+    [Fact]
+    public async Task ActiveDirectoryNaoDeveFicarViavelSemConfiguracaoTecnica()
+    {
+        await using var dbContext = CriarDbContext();
+        var service = CriarService(
+            dbContext,
+            "Production",
+            adOptions: new ActiveDirectoryOptions
+            {
+                Ativo = true,
+                Servidor = "",
+                Porta = 636,
+                UsarLdaps = true,
+                BaseDn = "",
+                UserSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))"
+            });
+
+        var config = await service.ObterConfiguracaoAdminAsync();
+        var ad = config.Provedores.Single(x => x.Codigo == CodigoProvedorAutenticacao.ActiveDirectory);
+
+        Assert.False(ad.PodeHabilitar);
+        Assert.False(ad.Funcional);
+        Assert.False(string.IsNullOrWhiteSpace(ad.MotivoBloqueioHabilitar));
+    }
+
     private static MetodoLoginAdminAtualizacaoDto Novo(
         string codigo,
         bool habilitado,
@@ -218,7 +243,7 @@ public sealed class MetodosLoginAdminServiceTests
             dbContext,
             new FakeEnvironment(environmentName),
             Options.Create(authOptions ?? CriarAuthOptions()),
-            Options.Create(adOptions ?? CriarAdOptions()),
+            new FakeConfiguracaoIntegracaoActiveDirectoryService(adOptions ?? CriarAdOptions()),
             new FakeConfiguracaoIntegracaoMicrosoftService(environmentName, microsoftHabilitado),
             Microsoft.Extensions.Logging.Abstractions.NullLogger<MetodosLoginAdminService>.Instance,
             auditoriaService);
@@ -329,6 +354,31 @@ public sealed class MetodosLoginAdminServiceTests
                 ApiScope: "scope",
                 RedirectUri: "http://localhost:5173"));
         }
+    }
+
+    private sealed class FakeConfiguracaoIntegracaoActiveDirectoryService(
+        ActiveDirectoryOptions options) : IConfiguracaoIntegracaoActiveDirectoryService
+    {
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.ActiveDirectoryIntegracaoResponse> ObterConfiguracaoAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.ActiveDirectoryIntegracaoResponse> AtualizarConfiguracaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.AtualizarActiveDirectoryIntegracaoRequest request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.TestarConexaoActiveDirectoryResponse> TestarConexaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.TestarConexaoActiveDirectoryRequest? request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.TestarAutenticacaoActiveDirectoryResponse> TestarAutenticacaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.TestarAutenticacaoActiveDirectoryRequest request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<ActiveDirectoryOptions> ObterConfiguracaoEfetivaAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(options);
     }
 
     private sealed class FakeAuditoriaService : IAuditoriaService

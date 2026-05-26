@@ -64,7 +64,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPoliticaSenhaService, PoliticaSenhaService>();
         services.AddScoped<ITokenRecuperacaoSenhaService, TokenRecuperacaoSenhaService>();
         services.AddScoped<IAutenticacaoLocalSgxService, AutenticacaoLocalSgxService>();
+        services.AddScoped<IActiveDirectoryConnectivityTester, ActiveDirectoryConnectivityTester>();
         services.AddScoped<IActiveDirectoryCredentialValidator, ActiveDirectoryCredentialValidator>();
+        services.AddScoped<IConfiguracaoIntegracaoActiveDirectoryService, ConfiguracaoIntegracaoActiveDirectoryService>();
         services.AddScoped<IActiveDirectoryAuthenticationService, ActiveDirectoryAuthenticationService>();
         services.AddScoped<IGestaoSenhaLocalSgxService, GestaoSenhaLocalSgxService>();
         services.AddScoped<IConfiguracaoIntegracaoMicrosoftService, ConfiguracaoIntegracaoMicrosoftService>();

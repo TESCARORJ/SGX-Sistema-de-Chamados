@@ -301,6 +301,62 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task AdministradorPodeConsultarEAtualizarIntegracaoActiveDirectory()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "admin.ad.config@empresa.com", "Administrador", "Administrador");
+
+        var getResponse = await client.GetAsync("/api/admin/integracoes/active-directory");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var putResponse = await client.PutAsJsonAsync("/api/admin/integracoes/active-directory", new
+        {
+            ativo = true,
+            servidor = "ldaps://dc01.empresa.local",
+            porta = 636,
+            usarLdaps = true,
+            permitirLdapSemTls = false,
+            confirmacaoPermitirLdapSemTls = false,
+            dominio = "EMPRESA",
+            baseDn = "DC=empresa,DC=local",
+            userSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))",
+            permitirAutoProvisionamento = true,
+            perfilPadrao = "Solicitante",
+            timeoutConexaoSegundos = 8
+        });
+
+        Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task AtendenteSemPermissaoNaoAcessaIntegracaoActiveDirectory()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "atendente.ad.config@empresa.com", "Atendente", "Atendente");
+
+        var getResponse = await client.GetAsync("/api/admin/integracoes/active-directory");
+        Assert.Equal(HttpStatusCode.Forbidden, getResponse.StatusCode);
+
+        var putResponse = await client.PutAsJsonAsync("/api/admin/integracoes/active-directory", new
+        {
+            ativo = true,
+            servidor = "ldaps://dc01.empresa.local",
+            porta = 636,
+            usarLdaps = true,
+            permitirLdapSemTls = false,
+            confirmacaoPermitirLdapSemTls = false,
+            dominio = "EMPRESA",
+            baseDn = "DC=empresa,DC=local",
+            userSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))",
+            permitirAutoProvisionamento = false,
+            perfilPadrao = "Solicitante",
+            timeoutConexaoSegundos = 10
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, putResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminPodeConsultarAuditoriaAutenticacao()
     {
         const string email = "auditoria.local.sgx@empresa.com";

@@ -350,6 +350,8 @@ const menu: MenuItem[] = [
       permissoes.integracoesEmailVisualizar,
       permissoes.integracoesMicrosoftVisualizar,
       permissoes.integracoesMicrosoftGerenciar,
+      permissoes.integracoesActiveDirectoryVisualizar,
+      permissoes.integracoesActiveDirectoryGerenciar,
       permissoes.autenticacaoProvedoresVisualizar,
       permissoes.autenticacaoProvedoresGerenciar,
     ],
@@ -365,6 +367,15 @@ const menu: MenuItem[] = [
         icon: 'shield',
         to: '/admin/integracoes/microsoft-entra-id',
         requiredAnyPermissions: [permissoes.integracoesMicrosoftVisualizar, permissoes.integracoesMicrosoftGerenciar],
+      },
+      {
+        label: 'Active Directory / LDAP',
+        icon: 'domain',
+        to: '/admin/integracoes/active-directory',
+        requiredAnyPermissions: [
+          permissoes.integracoesActiveDirectoryVisualizar,
+          permissoes.integracoesActiveDirectoryGerenciar,
+        ],
       },
       {
         label: 'Métodos de login',
@@ -560,6 +571,7 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/conhecimento/catalogo-servicos')) return 'Catálogo de serviços'
   if (route.path.startsWith('/admin/infraestrutura/inventario-ativos')) return 'Inventário/Ativos'
   if (route.path.startsWith('/admin/configuracoes')) return 'Configurações'
+  if (route.path.startsWith('/admin/integracoes/active-directory')) return 'Active Directory / LDAP'
   if (route.path.startsWith('/admin/integracoes/metodos-login')) return 'Métodos de login'
   if (route.path.startsWith('/admin/integracoes/autenticacao/metodos-login')) return 'Métodos de login'
   if (route.path.startsWith('/admin/integracoes')) return 'Integrações'

@@ -17,6 +17,8 @@
   integracoesEmailVisualizar: 'IntegracoesEmail.Visualizar',
   integracoesMicrosoftVisualizar: 'IntegracoesMicrosoft.Visualizar',
   integracoesMicrosoftGerenciar: 'IntegracoesMicrosoft.Gerenciar',
+  integracoesActiveDirectoryVisualizar: 'IntegracoesActiveDirectory.Visualizar',
+  integracoesActiveDirectoryGerenciar: 'IntegracoesActiveDirectory.Gerenciar',
   autenticacaoProvedoresVisualizar: 'AutenticacaoProvedores.Visualizar',
   autenticacaoProvedoresGerenciar: 'AutenticacaoProvedores.Gerenciar',
   notificacoesVisualizar: 'Notificacoes.Visualizar',

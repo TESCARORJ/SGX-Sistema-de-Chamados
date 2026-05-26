@@ -48,6 +48,7 @@ const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
 const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetalheView.vue')
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
 const IntegracaoMicrosoftEntraIdView = () => import('../views/IntegracaoMicrosoftEntraIdView.vue')
+const ActiveDirectoryIntegracaoAdminView = () => import('../views/ActiveDirectoryIntegracaoAdminView.vue')
 const MetodosLoginAdminView = () => import('../views/MetodosLoginAdminView.vue')
 const RoadmapItsmView = () => import('../views/RoadmapItsmView.vue')
 const GestaoItsmDocumentacaoView = () => import('../views/GestaoItsmDocumentacaoView.vue')
@@ -322,6 +323,16 @@ const routes: RouteRecordRaw[] = [
         path: 'integracoes/microsoft-entra-id',
         name: 'admin-integracoes-microsoft-entra-id',
         component: IntegracaoMicrosoftEntraIdView,
+      },
+      {
+        path: 'integracoes/active-directory',
+        name: 'admin-integracoes-active-directory',
+        component: ActiveDirectoryIntegracaoAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+          requiredAnyPermissions: ['IntegracoesActiveDirectory.Visualizar', 'IntegracoesActiveDirectory.Gerenciar'],
+        },
       },
       {
         path: 'integracoes/metodos-login',

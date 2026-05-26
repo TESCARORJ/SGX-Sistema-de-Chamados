@@ -59,7 +59,7 @@ public sealed class ActiveDirectoryCredentialValidator(
             connection.AuthType = AuthType.Negotiate;
             connection.SessionOptions.ProtocolVersion = 3;
             connection.SessionOptions.SecureSocketLayer = options.UsarLdaps;
-            connection.Timeout = TimeSpan.FromSeconds(10);
+            connection.Timeout = TimeSpan.FromSeconds(options.TimeoutConexaoSegundos <= 0 ? 10 : options.TimeoutConexaoSegundos);
 
             var usuarioParaBind = MontarUsuarioBind(usuario, dominio);
             connection.Bind(new NetworkCredential(usuarioParaBind, senha));
@@ -179,7 +179,7 @@ public sealed class ActiveDirectoryCredentialValidator(
 public sealed class ActiveDirectoryAuthenticationService(
     SGXSistemaChamadoDbContext dbContext,
     IOptions<AuthOptions> authOptions,
-    IOptions<ActiveDirectoryOptions> activeDirectoryOptions,
+    IConfiguracaoIntegracaoActiveDirectoryService configuracaoIntegracaoActiveDirectoryService,
     IMetodosLoginAdminService metodosLoginAdminService,
     IActiveDirectoryCredentialValidator credentialValidator,
     ILogger<ActiveDirectoryAuthenticationService> logger,
@@ -192,7 +192,7 @@ public sealed class ActiveDirectoryAuthenticationService(
     public async Task<LocalLoginResponse> LoginAsync(LoginActiveDirectoryRequest request, CancellationToken cancellationToken = default)
     {
         var auth = authOptions.Value;
-        var ad = activeDirectoryOptions.Value;
+        var ad = await configuracaoIntegracaoActiveDirectoryService.ObterConfiguracaoEfetivaAsync(cancellationToken);
         var metodoAd = await metodosLoginAdminService
             .ObterMetodoEfetivoAsync(CodigoProvedorAutenticacao.ActiveDirectory, cancellationToken);
         if (metodoAd is null || !metodoAd.Habilitado || !metodoAd.Funcional)

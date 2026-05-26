@@ -42,7 +42,7 @@ public sealed class MetodosLoginAdminService(
     SGXSistemaChamadoDbContext dbContext,
     IHostEnvironment environment,
     IOptions<AuthOptions> authOptions,
-    IOptions<ActiveDirectoryOptions> activeDirectoryOptions,
+    IConfiguracaoIntegracaoActiveDirectoryService configuracaoIntegracaoActiveDirectoryService,
     IConfiguracaoIntegracaoMicrosoftService configuracaoIntegracaoMicrosoftService,
     ILogger<MetodosLoginAdminService> logger,
     IAuditoriaService? auditoriaService = null) : IMetodosLoginAdminService
@@ -220,6 +220,8 @@ public sealed class MetodosLoginAdminService(
         var auth = authOptions.Value;
         var configuracaoMicrosoft = await configuracaoIntegracaoMicrosoftService
             .ObterConfiguracaoAutenticacaoEfetivaAsync(cancellationToken);
+        var configuracaoActiveDirectory = await configuracaoIntegracaoActiveDirectoryService
+            .ObterConfiguracaoEfetivaAsync(cancellationToken);
 
         foreach (var item in ObterCatalogo())
         {
@@ -238,12 +240,19 @@ public sealed class MetodosLoginAdminService(
             var autoProvisionamento = ObterAutoProvisionamentoEfetivo(
                 parametros,
                 item.Codigo,
-                auth,
-                configuracaoMicrosoft);
-            var perfilPadrao = ObterPerfilPadraoEfetivo(parametros, item.Codigo, auth, configuracaoMicrosoft);
+                configuracaoMicrosoft,
+                configuracaoActiveDirectory);
+            var perfilPadrao = ObterPerfilPadraoEfetivo(
+                parametros,
+                item.Codigo,
+                configuracaoMicrosoft,
+                configuracaoActiveDirectory);
             var rotulo = ObterValor(parametros, Formatar(ChaveRotuloExibicao, item.Codigo));
             var rotuloExibicao = string.IsNullOrWhiteSpace(rotulo) ? item.NomePadrao : rotulo.Trim();
-            var (podeHabilitar, motivoBloqueioHabilitar) = AvaliarPossibilidadeHabilitacao(item.Codigo, configuracaoMicrosoft);
+            var (podeHabilitar, motivoBloqueioHabilitar) = AvaliarPossibilidadeHabilitacao(
+                item.Codigo,
+                configuracaoMicrosoft,
+                configuracaoActiveDirectory);
             var funcional = habilitado && podeHabilitar;
 
             itens.Add(new MetodoLoginEfetivo(
@@ -415,7 +424,8 @@ public sealed class MetodosLoginAdminService(
 
     private (bool PodeHabilitar, string? MotivoBloqueio) AvaliarPossibilidadeHabilitacao(
         string codigo,
-        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft)
+        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft,
+        ActiveDirectoryOptions configuracaoActiveDirectory)
     {
         if (string.Equals(codigo, CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparison.OrdinalIgnoreCase))
         {
@@ -429,7 +439,7 @@ public sealed class MetodosLoginAdminService(
 
         if (string.Equals(codigo, CodigoProvedorAutenticacao.ActiveDirectory, StringComparison.OrdinalIgnoreCase))
         {
-            if (!activeDirectoryOptions.Value.EstaConfigurado())
+            if (!configuracaoActiveDirectory.EstaConfigurado())
             {
                 return (false, "Active Directory nao esta tecnicamente configurado.");
             }
@@ -551,8 +561,8 @@ public sealed class MetodosLoginAdminService(
     private bool ObterAutoProvisionamentoEfetivo(
         IReadOnlyDictionary<string, ParametroSistema> parametros,
         string codigo,
-        AuthOptions auth,
-        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft)
+        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft,
+        ActiveDirectoryOptions configuracaoActiveDirectory)
     {
         var admin = ObterBoolean(parametros, Formatar(ChaveAutoProvisionamento, codigo));
         if (admin.HasValue)
@@ -562,7 +572,7 @@ public sealed class MetodosLoginAdminService(
 
         if (string.Equals(codigo, CodigoProvedorAutenticacao.ActiveDirectory, StringComparison.OrdinalIgnoreCase))
         {
-            return activeDirectoryOptions.Value.PermitirAutoProvisionamento;
+            return configuracaoActiveDirectory.PermitirAutoProvisionamento;
         }
 
         if (string.Equals(codigo, CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparison.OrdinalIgnoreCase))
@@ -577,8 +587,8 @@ public sealed class MetodosLoginAdminService(
     private string ObterPerfilPadraoEfetivo(
         IReadOnlyDictionary<string, ParametroSistema> parametros,
         string codigo,
-        AuthOptions auth,
-        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft)
+        ConfiguracaoAutenticacaoEfetiva configuracaoMicrosoft,
+        ActiveDirectoryOptions configuracaoActiveDirectory)
     {
         var admin = ObterValor(parametros, Formatar(ChavePerfilPadrao, codigo));
         if (!string.IsNullOrWhiteSpace(admin))
@@ -588,9 +598,9 @@ public sealed class MetodosLoginAdminService(
 
         if (string.Equals(codigo, CodigoProvedorAutenticacao.ActiveDirectory, StringComparison.OrdinalIgnoreCase))
         {
-            return string.IsNullOrWhiteSpace(activeDirectoryOptions.Value.PerfilPadrao)
+            return string.IsNullOrWhiteSpace(configuracaoActiveDirectory.PerfilPadrao)
                 ? PerfisInternos.Solicitante
-                : activeDirectoryOptions.Value.PerfilPadrao.Trim();
+                : configuracaoActiveDirectory.PerfilPadrao.Trim();
         }
 
         if (string.Equals(codigo, CodigoProvedorAutenticacao.MicrosoftEntraId, StringComparison.OrdinalIgnoreCase))

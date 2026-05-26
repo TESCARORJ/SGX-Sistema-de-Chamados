@@ -217,7 +217,7 @@ public sealed class ActiveDirectoryAuthenticationServiceTests
         return new ActiveDirectoryAuthenticationService(
             context,
             Options.Create(authOptions),
-            Options.Create(adOptions),
+            new FakeConfiguracaoIntegracaoActiveDirectoryService(adOptions),
             new FakeMetodosLoginAdminService(authOptions, adOptions),
             validator,
             NullLogger<ActiveDirectoryAuthenticationService>.Instance,
@@ -354,6 +354,31 @@ public sealed class ActiveDirectoryAuthenticationServiceTests
                 PodeHabilitar: funcional,
                 MotivoBloqueioHabilitar: funcional ? null : "Active Directory nao esta tecnicamente configurado."));
         }
+    }
+
+    private sealed class FakeConfiguracaoIntegracaoActiveDirectoryService(
+        ActiveDirectoryOptions options) : IConfiguracaoIntegracaoActiveDirectoryService
+    {
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.ActiveDirectoryIntegracaoResponse> ObterConfiguracaoAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.ActiveDirectoryIntegracaoResponse> AtualizarConfiguracaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.AtualizarActiveDirectoryIntegracaoRequest request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.TestarConexaoActiveDirectoryResponse> TestarConexaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.TestarConexaoActiveDirectoryRequest? request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<SGX.SistemaChamado.Api.Contracts.Admin.TestarAutenticacaoActiveDirectoryResponse> TestarAutenticacaoAsync(
+            SGX.SistemaChamado.Api.Contracts.Admin.TestarAutenticacaoActiveDirectoryRequest request,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public Task<ActiveDirectoryOptions> ObterConfiguracaoEfetivaAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult(options);
     }
 
     private sealed class FakeAuditoriaService : IAuditoriaService

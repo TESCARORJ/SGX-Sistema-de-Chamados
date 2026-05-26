@@ -39,6 +39,11 @@ public sealed class ActiveDirectoryOptionsValidator(
             erros.Add("ActiveDirectory:Porta deve estar entre 1 e 65535.");
         }
 
+        if (options.TimeoutConexaoSegundos <= 0 || options.TimeoutConexaoSegundos > 120)
+        {
+            erros.Add("ActiveDirectory:TimeoutConexaoSegundos deve estar entre 1 e 120.");
+        }
+
         if (!options.UsarLdaps && !options.PermitirLdapSemTls)
         {
             erros.Add("ActiveDirectory:PermitirLdapSemTls deve ser true para habilitar LDAP sem TLS.");
@@ -62,6 +67,12 @@ public sealed class ActiveDirectoryOptionsValidator(
         if (options.PermitirAutoProvisionamento && string.IsNullOrWhiteSpace(options.PerfilPadrao))
         {
             erros.Add("ActiveDirectory:PerfilPadrao nao configurado para auto provisionamento.");
+        }
+
+        if (options.PermitirAutoProvisionamento
+            && string.Equals(options.PerfilPadrao?.Trim(), "Administrador", StringComparison.OrdinalIgnoreCase))
+        {
+            erros.Add("ActiveDirectory:Auto provisionamento nao pode atribuir perfil Administrador.");
         }
 
         return erros.Count == 0 ? ValidateOptionsResult.Success : ValidateOptionsResult.Fail(erros);

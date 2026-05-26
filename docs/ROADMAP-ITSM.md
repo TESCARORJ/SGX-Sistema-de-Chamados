@@ -255,6 +255,41 @@ Checklist da sprint:
 Proxima acao:
 - executar rodada presencial no ambiente publicado, anexar prints oficiais por cenario e concluir assinatura institucional da ata.
 
+## Sprint 11 - Configuracao administrativa Active Directory / LDAP
+
+Area: Seguranca  
+Categoria: Autenticacao
+
+Status da implementacao: Implementado funcionalmente  
+Status tecnico: Sprint 11 concluida em 2026-05-26
+
+Objetivo:
+Disponibilizar uma tela administrativa dedicada para configuracao tecnica do provedor Active Directory/LDAP, separada da tela de Metodos de login.
+
+Entregas consolidadas:
+- tela `Active Directory / LDAP` no menu `Configuracoes > Integracoes`;
+- endpoints administrativos:
+  - `GET /api/admin/integracoes/active-directory`
+  - `PUT /api/admin/integracoes/active-directory`
+  - `POST /api/admin/integracoes/active-directory/testar-conexao`
+  - `POST /api/admin/integracoes/active-directory/testar-autenticacao`
+- persistencia da configuracao tecnica em `ParametroSistema` (`auth.active_directory.*`);
+- validacao de configuracao minima tecnica e status de configuracao;
+- confirmacao explicita obrigatoria para LDAP sem TLS;
+- teste de autenticacao controlada sem persistencia de senha;
+- novas permissoes:
+  - `IntegracoesActiveDirectory.Visualizar`
+  - `IntegracoesActiveDirectory.Gerenciar`
+- integracao com Metodos de login para bloquear habilitacao do AD quando nao houver configuracao tecnica viavel.
+
+Checklist da sprint:
+- [x] Backend administrativo de configuracao AD/LDAP implementado.
+- [x] Frontend administrativo AD/LDAP implementado.
+- [x] Rota e menu protegidos por permissao.
+- [x] Seed de permissoes atualizado para perfil Administrador.
+- [x] Testes backend atualizados e ampliados.
+- [x] Documentacao atualizada.
+
 ## Sprint 8 - Evidencias e Ata de Homologacao da Autenticacao
 
 Area: Seguranca e Governanca  

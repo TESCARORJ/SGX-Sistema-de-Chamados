@@ -15,6 +15,8 @@ public static class PermissionPolicies
     public const string IntegracoesEmailVisualizar = Prefixo + PermissoesConstants.IntegracoesEmailVisualizar;
     public const string IntegracoesMicrosoftVisualizar = Prefixo + PermissoesConstants.IntegracoesMicrosoftVisualizar;
     public const string IntegracoesMicrosoftGerenciar = Prefixo + PermissoesConstants.IntegracoesMicrosoftGerenciar;
+    public const string IntegracoesActiveDirectoryVisualizar = Prefixo + PermissoesConstants.IntegracoesActiveDirectoryVisualizar;
+    public const string IntegracoesActiveDirectoryGerenciar = Prefixo + PermissoesConstants.IntegracoesActiveDirectoryGerenciar;
     public const string AutenticacaoProvedoresVisualizar = Prefixo + PermissoesConstants.AutenticacaoProvedoresVisualizar;
     public const string AutenticacaoProvedoresGerenciar = Prefixo + PermissoesConstants.AutenticacaoProvedoresGerenciar;
     public const string UsuariosRedefinirSenha = Prefixo + PermissoesConstants.UsuariosRedefinirSenha;

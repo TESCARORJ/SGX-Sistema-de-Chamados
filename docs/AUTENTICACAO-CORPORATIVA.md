@@ -421,3 +421,16 @@ Validações:
 - Em compatibilidade administrativa legada, `ProvedorPrincipal=Local` exige `LoginLocalHabilitado=true`.
 - Em `ProvedorPrincipal=Local` com `LoginLocalHabilitado=false`, a API retorna a mensagem: `Login local SGX deve permanecer habilitado quando o modo Local estiver selecionado.`
 - O sistema rejeita qualquer configuração sem provedor de autenticação ativo.
+
+## Sprint 11 - Active Directory / LDAP administrativo
+
+Entregas consolidadas:
+- nova tela administrativa dedicada em `Configuracoes > Integracoes > Active Directory / LDAP`;
+- separacao explicita entre:
+  - configuracao tecnica do AD/LDAP;
+  - disponibilidade do provedor em Metodos de login;
+- endpoints administrativos para consultar, salvar, testar conexao e testar autenticacao controlada;
+- validacao de configuracao minima tecnica para viabilizar habilitacao do provedor `ActiveDirectory`;
+- bloqueio de LDAP sem TLS sem confirmacao explicita;
+- senha de teste usada apenas em memoria, sem persistencia;
+- reforco da regra de nao conceder `Administrador` automaticamente via auto provisionamento AD.
