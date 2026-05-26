@@ -161,6 +161,9 @@ const opcoesCategoriasAtivas = computed(() =>
     .map((x) => ({ value: x.id, label: x.nome, cor: x.cor, icone: x.icone }))
 )
 const totalItensAtivos = computed(() => itens.value.filter((item) => item.ativo).length)
+const checklistOrdenado = computed(() =>
+  [...checklist.value].sort((a, b) => a.ordem - b.ordem || a.grupo - b.grupo || a.titulo.localeCompare(b.titulo))
+)
 const totalConcluidos = computed(() => itens.value.filter((item) => item.statusImplementacao === 4).length)
 const totalEmAndamento = computed(() => itens.value.filter((item) => item.statusImplementacao === 2).length)
 const totalComPendencia = computed(() => itens.value.filter((item) => item.statusTecnico === 3).length)
@@ -212,6 +215,7 @@ const colunasChecklist: QTableColumn<RoadmapChecklistItemResponse>[] = [
   { name: 'grupo', label: 'Grupo', field: 'grupoDescricao', align: 'left' },
   { name: 'ordem', label: 'Ordem', field: 'ordem', align: 'center' },
   { name: 'concluido', label: 'Concluído', field: 'concluido', align: 'center' },
+  { name: 'obrigatorio', label: 'Obrigatório', field: 'obrigatorio', align: 'center' },
   { name: 'ativo', label: 'Ativo', field: 'ativo', align: 'center' },
   { name: 'acoes', label: 'Ações', field: 'acoes', align: 'right' },
 ]
@@ -486,9 +490,9 @@ function reabrirChecklist(item: RoadmapChecklistItemResponse): void {
   })
 }
 
-function excluirChecklist(item: RoadmapChecklistItemResponse): void {
-  abrirConfirmacao('Excluir item do checklist permanentemente?', async () => {
-    await roadmapItsmService.excluirChecklist(item.id)
+function inativarChecklist(item: RoadmapChecklistItemResponse): void {
+  abrirConfirmacao('Inativar item do checklist? Ele deixará de contar no percentual, mas continuará preservado no histórico.', async () => {
+    await roadmapItsmService.inativarChecklist(item.id)
     await recarregarDetalheAtual()
     await carregarListaRoadmap()
   })
@@ -762,10 +766,18 @@ onMounted(async () => {
               <q-space />
               <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat color="primary" icon="add" label="Novo item" @click="abrirModalChecklist('criar')" />
             </div>
-            <q-table :rows="checklist" :columns="colunasChecklist" row-key="id" flat bordered>
+            <q-banner dense class="bg-blue-1 text-primary q-mb-sm">
+              O percentual do roadmap é calculado com base nos itens ativos do checklist.
+            </q-banner>
+            <q-table :rows="checklistOrdenado" :columns="colunasChecklist" row-key="id" flat bordered>
               <template #body-cell-concluido="slotProps">
                 <q-td>
                   <q-badge :color="slotProps.row.concluido ? 'positive' : 'grey-6'">{{ slotProps.row.concluido ? 'Sim' : 'Não' }}</q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-obrigatorio="slotProps">
+                <q-td>
+                  <q-badge :color="slotProps.row.obrigatorio ? 'indigo' : 'grey-6'">{{ slotProps.row.obrigatorio ? 'Sim' : 'Não' }}</q-badge>
                 </q-td>
               </template>
               <template #body-cell-ativo="slotProps">
@@ -776,31 +788,31 @@ onMounted(async () => {
               <template #body-cell-acoes="slotProps">
                 <q-td class="text-right">
                   <div class="row no-wrap justify-end items-center q-gutter-xs">
-                    <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" aria-label="Editar item do checklist" @click="abrirModalChecklist('editar', slotProps.row)" />
+                    <q-btn v-if="podeGerenciarChecklist && modoDetalhe === 'editar'" flat dense round icon="edit" color="secondary" aria-label="Editar item do checklist" @click="abrirModalChecklist('editar', slotProps.row)"><q-tooltip>Editar</q-tooltip></q-btn>
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && !slotProps.row.concluido"
                       flat dense round icon="task_alt" color="positive"
                       aria-label="Concluir item do checklist"
                       @click="concluirChecklist(slotProps.row)"
-                    />
+                    ><q-tooltip>Concluir</q-tooltip></q-btn>
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && slotProps.row.concluido"
                       flat dense round icon="undo" color="warning"
                       aria-label="Reabrir item do checklist"
                       @click="reabrirChecklist(slotProps.row)"
-                    />
+                    ><q-tooltip>Reabrir</q-tooltip></q-btn>
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && slotProps.row.ativo"
-                      flat dense round icon="delete" color="negative"
+                      flat dense round icon="block" color="negative"
                       aria-label="Inativar item do checklist"
-                      @click="excluirChecklist(slotProps.row)"
-                    />
+                      @click="inativarChecklist(slotProps.row)"
+                    ><q-tooltip>Inativar</q-tooltip></q-btn>
                     <q-btn
                       v-if="podeGerenciarChecklist && modoDetalhe === 'editar' && !slotProps.row.ativo"
                       flat dense round icon="restart_alt" color="primary"
                       aria-label="Reativar item do checklist"
                       @click="reativarChecklist(slotProps.row)"
-                    />
+                    ><q-tooltip>Reativar</q-tooltip></q-btn>
                   </div>
                 </q-td>
               </template>

@@ -4,6 +4,39 @@
 
 O Roadmap ITSM organiza a evolucao funcional e tecnica do SGX Sistema de Chamados com foco em governanca, previsibilidade e rastreabilidade de entrega.
 
+## Atualizacao 2026-05-26 - Novo Roadmap ITIL (20 sprints)
+
+A partir desta data, o roadmap administrativo passa a exibir uma trilha canonica de 20 sprints ITIL/ITSM na categoria `ITIL/ITSM`, mantendo os itens antigos como historico inativo.
+
+Diretriz central da trilha:
+- todo chamado deve possuir natureza ITSM obrigatoria;
+- a natureza deve influenciar fluxo, status, campos obrigatorios, SLA, prioridade, impacto, urgencia, aprovacoes, permissoes, notificacoes, auditoria e relatorios.
+
+Sprints consolidadas:
+1. Sprint 1 - Fundacao ITSM do chamado (45%)
+2. Sprint 2 - Gerenciamento de Incidentes (40%)
+3. Sprint 3 - Gerenciamento de Requisicoes (45%)
+4. Sprint 4 - Catalogo de Servicos 2.0 (60%)
+5. Sprint 5 - Grupos tecnicos, filas e atribuicao (10%)
+6. Sprint 6 - Observadores de chamados (0%)
+7. Sprint 7 - Motor de Aprovacoes ITSM (55%)
+8. Sprint 8 - SLA 2.0, OLA e matriz impacto x urgencia (60%)
+9. Sprint 9 - Regras de fechamento, aceite e reabertura (50%)
+10. Sprint 10 - Notificacoes ITSM (15%)
+11. Sprint 11 - Relatorios ITSM avancados (55%)
+12. Sprint 12 - Gerenciamento de Mudancas (0%)
+13. Sprint 13 - CMDB e Itens de Configuracao (40%)
+14. Sprint 14 - Analise de impacto (10%)
+15. Sprint 15 - Gerenciamento de Problemas (5%)
+16. Sprint 16 - Pesquisa de satisfacao (0%)
+17. Sprint 17 - Monitoramento, eventos e Zabbix (10%)
+18. Sprint 18 - Base de Conhecimento 2.0 (50%)
+19. Sprint 19 - Homologacao institucional ITSM (85%)
+20. Sprint 20 - Produto, implantacao e operacao (35%)
+
+Observacao:
+- os percentuais seguem a referencia operacional: nao iniciado (0%), parcial (30% a 60%), evolucao planejada (0% a 20%), homologacao preparada (80% a 95%).
+
 ## Campos principais do item de roadmap
 
 - Area
@@ -109,6 +142,22 @@ Grupos sugeridos:
 - Documentacao
 - Homologacao
 - Producao
+- Seguranca
+- Implantacao
+- Governanca
+
+Regras operacionais do CRUD:
+- listagem ordenada por `Ordem`, depois `Grupo`, depois `Titulo`;
+- acao principal de remocao e `Inativar` (nao `Excluir`);
+- inativacao define `Ativo = false`, preserva historico e retira o item do calculo do percentual;
+- reativacao define `Ativo = true` e retorna o item ao calculo do percentual;
+- exclusao fisica permanece apenas como acao administrativa excepcional via endpoint tecnico;
+- apos criar, editar, concluir, reabrir, inativar ou reativar, a tela recarrega detalhe, checklist e lista principal.
+
+Auditoria esperada em checklist:
+- criacao, edicao, conclusao, reabertura, inativacao, reativacao e exclusao;
+- metadados com `checklistId`, `roadmapItemId`, `areaRoadmap` e `tituloChecklist`;
+- dados antes/depois quando aplicavel.
 
 ## CRUD de futuras implementacoes
 

@@ -7,5 +7,8 @@ public enum GrupoRoadmapChecklist
     Testes = 3,
     Documentacao = 4,
     Homologacao = 5,
-    Producao = 6
+    Producao = 6,
+    Seguranca = 7,
+    Implantacao = 8,
+    Governanca = 9
 }

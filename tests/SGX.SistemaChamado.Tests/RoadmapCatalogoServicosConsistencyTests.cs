@@ -16,7 +16,6 @@ public sealed class RoadmapCatalogoServicosConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var itens = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(x => Normalizar(x.Area) == "catalogo de servicos")
             .ToArray();
 

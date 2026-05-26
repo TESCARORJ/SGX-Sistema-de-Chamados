@@ -16,7 +16,6 @@ public sealed class RoadmapHistoricoAuditoriaChecklistConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var itensAtivos = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(x => Normalizar(x.Area) == "historicoauditoria")
             .ToArray();
 

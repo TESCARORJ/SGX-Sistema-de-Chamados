@@ -87,4 +87,7 @@ export const grupoChecklistLabels: Record<number, string> = {
   4: 'Documentação',
   5: 'Homologação',
   6: 'Produção',
+  7: 'Segurança',
+  8: 'Implantação',
+  9: 'Governança',
 }

@@ -14,7 +14,6 @@ public sealed class RoadmapBaseConhecimentoConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var itens = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(x => x.Area == "Base de conhecimento" && x.Categoria == "Conhecimento")
             .ToArray();
 

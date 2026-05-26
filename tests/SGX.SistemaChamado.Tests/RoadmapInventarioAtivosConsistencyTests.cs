@@ -24,7 +24,6 @@ public sealed class RoadmapInventarioAtivosConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var itensAtivos = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(EhCandidatoInventarioAtivos)
             .ToArray();
 
@@ -70,7 +69,6 @@ public sealed class RoadmapInventarioAtivosConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var duplicados = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(EhCandidatoInventarioAtivos)
             .OrderBy(x => x.CriadoEm)
             .ThenBy(x => x.Id)

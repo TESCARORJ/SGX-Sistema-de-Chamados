@@ -912,8 +912,8 @@ public sealed class ListarRoadmapChecklistPorItemUseCase(
         var itens = await checklistRepository.Query()
             .AsNoTracking()
             .Where(x => x.RoadmapItemId == roadmapItemId)
-            .OrderBy(x => x.Grupo)
-            .ThenBy(x => x.Ordem)
+            .OrderBy(x => x.Ordem)
+            .ThenBy(x => x.Grupo)
             .ThenBy(x => x.Titulo)
             .ToListAsync(cancellationToken);
 
@@ -1058,6 +1058,7 @@ public sealed class ConcluirRoadmapChecklistItemUseCase(
         var item = await checklistRepository.Query()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Checklist do roadmap nao encontrado.");
+        var dadosAntes = RoadmapItsmMaps.SerializarChecklistAuditoria(item);
 
         var roadmap = await roadmapRepository.Query()
             .Include(x => x.ChecklistItens)
@@ -1074,8 +1075,8 @@ public sealed class ConcluirRoadmapChecklistItemUseCase(
                 "RoadmapChecklistItem",
                 item.Id.ToString(),
                 "Checklist do roadmap concluido.",
-                dadosAntes: AuditoriaDiffHelper.SerializarSeguro(new { Concluido = false }),
-                dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new { Concluido = item.Concluido }),
+                dadosAntes: dadosAntes,
+                dadosDepois: RoadmapItsmMaps.SerializarChecklistAuditoria(item),
                 metadados: RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "ConclusaoChecklistRoadmap"),
                 cancellationToken: cancellationToken);
         }
@@ -1104,6 +1105,7 @@ public sealed class ReabrirRoadmapChecklistItemUseCase(
         var item = await checklistRepository.Query()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Checklist do roadmap nao encontrado.");
+        var dadosAntes = RoadmapItsmMaps.SerializarChecklistAuditoria(item);
 
         var roadmap = await roadmapRepository.Query()
             .Include(x => x.ChecklistItens)
@@ -1120,8 +1122,8 @@ public sealed class ReabrirRoadmapChecklistItemUseCase(
                 "RoadmapChecklistItem",
                 item.Id.ToString(),
                 "Checklist do roadmap reaberto.",
-                dadosAntes: AuditoriaDiffHelper.SerializarSeguro(new { Concluido = true }),
-                dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new { Concluido = item.Concluido }),
+                dadosAntes: dadosAntes,
+                dadosDepois: RoadmapItsmMaps.SerializarChecklistAuditoria(item),
                 metadados: RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "ReaberturaChecklistRoadmap"),
                 cancellationToken: cancellationToken);
         }
@@ -1150,6 +1152,7 @@ public sealed class InativarRoadmapChecklistItemUseCase(
         var item = await checklistRepository.Query()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Checklist do roadmap nao encontrado.");
+        var dadosAntes = RoadmapItsmMaps.SerializarChecklistAuditoria(item);
 
         var roadmap = await roadmapRepository.Query()
             .Include(x => x.ChecklistItens)
@@ -1161,13 +1164,17 @@ public sealed class InativarRoadmapChecklistItemUseCase(
 
         if (auditoriaService is not null)
         {
-            await auditoriaService.RegistrarInativacaoAsync(
-                "Roadmap ITSM",
-                "RoadmapChecklistItem",
-                item.Id.ToString(),
-                "Checklist do roadmap inativado.",
-                RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "InativacaoChecklistRoadmap"),
-                cancellationToken);
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Roadmap ITSM",
+                Entidade = "RoadmapChecklistItem",
+                EntidadeId = item.Id.ToString(),
+                Acao = TipoAcaoAuditoria.Inativacao,
+                Descricao = "Checklist do roadmap inativado.",
+                DadosAntes = dadosAntes,
+                DadosDepois = RoadmapItsmMaps.SerializarChecklistAuditoria(item),
+                Metadados = RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "InativacaoChecklistRoadmap")
+            }, cancellationToken);
         }
 
         return new AlterarSituacaoCadastroResponse(item.Id, false, "Checklist do roadmap inativado com sucesso.");
@@ -1239,6 +1246,7 @@ public sealed class ReativarRoadmapChecklistItemUseCase(
         var item = await checklistRepository.Query()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
             ?? throw new KeyNotFoundException("Checklist do roadmap nao encontrado.");
+        var dadosAntes = RoadmapItsmMaps.SerializarChecklistAuditoria(item);
 
         var roadmap = await roadmapRepository.Query()
             .Include(x => x.ChecklistItens)
@@ -1250,19 +1258,22 @@ public sealed class ReativarRoadmapChecklistItemUseCase(
 
         if (auditoriaService is not null)
         {
-            await auditoriaService.RegistrarAtivacaoAsync(
-                "Roadmap ITSM",
-                "RoadmapChecklistItem",
-                item.Id.ToString(),
-                "Checklist do roadmap reativado.",
-                RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "ReativacaoChecklistRoadmap"),
-                cancellationToken);
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Roadmap ITSM",
+                Entidade = "RoadmapChecklistItem",
+                EntidadeId = item.Id.ToString(),
+                Acao = TipoAcaoAuditoria.Ativacao,
+                Descricao = "Checklist do roadmap reativado.",
+                DadosAntes = dadosAntes,
+                DadosDepois = RoadmapItsmMaps.SerializarChecklistAuditoria(item),
+                Metadados = RoadmapItsmAuditoriaHelper.CriarMetadadosChecklist(item, roadmap, "ReativacaoChecklistRoadmap")
+            }, cancellationToken);
         }
 
         return new AlterarSituacaoCadastroResponse(item.Id, true, "Checklist do roadmap reativado com sucesso.");
     }
 }
-
 internal static class RoadmapCategoriaHelper
 {
     public static async Task<RoadmapCategoria?> ObterCategoriaValidaAsync(
@@ -1303,16 +1314,19 @@ internal static class RoadmapItsmAuditoriaHelper
             observacao: observacao);
 
     public static string CriarMetadadosChecklist(RoadmapChecklistItem checklist, RoadmapItsmItem item, string operacao, string? observacao = null)
-        => AuditoriaDiffHelper.CriarMetadadosPadrao(
-            origem: "api",
-            modulo: "Roadmap ITSM",
-            entidade: "RoadmapChecklistItem",
-            entidadeId: checklist.Id.ToString(),
-            codigo: item.Area,
-            nome: checklist.Titulo,
-            operacao: operacao,
-            resultado: "Sucesso",
-            observacao: observacao);
+        => AuditoriaDiffHelper.SerializarSeguro(new
+        {
+            origem = "api",
+            modulo = "Roadmap ITSM",
+            entidade = "RoadmapChecklistItem",
+            entidadeId = checklist.Id,
+            roadmapItemId = item.Id,
+            areaRoadmap = item.Area,
+            tituloChecklist = checklist.Titulo,
+            operacao,
+            resultado = "Sucesso",
+            observacao
+        }) ?? "{}";
 }
 
 internal static class RoadmapItsmMaps
@@ -1613,8 +1627,14 @@ internal static class RoadmapItsmMaps
         GrupoRoadmapChecklist.Documentacao => "Documentação",
         GrupoRoadmapChecklist.Homologacao => "Homologação",
         GrupoRoadmapChecklist.Producao => "Produção",
+        GrupoRoadmapChecklist.Seguranca => "Segurança",
+        GrupoRoadmapChecklist.Implantacao => "Implantação",
+        GrupoRoadmapChecklist.Governanca => "Governança",
         _ => value.ToString()
     };
 
 }
+
+
+
 

@@ -23,7 +23,6 @@ public sealed class RoadmapAprovacaoChamadosConsistencyTests
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var itensAtivos = context.RoadmapItsmItens
-            .Where(x => x.Ativo)
             .Where(EhCandidatoAprovacaoChamados)
             .OrderBy(x => x.CriadoEm)
             .ThenBy(x => x.Id)
