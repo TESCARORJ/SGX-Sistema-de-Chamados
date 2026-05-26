@@ -879,11 +879,11 @@ onMounted(async () => {
     </q-dialog>
 
     <q-dialog v-model="modalChecklistAberto">
-      <q-card style="min-width: 600px">
+      <q-card style="min-width: 720px; width: 820px; max-width: 92vw">
         <q-card-section class="text-h6">{{ modoChecklist === 'criar' ? 'Novo item do checklist' : 'Editar item do checklist' }}</q-card-section>
         <q-card-section class="row q-col-gutter-sm">
           <div class="col-12"><q-input v-model="formChecklist.titulo" outlined dense label="Título" /></div>
-          <div class="col-12"><q-input v-model="formChecklist.descricao" outlined dense autogrow label="Descrição" /></div>
+          <div class="col-12"><q-input v-model="formChecklist.descricao" class="checklist-descricao-textarea" outlined dense type="textarea" autogrow :rows="4" label="Descrição" /></div>
           <div class="col-12 col-md-4"><q-select v-model="formChecklist.grupo" outlined dense emit-value map-options :options="opcoesGrupoChecklist" label="Grupo" /></div>
           <div class="col-12 col-md-4"><q-input v-model.number="formChecklist.ordem" outlined dense type="number" label="Ordem" /></div>
           <div class="col-12 col-md-4"><q-toggle v-model="formChecklist.obrigatorio" label="Obrigatório" /></div>
@@ -938,6 +938,11 @@ onMounted(async () => {
   color: #000 !important;
   -webkit-text-fill-color: #000 !important;
   opacity: 1 !important;
+}
+
+.checklist-descricao-textarea :deep(textarea.q-field__native) {
+  min-height: 92px !important;
+  line-height: 1.35;
 }
 
 :deep(.q-table__middle) {
