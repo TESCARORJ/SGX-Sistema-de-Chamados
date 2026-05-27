@@ -184,6 +184,27 @@ public sealed class SlaServiceTests
     }
 
     [Fact]
+    public async Task StatusFinalEspecificoDeveEncerrarControleSla()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var service = SlaTestFactory.CriarService(context);
+        var (chamado, prioridade) = await CriarChamadoBaseAsync(context, PrioridadeChamadoEnum.Alta);
+
+        await CriarPoliticaAsync(context, "SLA Final Especifico", prioridade.Id, 60, 240, true);
+        var baseTime = DateTime.UtcNow;
+
+        await service.InicializarNaAberturaAsync(chamado, "teste", baseTime);
+
+        var statusEmAnalise = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAnalise);
+        var statusTratado = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Tratado);
+
+        await service.AplicarMudancaStatusAsync(chamado, statusEmAnalise, statusTratado, "teste", baseTime.AddMinutes(20));
+        await context.SaveChangesAsync();
+
+        Assert.NotNull(chamado.ChamadoSla?.DataResolucao);
+    }
+
+    [Fact]
     public async Task PoliticaEspecificaPrevaleceSobreGeral()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();

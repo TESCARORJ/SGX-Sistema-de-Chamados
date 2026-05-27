@@ -12,6 +12,7 @@ import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { relatoriosAvancadosAdminService } from '../services/relatoriosAvancadosAdminService'
 import { useAuthStore } from '../stores/authStore'
+import { NaturezaChamado } from '../types/portal'
 import type {
   FiltroRelatorioChamados,
   RelatorioAtendimentoProdutividade,
@@ -36,13 +37,14 @@ const categorias = ref<{ id: string; nome: string }[]>([])
 const prioridades = ref<{ id: string; nome: string }[]>([])
 const status = ref<{ id: string; nome: string }[]>([])
 
-const filtros = reactive<FiltroRelatorioChamados>({
+const filtros = reactive<FiltroRelatorioChamados & { naturezaChamado: '' | NaturezaChamado }>({
   dataInicial: '',
   dataFinal: '',
   departamentoId: '',
   categoriaId: '',
   prioridadeId: '',
   statusId: '',
+  naturezaChamado: '',
   limiteRanking: 10,
   agruparPor: 1,
   agrupamento: 1,
@@ -66,6 +68,7 @@ const opcoesAgruparPor = [
   { label: 'Prioridade', value: 2 },
   { label: 'Departamento', value: 3 },
   { label: 'Categoria', value: 4 },
+  { label: 'Natureza ITSM', value: 9 },
 ]
 
 const opcoesAgrupamento = [
@@ -95,6 +98,23 @@ const colunasProdutividade = [
   { name: 'percentualConclusao', label: '% conclusao', field: 'percentualConclusao', align: 'right' as const },
 ]
 
+const colunasNatureza = [
+  { name: 'nome', label: 'Natureza', field: 'nome', align: 'left' as const },
+  { name: 'quantidade', label: 'Quantidade', field: 'quantidade', align: 'right' as const },
+  { name: 'percentual', label: 'Percentual', field: 'percentual', align: 'right' as const },
+]
+
+const opcoesNatureza = [
+  { label: 'Incidente', value: NaturezaChamado.Incidente },
+  { label: 'Requisicao', value: NaturezaChamado.Requisicao },
+  { label: 'Mudanca', value: NaturezaChamado.Mudanca },
+  { label: 'Problema', value: NaturezaChamado.Problema },
+  { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
+  { label: 'Tarefa operacional', value: NaturezaChamado.TarefaOperacional },
+]
+
+const totalPorNatureza = computed(() => resumo.value?.totalPorNatureza ?? [])
+
 const semResultados = computed(() => {
   return (
     !resumo.value ||
@@ -114,6 +134,7 @@ function construirFiltros(): FiltroRelatorioChamados {
     categoriaId: filtros.categoriaId || undefined,
     prioridadeId: filtros.prioridadeId || undefined,
     statusId: filtros.statusId || undefined,
+    naturezaChamado: filtros.naturezaChamado || undefined,
     limiteRanking: filtros.limiteRanking || undefined,
     agruparPor: filtros.agruparPor || undefined,
     agrupamento: filtros.agrupamento || undefined,
@@ -127,6 +148,7 @@ function limparFiltros(): void {
   filtros.categoriaId = ''
   filtros.prioridadeId = ''
   filtros.statusId = ''
+  filtros.naturezaChamado = ''
   filtros.limiteRanking = 10
   filtros.agruparPor = 1
   filtros.agrupamento = 1
@@ -196,6 +218,7 @@ function exportarDados(): void {
     { grupo: 'Resumo', indicador: 'Total encerrados', valor: resumo.value.totalEncerradosOuConcluidos },
     { grupo: 'Resumo', indicador: 'Total cancelados', valor: resumo.value.totalCancelados },
     { grupo: 'Resumo', indicador: 'Total reabertos', valor: resumo.value.totalReabertos },
+    ...resumo.value.totalPorNatureza.map((item) => ({ grupo: 'Natureza ITSM', indicador: item.nome, valor: item.quantidade })),
     ...((distribuicao.value?.itens ?? []).map((item) => ({ grupo: 'Distribuicao', indicador: item.nome, valor: item.quantidade }))),
     ...((serieTemporal.value?.itens ?? []).map((item) => ({ grupo: 'Serie temporal', indicador: item.periodo, valor: item.abertos + item.encerrados + item.reabertos }))),
   ]
@@ -282,6 +305,18 @@ onMounted(async () => {
             </div>
             <div class="col-12 col-md-2">
               <q-select
+                v-model="filtros.naturezaChamado"
+                outlined
+                dense
+                clearable
+                emit-value
+                map-options
+                label="Natureza ITSM"
+                :options="opcoesNatureza"
+              />
+            </div>
+            <div class="col-12 col-md-2">
+              <q-select
                 v-model="filtros.statusId"
                 outlined
                 dense
@@ -330,6 +365,25 @@ onMounted(async () => {
             titulo="Sem serie temporal"
             mensagem="Nao ha pontos de serie temporal para os filtros aplicados."
             icon="timeline"
+          />
+        </AppSectionCard>
+
+        <AppSectionCard titulo="Consolidado por natureza ITSM" :subtitulo="`Naturezas monitoradas: ${totalPorNatureza.length}`">
+          <q-table v-if="totalPorNatureza.length" class="sgx-table" flat bordered :rows="totalPorNatureza" :columns="colunasNatureza" row-key="chave" hide-pagination>
+            <template #body-cell-nome="props">
+              <q-td :props="props">
+                <StatusBadge :texto="props.row.nome" />
+              </q-td>
+            </template>
+            <template #body-cell-percentual="props">
+              <q-td :props="props" class="text-right">{{ props.row.percentual === null ? '-' : `${Number(props.row.percentual).toFixed(2)}%` }}</q-td>
+            </template>
+          </q-table>
+          <EmptyState
+            v-else
+            titulo="Sem consolidado por natureza"
+            mensagem="Nao ha dados por natureza ITSM para os filtros aplicados."
+            icon="category"
           />
         </AppSectionCard>
 

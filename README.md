@@ -198,6 +198,7 @@ Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarn
 - `docs/IMPLANTACAO-CLOUD.md`
 - `docs/IMPLANTACAO-ON-PREMISES.md`
 - `docs/IMPLANTACAO-HIBRIDA.md`
+- `docs/NATUREZA-CHAMADO-ITSM.md`
 - `docs/CONFIGURACAO-AZURE-AD.md`
 - `docs/ROADMAP.md`
 - `docs/ROADMAP-ITSM.md`

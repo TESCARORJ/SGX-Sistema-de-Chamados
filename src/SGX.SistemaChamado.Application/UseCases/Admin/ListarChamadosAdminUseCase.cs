@@ -39,6 +39,11 @@ public sealed class ListarChamadosAdminUseCase(
             .Where(x => x.Ativo)
             .AsQueryable();
 
+        if (request.NaturezaChamado.HasValue)
+        {
+            query = query.Where(x => x.NaturezaChamado == request.NaturezaChamado.Value);
+        }
+
         if (request.StatusId.HasValue)
         {
             query = query.Where(x => x.StatusId == request.StatusId.Value);

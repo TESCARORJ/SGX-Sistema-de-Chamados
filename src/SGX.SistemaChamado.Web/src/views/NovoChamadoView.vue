@@ -11,13 +11,16 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import { catalogoServicosPortalService } from '../services/catalogoServicosPortalService'
 import { portalService } from '../services/portalService'
 import type { PortalPrepararChamadoCatalogoServico } from '../types/catalogoServicos'
-import type {
-  CategoriaPortal,
-  DepartamentoPortal,
-  LocalUnidadePortal,
-  PrioridadePortal,
-  SubcategoriaPortal,
-  TipoSolicitacaoPortal,
+import {
+  ImpactoChamado,
+  NaturezaChamado,
+  UrgenciaChamado,
+  type CategoriaPortal,
+  type DepartamentoPortal,
+  type LocalUnidadePortal,
+  type PrioridadePortal,
+  type SubcategoriaPortal,
+  type TipoSolicitacaoPortal,
 } from '../types/portal'
 
 const EXTENSOES_PADRAO = ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.doc', '.docx', '.xls', '.xlsx']
@@ -57,7 +60,63 @@ const extensoesPermitidas = ref<string[]>(EXTENSOES_PADRAO)
 const tamanhoMaximoAnexoBytes = ref<number | null>(null)
 const servicoSelecionado = ref<PortalPrepararChamadoCatalogoServico | null>(null)
 
+type OrientacaoNaturezaConfig = {
+  descricao: string
+  obrigatoriedades: string[]
+}
+
+const ORIENTACOES_NATUREZA: Record<NaturezaChamado, OrientacaoNaturezaConfig> = {
+  [NaturezaChamado.Incidente]: {
+    descricao: 'Use para falha, erro, indisponibilidade, lentidao ou interrupcao de servico.',
+    obrigatoriedades: ['Titulo', 'Descricao', 'Impacto', 'Urgencia'],
+  },
+  [NaturezaChamado.Requisicao]: {
+    descricao: 'Use para solicitacao de servico, acesso, informacao ou atendimento padrao.',
+    obrigatoriedades: ['Titulo', 'Descricao', 'Classificacao (Categoria/Tipo/Catalogo)'],
+  },
+  [NaturezaChamado.Mudanca]: {
+    descricao: 'Use para alteracao planejada em sistema, infraestrutura, configuracao ou processo.',
+    obrigatoriedades: ['Titulo', 'Descricao detalhada', 'Impacto', 'Urgencia'],
+  },
+  [NaturezaChamado.Problema]: {
+    descricao: 'Use para analise de causa raiz, falhas recorrentes ou problemas repetitivos.',
+    obrigatoriedades: ['Titulo', 'Descricao com evidencias/recorrencia', 'Impacto', 'Urgencia'],
+  },
+  [NaturezaChamado.EventoAlerta]: {
+    descricao: 'Use para evento monitorado, alerta tecnico ou notificacao automatica.',
+    obrigatoriedades: ['Titulo', 'Descricao', 'Impacto', 'Urgencia'],
+  },
+  [NaturezaChamado.TarefaOperacional]: {
+    descricao: 'Use para atividade interna, rotina operacional ou execucao tecnica controlada.',
+    obrigatoriedades: ['Titulo', 'Descricao', 'Impacto', 'Urgencia'],
+  },
+}
+
+const opcoesNatureza = [
+  { label: 'Incidente', value: NaturezaChamado.Incidente },
+  { label: 'Requisicao', value: NaturezaChamado.Requisicao },
+  { label: 'Mudanca', value: NaturezaChamado.Mudanca },
+  { label: 'Problema', value: NaturezaChamado.Problema },
+  { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
+  { label: 'Tarefa Operacional', value: NaturezaChamado.TarefaOperacional },
+]
+
+const opcoesImpacto = [
+  { label: 'Baixo', value: ImpactoChamado.Baixo },
+  { label: 'Medio', value: ImpactoChamado.Medio },
+  { label: 'Alto', value: ImpactoChamado.Alto },
+]
+
+const opcoesUrgencia = [
+  { label: 'Baixa', value: UrgenciaChamado.Baixa },
+  { label: 'Media', value: UrgenciaChamado.Media },
+  { label: 'Alta', value: UrgenciaChamado.Alta },
+]
+
 const form = reactive({
+  naturezaChamado: null as NaturezaChamado | null,
+  impactoChamado: null as ImpactoChamado | null,
+  urgenciaChamado: null as UrgenciaChamado | null,
   titulo: '',
   descricao: '',
   catalogoServicoId: null as string | null,
@@ -72,6 +131,9 @@ const form = reactive({
 
 const exibirDepartamento = computed(() => departamentos.value.length > 0)
 const aberturaPorCatalogo = computed(() => Boolean(form.catalogoServicoId))
+const orientacaoNaturezaSelecionada = computed(() =>
+  form.naturezaChamado ? ORIENTACOES_NATUREZA[form.naturezaChamado] : null
+)
 
 const opcoesDepartamento = computed(() =>
   departamentos.value.map((item) => ({
@@ -211,6 +273,23 @@ function registrarErroAnexo(message: string): void {
   erroAnexo.value = message
 }
 
+function extrairMensagemErro(error: unknown, fallback: string): string {
+  if (!(error instanceof Error)) {
+    return fallback
+  }
+
+  const mensagem = error.message?.trim()
+  if (!mensagem) {
+    return fallback
+  }
+
+  if (mensagem.includes('Request failed with status code') || mensagem.includes('Network Error')) {
+    return fallback
+  }
+
+  return mensagem
+}
+
 function removerAnexo(index: number): void {
   anexosPendentes.value = anexosPendentes.value.filter((_, idx) => idx !== index)
 }
@@ -227,6 +306,11 @@ async function salvar(): Promise<void> {
     return
   }
 
+  if (form.naturezaChamado === null || form.impactoChamado === null || form.urgenciaChamado === null) {
+    erroSalvar.value = 'Selecione natureza, impacto e urgencia para abrir o chamado.'
+    return
+  }
+
   salvando.value = true
 
   try {
@@ -240,6 +324,9 @@ async function salvar(): Promise<void> {
       categoriaId: form.categoriaId ?? undefined,
       subcategoriaId: form.subcategoriaId ?? undefined,
       prioridadeId: form.prioridadeId ?? undefined,
+      naturezaChamado: form.naturezaChamado,
+      impactoChamado: form.impactoChamado,
+      urgenciaChamado: form.urgenciaChamado,
       tipoSolicitacaoId: form.tipoSolicitacaoId ?? undefined,
       localUnidadeId: form.localUnidadeId ?? undefined,
     })
@@ -267,8 +354,8 @@ async function salvar(): Promise<void> {
     }
 
     await router.replace(`/portal/chamados/${chamado.id}`)
-  } catch {
-    erroSalvar.value = 'Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.'
+  } catch (error) {
+    erroSalvar.value = extrairMensagemErro(error, 'Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.')
   } finally {
     salvando.value = false
   }
@@ -309,7 +396,7 @@ onMounted(async () => {
 
     <q-form v-else ref="formRef" class="column q-gutter-md" @submit.prevent="salvar">
       <q-banner v-if="erroSalvar" rounded class="bg-negative text-white">
-        Nao foi possivel abrir o chamado. Verifique os dados e tente novamente.
+        {{ erroSalvar }}
       </q-banner>
       <q-banner v-if="!servicoSelecionado" rounded class="bg-blue-1 text-primary">
         Dica: se preferir, abra chamados pelo Catalogo de Servicos para herdar categoria e prioridade padrao.
@@ -318,7 +405,7 @@ onMounted(async () => {
       <AppSectionCard titulo="Dados da solicitacao" subtitulo="Preencha os campos obrigatorios para abrir o chamado.">
         <div class="column q-gutter-md">
           <q-banner rounded class="bg-grey-1 text-grey-9">
-            Informe o titulo com objetividade, descreva impacto e inclua detalhes tecnicos relevantes para agilizar o atendimento.
+            O backend valida as regras finais de ITSM. Este formulario ajuda na classificacao correta antes do envio.
           </q-banner>
 
           <q-banner v-if="servicoSelecionado" rounded class="bg-blue-1 text-primary">
@@ -338,8 +425,68 @@ onMounted(async () => {
           </q-banner>
 
           <div class="sgx-form-group">
-            <div class="text-subtitle2 text-weight-semibold">Resumo do incidente</div>
-            <div class="text-caption sgx-muted">Campos obrigatorios para direcionamento inicial.</div>
+            <div class="text-subtitle2 text-weight-semibold">Classificacao ITSM</div>
+            <div class="text-caption sgx-muted">Selecione natureza, impacto e urgencia para direcionar o atendimento.</div>
+
+            <div class="row q-col-gutter-md">
+              <div class="col-12 col-md-6">
+                <q-select
+                  v-model="form.naturezaChamado"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Natureza do chamado *"
+                  :options="opcoesNatureza"
+                  :rules="[(v) => !!v || 'Natureza do chamado obrigatoria']"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.impactoChamado"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Impacto *"
+                  :options="opcoesImpacto"
+                  :rules="[(v) => !!v || 'Impacto obrigatorio']"
+                />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.urgenciaChamado"
+                  outlined
+                  emit-value
+                  map-options
+                  label="Urgencia *"
+                  :options="opcoesUrgencia"
+                  :rules="[(v) => !!v || 'Urgencia obrigatoria']"
+                />
+              </div>
+            </div>
+
+            <q-banner v-if="orientacaoNaturezaSelecionada" rounded class="bg-blue-1 text-primary">
+              <div class="text-body2">{{ orientacaoNaturezaSelecionada.descricao }}</div>
+              <div class="text-caption q-mt-xs">
+                Campos minimos: {{ orientacaoNaturezaSelecionada.obrigatoriedades.join(' | ') }}
+              </div>
+            </q-banner>
+
+            <q-banner v-else rounded class="bg-grey-1 text-grey-8">
+              Selecione a natureza para visualizar orientacoes de preenchimento por tipo de chamado.
+            </q-banner>
+
+            <div class="text-caption sgx-muted">
+              A prioridade final e calculada no backend com base em impacto e urgencia.
+            </div>
+          </div>
+
+          <q-separator />
+
+          <div class="sgx-form-group">
+            <div class="text-subtitle2 text-weight-semibold">Dados do chamado</div>
+            <div class="text-caption sgx-muted">Registre titulo objetivo e detalhes suficientes para triagem.</div>
 
             <q-input
               v-model="form.titulo"
@@ -365,8 +512,8 @@ onMounted(async () => {
           <q-separator />
 
           <div class="sgx-form-group">
-            <div class="text-subtitle2 text-weight-semibold">Classificacao e prioridade</div>
-            <div class="text-caption sgx-muted">Defina categoria, subcategoria e nivel de urgencia.</div>
+            <div class="text-subtitle2 text-weight-semibold">Classificacao operacional</div>
+            <div class="text-caption sgx-muted">Categoria, tipo e contexto organizacional ajudam no roteamento interno.</div>
 
             <div class="row q-col-gutter-md">
               <div v-if="exibirDepartamento" class="col-12 col-md-4">
@@ -421,16 +568,7 @@ onMounted(async () => {
                   :disable="aberturaPorCatalogo"
                 />
               </div>
-            </div>
-          </div>
 
-          <q-separator />
-
-          <div class="sgx-form-group">
-            <div class="text-subtitle2 text-weight-semibold">Contexto complementar</div>
-            <div class="text-caption sgx-muted">Informacoes opcionais para direcionamento por fila e unidade.</div>
-
-            <div class="row q-col-gutter-md">
               <div class="col-12 col-md-6">
                 <q-select
                   v-model="form.tipoSolicitacaoId"
@@ -455,6 +593,10 @@ onMounted(async () => {
                 />
               </div>
             </div>
+
+            <q-banner rounded class="bg-grey-1 text-grey-8">
+              Para Requisicao, garanta ao menos uma classificacao (Categoria, Tipo de solicitacao ou Catalogo).
+            </q-banner>
           </div>
         </div>
       </AppSectionCard>

@@ -1,6 +1,7 @@
 ﻿using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -31,6 +32,18 @@ public sealed class ReabrirChamadoUseCaseTests
         await useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrindo" });
 
         Assert.Contains(context.HistoricosChamado, x => x.Tipo == TipoHistoricoChamado.Reaberto);
+    }
+
+    [Fact]
+    public async Task ReabreChamadoComStatusFinalEspecificoDaNatureza()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedFinalAsync(context, NaturezaChamadoEnum.EventoAlerta, StatusChamadoEnum.Tratado, "REA3");
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrindo evento" });
+
+        Assert.Equal("Em Analise", response.Status);
     }
 
     [Fact]
@@ -80,17 +93,33 @@ public sealed class ReabrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
             PortalUseCasesTestFactory.Repo<ComentarioChamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(contexto),
             PortalUseCasesTestFactory.Uow(context));
 
     private static async Task<(Chamado Chamado, UsuarioContextoAplicacao AdminContexto)> SeedEncerradoAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
+        return await SeedFinalAsync(context, NaturezaChamadoEnum.Requisicao, StatusChamadoEnum.Encerrado, "REA1");
+    }
+
+    private static async Task<(Chamado Chamado, UsuarioContextoAplicacao AdminContexto)> SeedFinalAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        NaturezaChamadoEnum naturezaChamado,
+        StatusChamadoEnum statusFinal,
+        string sufixoCodigo)
+    {
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "admin@empresa.com", TipoPerfil.Administrador);
         var solicitante = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante", "sol@empresa.com", TipoPerfil.Solicitante);
         var categoria = await AdminUseCasesTestFactory.CriarCategoriaAsync(context, "Infra");
-        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante, categoria, StatusChamadoEnum.Encerrado, null, "REA1");
-        chamado.Encerrar(context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Encerrado).Id, "teste");
+        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante, categoria, statusFinal, null, sufixoCodigo, naturezaChamado: naturezaChamado);
+
+        if (statusFinal == StatusChamadoEnum.Encerrado)
+        {
+            chamado.Encerrar(context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Encerrado).Id, "teste");
+        }
+
         context.Chamados.Update(chamado);
         await context.SaveChangesAsync();
 

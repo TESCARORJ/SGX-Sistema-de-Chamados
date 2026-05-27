@@ -20,6 +20,9 @@ public sealed class Chamado : AuditableEntity
     public Guid? InventarioAtivoId { get; private set; }
     public Guid StatusId { get; private set; }
     public OrigemChamado Origem { get; private set; }
+    public NaturezaChamadoEnum NaturezaChamado { get; private set; } = NaturezaChamadoEnum.Requisicao;
+    public ImpactoChamadoEnum ImpactoChamado { get; private set; } = ImpactoChamadoEnum.Baixo;
+    public UrgenciaChamadoEnum UrgenciaChamado { get; private set; } = UrgenciaChamadoEnum.Baixa;
     public DateTime AbertoEm { get; private set; }
     public DateTime? EncerradoEm { get; private set; }
 
@@ -62,7 +65,10 @@ public sealed class Chamado : AuditableEntity
         Guid? tipoSolicitacaoId = null,
         Guid? localUnidadeId = null,
         Guid? catalogoServicoId = null,
-        Guid? inventarioAtivoId = null)
+        Guid? inventarioAtivoId = null,
+        NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao,
+        ImpactoChamadoEnum impactoChamado = ImpactoChamadoEnum.Baixo,
+        UrgenciaChamadoEnum urgenciaChamado = UrgenciaChamadoEnum.Baixa)
     {
         DefinirCodigo(codigo);
         DefinirTitulo(titulo);
@@ -93,11 +99,29 @@ public sealed class Chamado : AuditableEntity
             throw new ArgumentException("O servico de catalogo informado e invalido.", nameof(catalogoServicoId));
         }
 
+        if (!Enum.IsDefined(naturezaChamado))
+        {
+            throw new ArgumentException("A natureza do chamado informada e invalida.", nameof(naturezaChamado));
+        }
+
+        if (!Enum.IsDefined(impactoChamado))
+        {
+            throw new ArgumentException("O impacto do chamado informado e invalido.", nameof(impactoChamado));
+        }
+
+        if (!Enum.IsDefined(urgenciaChamado))
+        {
+            throw new ArgumentException("A urgencia do chamado informada e invalida.", nameof(urgenciaChamado));
+        }
+
         SolicitanteId = solicitanteId;
         CategoriaId = categoriaId;
         PrioridadeId = prioridadeId;
         StatusId = statusId;
         Origem = origem;
+        NaturezaChamado = naturezaChamado;
+        ImpactoChamado = impactoChamado;
+        UrgenciaChamado = urgenciaChamado;
         DepartamentoId = departamentoId;
         SubcategoriaId = subcategoriaId;
         TipoSolicitacaoId = tipoSolicitacaoId;
@@ -168,6 +192,23 @@ public sealed class Chamado : AuditableEntity
         }
 
         PrioridadeId = prioridadeId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void AlterarImpactoEUrgencia(ImpactoChamadoEnum impactoChamado, UrgenciaChamadoEnum urgenciaChamado, string atualizadoPor)
+    {
+        if (!Enum.IsDefined(impactoChamado))
+        {
+            throw new ArgumentException("O impacto do chamado informado e invalido.", nameof(impactoChamado));
+        }
+
+        if (!Enum.IsDefined(urgenciaChamado))
+        {
+            throw new ArgumentException("A urgencia do chamado informada e invalida.", nameof(urgenciaChamado));
+        }
+
+        ImpactoChamado = impactoChamado;
+        UrgenciaChamado = urgenciaChamado;
         AtualizarAuditoria(atualizadoPor);
     }
 

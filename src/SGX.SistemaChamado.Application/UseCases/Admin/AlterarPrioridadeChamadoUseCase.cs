@@ -15,6 +15,7 @@ public sealed class AlterarPrioridadeChamadoUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<PrioridadeChamado> prioridadeRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    IAcoesChamadoService acoesChamadoService,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
@@ -38,6 +39,8 @@ public sealed class AlterarPrioridadeChamadoUseCase(
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+
+        acoesChamadoService.ValidarAcaoDisponivel(chamado, AcaoChamadoEnum.AlterarPrioridade, usuario);
         var prioridadeAnterior = chamado.Prioridade?.Nome;
 
         var prioridade = await prioridadeRepository.Query()

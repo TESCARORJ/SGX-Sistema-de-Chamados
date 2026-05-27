@@ -43,7 +43,7 @@ type OpcoesSanitizacaoFiltros = {
 }
 
 const GUID_VAZIO = '00000000-0000-0000-0000-000000000000'
-const CHAVES_ENUM_PADRAO = ['agrupamento', 'agruparPor'] as const
+const CHAVES_ENUM_PADRAO = ['agrupamento', 'agruparPor', 'naturezaChamado'] as const
 
 function normalizarNomeParametro(chave: string): string {
   if (!chave) {

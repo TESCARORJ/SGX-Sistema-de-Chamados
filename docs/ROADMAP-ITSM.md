@@ -13,29 +13,127 @@ Diretriz central da trilha:
 - a natureza deve influenciar fluxo, status, campos obrigatorios, SLA, prioridade, impacto, urgencia, aprovacoes, permissoes, notificacoes, auditoria e relatorios.
 
 Sprints consolidadas:
-1. Sprint 1 - Fundacao ITSM do chamado (45%)
-2. Sprint 2 - Gerenciamento de Incidentes (40%)
-3. Sprint 3 - Gerenciamento de Requisicoes (45%)
-4. Sprint 4 - Catalogo de Servicos 2.0 (60%)
-5. Sprint 5 - Grupos tecnicos, filas e atribuicao (10%)
-6. Sprint 6 - Observadores de chamados (0%)
-7. Sprint 7 - Motor de Aprovacoes ITSM (55%)
-8. Sprint 8 - SLA 2.0, OLA e matriz impacto x urgencia (60%)
-9. Sprint 9 - Regras de fechamento, aceite e reabertura (50%)
-10. Sprint 10 - Notificacoes ITSM (15%)
-11. Sprint 11 - Relatorios ITSM avancados (55%)
-12. Sprint 12 - Gerenciamento de Mudancas (0%)
-13. Sprint 13 - CMDB e Itens de Configuracao (40%)
-14. Sprint 14 - Analise de impacto (10%)
-15. Sprint 15 - Gerenciamento de Problemas (5%)
-16. Sprint 16 - Pesquisa de satisfacao (0%)
-17. Sprint 17 - Monitoramento, eventos e Zabbix (10%)
-18. Sprint 18 - Base de Conhecimento 2.0 (50%)
-19. Sprint 19 - Homologacao institucional ITSM (85%)
-20. Sprint 20 - Produto, implantacao e operacao (35%)
+1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
+2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
+3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
+4. Sprint 4 - Motor de Aprovacoes ITSM (50% - Implementado funcionalmente)
+5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
+6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
+7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
+8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
+9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
+10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
+11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
+12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
+13. Sprint 13 - Analise de impacto (25% - Planejado)
+14. Sprint 14 - SLA 2.0, OLA e matriz impacto x urgencia (50% - Implementado funcionalmente)
+15. Sprint 15 - Observadores de chamados (25% - Nao iniciado)
+16. Sprint 16 - Monitoramento, eventos e Zabbix (25% - Planejado)
+17. Sprint 17 - Relatorios ITSM avancados (50% - Implementado funcionalmente)
+18. Sprint 18 - Base de Conhecimento 2.0 (50% - Implementado funcionalmente)
+19. Sprint 19 - Pesquisa de satisfacao (25% - Nao iniciado)
+20. Sprint 20 - Homologacao institucional ITSM (75% - Em homologacao)
+21. Sprint 21 - Produto, implantacao e operacao (25% - Em desenvolvimento)
 
 Observacao:
 - os percentuais seguem a referencia operacional: nao iniciado (0%), parcial (30% a 60%), evolucao planejada (0% a 20%), homologacao preparada (80% a 95%).
+
+### Quadro resumido da ordem atual
+
+| Sprint | Area | Status | Avaliacao | Progresso |
+|---|---|---|---|---|
+| Sprint 1 - Fundacao ITSM do chamado | ITIL/ITSM | Implementado e validado | Concluido | 100% |
+| Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 10 - Gerenciamento de Mudancas | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
+| Sprint 11 - Gerenciamento de Problemas | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 12 - CMDB e Itens de Configuracao | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 13 - Analise de impacto | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 14 - SLA 2.0, OLA e matriz impacto x urgencia | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 15 - Observadores de chamados | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
+| Sprint 16 - Monitoramento, eventos e Zabbix | ITIL/ITSM | Planejado | Nao avaliado | 25% |
+| Sprint 17 - Relatorios ITSM avancados | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 18 - Base de Conhecimento 2.0 | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 19 - Pesquisa de satisfacao | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
+| Sprint 20 - Homologacao institucional ITSM | ITIL/ITSM | Em homologacao | Homologacao funcional preparada | 75% |
+| Sprint 21 - Produto, implantacao e operacao | ITIL/ITSM | Em desenvolvimento | Parcial | 25% |
+
+## Atualizacao 2026-05-27 - Consolidacao da Fundacao ITSM
+
+- Sprint 1 (Fundacao ITSM do chamado) consolidada como implementada e validada.
+- Evidencias centralizadas em:
+  - `docs/FUNDACAO-ITSM-CHAMADO.md`
+  - `docs/APRESENTACAO-FUNDACAO-ITSM-DIRETORIA.md`
+  - `docs/PROXIMAS-EVOLUCOES-ITSM.md`
+
+## Atualizacao 2026-05-27 - Reorganizacao estrategica da ordem das sprints ITSM
+
+- A numeracao das sprints ITSM foi reorganizada apos a conclusao da Fundacao ITSM para refletir melhor sequencia de evolucao do produto.
+- A reorganizacao nao altera funcionalidades implementadas; altera apenas a ordem estrategica do roadmap.
+- Sprint 1 permanece inalterada: Fundacao ITSM do chamado, 100%, implementada e validada.
+- Nova Sprint 2: Relacionamentos, dependencias e orquestracao ITSM.
+
+### Rastreabilidade de renumeracao (ordem anterior -> ordem atual)
+
+| Ordem anterior | Nome anterior | Ordem atual | Nome atual |
+|---|---|---|---|
+| Sprint 1 | Fundacao ITSM do chamado | Sprint 1 | Fundacao ITSM do chamado |
+| Sprint 5 | Grupos tecnicos, filas e atribuicao | Sprint 3 | Grupos tecnicos, filas e atribuicao |
+| Sprint 7 | Motor de Aprovacoes ITSM | Sprint 4 | Motor de Aprovacoes ITSM |
+| Sprint 9 | Regras de fechamento, aceite e reabertura | Sprint 5 | Regras de fechamento, aceite e reabertura |
+| Sprint 10 | Notificacoes ITSM | Sprint 6 | Notificacoes ITSM |
+| Sprint 3 | Gerenciamento de Requisicoes | Sprint 7 | Gerenciamento de Requisicoes |
+| Sprint 4 | Catalogo de Servicos 2.0 | Sprint 8 | Catalogo de Servicos 2.0 |
+| Sprint 2 | Gerenciamento de Incidentes | Sprint 9 | Gerenciamento de Incidentes |
+| Sprint 12 | Gerenciamento de Mudancas | Sprint 10 | Gerenciamento de Mudancas |
+| Sprint 15 | Gerenciamento de Problemas | Sprint 11 | Gerenciamento de Problemas |
+| Sprint 13 | CMDB e Itens de Configuracao | Sprint 12 | CMDB e Itens de Configuracao |
+| Sprint 14 | Analise de impacto | Sprint 13 | Analise de impacto |
+| Sprint 8 | SLA 2.0, OLA e matriz impacto x urgencia | Sprint 14 | SLA 2.0, OLA e matriz impacto x urgencia |
+| Sprint 6 | Observadores de chamados | Sprint 15 | Observadores de chamados |
+| Sprint 17 | Monitoramento, eventos e Zabbix | Sprint 16 | Monitoramento, eventos e Zabbix |
+| Sprint 11 | Relatorios ITSM avancados | Sprint 17 | Relatorios ITSM avancados |
+| Sprint 18 | Base de Conhecimento 2.0 | Sprint 18 | Base de Conhecimento 2.0 |
+| Sprint 16 | Pesquisa de satisfacao | Sprint 19 | Pesquisa de satisfacao |
+| Sprint 19 | Homologacao institucional ITSM | Sprint 20 | Homologacao institucional ITSM |
+| Sprint 20 | Produto, implantacao e operacao | Sprint 21 | Produto, implantacao e operacao |
+
+### Nova Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM
+
+Objetivo:
+- Permitir relacionamento e orquestracao entre chamados ITSM, com dependencias, derivacoes e tarefas vinculadas.
+
+Entregas previstas:
+- Criar relacionamento entre chamados.
+- Permitir vincular chamados relacionados.
+- Permitir indicar dependencia entre chamados.
+- Permitir que um chamado gere outro chamado relacionado.
+- Permitir que incidente gere problema.
+- Permitir que problema gere mudanca.
+- Permitir que requisicao acione aprovacao.
+- Permitir que mudanca acione planejamento.
+- Permitir tarefas vinculadas ao chamado principal.
+- Exibir relacionamentos no detalhe administrativo do chamado.
+- Registrar historico de vinculos, derivacoes e dependencias.
+- Preparar base para Gerenciamento de Mudancas, Problemas, CMDB, Analise de Impacto e Eventos.
+
+Tipos de relacionamento previstos:
+- Relacionado a
+- Depende de
+- Bloqueia
+- Gerou
+- Gerado por
+- Causado por
+- Resolvido por
+- Duplicado de
+- Convertido para
+- Convertido de
 
 ## Campos principais do item de roadmap
 

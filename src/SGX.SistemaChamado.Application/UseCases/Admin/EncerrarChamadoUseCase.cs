@@ -17,6 +17,8 @@ public sealed class EncerrarChamadoUseCase(
     IRepository<StatusChamado> statusRepository,
     IRepository<ComentarioChamado> comentarioRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    IFluxoStatusChamadoService fluxoStatusChamadoService,
+    IAcoesChamadoService acoesChamadoService,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
@@ -42,6 +44,8 @@ public sealed class EncerrarChamadoUseCase(
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 
+        acoesChamadoService.ValidarAcaoDisponivel(chamado, AcaoChamadoEnum.Encerrar, usuario);
+
         var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
         if (estadoAprovacao.BloqueiaAvancoAtendimento)
         {
@@ -57,6 +61,8 @@ public sealed class EncerrarChamadoUseCase(
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Ativo && x.Codigo == StatusChamadoEnum.Encerrado, cancellationToken)
             ?? throw new InvalidOperationException("Status Encerrado nao configurado.");
+
+        fluxoStatusChamadoService.ValidarStatusPermitido(chamado.NaturezaChamado, statusEncerrado.Codigo);
 
         chamado.Encerrar(statusEncerrado.Id, usuario.Login);
         await slaService.RegistrarEncerramentoAsync(chamado, usuario.Login, DateTime.UtcNow);

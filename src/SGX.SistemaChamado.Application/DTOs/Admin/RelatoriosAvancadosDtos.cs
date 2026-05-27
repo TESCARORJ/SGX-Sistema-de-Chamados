@@ -1,4 +1,6 @@
-﻿namespace SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Domain.Enums;
+
+namespace SGX.SistemaChamado.Application.DTOs.Admin;
 
 public class FiltroPeriodoRelatorioRequest
 {
@@ -29,6 +31,7 @@ public sealed class FiltroRelatorioChamadosRequest : FiltroPeriodoRelatorioReque
     public Guid? CatalogoServicoId { get; init; }
     public Guid? InventarioAtivoId { get; init; }
     public string? Origem { get; init; }
+    public NaturezaChamadoEnum? NaturezaChamado { get; init; }
     public bool? ApenasAtivos { get; init; } = true;
     public AgrupamentoRelatorio Agrupamento { get; init; } = AgrupamentoRelatorio.Dia;
     public AgruparPorRelatorioChamados AgruparPor { get; init; } = AgruparPorRelatorioChamados.Status;
@@ -49,6 +52,7 @@ public sealed class FiltroRelatorioSlaRequest : FiltroPeriodoRelatorioRequest
     public Guid? AtendenteId { get; init; }
     public Guid? SolicitanteId { get; init; }
     public Guid? CatalogoServicoId { get; init; }
+    public NaturezaChamadoEnum? NaturezaChamado { get; init; }
     public Guid? PoliticaSlaId { get; init; }
     public string? SituacaoSla { get; init; }
     public bool? ApenasAtivos { get; init; } = true;
@@ -179,6 +183,7 @@ public sealed record RelatorioChamadosResumoDto(
     double? TempoMedioAtePrimeiraAcaoHoras,
     IReadOnlyCollection<IndicadorRelatorioDto> TotalPorPrioridade,
     IReadOnlyCollection<IndicadorRelatorioDto> TotalPorDepartamento,
+    IReadOnlyCollection<IndicadorRelatorioDto> TotalPorNatureza,
     IReadOnlyCollection<IndicadorRelatorioDto> TotalPorCategoria);
 
 public sealed record RelatorioChamadosSerieTemporalDto(
@@ -208,13 +213,16 @@ public sealed record RelatorioSlaViolacaoDto(
     Guid ChamadoId,
     string NumeroProtocolo,
     string Titulo,
+    NaturezaChamadoEnum NaturezaChamado,
     string Departamento,
     string Prioridade,
     string Status,
     DateTime DataAbertura,
     DateTime? DataLimiteSla,
     DateTime? DataConclusao,
-    double? HorasExcedidas);
+    double? HorasExcedidas,
+    ImpactoChamadoEnum ImpactoChamado = ImpactoChamadoEnum.Baixo,
+    UrgenciaChamadoEnum UrgenciaChamado = UrgenciaChamadoEnum.Baixa);
 
 public sealed record RelatorioSlaPorDepartamentoDto(
     Guid? DepartamentoId,
@@ -480,7 +488,8 @@ public enum AgruparPorRelatorioChamados
     CatalogoServico = 5,
     Atendente = 6,
     Solicitante = 7,
-    AtivoVinculado = 8
+    AtivoVinculado = 8,
+    Natureza = 9
 }
 
 public enum AgruparTempoMedioAprovacoesPor
@@ -497,3 +506,4 @@ public enum FormatoExportacaoRelatorio
     Pdf = 3,
     Json = 4
 }
+

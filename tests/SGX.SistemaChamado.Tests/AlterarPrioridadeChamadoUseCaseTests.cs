@@ -1,5 +1,6 @@
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -19,6 +20,7 @@ public sealed class AlterarPrioridadeChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<Chamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin),
             PortalUseCasesTestFactory.Uow(context));

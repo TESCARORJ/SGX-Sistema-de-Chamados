@@ -14,6 +14,10 @@ public sealed class StatusAdminUseCaseTests
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "status.admin@empresa.com", TipoPerfil.Administrador);
+        var statusCancelado = await context.StatusChamado.FirstAsync(x => x.Codigo == StatusChamadoEnum.Cancelado);
+        context.StatusChamado.Remove(statusCancelado);
+        await context.SaveChangesAsync();
+
         var useCase = new CriarStatusUseCase(
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")),

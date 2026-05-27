@@ -82,6 +82,9 @@ internal static class AdminUseCaseHelpers
             ResponsavelNome = chamado.Responsavel?.Nome,
             Status = chamado.Status.Nome,
             Prioridade = chamado.Prioridade.Nome,
+            NaturezaChamado = chamado.NaturezaChamado,
+            ImpactoChamado = chamado.ImpactoChamado,
+            UrgenciaChamado = chamado.UrgenciaChamado,
             Categoria = chamado.Categoria.Nome,
             Subcategoria = chamado.Subcategoria?.Nome,
             TipoSolicitacao = chamado.TipoSolicitacao?.Nome,
@@ -118,7 +121,10 @@ internal static class AdminUseCaseHelpers
         };
     }
 
-    public static ChamadoAdminDetalheResponse MapDetalhe(Chamado chamado)
+    public static ChamadoAdminDetalheResponse MapDetalhe(
+        Chamado chamado,
+        IReadOnlyCollection<int>? statusPermitidosCodigos = null,
+        IReadOnlyCollection<AcaoChamadoEnum>? acoesDisponiveis = null)
     {
         var agora = DateTime.UtcNow;
         var situacao = SlaRules.CalcularSituacao(chamado.ChamadoSla, agora);
@@ -139,6 +145,9 @@ internal static class AdminUseCaseHelpers
                 : new ResponsavelAdminResponse(chamado.Responsavel.Id, chamado.Responsavel.Nome, chamado.Responsavel.Email),
             Status = chamado.Status.Nome,
             Prioridade = chamado.Prioridade.Nome,
+            NaturezaChamado = chamado.NaturezaChamado,
+            ImpactoChamado = chamado.ImpactoChamado,
+            UrgenciaChamado = chamado.UrgenciaChamado,
             Categoria = chamado.Categoria.Nome,
             Subcategoria = chamado.Subcategoria?.Nome,
             TipoSolicitacao = chamado.TipoSolicitacao?.Nome,
@@ -160,6 +169,8 @@ internal static class AdminUseCaseHelpers
             AprovacaoPendente = aprovacao.AprovacaoPendente,
             StatusAprovacao = aprovacao.StatusAprovacao,
             AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
+            StatusPermitidosCodigos = statusPermitidosCodigos ?? [],
+            AcoesDisponiveisCodigos = acoesDisponiveis?.Select(x => x.ToString()).ToArray() ?? [],
             Comentarios = chamado.Comentarios
                 .Where(x => x.Ativo)
                 .OrderBy(x => x.CriadoEm)

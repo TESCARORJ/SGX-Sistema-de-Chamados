@@ -27,6 +27,9 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.Property(x => x.InventarioAtivoId).HasColumnName("inventario_ativo_id");
         builder.Property(x => x.StatusId).HasColumnName("status_id").IsRequired();
         builder.Property(x => x.Origem).HasColumnName("origem").HasConversion<int>().IsRequired();
+        builder.Property(x => x.NaturezaChamado).HasColumnName("natureza_chamado").HasConversion<int>().IsRequired();
+        builder.Property(x => x.ImpactoChamado).HasColumnName("impacto_chamado").HasConversion<int>().IsRequired();
+        builder.Property(x => x.UrgenciaChamado).HasColumnName("urgencia_chamado").HasConversion<int>().IsRequired();
         builder.Property(x => x.AbertoEm).HasColumnName("aberto_em").IsRequired();
         builder.Property(x => x.EncerradoEm).HasColumnName("encerrado_em");
         builder.Property(x => x.CriadoEm).HasColumnName("criado_em").IsRequired();

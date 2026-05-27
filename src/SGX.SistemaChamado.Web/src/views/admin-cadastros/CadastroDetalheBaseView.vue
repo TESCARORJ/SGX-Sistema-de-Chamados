@@ -179,6 +179,17 @@ const opcoesCodigoStatus = [
   { label: 'Resolvido', value: 4 },
   { label: 'Encerrado', value: 5 },
   { label: 'Cancelado', value: 6 },
+  { label: 'Em Analise', value: 7 },
+  { label: 'Aguardando Aprovacao', value: 8 },
+  { label: 'Aprovada', value: 9 },
+  { label: 'Reprovada', value: 10 },
+  { label: 'Em Execucao', value: 11 },
+  { label: 'Concluida', value: 12 },
+  { label: 'Causa Raiz Identificada', value: 13 },
+  { label: 'Solucao de Contorno', value: 14 },
+  { label: 'Correlacionado', value: 15 },
+  { label: 'Tratado', value: 16 },
+  { label: 'Planejada', value: 17 },
 ]
 
 const opcoesTipoPerfil = [

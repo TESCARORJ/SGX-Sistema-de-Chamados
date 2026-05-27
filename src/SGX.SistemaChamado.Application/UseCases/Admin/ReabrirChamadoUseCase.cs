@@ -17,6 +17,8 @@ public sealed class ReabrirChamadoUseCase(
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
     IRepository<ComentarioChamado> comentarioRepository,
+    IFluxoStatusChamadoService fluxoStatusChamadoService,
+    IAcoesChamadoService acoesChamadoService,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
@@ -41,6 +43,9 @@ public sealed class ReabrirChamadoUseCase(
             .Include(x => x.Aprovacoes)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
+
+        acoesChamadoService.ValidarAcaoDisponivel(chamado, AcaoChamadoEnum.Reabrir, usuario);
+
         var statusAnterior = chamado.Status.Nome;
         var encerradoAnterior = chamado.EncerradoEm;
         var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
@@ -50,20 +55,23 @@ public sealed class ReabrirChamadoUseCase(
             throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio);
         }
 
-        var podeReabrir = chamado.EncerradoEm.HasValue ||
-            chamado.Status.Codigo is StatusChamadoEnum.Encerrado or StatusChamadoEnum.Resolvido;
+        var podeReabrir = chamado.EncerradoEm.HasValue || chamado.Status.EhStatusFinal;
 
         if (!podeReabrir)
         {
-            throw new InvalidOperationException("Somente chamados encerrados ou resolvidos podem ser reabertos.");
+            throw new InvalidOperationException("Somente chamados em status final podem ser reabertos.");
         }
 
-        var statusEmAtendimento = await statusRepository.Query()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Ativo && x.Codigo == StatusChamadoEnum.EmAtendimento, cancellationToken)
-            ?? throw new InvalidOperationException("Status Em Atendimento nao configurado.");
+        var statusDestinoCodigo = ObterStatusDestinoReabertura(chamado.NaturezaChamado, fluxoStatusChamadoService);
 
-        chamado.Reabrir(statusEmAtendimento.Id, usuario.Login);
+        var statusDestino = await statusRepository.Query()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Ativo && x.Codigo == statusDestinoCodigo, cancellationToken)
+            ?? throw new InvalidOperationException($"Status de reabertura '{statusDestinoCodigo}' nao configurado.");
+
+        fluxoStatusChamadoService.ValidarStatusPermitido(chamado.NaturezaChamado, statusDestino.Codigo);
+
+        chamado.Reabrir(statusDestino.Id, usuario.Login);
         await slaService.ReabrirAsync(chamado, usuario.Login, DateTime.UtcNow, cancellationToken);
         chamadoRepository.Update(chamado);
 
@@ -124,5 +132,27 @@ public sealed class ReabrirChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private static StatusChamadoEnum ObterStatusDestinoReabertura(
+        NaturezaChamadoEnum natureza,
+        IFluxoStatusChamadoService fluxoStatusChamadoService)
+    {
+        var candidatos = new[]
+        {
+            StatusChamadoEnum.EmAtendimento,
+            StatusChamadoEnum.EmAnalise,
+            StatusChamadoEnum.Aberto
+        };
+
+        foreach (var candidato in candidatos)
+        {
+            if (fluxoStatusChamadoService.StatusEhPermitido(natureza, candidato))
+            {
+                return candidato;
+            }
+        }
+
+        throw new InvalidOperationException($"Nao foi possivel determinar status de reabertura para a natureza '{natureza}'.");
     }
 }

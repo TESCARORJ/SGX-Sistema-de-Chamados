@@ -8,6 +8,7 @@ describe('RelatoriosChamadosPage', () => {
 
     expect(fonte).toContain('Relatorios - Chamados')
     expect(fonte).toContain('Total chamados')
+    expect(fonte).toContain('Consolidado por natureza ITSM')
     expect(fonte).toContain('Serie temporal')
     expect(fonte).toContain('Distribuicao')
   })
@@ -19,5 +20,14 @@ describe('RelatoriosChamadosPage', () => {
     expect(fonte).toContain('ErrorState')
     expect(fonte).toContain('EmptyState')
     expect(fonte).toContain('Sem dados de chamados')
+  })
+
+  it('deve expor filtro por natureza e opcao de distribuicao por natureza', () => {
+    const caminho = new URL('./RelatoriosChamadosPage.vue', import.meta.url)
+    const fonte = readFileSync(caminho, 'utf-8')
+
+    expect(fonte).toContain('label="Natureza ITSM"')
+    expect(fonte).toContain("NaturezaChamado.Incidente")
+    expect(fonte).toContain("label: 'Natureza ITSM', value: 9")
   })
 })

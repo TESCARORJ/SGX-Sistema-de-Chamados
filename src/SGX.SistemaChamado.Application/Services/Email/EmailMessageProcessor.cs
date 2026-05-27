@@ -31,6 +31,7 @@ public sealed class EmailMessageProcessor(
     IEmailCorrelationService emailCorrelationService,
     IArquivoStorageService arquivoStorageService,
     ICodigoChamadoService codigoChamadoService,
+    IPrioridadeChamadoMatrizService prioridadeChamadoMatrizService,
     ISlaService slaService,
     IOptions<ArquivosOptions> arquivosOptions,
     IOptions<EmailWorkerOptions> emailWorkerOptions,
@@ -225,7 +226,14 @@ public sealed class EmailMessageProcessor(
     private async Task<Chamado> CriarNovoChamadoAsync(EmailMessageData mensagem, Usuario solicitante, CancellationToken cancellationToken)
     {
         var categoria = await ObterCategoriaPadraoAsync(cancellationToken);
-        var prioridade = await ObterPrioridadePadraoAsync(cancellationToken);
+        var naturezaChamado = DeterminarNaturezaChamado(mensagem);
+        var impactoChamado = ImpactoChamadoEnum.Baixo;
+        var urgenciaChamado = naturezaChamado == NaturezaChamadoEnum.Incidente
+            ? UrgenciaChamadoEnum.Media
+            : UrgenciaChamadoEnum.Baixa;
+
+        var prioridade = await prioridadeChamadoMatrizService.ObterPrioridadeAsync(impactoChamado, urgenciaChamado, cancellationToken)
+            ?? await ObterPrioridadePadraoAsync(cancellationToken);
         var statusAberto = await statusRepository.Query()
             .FirstOrDefaultAsync(x => x.Ativo && x.Codigo == StatusChamadoEnum.Aberto, cancellationToken)
             ?? throw new InvalidOperationException("Status 'Aberto' nao encontrado.");
@@ -254,7 +262,10 @@ public sealed class EmailMessageProcessor(
             statusAberto.Id,
             OrigemChamado.Email,
             UsuarioIntegracao,
-            departamentoId);
+            departamentoId,
+            naturezaChamado: naturezaChamado,
+            impactoChamado: impactoChamado,
+            urgenciaChamado: urgenciaChamado);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
@@ -528,6 +539,39 @@ public sealed class EmailMessageProcessor(
         }
 
         return departamentoPadraoId.Value;
+    }
+
+    private static NaturezaChamadoEnum DeterminarNaturezaChamado(EmailMessageData mensagem)
+    {
+        var assunto = SanitizarTexto(mensagem.Assunto);
+        var corpo = SanitizarCorpoMensagem(mensagem);
+        var texto = $"{assunto} {corpo}".Trim().ToLowerInvariant();
+        return ContemIndicadorIncidente(texto)
+            ? NaturezaChamadoEnum.Incidente
+            : NaturezaChamadoEnum.Requisicao;
+    }
+
+    private static bool ContemIndicadorIncidente(string texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            return false;
+        }
+
+        string[] termosIncidente =
+        [
+            "erro",
+            "falha",
+            "indisponibilidade",
+            "indisponivel",
+            "travamento",
+            "travou",
+            "sem acesso",
+            "queda",
+            "fora do ar"
+        ];
+
+        return termosIncidente.Any(texto.Contains);
     }
 
     private static string? Limitar(string? valor, int maximo)

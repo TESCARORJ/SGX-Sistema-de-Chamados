@@ -11,6 +11,27 @@ export type SituacaoSlaChamado =
   | 'Violado'
   | 'Pausado'
 
+export enum NaturezaChamado {
+  Incidente = 1,
+  Requisicao = 2,
+  Mudanca = 3,
+  Problema = 4,
+  EventoAlerta = 5,
+  TarefaOperacional = 6,
+}
+
+export enum ImpactoChamado {
+  Baixo = 1,
+  Medio = 2,
+  Alto = 3,
+}
+
+export enum UrgenciaChamado {
+  Baixa = 1,
+  Media = 2,
+  Alta = 3,
+}
+
 export interface PortalUsuarioContexto {
   id: string
   nome: string
@@ -92,6 +113,9 @@ export interface ChamadoResumoPortal {
   titulo: string
   status: string
   prioridade: string
+  naturezaChamado?: NaturezaChamado
+  impactoChamado?: ImpactoChamado
+  urgenciaChamado?: UrgenciaChamado
   categoria: string
   subcategoria: string | null
   tipoSolicitacao: string | null
@@ -176,6 +200,9 @@ export interface ChamadoDetalhePortal {
   descricao: string
   status: string
   prioridade: string
+  naturezaChamado?: NaturezaChamado
+  impactoChamado?: ImpactoChamado
+  urgenciaChamado?: UrgenciaChamado
   categoria: string
   subcategoria: string | null
   tipoSolicitacao: string | null
@@ -227,6 +254,9 @@ export interface CriarChamadoRequest {
   categoriaId?: string
   subcategoriaId?: string
   prioridadeId?: string
+  naturezaChamado: NaturezaChamado
+  impactoChamado: ImpactoChamado
+  urgenciaChamado: UrgenciaChamado
   tipoSolicitacaoId?: string
   localUnidadeId?: string
 }

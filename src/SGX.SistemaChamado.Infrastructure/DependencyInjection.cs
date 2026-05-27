@@ -51,6 +51,10 @@ public static class DependencyInjection
         services.AddScoped<IAuditoriaService, AuditoriaService>();
         services.AddScoped<IArquivoStorageService, LocalArquivoStorageService>();
         services.AddScoped<ICodigoChamadoService, CodigoChamadoService>();
+        services.AddScoped<IAcoesChamadoService, AcoesChamadoService>();
+        services.AddScoped<IPrioridadeChamadoMatrizService, PrioridadeChamadoMatrizService>();
+        services.AddScoped<ICamposObrigatoriosChamadoService, CamposObrigatoriosChamadoService>();
+        services.AddScoped<IFluxoStatusChamadoService, FluxoStatusChamadoService>();
         services.AddScoped<IEmailCorrelationService, EmailCorrelationService>();
         services.AddScoped<IEmailMessageProcessor, EmailMessageProcessor>();
         services.AddScoped<IEmailParaChamadoService, EmailParaChamadoService>();

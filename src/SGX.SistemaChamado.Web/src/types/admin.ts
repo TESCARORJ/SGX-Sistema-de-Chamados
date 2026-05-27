@@ -1,6 +1,7 @@
 import type { AnexoChamado } from './anexo'
 import type { StatusAprovacaoChamado } from './aprovacaoChamados'
 import type { ComentarioChamado } from './comentario'
+import type { ImpactoChamado, NaturezaChamado, UrgenciaChamado } from './portal'
 
 export type SituacaoSlaChamado =
   | 'NaoAplicavel'
@@ -10,6 +11,26 @@ export type SituacaoSlaChamado =
   | 'Cumprido'
   | 'Violado'
   | 'Pausado'
+
+export type AcaoChamadoCodigo =
+  | 'Assumir'
+  | 'Atribuir'
+  | 'AlterarStatus'
+  | 'AlterarPrioridade'
+  | 'AlterarCategoria'
+  | 'Encerrar'
+  | 'Reabrir'
+  | 'Comentar'
+  | 'Anexar'
+  | 'Cancelar'
+  | 'AprovarMudanca'
+  | 'ReprovarMudanca'
+  | 'ExecutarMudanca'
+  | 'RegistrarCausaRaiz'
+  | 'RegistrarSolucaoContorno'
+  | 'CorrelacionarEvento'
+  | 'TratarEvento'
+  | 'ConcluirTarefa'
 
 export interface AdminUsuarioContexto {
   id: string
@@ -80,6 +101,7 @@ export interface AdminContextoResponse {
 }
 
 export interface FiltroChamadosAdmin {
+  naturezaChamado?: NaturezaChamado
   statusId?: string
   prioridadeId?: string
   categoriaId?: string
@@ -109,6 +131,9 @@ export interface ChamadoAdminResumo {
   responsavelNome: string | null
   status: string
   prioridade: string
+  naturezaChamado: NaturezaChamado
+  impactoChamado: ImpactoChamado
+  urgenciaChamado: UrgenciaChamado
   categoria: string
   subcategoria: string | null
   tipoSolicitacao: string | null
@@ -210,6 +235,9 @@ export interface ChamadoAdminDetalhe {
   responsavel: UsuarioResumoAdmin | null
   status: string
   prioridade: string
+  naturezaChamado: NaturezaChamado
+  impactoChamado: ImpactoChamado
+  urgenciaChamado: UrgenciaChamado
   categoria: string
   subcategoria: string | null
   tipoSolicitacao: string | null
@@ -231,6 +259,8 @@ export interface ChamadoAdminDetalhe {
   aprovacaoPendente: boolean
   statusAprovacao: StatusAprovacaoChamado | null
   aprovacaoChamadoId: string | null
+  statusPermitidosCodigos: number[]
+  acoesDisponiveisCodigos?: AcaoChamadoCodigo[]
   comentarios: ComentarioChamado[]
   anexos: AnexoChamado[]
   historico: HistoricoAdmin[]

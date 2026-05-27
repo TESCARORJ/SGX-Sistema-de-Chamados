@@ -17,6 +17,7 @@ import type { ComentarioChamado } from '../types/comentario'
 function buildQuery(params: FiltroChamadosAdmin): string {
   const search = new URLSearchParams()
 
+  if (params.naturezaChamado) search.set('naturezaChamado', String(params.naturezaChamado))
   if (params.statusId) search.set('statusId', params.statusId)
   if (params.prioridadeId) search.set('prioridadeId', params.prioridadeId)
   if (params.categoriaId) search.set('categoriaId', params.categoriaId)

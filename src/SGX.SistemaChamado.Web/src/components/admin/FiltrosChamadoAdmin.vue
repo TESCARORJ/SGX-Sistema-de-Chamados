@@ -2,6 +2,7 @@
 import { reactive, watch } from 'vue'
 import FilterBar from '../ui/FilterBar.vue'
 import type { AdminContextoResponse, FiltroChamadosAdmin } from '../../types/admin'
+import { NaturezaChamado } from '../../types/portal'
 
 const props = defineProps<{
   contexto: AdminContextoResponse | null
@@ -20,6 +21,16 @@ const filtros = reactive<FiltroChamadosAdmin>({
   ordenarPor: 'atualizadoEm',
   direcaoOrdenacao: 'desc',
 })
+
+const opcoesNatureza = [
+  { label: 'Todos', value: undefined },
+  { label: 'Incidente', value: NaturezaChamado.Incidente },
+  { label: 'Requisicao', value: NaturezaChamado.Requisicao },
+  { label: 'Mudanca', value: NaturezaChamado.Mudanca },
+  { label: 'Problema', value: NaturezaChamado.Problema },
+  { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
+  { label: 'Tarefa operacional', value: NaturezaChamado.TarefaOperacional },
+]
 
 watch(
   () => props.textoInicial,
@@ -63,6 +74,7 @@ function aplicar(): void {
 
 function limpar(): void {
   filtros.statusId = undefined
+  filtros.naturezaChamado = undefined
   filtros.prioridadeId = undefined
   filtros.categoriaId = undefined
   filtros.subcategoriaId = undefined
@@ -94,6 +106,18 @@ function limpar(): void {
 
       <div class="col-12 col-md-3">
         <q-input v-model="filtros.texto" outlined label="Texto" placeholder="Código, título ou descrição" />
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-select
+          v-model="filtros.naturezaChamado"
+          :options="opcoesNatureza"
+          emit-value
+          map-options
+          clearable
+          outlined
+          label="Natureza ITSM"
+        />
       </div>
 
       <div class="col-12 col-md-3">

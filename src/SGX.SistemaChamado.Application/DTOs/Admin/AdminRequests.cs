@@ -4,6 +4,7 @@ namespace SGX.SistemaChamado.Application.DTOs.Admin;
 
 public sealed class FiltroChamadosAdminRequest
 {
+    public NaturezaChamadoEnum? NaturezaChamado { get; init; }
     public Guid? StatusId { get; init; }
     public Guid? PrioridadeId { get; init; }
     public Guid? CategoriaId { get; init; }

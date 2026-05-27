@@ -26,6 +26,10 @@ public sealed class FiltroRelatorioChamadosRequestValidator : AbstractValidator<
             .Must(OrigemValida)
             .When(x => !string.IsNullOrWhiteSpace(x.Origem))
             .WithMessage("Origem informada invalida.");
+
+        RuleFor(x => x.NaturezaChamado)
+            .Must(valor => !valor.HasValue || Enum.IsDefined(valor.Value))
+            .WithMessage("NaturezaChamado informada invalida.");
     }
 
     private static void ValidarPeriodo(FiltroPeriodoRelatorioRequest request, ValidationContext<FiltroRelatorioChamadosRequest> context)
@@ -112,6 +116,10 @@ public sealed class FiltroRelatorioSlaRequestValidator : AbstractValidator<Filtr
             .Must(valor => Enum.TryParse<SituacaoSlaChamadoEnum>(valor?.Trim(), true, out _))
             .When(x => !string.IsNullOrWhiteSpace(x.SituacaoSla))
             .WithMessage("SituacaoSla informada invalida.");
+
+        RuleFor(x => x.NaturezaChamado)
+            .Must(valor => !valor.HasValue || Enum.IsDefined(valor.Value))
+            .WithMessage("NaturezaChamado informada invalida.");
     }
 }
 

@@ -1,3 +1,5 @@
+using SGX.SistemaChamado.Domain.Enums;
+
 namespace SGX.SistemaChamado.Application.DTOs.Portal;
 
 public sealed class CriarChamadoRequest
@@ -10,6 +12,9 @@ public sealed class CriarChamadoRequest
     public Guid? CategoriaId { get; set; }
     public Guid? SubcategoriaId { get; set; }
     public Guid? PrioridadeId { get; set; }
+    public NaturezaChamadoEnum? NaturezaChamado { get; set; }
+    public ImpactoChamadoEnum? ImpactoChamado { get; set; }
+    public UrgenciaChamadoEnum? UrgenciaChamado { get; set; }
     public Guid? TipoSolicitacaoId { get; set; }
     public Guid? LocalUnidadeId { get; set; }
     public Guid? InventarioAtivoId { get; set; }

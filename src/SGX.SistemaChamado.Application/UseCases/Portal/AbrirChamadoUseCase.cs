@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
@@ -27,6 +28,8 @@ public sealed class AbrirChamadoUseCase(
     IRepository<HistoricoInventarioAtivo> historicoInventarioAtivoRepository,
     ISlaService slaService,
     ICodigoChamadoService codigoChamadoService,
+    IPrioridadeChamadoMatrizService prioridadeChamadoMatrizService,
+    ICamposObrigatoriosChamadoService camposObrigatoriosChamadoService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null) : IAbrirChamadoUseCase
@@ -41,6 +44,26 @@ public sealed class AbrirChamadoUseCase(
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        var validacoesCamposObrigatorios = camposObrigatoriosChamadoService.ValidarCriacao(new CamposObrigatoriosChamadoInput
+        {
+            NaturezaChamado = request.NaturezaChamado ?? NaturezaChamadoEnum.Requisicao,
+            ImpactoChamado = request.ImpactoChamado,
+            UrgenciaChamado = request.UrgenciaChamado,
+            Titulo = request.Titulo,
+            Descricao = request.Descricao,
+            CategoriaId = request.CategoriaId,
+            TipoSolicitacaoId = request.TipoSolicitacaoId,
+            CatalogoServicoId = request.CatalogoServicoId,
+            CatalogoServicoSlug = request.CatalogoServicoSlug,
+            Origem = "Portal"
+        });
+
+        var primeiraFalha = validacoesCamposObrigatorios.FirstOrDefault();
+        if (primeiraFalha is not null)
+        {
+            throw new InvalidOperationException(primeiraFalha.Mensagem);
+        }
+
         var usuarioAtual = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
         var servicoCatalogo = await ResolverServicoCatalogoAsync(request, usuarioAtual, cancellationToken);
 
@@ -50,10 +73,24 @@ public sealed class AbrirChamadoUseCase(
             throw new InvalidOperationException("Categoria obrigatoria.");
         }
 
-        var prioridadeIdEfetiva = servicoCatalogo?.PrioridadePadraoId ?? request.PrioridadeId;
-        if (!prioridadeIdEfetiva.HasValue || prioridadeIdEfetiva.Value == Guid.Empty)
+        var prioridadeIdFallback = servicoCatalogo?.PrioridadePadraoId ?? request.PrioridadeId;
+        
+        var naturezaChamado = request.NaturezaChamado ?? NaturezaChamadoEnum.Requisicao;
+        if (!Enum.IsDefined(naturezaChamado))
         {
-            throw new InvalidOperationException("Prioridade obrigatoria.");
+            throw new InvalidOperationException("Natureza do chamado invalida.");
+        }
+
+        var impactoChamado = request.ImpactoChamado ?? ImpactoChamadoEnum.Baixo;
+        if (!Enum.IsDefined(impactoChamado))
+        {
+            throw new InvalidOperationException("Impacto do chamado invalido.");
+        }
+
+        var urgenciaChamado = request.UrgenciaChamado ?? UrgenciaChamadoEnum.Baixa;
+        if (!Enum.IsDefined(urgenciaChamado))
+        {
+            throw new InvalidOperationException("Urgencia do chamado invalida.");
         }
 
         var departamentoIdEfetivo = servicoCatalogo?.DepartamentoResponsavelId ?? request.DepartamentoId;
@@ -66,10 +103,19 @@ public sealed class AbrirChamadoUseCase(
             .FirstOrDefaultAsync(x => x.Id == categoriaIdEfetiva.Value && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Categoria nao encontrada ou inativa.");
 
-        var prioridade = await prioridadeRepository.Query()
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == prioridadeIdEfetiva.Value && x.Ativo, cancellationToken)
-            ?? throw new InvalidOperationException("Prioridade nao encontrada ou inativa.");
+        var prioridade = await prioridadeChamadoMatrizService.ObterPrioridadeAsync(impactoChamado, urgenciaChamado, cancellationToken);
+        if (prioridade is null)
+        {
+            if (!prioridadeIdFallback.HasValue || prioridadeIdFallback.Value == Guid.Empty)
+            {
+                throw new InvalidOperationException("Prioridade obrigatoria.");
+            }
+
+            prioridade = await prioridadeRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == prioridadeIdFallback.Value && x.Ativo, cancellationToken)
+                ?? throw new InvalidOperationException("Prioridade nao encontrada ou inativa.");
+        }
 
         SubcategoriaChamado? subcategoria = null;
         if (subcategoriaIdEfetiva.HasValue)
@@ -143,7 +189,10 @@ public sealed class AbrirChamadoUseCase(
             request.TipoSolicitacaoId,
             request.LocalUnidadeId,
             catalogoServicoIdEfetivo,
-            inventarioAtivo?.Id);
+            inventarioAtivo?.Id,
+            naturezaChamado,
+            impactoChamado,
+            urgenciaChamado);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
 
@@ -258,6 +307,9 @@ public sealed class AbrirChamadoUseCase(
                 chamadoCriado.Titulo,
                 Status = chamadoCriado.Status.Nome,
                 Prioridade = chamadoCriado.Prioridade.Nome,
+                NaturezaChamado = chamadoCriado.NaturezaChamado.ToString(),
+                ImpactoChamado = chamadoCriado.ImpactoChamado.ToString(),
+                UrgenciaChamado = chamadoCriado.UrgenciaChamado.ToString(),
                 Categoria = chamadoCriado.Categoria.Nome,
                 Subcategoria = chamadoCriado.Subcategoria?.Nome,
                 TipoSolicitacao = chamadoCriado.TipoSolicitacao?.Nome,
@@ -392,11 +444,6 @@ public sealed class AbrirChamadoUseCase(
         if (!servico.CategoriaId.HasValue)
         {
             throw new InvalidOperationException("Servico do catalogo sem categoria configurada para abertura de chamado.");
-        }
-
-        if (!servico.PrioridadePadraoId.HasValue)
-        {
-            throw new InvalidOperationException("Servico do catalogo sem prioridade padrao configurada para abertura de chamado.");
         }
 
         if (servico.SubcategoriaId.HasValue && !servico.CategoriaId.HasValue)

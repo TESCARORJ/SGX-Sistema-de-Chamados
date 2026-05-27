@@ -1,6 +1,7 @@
 ﻿using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -138,21 +139,75 @@ public sealed class AlterarStatusChamadoUseCaseTests
         Assert.Equal("Em Atendimento", response.Status);
     }
 
+    [Fact]
+    public async Task BloqueiaStatusIncompativelComNaturezaEventoAlerta()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context, NaturezaChamadoEnum.EventoAlerta, "STA-EA");
+        var statusAguardandoSolicitanteId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.AguardandoSolicitante).Id;
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusAguardandoSolicitanteId }));
+
+        Assert.Contains("nao e permitido", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task PermiteAlterarParaStatusNovoCompativelComNaturezaMudanca()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context, NaturezaChamadoEnum.Mudanca, "STA-MUD");
+        var statusEmAnaliseId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAnalise).Id;
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusEmAnaliseId });
+
+        Assert.Equal("Em Analise", response.Status);
+    }
+
+    [Fact]
+    public async Task BloqueiaStatusNovoIncompativelComNaturezaIncidente()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context, NaturezaChamadoEnum.Incidente, "STA-INC");
+        var statusPlanejadaId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Planejada).Id;
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusPlanejadaId }));
+
+        Assert.Contains("nao e permitido", ex.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static AlterarStatusChamadoUseCase CriarUseCase(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(contexto),
             PortalUseCasesTestFactory.Uow(context));
 
-    private static async Task<(Chamado Chamado, Guid StatusEmAtendimentoId, Usuario Admin, UsuarioContextoAplicacao AdminContexto)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    private static async Task<(Chamado Chamado, Guid StatusEmAtendimentoId, Usuario Admin, UsuarioContextoAplicacao AdminContexto)> SeedAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao,
+        string sufixoCodigo = "STA1")
     {
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "admin@empresa.com", TipoPerfil.Administrador);
         var solicitante = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante", "sol@empresa.com", TipoPerfil.Solicitante);
         var categoria = await AdminUseCasesTestFactory.CriarCategoriaAsync(context, "Infra");
-        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(context, solicitante, categoria, StatusChamadoEnum.Aberto, null, "STA1");
+        var chamado = await AdminUseCasesTestFactory.CriarChamadoAsync(
+            context,
+            solicitante,
+            categoria,
+            StatusChamadoEnum.Aberto,
+            null,
+            sufixoCodigo,
+            naturezaChamado: naturezaChamado);
         var status = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
 
         return (chamado, status.Id, admin, AdminUseCasesTestFactory.Contexto(admin, "Administrador"));

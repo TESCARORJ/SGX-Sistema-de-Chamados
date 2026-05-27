@@ -11,5 +11,10 @@ public sealed class FiltroIndicadoresRequestValidator : AbstractValidator<Filtro
             .GreaterThanOrEqualTo(x => x.DataInicio!.Value)
             .When(x => x.DataInicio.HasValue && x.DataFim.HasValue)
             .WithMessage("DataFim deve ser maior ou igual a DataInicio.");
+
+        RuleFor(x => x.NaturezaChamado)
+            .IsInEnum()
+            .When(x => x.NaturezaChamado.HasValue)
+            .WithMessage("Natureza do chamado invalida.");
     }
 }

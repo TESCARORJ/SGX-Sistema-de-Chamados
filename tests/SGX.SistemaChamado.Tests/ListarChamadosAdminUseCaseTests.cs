@@ -21,6 +21,9 @@ public sealed class ListarChamadosAdminUseCaseTests
         var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest());
 
         Assert.True(response.Total >= 2);
+        Assert.All(response.Items, item => Assert.True(Enum.IsDefined(item.NaturezaChamado)));
+        Assert.All(response.Items, item => Assert.True(Enum.IsDefined(item.ImpactoChamado)));
+        Assert.All(response.Items, item => Assert.True(Enum.IsDefined(item.UrgenciaChamado)));
     }
 
     [Fact]
@@ -36,6 +39,62 @@ public sealed class ListarChamadosAdminUseCaseTests
         var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { StatusId = dados.StatusEmAtendimentoId });
 
         Assert.All(response.Items, x => Assert.Equal("Em Atendimento", x.Status));
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorNaturezaIncidente()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { NaturezaChamado = NaturezaChamadoEnum.Incidente });
+
+        Assert.NotEmpty(response.Items);
+        Assert.All(response.Items, x => Assert.Equal(NaturezaChamadoEnum.Incidente, x.NaturezaChamado));
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorNaturezaRequisicao()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { NaturezaChamado = NaturezaChamadoEnum.Requisicao });
+
+        Assert.NotEmpty(response.Items);
+        Assert.All(response.Items, x => Assert.Equal(NaturezaChamadoEnum.Requisicao, x.NaturezaChamado));
+    }
+
+    [Fact]
+    public async Task CombinaFiltroNaturezaComStatus()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest
+        {
+            NaturezaChamado = NaturezaChamadoEnum.Incidente,
+            StatusId = dados.StatusEmAtendimentoId
+        });
+
+        Assert.NotEmpty(response.Items);
+        Assert.All(response.Items, x =>
+        {
+            Assert.Equal(NaturezaChamadoEnum.Incidente, x.NaturezaChamado);
+            Assert.Equal("Em Atendimento", x.Status);
+        });
     }
 
     [Fact]
@@ -173,7 +232,8 @@ public sealed class ListarChamadosAdminUseCaseTests
             "001",
             subcategoriaId: subcategoriaInfra.Id,
             tipoSolicitacaoId: tipoIncidente.Id,
-            localUnidadeId: localMatriz.Id);
+            localUnidadeId: localMatriz.Id,
+            naturezaChamado: NaturezaChamadoEnum.Incidente);
         _ = await AdminUseCasesTestFactory.CriarChamadoAsync(
             context,
             solicitante2,
@@ -183,7 +243,8 @@ public sealed class ListarChamadosAdminUseCaseTests
             "002",
             subcategoriaId: subcategoriaSistemas.Id,
             tipoSolicitacaoId: tipoMelhoria.Id,
-            localUnidadeId: localFilial.Id);
+            localUnidadeId: localFilial.Id,
+            naturezaChamado: NaturezaChamadoEnum.Requisicao);
 
         var statusEmAtendimento = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
 

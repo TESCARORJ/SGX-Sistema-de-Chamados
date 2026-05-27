@@ -16,6 +16,8 @@ public sealed class AlterarStatusChamadoUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<StatusChamado> statusRepository,
     IRepository<HistoricoChamado> historicoRepository,
+    IFluxoStatusChamadoService fluxoStatusChamadoService,
+    IAcoesChamadoService acoesChamadoService,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
@@ -44,10 +46,14 @@ public sealed class AlterarStatusChamadoUseCase(
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 
+        acoesChamadoService.ValidarAcaoDisponivel(chamado, AcaoChamadoEnum.AlterarStatus, usuario);
+
         var novoStatus = await statusRepository.Query()
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.StatusId && x.Ativo, cancellationToken)
             ?? throw new InvalidOperationException("Status informado nao encontrado ou inativo.");
+
+        fluxoStatusChamadoService.ValidarStatusPermitido(chamado.NaturezaChamado, novoStatus.Codigo);
 
         if (novoStatus.Codigo is StatusChamadoEnum.EmAtendimento or StatusChamadoEnum.Resolvido or StatusChamadoEnum.Encerrado)
         {

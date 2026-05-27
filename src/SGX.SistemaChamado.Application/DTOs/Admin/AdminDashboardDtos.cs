@@ -1,3 +1,5 @@
+using SGX.SistemaChamado.Domain.Enums;
+
 namespace SGX.SistemaChamado.Application.DTOs.Admin;
 
 public sealed class FiltroIndicadoresRequest
@@ -7,6 +9,7 @@ public sealed class FiltroIndicadoresRequest
     public Guid? DepartamentoId { get; init; }
     public Guid? CategoriaId { get; init; }
     public Guid? ResponsavelId { get; init; }
+    public NaturezaChamadoEnum? NaturezaChamado { get; init; }
 }
 
 public sealed record IndicadorCardResponse(string Chave, string Titulo, int Valor);
@@ -14,6 +17,7 @@ public sealed record IndicadorCardResponse(string Chave, string Titulo, int Valo
 public sealed record ChamadosPorStatusResponse(string Status, int Total);
 public sealed record ChamadosPorPrioridadeResponse(string Prioridade, int Total);
 public sealed record ChamadosPorCategoriaResponse(string Categoria, int Total);
+public sealed record ChamadosPorNaturezaResponse(int Codigo, string Natureza, int Total);
 
 public sealed class IndicadoresSlaResponse
 {
@@ -50,6 +54,7 @@ public sealed class DashboardAdminResponse
     public IReadOnlyCollection<ChamadosPorStatusResponse> ChamadosPorStatus { get; init; } = [];
     public IReadOnlyCollection<ChamadosPorPrioridadeResponse> ChamadosPorPrioridade { get; init; } = [];
     public IReadOnlyCollection<ChamadosPorCategoriaResponse> ChamadosPorCategoria { get; init; } = [];
+    public IReadOnlyCollection<ChamadosPorNaturezaResponse> ChamadosPorNatureza { get; init; } = [];
     public IndicadoresSlaResponse IndicadoresSla { get; init; } = new();
     public IReadOnlyCollection<ProdutividadeAtendenteResponse> ProdutividadePorAtendente { get; init; } = [];
 }

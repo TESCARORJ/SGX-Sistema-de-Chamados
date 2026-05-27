@@ -103,6 +103,9 @@ public sealed class DetalharMeuChamadoUseCaseTests
         Assert.Equal("Acesso", response.Subcategoria);
         Assert.Equal("Incidente", response.TipoSolicitacao);
         Assert.Equal("Matriz", response.LocalUnidade);
+        Assert.Equal(NaturezaChamadoEnum.Mudanca, response.NaturezaChamado);
+        Assert.Equal(ImpactoChamadoEnum.Baixo, response.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Baixa, response.UrgenciaChamado);
         Assert.NotEmpty(response.Historico);
         Assert.Single(response.Anexos);
         Assert.Single(response.Comentarios);
@@ -256,7 +259,7 @@ public sealed class DetalharMeuChamadoUseCaseTests
         context.Usuarios.AddRange(solicitante, outro);
         await context.SaveChangesAsync();
 
-        var chamadoSolicitante = new Chamado("CH-PROP", "Chamado Proprio", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", null, subcategoria.Id, tipoSolicitacao.Id, localUnidade.Id);
+        var chamadoSolicitante = new Chamado("CH-PROP", "Chamado Proprio", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", null, subcategoria.Id, tipoSolicitacao.Id, localUnidade.Id, naturezaChamado: NaturezaChamadoEnum.Mudanca);
         var chamadoOutro = new Chamado("CH-OUTRO", "Chamado Outro", "Descricao", outro.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", null, subcategoria.Id, tipoSolicitacao.Id, localUnidade.Id);
         context.Chamados.AddRange(chamadoSolicitante, chamadoOutro);
         await context.SaveChangesAsync();

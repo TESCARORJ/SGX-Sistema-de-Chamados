@@ -24,6 +24,9 @@ public sealed class ListarMeusChamadosUseCaseTests
 
         Assert.Single(response.Items);
         Assert.All(response.Items, item => Assert.Contains("U1", item.Titulo));
+        Assert.All(response.Items, item => Assert.Equal(NaturezaChamadoEnum.Incidente, item.NaturezaChamado));
+        Assert.All(response.Items, item => Assert.Equal(ImpactoChamadoEnum.Baixo, item.ImpactoChamado));
+        Assert.All(response.Items, item => Assert.Equal(UrgenciaChamadoEnum.Baixa, item.UrgenciaChamado));
     }
 
     [Fact]
@@ -89,7 +92,7 @@ public sealed class ListarMeusChamadosUseCaseTests
         context.Usuarios.AddRange(usuario1, usuario2);
         await context.SaveChangesAsync();
 
-        context.Chamados.Add(new Chamado("CH-U1", "Chamado U1", "Descricao U1", usuario1.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste"));
+        context.Chamados.Add(new Chamado("CH-U1", "Chamado U1", "Descricao U1", usuario1.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste", naturezaChamado: NaturezaChamadoEnum.Incidente));
         context.Chamados.Add(new Chamado("CH-U2", "Chamado U2", "Descricao U2", usuario2.Id, categoria.Id, prioridade.Id, status.Id, OrigemChamado.Portal, "teste"));
         await context.SaveChangesAsync();
 

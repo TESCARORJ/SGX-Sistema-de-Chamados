@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SGX.SistemaChamado.Application.Interfaces.Email;
 using SGX.SistemaChamado.Application.Options;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.Services.Email;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -36,7 +37,7 @@ public sealed class EmailMessageProcessorTests
 
         var chamado = context.Chamados.Single(x => x.Origem == OrigemChamado.Email);
         var statusAberto = context.StatusChamado.Single(x => x.Codigo == StatusChamadoEnum.Aberto);
-        var prioridadeMedia = context.PrioridadesChamado.Single(x => x.Nivel == PrioridadeChamadoEnum.Media);
+        var prioridadeBaixa = context.PrioridadesChamado.Single(x => x.Nivel == PrioridadeChamadoEnum.Baixa);
         var categoria = context.CategoriasChamado.Single(x => x.Nome == "Suporte Tecnico");
         var historico = context.HistoricosChamado.Single(x => x.ChamadoId == chamado.Id && x.Tipo == TipoHistoricoChamado.IntegracaoEmail);
         var log = context.LogsIntegracaoEmail.Single(x => x.MessageId == messageId);
@@ -44,7 +45,10 @@ public sealed class EmailMessageProcessorTests
         Assert.Equal(EmailMensagemProcessamentoStatus.Processado, resultado.Status);
         Assert.Equal(statusAberto.Id, chamado.StatusId);
         Assert.Equal(categoria.Id, chamado.CategoriaId);
-        Assert.Equal(prioridadeMedia.Id, chamado.PrioridadeId);
+        Assert.Equal(prioridadeBaixa.Id, chamado.PrioridadeId);
+        Assert.Equal(NaturezaChamadoEnum.Incidente, chamado.NaturezaChamado);
+        Assert.Equal(ImpactoChamadoEnum.Baixo, chamado.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Media, chamado.UrgenciaChamado);
         Assert.Equal(categoria.DepartamentoId, chamado.DepartamentoId);
         Assert.Equal("Chamado criado a partir de e-mail", historico.Descricao);
         Assert.Equal("suporte@sgx.local", log.Destinatario);
@@ -73,6 +77,9 @@ public sealed class EmailMessageProcessorTests
 
         var chamado = context.Chamados.Single(x => x.Origem == OrigemChamado.Email);
         Assert.Equal("Chamado aberto por e-mail", chamado.Titulo);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, chamado.NaturezaChamado);
+        Assert.Equal(ImpactoChamadoEnum.Baixo, chamado.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Baixa, chamado.UrgenciaChamado);
     }
 
     [Fact]
@@ -501,6 +508,7 @@ public sealed class EmailMessageProcessorTests
             correlationService,
             arquivoStorageService,
             new FakeCodigoChamadoService(),
+            new PrioridadeChamadoMatrizService(PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context)),
             SlaTestFactory.CriarService(context),
             PortalUseCasesTestFactory.ArquivosOptionsPadrao,
             workerOptions ?? PortalUseCasesTestFactory.EmailWorkerOptionsPadrao,

@@ -66,6 +66,23 @@ public sealed class RelatoriosAvancadosSprint3AdminUseCasesTests
     }
 
     [Fact]
+    public async Task ObterResumoSlaAsync_DeveFiltrarPorNaturezaChamado()
+    {
+        await using var cenario = await CriarCenarioAsync();
+
+        var resumo = await cenario.UseCase.ObterResumoSlaAsync(new FiltroRelatorioSlaRequest
+        {
+            DataInicial = cenario.BaseData.AddDays(-20),
+            DataFinal = cenario.BaseData,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente
+        });
+
+        Assert.Equal(1, resumo.TotalChamadosComSla);
+        Assert.Equal(1, resumo.TotalForaSla);
+        Assert.Equal(0, resumo.TotalDentroSla);
+    }
+
+    [Fact]
     public async Task ObterResumoAprovacoesAsync_DeveConsolidarPorStatus()
     {
         await using var cenario = await CriarCenarioAsync();
@@ -383,7 +400,7 @@ public sealed class RelatoriosAvancadosSprint3AdminUseCasesTests
         chamado1.AtribuirResponsavel(atendente.Id, "teste");
         chamado1.Encerrar(statusEncerrado.Id, "teste");
 
-        var chamado2 = new Chamado("CH-RAV3-002", "Fora SLA", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAberto.Id, OrigemChamado.Portal, "teste", categoriaInfra.DepartamentoId, catalogoServicoId: catalogoAcesso.Id);
+        var chamado2 = new Chamado("CH-RAV3-002", "Fora SLA", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAberto.Id, OrigemChamado.Portal, "teste", categoriaInfra.DepartamentoId, catalogoServicoId: catalogoAcesso.Id, naturezaChamado: NaturezaChamadoEnum.Incidente);
         chamado2.AtribuirResponsavel(atendente.Id, "teste");
         chamado2.Encerrar(statusEncerrado.Id, "teste");
 

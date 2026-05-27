@@ -17,6 +17,7 @@ function buildQuery(params: FiltroIndicadoresRequest): string {
   if (params.departamentoId) search.set('departamentoId', params.departamentoId)
   if (params.categoriaId) search.set('categoriaId', params.categoriaId)
   if (params.responsavelId) search.set('responsavelId', params.responsavelId)
+  if (params.naturezaChamado) search.set('naturezaChamado', String(params.naturezaChamado))
 
   const query = search.toString()
   return query ? `?${query}` : ''

@@ -9,6 +9,9 @@ public sealed class ChamadoResumoResponse
     public string Titulo { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public string Prioridade { get; init; } = string.Empty;
+    public NaturezaChamadoEnum NaturezaChamado { get; init; } = NaturezaChamadoEnum.Requisicao;
+    public ImpactoChamadoEnum ImpactoChamado { get; init; } = ImpactoChamadoEnum.Baixo;
+    public UrgenciaChamadoEnum UrgenciaChamado { get; init; } = UrgenciaChamadoEnum.Baixa;
     public string Categoria { get; init; } = string.Empty;
     public string? Subcategoria { get; init; }
     public string? TipoSolicitacao { get; init; }

@@ -1,5 +1,6 @@
 import type {
   ChamadosPorCategoria,
+  ChamadosPorNatureza,
   ChamadosPorPrioridade,
   ChamadosPorStatus,
   IndicadoresSla,
@@ -25,6 +26,7 @@ export interface DashboardAdminResponse {
   chamadosPorStatus: ChamadosPorStatus[]
   chamadosPorPrioridade: ChamadosPorPrioridade[]
   chamadosPorCategoria: ChamadosPorCategoria[]
+  chamadosPorNatureza: ChamadosPorNatureza[]
   indicadoresSla: IndicadoresSla
   produtividadePorAtendente: ProdutividadeAtendente[]
 }

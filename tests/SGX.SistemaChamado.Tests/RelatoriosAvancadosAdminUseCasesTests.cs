@@ -98,6 +98,54 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
     }
 
     [Fact]
+    public async Task ObterResumoChamadosAsync_DeveFiltrarPorNaturezaIncidente()
+    {
+        await using var cenario = await CriarCenarioAsync();
+
+        var resumo = await cenario.UseCase.ObterResumoChamadosAsync(new FiltroRelatorioChamadosRequest
+        {
+            DataInicial = cenario.BaseData.AddDays(-15),
+            DataFinal = cenario.BaseData,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente
+        });
+
+        Assert.Equal(2, resumo.TotalChamados);
+        Assert.Equal(2, resumo.TotalPorNatureza.First(x => x.Chave == ((int)NaturezaChamadoEnum.Incidente).ToString()).Quantidade);
+        Assert.Equal(0, resumo.TotalPorNatureza.First(x => x.Chave == ((int)NaturezaChamadoEnum.Requisicao).ToString()).Quantidade);
+    }
+
+    [Fact]
+    public async Task ObterResumoChamadosAsync_DeveFiltrarPorNaturezaRequisicao()
+    {
+        await using var cenario = await CriarCenarioAsync();
+
+        var resumo = await cenario.UseCase.ObterResumoChamadosAsync(new FiltroRelatorioChamadosRequest
+        {
+            DataInicial = cenario.BaseData.AddDays(-15),
+            DataFinal = cenario.BaseData,
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+        });
+
+        Assert.Equal(1, resumo.TotalChamados);
+    }
+
+    [Fact]
+    public async Task ObterResumoChamadosAsync_DeveCombinarFiltroNaturezaComPrioridade()
+    {
+        await using var cenario = await CriarCenarioAsync();
+
+        var resumo = await cenario.UseCase.ObterResumoChamadosAsync(new FiltroRelatorioChamadosRequest
+        {
+            DataInicial = cenario.BaseData.AddDays(-15),
+            DataFinal = cenario.BaseData,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente,
+            PrioridadeId = cenario.PrioridadeAltaId
+        });
+
+        Assert.Equal(1, resumo.TotalChamados);
+    }
+
+    [Fact]
     public async Task ObterResumoChamadosAsync_DeveIncluirChamadosComAprovacaoPendente()
     {
         await using var cenario = await CriarCenarioAsync();
@@ -192,6 +240,24 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
         Assert.Equal(AgruparPorRelatorioChamados.Departamento, distribuicao.AgruparPor);
         Assert.Contains(distribuicao.Itens, x => x.Chave == cenario.DepartamentoInfraId.ToString());
         Assert.Contains(distribuicao.Itens, x => x.Chave == cenario.DepartamentoAppsId.ToString());
+    }
+
+    [Fact]
+    public async Task ObterDistribuicaoChamadosAsync_DeveDistribuirPorNaturezaComSeisNaturezas()
+    {
+        await using var cenario = await CriarCenarioAsync();
+
+        var distribuicao = await cenario.UseCase.ObterDistribuicaoChamadosAsync(new FiltroRelatorioChamadosRequest
+        {
+            DataInicial = cenario.BaseData.AddDays(-15),
+            DataFinal = cenario.BaseData,
+            AgruparPor = AgruparPorRelatorioChamados.Natureza
+        });
+
+        Assert.Equal(AgruparPorRelatorioChamados.Natureza, distribuicao.AgruparPor);
+        Assert.Equal(6, distribuicao.Itens.Count);
+        Assert.Contains(distribuicao.Itens, x => x.Chave == ((int)NaturezaChamadoEnum.EventoAlerta).ToString() && x.Quantidade == 1);
+        Assert.Contains(distribuicao.Itens, x => x.Chave == ((int)NaturezaChamadoEnum.TarefaOperacional).ToString() && x.Quantidade == 0);
     }
 
     [Fact]
@@ -332,7 +398,8 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
             OrigemChamado.Portal,
             "teste",
             categoriaInfra.DepartamentoId,
-            catalogoServicoId: Guid.NewGuid());
+            catalogoServicoId: Guid.NewGuid(),
+            naturezaChamado: NaturezaChamadoEnum.Incidente);
         chamadoEncerrado.AtribuirResponsavel(atendenteInfra.Id, "teste");
         chamadoEncerrado.Encerrar(statusEncerrado.Id, "teste");
         chamadoEncerrado.VincularInventarioAtivo(Guid.NewGuid(), "teste");
@@ -347,7 +414,8 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
             statusAberto.Id,
             OrigemChamado.Email,
             "teste",
-            categoriaInfra.DepartamentoId);
+            categoriaInfra.DepartamentoId,
+            naturezaChamado: NaturezaChamadoEnum.Requisicao);
         chamadoAberto.AtribuirResponsavel(atendenteInfra.Id, "teste");
 
         var chamadoAtendimento = new Chamado(
@@ -360,7 +428,8 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
             statusAberto.Id,
             OrigemChamado.Admin,
             "teste",
-            categoriaApps.DepartamentoId);
+            categoriaApps.DepartamentoId,
+            naturezaChamado: NaturezaChamadoEnum.Incidente);
         chamadoAtendimento.AtribuirResponsavel(atendenteApps.Id, "teste");
         chamadoAtendimento.AlterarStatus(statusAtendimento.Id, "teste");
 
@@ -374,7 +443,8 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
             statusAberto.Id,
             OrigemChamado.Portal,
             "teste",
-            categoriaApps.DepartamentoId);
+            categoriaApps.DepartamentoId,
+            naturezaChamado: NaturezaChamadoEnum.EventoAlerta);
         chamadoCancelado.AlterarStatus(statusCancelado.Id, "teste");
 
         var chamadoForaPeriodo = new Chamado(
@@ -387,7 +457,8 @@ public sealed class RelatoriosAvancadosAdminUseCasesTests
             statusAberto.Id,
             OrigemChamado.Portal,
             "teste",
-            categoriaInfra.DepartamentoId);
+            categoriaInfra.DepartamentoId,
+            naturezaChamado: NaturezaChamadoEnum.TarefaOperacional);
         chamadoForaPeriodo.AtribuirResponsavel(atendenteInfra.Id, "teste");
 
         context.Chamados.AddRange(chamadoEncerrado, chamadoAberto, chamadoAtendimento, chamadoCancelado, chamadoForaPeriodo);

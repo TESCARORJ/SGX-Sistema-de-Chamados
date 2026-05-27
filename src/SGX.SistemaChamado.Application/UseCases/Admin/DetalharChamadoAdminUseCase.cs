@@ -9,6 +9,8 @@ namespace SGX.SistemaChamado.Application.UseCases.Admin;
 
 public sealed class DetalharChamadoAdminUseCase(
     IRepository<Chamado> chamadoRepository,
+    IFluxoStatusChamadoService fluxoStatusChamadoService,
+    IAcoesChamadoService acoesChamadoService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService) : IDetalharChamadoAdminUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, CancellationToken cancellationToken = default)
@@ -28,6 +30,15 @@ public sealed class DetalharChamadoAdminUseCase(
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
 
-        return AdminUseCaseHelpers.MapDetalhe(chamado);
+        var statusPermitidosCodigos = fluxoStatusChamadoService
+            .ObterStatusPermitidos(chamado.NaturezaChamado)
+            .Select(x => (int)x)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToArray();
+
+        var acoesDisponiveis = acoesChamadoService.ObterAcoesDisponiveis(chamado, usuario);
+
+        return AdminUseCaseHelpers.MapDetalhe(chamado, statusPermitidosCodigos, acoesDisponiveis);
     }
 }

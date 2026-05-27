@@ -26,6 +26,9 @@ describe('portalService', () => {
       catalogoServicoId: 'srv-1',
       categoriaId: 'cat-1',
       prioridadeId: 'prio-1',
+      naturezaChamado: 2,
+      impactoChamado: 1,
+      urgenciaChamado: 1,
     })
 
     expect(postMock).toHaveBeenCalledWith('/api/portal/chamados', {
@@ -34,6 +37,16 @@ describe('portalService', () => {
       catalogoServicoId: 'srv-1',
       categoriaId: 'cat-1',
       prioridadeId: 'prio-1',
+      naturezaChamado: 2,
+      impactoChamado: 1,
+      urgenciaChamado: 1,
+    })
+
+    const payloadEnviado = postMock.mock.calls[0]?.[1]
+    expect(payloadEnviado).toMatchObject({
+      naturezaChamado: 2,
+      impactoChamado: 1,
+      urgenciaChamado: 1,
     })
   })
 

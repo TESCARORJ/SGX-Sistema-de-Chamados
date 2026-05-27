@@ -30,12 +30,13 @@ describe('relatoriosAvancadosAdminService', () => {
       dataInicial: '2026-01-01',
       dataFinal: '2026-01-31',
       departamentoId: 'dep-1',
+      naturezaChamado: 1 as any,
       apenasAtivos: true,
       limiteRanking: 10,
     })
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admin/relatorios-avancados/chamados/resumo?DataInicial=2026-01-01&DataFinal=2026-01-31&DepartamentoId=dep-1&ApenasAtivos=true&LimiteRanking=10'
+      '/api/admin/relatorios-avancados/chamados/resumo?DataInicial=2026-01-01&DataFinal=2026-01-31&DepartamentoId=dep-1&NaturezaChamado=1&ApenasAtivos=true&LimiteRanking=10'
     )
   })
 
@@ -57,6 +58,20 @@ describe('relatoriosAvancadosAdminService', () => {
     expect(getMock).toHaveBeenCalledWith(
       '/api/admin/relatorios-avancados/chamados/resumo?DataInicial=2026-05-01T00%3A00%3A00&DataFinal=2026-05-31T23%3A59%3A59'
     )
+  })
+
+  it('nao deve enviar naturezaChamado quando filtro for Todos', async () => {
+    const { relatoriosAvancadosAdminService } = await import('./relatoriosAvancadosAdminService')
+    getMock.mockResolvedValueOnce({})
+
+    await relatoriosAvancadosAdminService.obterResumoChamados({
+      dataInicial: '2026-05-01',
+      dataFinal: '2026-05-31',
+      naturezaChamado: 0 as any,
+    })
+
+    const url = getMock.mock.calls.at(-1)?.[0] as string
+    expect(url).not.toContain('NaturezaChamado=')
   })
 
   it('deve obter resumo de sla', async () => {

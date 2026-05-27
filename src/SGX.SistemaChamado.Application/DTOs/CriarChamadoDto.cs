@@ -1,4 +1,6 @@
-﻿namespace SGX.SistemaChamado.Application.DTOs;
+using SGX.SistemaChamado.Domain.Enums;
+
+namespace SGX.SistemaChamado.Application.DTOs;
 
 public sealed record CriarChamadoDto(
     string Titulo,
@@ -7,7 +9,10 @@ public sealed record CriarChamadoDto(
     Guid CategoriaId,
     Guid? SubcategoriaId,
     Guid PrioridadeId,
-    Guid? TipoSolicitacaoId,
-    Guid? LocalUnidadeId,
-    Guid? DepartamentoId,
+    NaturezaChamadoEnum NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+    ImpactoChamadoEnum? ImpactoChamado = null,
+    UrgenciaChamadoEnum? UrgenciaChamado = null,
+    Guid? TipoSolicitacaoId = null,
+    Guid? LocalUnidadeId = null,
+    Guid? DepartamentoId = null,
     string Origem = "Portal");

@@ -88,6 +88,36 @@ public sealed class DashboardAdminUseCaseTests
         Assert.True(response.TotalProximosDoVencimento >= 1);
     }
 
+    [Fact]
+    public async Task DashboardRetornaContadoresPorNatureza()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var useCase = CriarUseCase(context, dados.ContextoAdmin);
+
+        var response = await useCase.ExecutarAsync(new FiltroIndicadoresRequest());
+
+        Assert.Equal(6, response.ChamadosPorNatureza.Count);
+        Assert.Contains(response.ChamadosPorNatureza, x => x.Codigo == (int)NaturezaChamadoEnum.Incidente && x.Total >= 1);
+        Assert.Contains(response.ChamadosPorNatureza, x => x.Codigo == (int)NaturezaChamadoEnum.Requisicao && x.Total >= 1);
+    }
+
+    [Fact]
+    public async Task DashboardAplicaFiltroPorNatureza()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var useCase = CriarUseCase(context, dados.ContextoAdmin);
+
+        var response = await useCase.ExecutarAsync(new FiltroIndicadoresRequest
+        {
+            NaturezaChamado = NaturezaChamadoEnum.Incidente
+        });
+
+        Assert.All(response.ChamadosPorNatureza.Where(x => x.Codigo != (int)NaturezaChamadoEnum.Incidente), x => Assert.Equal(0, x.Total));
+        Assert.Contains(response.ChamadosPorNatureza, x => x.Codigo == (int)NaturezaChamadoEnum.Incidente && x.Total >= 1);
+    }
+
     private static AdminIndicadoresUseCases CriarUseCase(SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
@@ -115,9 +145,9 @@ public sealed class DashboardAdminUseCaseTests
         var statusAtendimento = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
         var statusAguardando = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.AguardandoSolicitante);
 
-        var chamadoVencido = new Chamado("CH-DB-001", "Vencido", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAtendimento.Id, OrigemChamado.Portal, "teste", departamentoInfra.Id);
-        var chamadoProximo = new Chamado("CH-DB-002", "Proximo", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAberto.Id, OrigemChamado.Portal, "teste", departamentoInfra.Id);
-        var chamadoSemResponsavel = new Chamado("CH-DB-003", "Sem responsavel", "Descricao", solicitante.Id, categoriaApps.Id, prioridadeAlta.Id, statusAguardando.Id, OrigemChamado.Portal, "teste", departamentoApps.Id);
+        var chamadoVencido = new Chamado("CH-DB-001", "Vencido", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAtendimento.Id, OrigemChamado.Portal, "teste", departamentoInfra.Id, naturezaChamado: NaturezaChamadoEnum.Incidente);
+        var chamadoProximo = new Chamado("CH-DB-002", "Proximo", "Descricao", solicitante.Id, categoriaInfra.Id, prioridadeAlta.Id, statusAberto.Id, OrigemChamado.Portal, "teste", departamentoInfra.Id, naturezaChamado: NaturezaChamadoEnum.Requisicao);
+        var chamadoSemResponsavel = new Chamado("CH-DB-003", "Sem responsavel", "Descricao", solicitante.Id, categoriaApps.Id, prioridadeAlta.Id, statusAguardando.Id, OrigemChamado.Portal, "teste", departamentoApps.Id, naturezaChamado: NaturezaChamadoEnum.Mudanca);
 
         chamadoVencido.AtribuirResponsavel(atendente1.Id, "teste");
         chamadoProximo.AtribuirResponsavel(atendente1.Id, "teste");

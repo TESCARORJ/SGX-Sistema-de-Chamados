@@ -6,6 +6,10 @@ defineProps<{
   loading?: boolean
   canAssumir?: boolean
   canAtribuir?: boolean
+  canAlterarStatus?: boolean
+  canAlterarPrioridade?: boolean
+  canAlterarCategoria?: boolean
+  canComentar?: boolean
   canEncerrar?: boolean
   canReabrir?: boolean
 }>()
@@ -39,10 +43,34 @@ const emit = defineEmits<{
         @click="emit('atribuir')"
       />
 
-      <q-btn outline color="primary" icon="swap_horiz" label="Alterar status" :loading="loading" @click="emit('alterar-status')" />
-      <q-btn outline color="primary" icon="priority_high" label="Alterar prioridade" :loading="loading" @click="emit('alterar-prioridade')" />
-      <q-btn outline color="primary" icon="category" label="Alterar categoria" :loading="loading" @click="emit('alterar-categoria')" />
-      <q-btn outline color="primary" icon="comment" label="Comentar" :loading="loading" @click="emit('comentar')" />
+      <q-btn
+        v-if="canAlterarStatus !== false"
+        outline
+        color="primary"
+        icon="swap_horiz"
+        label="Alterar status"
+        :loading="loading"
+        @click="emit('alterar-status')"
+      />
+      <q-btn
+        v-if="canAlterarPrioridade !== false"
+        outline
+        color="primary"
+        icon="priority_high"
+        label="Alterar prioridade"
+        :loading="loading"
+        @click="emit('alterar-prioridade')"
+      />
+      <q-btn
+        v-if="canAlterarCategoria !== false"
+        outline
+        color="primary"
+        icon="category"
+        label="Alterar categoria"
+        :loading="loading"
+        @click="emit('alterar-categoria')"
+      />
+      <q-btn v-if="canComentar !== false" outline color="primary" icon="comment" label="Comentar" :loading="loading" @click="emit('comentar')" />
 
       <q-btn v-if="canEncerrar !== false" color="negative" icon="check_circle" label="Encerrar" :loading="loading" @click="emit('encerrar')" />
       <q-btn

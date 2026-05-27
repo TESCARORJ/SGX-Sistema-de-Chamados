@@ -1,3 +1,5 @@
+import type { NaturezaChamado } from './portal'
+
 export type TipoRelatorioAvancado =
   | 1
   | 2
@@ -25,7 +27,7 @@ export type AgrupamentoRelatorio =
   | 13
   | 14
 
-export type AgruparPorRelatorioChamados = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+export type AgruparPorRelatorioChamados = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 export type AgruparTempoMedioAprovacoesPor = 1 | 2 | 3
 
 export interface RelatoriosAvancadosMetadados {
@@ -58,6 +60,7 @@ export interface FiltroRelatorioChamados extends FiltroRelatorioBase {
   catalogoServicoId?: string
   inventarioAtivoId?: string
   origem?: string
+  naturezaChamado?: NaturezaChamado
   apenasAtivos?: boolean
   agrupamento?: AgrupamentoRelatorio
   agruparPor?: AgruparPorRelatorioChamados
@@ -74,6 +77,7 @@ export interface FiltroRelatorioSla extends FiltroRelatorioBase {
   atendenteId?: string
   solicitanteId?: string
   catalogoServicoId?: string
+  naturezaChamado?: NaturezaChamado
   politicaSlaId?: string
   situacaoSla?: string
   apenasAtivos?: boolean
@@ -187,6 +191,7 @@ export interface RelatorioChamadosResumo {
   tempoMedioAtePrimeiraAcaoHoras: number | null
   totalPorPrioridade: IndicadorResumo[]
   totalPorDepartamento: IndicadorResumo[]
+  totalPorNatureza: IndicadorResumo[]
   totalPorCategoria: IndicadorResumo[]
 }
 
@@ -232,6 +237,7 @@ export interface RelatorioSlaViolacao {
   chamadoId: string
   numeroProtocolo: string
   titulo: string
+  naturezaChamado: NaturezaChamado
   departamento: string
   prioridade: string
   status: string

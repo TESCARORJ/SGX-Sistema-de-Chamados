@@ -65,10 +65,21 @@ public sealed class RelatoriosAvancadosAdminUseCases(
         "StatusAprovacao",
         "InventarioAtivoId",
         "Origem",
+        "NaturezaChamado",
         "Ativo",
         "ApenasAtivos",
         "Agrupamento",
         "AgruparPor"
+    ];
+
+    private static readonly (NaturezaChamadoEnum Codigo, string Nome)[] NaturezasOrdenadas =
+    [
+        (NaturezaChamadoEnum.Incidente, "Incidente"),
+        (NaturezaChamadoEnum.Requisicao, "Requisicao"),
+        (NaturezaChamadoEnum.Mudanca, "Mudanca"),
+        (NaturezaChamadoEnum.Problema, "Problema"),
+        (NaturezaChamadoEnum.EventoAlerta, "Evento/Alerta"),
+        (NaturezaChamadoEnum.TarefaOperacional, "Tarefa operacional")
     ];
 
     private static readonly string[] PermissoesRelevantes =
@@ -213,6 +224,26 @@ public sealed class RelatoriosAvancadosAdminUseCases(
             .ThenBy(x => x.Nome)
             .ToArray();
 
+        var totalPorNaturezaBruto = await queryChamados
+            .GroupBy(x => x.NaturezaChamado)
+            .Select(grupo => new { Natureza = grupo.Key, Quantidade = grupo.Count() })
+            .ToListAsync(cancellationToken);
+
+        var totaisPorNaturezaLookup = totalPorNaturezaBruto
+            .ToDictionary(x => x.Natureza, x => x.Quantidade);
+
+        var totalPorNatureza = NaturezasOrdenadas
+            .Select(item =>
+            {
+                var quantidade = totaisPorNaturezaLookup.GetValueOrDefault(item.Codigo, 0);
+                return new IndicadorRelatorioDto(
+                    ((int)item.Codigo).ToString(),
+                    item.Nome,
+                    quantidade,
+                    CalcularPercentual(quantidade, totalChamados));
+            })
+            .ToArray();
+
         var totalPorCategoriaBruto = await queryChamados
             .GroupBy(x => new { x.CategoriaId, x.Categoria.Nome })
             .Select(grupo => new { grupo.Key.CategoriaId, grupo.Key.Nome, Quantidade = grupo.Count() })
@@ -242,6 +273,7 @@ public sealed class RelatoriosAvancadosAdminUseCases(
             tempoMedioAtePrimeiraAcaoHoras,
             totalPorPrioridade,
             totalPorDepartamento,
+            totalPorNatureza,
             totalPorCategoria);
     }
 
@@ -401,6 +433,20 @@ public sealed class RelatoriosAvancadosAdminUseCases(
                         item.ComAtivo ? "com-ativo-vinculado" : "sem-ativo-vinculado",
                         item.ComAtivo ? "Com ativo vinculado" : "Sem ativo vinculado",
                         item.Quantidade)),
+                totalChamados),
+            AgruparPorRelatorioChamados.Natureza => MapDistribuicao(
+                NaturezasOrdenadas
+                    .GroupJoin(
+                        await queryChamados
+                            .GroupBy(x => x.NaturezaChamado)
+                            .Select(grupo => new { Natureza = grupo.Key, Quantidade = grupo.Count() })
+                            .ToListAsync(cancellationToken),
+                        natureza => natureza.Codigo,
+                        total => total.Natureza,
+                        (natureza, total) => new DistribuicaoBase(
+                            ((int)natureza.Codigo).ToString(),
+                            natureza.Nome,
+                            total.FirstOrDefault()?.Quantidade ?? 0)),
                 totalChamados),
             _ => throw new ArgumentException("Agrupamento de distribuicao invalido.", nameof(request.AgruparPor))
         };
@@ -562,6 +608,9 @@ public sealed class RelatoriosAvancadosAdminUseCases(
                 x.Id,
                 x.Codigo,
                 x.Titulo,
+                x.NaturezaChamado,
+                x.ImpactoChamado,
+                x.UrgenciaChamado,
                 Departamento = x.Departamento != null ? x.Departamento.Nome : "Sem departamento",
                 Prioridade = x.Prioridade.Nome,
                 Status = x.Status.Nome,
@@ -594,13 +643,16 @@ public sealed class RelatoriosAvancadosAdminUseCases(
                     item.Id,
                     item.Codigo,
                     item.Titulo,
+                    item.NaturezaChamado,
                     item.Departamento,
                     item.Prioridade,
                     item.Status,
                     item.DataAbertura,
                     item.DataLimiteSla,
                     item.DataConclusao,
-                    horasExcedidas);
+                    horasExcedidas,
+                    item.ImpactoChamado,
+                    item.UrgenciaChamado);
             })
             .OrderByDescending(x => x.HorasExcedidas ?? 0)
             .ThenBy(x => x.DataLimiteSla)
@@ -1673,6 +1725,11 @@ public sealed class RelatoriosAvancadosAdminUseCases(
             query = query.Where(x => x.Origem == origem);
         }
 
+        if (request.NaturezaChamado.HasValue)
+        {
+            query = query.Where(x => x.NaturezaChamado == request.NaturezaChamado.Value);
+        }
+
         return query;
     }
 
@@ -1822,6 +1879,11 @@ public sealed class RelatoriosAvancadosAdminUseCases(
         if (request.PoliticaSlaId.HasValue)
         {
             query = query.Where(x => x.ChamadoSla != null && x.ChamadoSla.PoliticaSlaId == request.PoliticaSlaId.Value);
+        }
+
+        if (request.NaturezaChamado.HasValue)
+        {
+            query = query.Where(x => x.NaturezaChamado == request.NaturezaChamado.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(request.SituacaoSla))

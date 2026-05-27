@@ -21,7 +21,8 @@ import { integracoesEmailService } from '../services/integracoesEmailService'
 import type { AdminContextoResponse, ChamadoAdminResumo } from '../types/admin'
 import type { DashboardAdminResponse } from '../types/dashboard'
 import type { LogIntegracaoEmailResumoResponse } from '../types/integracaoEmail'
-import type { FiltroIndicadoresRequest, ProdutividadeAtendente } from '../types/indicadores'
+import type { ChamadosPorNatureza, FiltroIndicadoresRequest, ProdutividadeAtendente } from '../types/indicadores'
+import { NaturezaChamado } from '../types/portal'
 
 const router = useRouter()
 
@@ -46,6 +47,7 @@ const tamanhoPaginaFila = ref(10)
 const filtrosFila = reactive({
   texto: '',
   statusId: '',
+  naturezaChamado: '' as '' | NaturezaChamado,
 })
 
 const logsEmail = ref<LogIntegracaoEmailResumoResponse[]>([])
@@ -158,6 +160,29 @@ const totalPrioridade = computed(
 const totalCategoria = computed(
   () => dashboard.value?.chamadosPorCategoria.reduce((acc, item) => acc + item.total, 0) ?? 0
 )
+const totalNatureza = computed(
+  () => dashboard.value?.chamadosPorNatureza.reduce((acc, item) => acc + item.total, 0) ?? 0
+)
+
+const naturezasOrdenadas = [
+  { codigo: NaturezaChamado.Incidente, nome: 'Incidente' },
+  { codigo: NaturezaChamado.Requisicao, nome: 'Requisicao' },
+  { codigo: NaturezaChamado.Mudanca, nome: 'Mudanca' },
+  { codigo: NaturezaChamado.Problema, nome: 'Problema' },
+  { codigo: NaturezaChamado.EventoAlerta, nome: 'Evento/Alerta' },
+  { codigo: NaturezaChamado.TarefaOperacional, nome: 'Tarefa operacional' },
+] as const
+
+const chamadosPorNaturezaOrdenado = computed<ChamadosPorNatureza[]>(() => {
+  const atual = dashboard.value?.chamadosPorNatureza ?? []
+  const totais = new Map<number, number>(atual.map((item) => [item.codigo, item.total]))
+
+  return naturezasOrdenadas.map((item) => ({
+    codigo: item.codigo,
+    natureza: item.nome,
+    total: totais.get(item.codigo) ?? 0,
+  }))
+})
 
 const aprovacoesPendentesFila = computed(() => filaChamados.value.filter((item) => item.aprovacaoPendente).length)
 const chamadosCriticosFila = computed(() =>
@@ -261,6 +286,7 @@ async function carregarFilaChamados(): Promise<void> {
     const response = await adminService.listarChamadosAdmin({
       texto: filtrosFila.texto || undefined,
       statusId: filtrosFila.statusId || undefined,
+      naturezaChamado: filtrosFila.naturezaChamado || undefined,
       pagina: paginaFila.value,
       tamanhoPagina: tamanhoPaginaFila.value,
       ordenarPor: 'atualizadoEm',
@@ -311,6 +337,7 @@ async function aplicarFiltroFila(): Promise<void> {
 async function limparFiltroFila(): Promise<void> {
   filtrosFila.texto = ''
   filtrosFila.statusId = ''
+  filtrosFila.naturezaChamado = ''
   paginaFila.value = 1
   sucessoFila.value = null
   await carregarFilaChamados()
@@ -479,6 +506,30 @@ onMounted(() => {
             </q-item>
           </q-list>
         </AppSectionCard>
+
+        <AppSectionCard titulo="Distribuicao por natureza ITSM" subtitulo="Volume por tipo de chamado no periodo filtrado.">
+          <EmptyState
+            v-if="!chamadosPorNaturezaOrdenado.length"
+            titulo="Sem dados por natureza"
+            mensagem="Nao ha dados para o periodo selecionado."
+          />
+
+          <q-list v-else separator>
+            <q-item v-for="item in chamadosPorNaturezaOrdenado" :key="item.codigo">
+              <q-item-section>
+                <div class="text-body2 text-weight-medium">{{ item.natureza }}</div>
+                <q-linear-progress
+                  class="q-mt-xs"
+                  rounded
+                  size="8px"
+                  color="indigo"
+                  :value="percentual(item.total, totalNatureza)"
+                />
+              </q-item-section>
+              <q-item-section side>{{ item.total }}</q-item-section>
+            </q-item>
+          </q-list>
+        </AppSectionCard>
       </div>
 
       <div class="dashboard-main-grid">
@@ -578,7 +629,27 @@ onMounted(() => {
                   :options="contexto?.status.map((item) => ({ label: item.nome, value: item.id })) ?? []"
                 />
               </div>
-              <div class="col-12 col-md-3 row justify-end q-gutter-sm">
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="filtrosFila.naturezaChamado"
+                  outlined
+                  dense
+                  clearable
+                  emit-value
+                  map-options
+                  label="Natureza ITSM"
+                  :options="[
+                    { label: 'Todos', value: undefined },
+                    { label: 'Incidente', value: NaturezaChamado.Incidente },
+                    { label: 'Requisicao', value: NaturezaChamado.Requisicao },
+                    { label: 'Mudanca', value: NaturezaChamado.Mudanca },
+                    { label: 'Problema', value: NaturezaChamado.Problema },
+                    { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
+                    { label: 'Tarefa operacional', value: NaturezaChamado.TarefaOperacional },
+                  ]"
+                />
+              </div>
+              <div class="col-12 col-md-12 row justify-end q-gutter-sm">
                 <q-btn flat color="primary" label="Limpar" :disable="loadingFila" @click="limparFiltroFila" />
                 <q-btn type="submit" color="primary" icon="search" label="Filtrar" :loading="loadingFila" />
               </div>

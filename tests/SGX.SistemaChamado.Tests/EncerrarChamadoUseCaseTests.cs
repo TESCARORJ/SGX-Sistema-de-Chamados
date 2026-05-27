@@ -1,6 +1,7 @@
 ﻿using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 
@@ -85,6 +86,8 @@ public sealed class EncerrarChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<ComentarioChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(contexto),
             PortalUseCasesTestFactory.Uow(context));

@@ -31,5 +31,10 @@ public sealed class FiltroChamadosAdminRequestValidator : AbstractValidator<Filt
         RuleFor(x => x.DirecaoOrdenacao)
             .Must(direcao => string.Equals(direcao, "asc", StringComparison.OrdinalIgnoreCase) || string.Equals(direcao, "desc", StringComparison.OrdinalIgnoreCase))
             .WithMessage("Direcao de ordenacao invalida. Use 'asc' ou 'desc'.");
+
+        RuleFor(x => x.NaturezaChamado)
+            .IsInEnum()
+            .When(x => x.NaturezaChamado.HasValue)
+            .WithMessage("Natureza do chamado invalida.");
     }
 }

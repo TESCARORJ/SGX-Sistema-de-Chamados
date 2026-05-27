@@ -95,19 +95,9 @@ const vinculandoAtivoId = ref<string | null>(null)
 const removendoVinculoAtivo = ref(false)
 const ativoVinculadoDetalhe = ref<InventarioAtivoDetalhe | null>(null)
 
-const isAdministrador = computed(() => contexto.value?.usuario.perfis.includes('Administrador') ?? false)
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const fallbackAdminSemPermissoes = computed(
   () => usuarioEhAdministrador.value && (authStore.usuario?.permissoes?.length ?? 0) === 0
-)
-const podeAssumirPermissao = computed(() =>
-  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAssumir)
-)
-const podeAtribuirPermissao = computed(() =>
-  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosAtribuir)
-)
-const podeEncerrarPermissao = computed(() =>
-  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.chamadosEncerrar)
 )
 const podeVincularArtigoConhecimento = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.baseConhecimentoVincularChamado)
@@ -133,21 +123,15 @@ const podeCancelarAprovacaoPermissao = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.aprovacaoChamadosCancelar)
 )
 
-const podeAssumir = computed(() => {
-  if (!podeAssumirPermissao.value) {
-    return false
-  }
-
-  if (!detalhe.value) return false
-  return isAdministrador.value || !detalhe.value.responsavel
-})
-
-const chamadoEncerrado = computed(() => detalhe.value?.status.toLowerCase().includes('encerrado') ?? false)
-
-const chamadoReabrivel = computed(() => {
-  const status = detalhe.value?.status.toLowerCase() ?? ''
-  return status.includes('encerrado') || status.includes('resolvido')
-})
+const acoesDisponiveisSet = computed(() => new Set(detalhe.value?.acoesDisponiveisCodigos ?? []))
+const podeAssumir = computed(() => acoesDisponiveisSet.value.has('Assumir'))
+const podeAtribuir = computed(() => acoesDisponiveisSet.value.has('Atribuir'))
+const podeAlterarStatus = computed(() => acoesDisponiveisSet.value.has('AlterarStatus'))
+const podeAlterarPrioridade = computed(() => acoesDisponiveisSet.value.has('AlterarPrioridade'))
+const podeAlterarCategoria = computed(() => acoesDisponiveisSet.value.has('AlterarCategoria'))
+const podeComentar = computed(() => acoesDisponiveisSet.value.has('Comentar'))
+const podeEncerrar = computed(() => acoesDisponiveisSet.value.has('Encerrar'))
+const podeReabrir = computed(() => acoesDisponiveisSet.value.has('Reabrir'))
 const statusAprovacaoDescricao = computed(() => {
   if (detalhe.value?.statusAprovacao === null || detalhe.value?.statusAprovacao === undefined) {
     return 'Nao aplicavel'
@@ -212,6 +196,17 @@ const podeCancelarAprovacaoRapido = computed(
     aprovacaoPendente.value &&
     podeCancelarAprovacaoPermissao.value
 )
+const statusDisponiveisParaNatureza = computed(() => {
+  const todosStatus = contexto.value?.status ?? []
+  const codigosPermitidos = detalhe.value?.statusPermitidosCodigos ?? []
+
+  if (!codigosPermitidos.length) {
+    return todosStatus
+  }
+
+  const codigos = new Set<number>(codigosPermitidos)
+  return todosStatus.filter((status) => codigos.has(status.codigo))
+})
 const justificativaAcaoAprovacaoObrigatoria = computed(
   () => acaoAprovacaoSelecionada.value === 'reprovar' || acaoAprovacaoSelecionada.value === 'cancelar'
 )
@@ -270,6 +265,36 @@ const slaEmRisco = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVen
 function formatarData(value: string | null): string {
   if (!value) return '-'
   return new Date(value).toLocaleString('pt-BR')
+}
+
+function labelNaturezaChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Incidente'
+    case 2: return 'Requisicao'
+    case 3: return 'Mudanca'
+    case 4: return 'Problema'
+    case 5: return 'Evento/Alerta'
+    case 6: return 'Tarefa Operacional'
+    default: return `#${value}`
+  }
+}
+
+function labelImpactoChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Baixo'
+    case 2: return 'Medio'
+    case 3: return 'Alto'
+    default: return `#${value}`
+  }
+}
+
+function labelUrgenciaChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Baixa'
+    case 2: return 'Media'
+    case 3: return 'Alta'
+    default: return `#${value}`
+  }
 }
 
 function registrarSucesso(mensagem: string): void {
@@ -382,8 +407,8 @@ async function recarregarDetalhe(): Promise<void> {
 
 async function assumir(): Promise<void> {
   if (!detalhe.value) return
-  if (!podeAssumirPermissao.value) {
-    registrarErro(new Error('Você não possui permissão para assumir chamados.'), 'Não foi possível concluir a ação.')
+  if (!podeAssumir.value) {
+    registrarErro(new Error('A ação Assumir não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
     return
   }
 
@@ -391,7 +416,8 @@ async function assumir(): Promise<void> {
   erro.value = null
 
   try {
-    detalhe.value = await adminService.assumirChamado(detalhe.value.id)
+    await adminService.assumirChamado(detalhe.value.id)
+    await recarregarDetalhe()
     registrarSucesso('Chamado assumido com sucesso.')
   } catch (error) {
     registrarErro(error, 'Não foi possível concluir a ação.')
@@ -402,8 +428,8 @@ async function assumir(): Promise<void> {
 
 async function atribuir(responsavelId: string): Promise<void> {
   if (!detalhe.value) return
-  if (!podeAtribuirPermissao.value) {
-    registrarErro(new Error('Você não possui permissão para atribuir chamados.'), 'Não foi possível concluir a ação.')
+  if (!podeAtribuir.value) {
+    registrarErro(new Error('A ação Atribuir não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
     return
   }
 
@@ -411,7 +437,8 @@ async function atribuir(responsavelId: string): Promise<void> {
   erro.value = null
 
   try {
-    detalhe.value = await adminService.atribuirChamado(detalhe.value.id, { responsavelId })
+    await adminService.atribuirChamado(detalhe.value.id, { responsavelId })
+    await recarregarDetalhe()
     showAtribuir.value = false
     registrarSucesso('Informações salvas com sucesso.')
   } catch (error) {
@@ -423,12 +450,17 @@ async function atribuir(responsavelId: string): Promise<void> {
 
 async function alterarStatus(statusId: string): Promise<void> {
   if (!detalhe.value) return
+  if (!podeAlterarStatus.value) {
+    registrarErro(new Error('A ação Alterar status não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
 
   try {
-    detalhe.value = await adminService.alterarStatus(detalhe.value.id, { statusId })
+    await adminService.alterarStatus(detalhe.value.id, { statusId })
+    await recarregarDetalhe()
     showStatus.value = false
     registrarSucesso('Status alterado com sucesso.')
   } catch (error) {
@@ -440,12 +472,17 @@ async function alterarStatus(statusId: string): Promise<void> {
 
 async function alterarPrioridade(prioridadeId: string): Promise<void> {
   if (!detalhe.value) return
+  if (!podeAlterarPrioridade.value) {
+    registrarErro(new Error('A ação Alterar prioridade não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
 
   try {
-    detalhe.value = await adminService.alterarPrioridade(detalhe.value.id, { prioridadeId })
+    await adminService.alterarPrioridade(detalhe.value.id, { prioridadeId })
+    await recarregarDetalhe()
     showPrioridade.value = false
     registrarSucesso('Prioridade alterada com sucesso.')
   } catch (error) {
@@ -463,12 +500,17 @@ async function alterarCategoria(payload: {
   departamentoId?: string
 }): Promise<void> {
   if (!detalhe.value) return
+  if (!podeAlterarCategoria.value) {
+    registrarErro(new Error('A ação Alterar categoria não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
 
   try {
-    detalhe.value = await adminService.alterarCategoria(detalhe.value.id, payload)
+    await adminService.alterarCategoria(detalhe.value.id, payload)
+    await recarregarDetalhe()
     showCategoria.value = false
     registrarSucesso('Classificação alterada com sucesso.')
   } catch (error) {
@@ -480,6 +522,10 @@ async function alterarCategoria(payload: {
 
 async function comentar(): Promise<void> {
   if (!detalhe.value || !comentarioMensagem.value.trim()) return
+  if (!podeComentar.value) {
+    registrarErro(new Error('A ação Comentar não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
@@ -505,8 +551,8 @@ async function comentar(): Promise<void> {
 
 async function encerrar(payload: { solucao: string; comentarioInterno: boolean }): Promise<void> {
   if (!detalhe.value) return
-  if (!podeEncerrarPermissao.value) {
-    registrarErro(new Error('Você não possui permissão para encerrar chamados.'), 'Não foi possível concluir a ação.')
+  if (!podeEncerrar.value) {
+    registrarErro(new Error('A ação Encerrar não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
     return
   }
 
@@ -514,7 +560,8 @@ async function encerrar(payload: { solucao: string; comentarioInterno: boolean }
   erro.value = null
 
   try {
-    detalhe.value = await adminService.encerrarChamado(detalhe.value.id, payload)
+    await adminService.encerrarChamado(detalhe.value.id, payload)
+    await recarregarDetalhe()
     showEncerrar.value = false
     registrarSucesso('Chamado encerrado com sucesso.')
   } catch (error) {
@@ -526,12 +573,17 @@ async function encerrar(payload: { solucao: string; comentarioInterno: boolean }
 
 async function reabrir(mensagem: string): Promise<void> {
   if (!detalhe.value) return
+  if (!podeReabrir.value) {
+    registrarErro(new Error('A ação Reabrir não está disponível para este chamado no estado atual.'), 'Não foi possível concluir a ação.')
+    return
+  }
 
   processing.value = true
   erro.value = null
 
   try {
-    detalhe.value = await adminService.reabrirChamado(detalhe.value.id, { mensagem })
+    await adminService.reabrirChamado(detalhe.value.id, { mensagem })
+    await recarregarDetalhe()
     showReabrir.value = false
     registrarSucesso('Chamado reaberto com sucesso.')
   } catch (error) {
@@ -822,7 +874,8 @@ async function vincularAtivoChamado(ativo: InventarioAtivoListagem): Promise<voi
   vinculandoAtivoId.value = ativo.id
 
   try {
-    detalhe.value = await chamadoInventarioAtivoService.vincularAtivo(detalhe.value.id, ativo.id)
+    await chamadoInventarioAtivoService.vincularAtivo(detalhe.value.id, ativo.id)
+    await recarregarDetalhe()
     await carregarAtivoVinculadoDetalhe()
     await carregarAtivosDisponiveisParaVinculo()
     $q.notify({ type: 'positive', message: 'Ativo vinculado ao chamado com sucesso.' })
@@ -846,7 +899,8 @@ async function confirmarRemocaoAtivoVinculado(): Promise<void> {
   removendoVinculoAtivo.value = true
 
   try {
-    detalhe.value = await chamadoInventarioAtivoService.removerAtivo(detalhe.value.id)
+    await chamadoInventarioAtivoService.removerAtivo(detalhe.value.id)
+    await recarregarDetalhe()
     ativoVinculadoDetalhe.value = null
     showConfirmarRemocaoAtivo.value = false
     $q.notify({ type: 'positive', message: 'Vinculo do ativo removido com sucesso.' })
@@ -920,6 +974,27 @@ onMounted(carregar)
               <q-item-label caption>Código</q-item-label>
               <q-item-label>{{ detalhe.codigo }}</q-item-label>
             </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Natureza ITSM</q-item-label>
+              <q-item-label>{{ labelNaturezaChamado(detalhe.naturezaChamado) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Impacto</q-item-label>
+              <q-item-label>{{ labelImpactoChamado(detalhe.impactoChamado) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Urgencia</q-item-label>
+              <q-item-label>{{ labelUrgenciaChamado(detalhe.urgenciaChamado) }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Prioridade</q-item-label>
+              <q-item-label>
+                <PrioridadeBadge :texto="detalhe.prioridade" />
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item>
             <q-item-section>
               <q-item-label caption>Categoria</q-item-label>
               <q-item-label>{{ detalhe.categoria }}</q-item-label>
@@ -1243,13 +1318,24 @@ onMounted(carregar)
       </div>
 
       <AppSectionCard titulo="Ações administrativas" subtitulo="Assumir, atribuir e atualizar ciclo do chamado.">
+        <q-banner
+          v-if="!statusDisponiveisParaNatureza.length"
+          rounded
+          class="bg-amber-1 text-dark q-mb-sm"
+        >
+          Nao ha status compativeis disponiveis para a natureza ITSM deste chamado.
+        </q-banner>
         <PainelAtendimento
           :chamado="detalhe"
           :loading="processing"
           :can-assumir="podeAssumir"
-          :can-atribuir="podeAtribuirPermissao"
-          :can-encerrar="podeEncerrarPermissao && !chamadoEncerrado"
-          :can-reabrir="chamadoReabrivel"
+          :can-atribuir="podeAtribuir"
+          :can-alterar-status="podeAlterarStatus"
+          :can-alterar-prioridade="podeAlterarPrioridade"
+          :can-alterar-categoria="podeAlterarCategoria"
+          :can-comentar="podeComentar"
+          :can-encerrar="podeEncerrar"
+          :can-reabrir="podeReabrir"
           @assumir="assumir"
           @atribuir="showAtribuir = true"
           @alterar-status="showStatus = true"
@@ -1465,7 +1551,12 @@ onMounted(carregar)
       @confirmar="atribuir"
     />
 
-    <ModalAlterarStatus v-model="showStatus" :status="contexto?.status ?? []" :loading="processing" @confirmar="alterarStatus" />
+    <ModalAlterarStatus
+      v-model="showStatus"
+      :status="statusDisponiveisParaNatureza"
+      :loading="processing"
+      @confirmar="alterarStatus"
+    />
 
     <ModalAlterarPrioridade
       v-model="showPrioridade"

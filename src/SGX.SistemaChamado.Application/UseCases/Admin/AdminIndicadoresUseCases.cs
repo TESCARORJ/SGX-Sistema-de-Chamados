@@ -26,6 +26,7 @@ public sealed class AdminIndicadoresUseCases(
         var porStatus = MapChamadosPorStatus(chamados);
         var porPrioridade = MapChamadosPorPrioridade(chamados);
         var porCategoria = MapChamadosPorCategoria(chamados);
+        var porNatureza = MapChamadosPorNatureza(chamados);
         var indicadoresSla = MapIndicadoresSla(chamados);
         var produtividade = MapProdutividade(chamados);
 
@@ -61,6 +62,7 @@ public sealed class AdminIndicadoresUseCases(
             ChamadosPorStatus = porStatus,
             ChamadosPorPrioridade = porPrioridade,
             ChamadosPorCategoria = porCategoria,
+            ChamadosPorNatureza = porNatureza,
             IndicadoresSla = indicadoresSla,
             ProdutividadePorAtendente = produtividade
         };
@@ -155,6 +157,11 @@ public sealed class AdminIndicadoresUseCases(
             query = query.Where(x => x.ResponsavelId == request.ResponsavelId.Value);
         }
 
+        if (request.NaturezaChamado.HasValue)
+        {
+            query = query.Where(x => x.NaturezaChamado == request.NaturezaChamado.Value);
+        }
+
         return await query.ToListAsync(cancellationToken);
     }
 
@@ -178,6 +185,33 @@ public sealed class AdminIndicadoresUseCases(
             .OrderByDescending(x => x.Count())
             .Select(x => new ChamadosPorCategoriaResponse(x.Key, x.Count()))
             .ToArray();
+
+    private static IReadOnlyCollection<ChamadosPorNaturezaResponse> MapChamadosPorNatureza(IReadOnlyCollection<Chamado> chamados)
+    {
+        var totaisPorNatureza = chamados
+            .GroupBy(x => x.NaturezaChamado)
+            .ToDictionary(x => x.Key, x => x.Count());
+
+        return Enum.GetValues<NaturezaChamadoEnum>()
+            .OrderBy(x => (int)x)
+            .Select(natureza => new ChamadosPorNaturezaResponse(
+                (int)natureza,
+                ObterRotuloNatureza(natureza),
+                totaisPorNatureza.TryGetValue(natureza, out var total) ? total : 0))
+            .ToArray();
+    }
+
+    private static string ObterRotuloNatureza(NaturezaChamadoEnum natureza)
+        => natureza switch
+        {
+            NaturezaChamadoEnum.Incidente => "Incidente",
+            NaturezaChamadoEnum.Requisicao => "Requisicao",
+            NaturezaChamadoEnum.Mudanca => "Mudanca",
+            NaturezaChamadoEnum.Problema => "Problema",
+            NaturezaChamadoEnum.EventoAlerta => "Evento/Alerta",
+            NaturezaChamadoEnum.TarefaOperacional => "Tarefa operacional",
+            _ => natureza.ToString()
+        };
 
     private static IndicadoresSlaResponse MapIndicadoresSla(IReadOnlyCollection<Chamado> chamados)
     {

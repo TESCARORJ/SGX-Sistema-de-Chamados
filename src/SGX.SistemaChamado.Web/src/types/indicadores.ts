@@ -1,9 +1,12 @@
+import type { NaturezaChamado } from './portal'
+
 export interface FiltroIndicadoresRequest {
   dataInicio?: string
   dataFim?: string
   departamentoId?: string
   categoriaId?: string
   responsavelId?: string
+  naturezaChamado?: NaturezaChamado
 }
 
 export interface ChamadosPorStatus {
@@ -18,6 +21,12 @@ export interface ChamadosPorPrioridade {
 
 export interface ChamadosPorCategoria {
   categoria: string
+  total: number
+}
+
+export interface ChamadosPorNatureza {
+  codigo: number
+  natureza: string
   total: number
 }
 

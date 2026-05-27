@@ -72,6 +72,19 @@ public sealed class IndicadoresUseCaseTests
         Assert.All(response, x => Assert.False(string.IsNullOrWhiteSpace(x.ResponsavelNome)));
     }
 
+    [Fact]
+    public async Task DashboardRetornaIndicadoresPorNatureza()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var ctx = await SeedAsync(context);
+        var useCase = CriarUseCase(context, ctx);
+
+        var response = await ((IObterDashboardAdminUseCase)useCase).ExecutarAsync(new FiltroIndicadoresRequest());
+
+        Assert.Equal(6, response.ChamadosPorNatureza.Count);
+        Assert.Contains(response.ChamadosPorNatureza, x => x.Codigo == (int)NaturezaChamadoEnum.Incidente && x.Total >= 1);
+    }
+
     private static AdminIndicadoresUseCases CriarUseCase(SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)
         => new(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
@@ -88,9 +101,9 @@ public sealed class IndicadoresUseCaseTests
         var statusAtendimento = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
         var statusEncerrado = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Encerrado);
 
-        var chamado1 = new Chamado("CH-IND-001", "Indicador 1", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, statusAtendimento.Id, OrigemChamado.Portal, "teste");
+        var chamado1 = new Chamado("CH-IND-001", "Indicador 1", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, statusAtendimento.Id, OrigemChamado.Portal, "teste", naturezaChamado: NaturezaChamadoEnum.Incidente);
         chamado1.AtribuirResponsavel(atendente.Id, "teste");
-        var chamado2 = new Chamado("CH-IND-002", "Indicador 2", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, statusEncerrado.Id, OrigemChamado.Portal, "teste");
+        var chamado2 = new Chamado("CH-IND-002", "Indicador 2", "Descricao", solicitante.Id, categoria.Id, prioridade.Id, statusEncerrado.Id, OrigemChamado.Portal, "teste", naturezaChamado: NaturezaChamadoEnum.Requisicao);
         chamado2.AtribuirResponsavel(atendente.Id, "teste");
 
         context.Chamados.AddRange(chamado1, chamado2);

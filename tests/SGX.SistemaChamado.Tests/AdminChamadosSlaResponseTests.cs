@@ -1,4 +1,5 @@
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Domain.Entities;
@@ -33,6 +34,8 @@ public sealed class AdminChamadosSlaResponseTests
 
         var useCase = new DetalharChamadoAdminUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             new FakeUsuarioContextoAplicacaoService(contexto));
 
         var response = await useCase.ExecutarAsync(chamadoId);

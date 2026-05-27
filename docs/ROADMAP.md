@@ -31,6 +31,36 @@ Diretriz de seguranca:
 - Matriz de permissoes por perfil
 - GET /api/me com permissoes efetivas
 - Controle visual por permissao
+- Sprint 1 - Fundacao ITSM do chamado (implementado e validado)
+
+## Reorganizacao estrategica do roadmap ITSM (2026-05-27)
+
+- A numeracao das sprints ITSM foi reorganizada apos a conclusao da Fundacao ITSM.
+- A reorganizacao nao altera funcionalidades ja implementadas; altera apenas a ordem estrategica do roadmap.
+- Sprint 1 permanece concluida, implementada e validada (100%).
+
+Nova ordem estrategica do ciclo ITSM:
+1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
+2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
+3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
+4. Sprint 4 - Motor de Aprovacoes ITSM (50% - Implementado funcionalmente)
+5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
+6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
+7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
+8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
+9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
+10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
+11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
+12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
+13. Sprint 13 - Analise de impacto (25% - Planejado)
+14. Sprint 14 - SLA 2.0, OLA e matriz impacto x urgencia (50% - Implementado funcionalmente)
+15. Sprint 15 - Observadores de chamados (25% - Nao iniciado)
+16. Sprint 16 - Monitoramento, eventos e Zabbix (25% - Planejado)
+17. Sprint 17 - Relatorios ITSM avancados (50% - Implementado funcionalmente)
+18. Sprint 18 - Base de Conhecimento 2.0 (50% - Implementado funcionalmente)
+19. Sprint 19 - Pesquisa de satisfacao (25% - Nao iniciado)
+20. Sprint 20 - Homologacao institucional ITSM (75% - Em homologacao)
+21. Sprint 21 - Produto, implantacao e operacao (25% - Em desenvolvimento)
 
 ## Em evolucao
 

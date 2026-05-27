@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.UseCases.Portal;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -32,6 +33,8 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
+            new PrioridadeChamadoMatrizService(PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context)),
+            new CamposObrigatoriosChamadoService(),
             new FakeUsuarioContextoAplicacaoService(dados.UsuarioContexto),
             PortalUseCasesTestFactory.Uow(context));
 
@@ -41,11 +44,34 @@ public sealed class AbrirChamadoUseCaseTests
             Descricao = "Erro ao autenticar no SSO",
             CategoriaId = dados.Categoria.Id,
             PrioridadeId = dados.Prioridade.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente,
+            ImpactoChamado = ImpactoChamadoEnum.Alto,
+            UrgenciaChamado = UrgenciaChamadoEnum.Alta,
             DepartamentoId = dados.Departamento.Id
         });
 
         Assert.Equal(dados.Usuario.Id, context.Chamados.Single().SolicitanteId);
         Assert.Equal("Portal nao autentica", response.Titulo);
+        Assert.Equal(NaturezaChamadoEnum.Incidente, context.Chamados.Single().NaturezaChamado);
+    }
+
+    [Fact]
+    public async Task DeveBloquearIncidenteSemImpactoEUrgencia()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Incidente sem classificacao",
+            Descricao = "Falha operacional em sistema critico",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente
+        }));
+
+        Assert.Contains("Impacto", ex.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -73,6 +99,30 @@ public sealed class AbrirChamadoUseCaseTests
         Assert.Equal(dados.Subcategoria.Nome, response.Subcategoria);
         Assert.Equal(dados.TipoSolicitacao.Nome, response.TipoSolicitacao);
         Assert.Equal(dados.LocalUnidade.Nome, response.LocalUnidade);
+    }
+
+    [Fact]
+    public async Task DeveCalcularPrioridadePelaMatrizAoAbrirChamado()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+        var prioridadeCritica = await context.PrioridadesChamado.FirstAsync(x => x.Nivel == PrioridadeChamadoEnum.Critica);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Indisponibilidade total do sistema",
+            Descricao = "Usuarios sem acesso ao sistema principal.",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente,
+            ImpactoChamado = ImpactoChamadoEnum.Alto,
+            UrgenciaChamado = UrgenciaChamadoEnum.Alta
+        });
+
+        Assert.Equal(prioridadeCritica.Id, context.Chamados.Single(x => x.Id == response.Id).PrioridadeId);
+        Assert.Equal(ImpactoChamadoEnum.Alto, response.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Alta, response.UrgenciaChamado);
     }
 
     [Fact]
@@ -301,19 +351,24 @@ public sealed class AbrirChamadoUseCaseTests
     }
 
     [Fact]
-    public async Task DeveRejeitarPrioridadeInexistenteOuInativa()
+    public async Task DeveCalcularPrioridadeMesmoComPrioridadeIdInvalida()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
         var dados = await SeedBasico(context);
         var useCase = CriarUseCase(context, dados.UsuarioContexto);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
         {
             Titulo = "Erro",
             Descricao = "Descricao valida",
             CategoriaId = dados.Categoria.Id,
-            PrioridadeId = Guid.NewGuid()
-        }));
+            PrioridadeId = Guid.NewGuid(),
+            ImpactoChamado = ImpactoChamadoEnum.Alto,
+            UrgenciaChamado = UrgenciaChamadoEnum.Alta
+        });
+
+        var prioridadeCritica = await context.PrioridadesChamado.FirstAsync(x => x.Nivel == PrioridadeChamadoEnum.Critica);
+        Assert.Equal(prioridadeCritica.Id, context.Chamados.Single(x => x.Id == response.Id).PrioridadeId);
     }
 
     [Fact]
@@ -341,7 +396,7 @@ public sealed class AbrirChamadoUseCaseTests
         var dados = await SeedBasico(context);
         var useCase = CriarUseCase(context, dados.UsuarioContexto);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
         {
             Titulo = " ",
             Descricao = "Descricao valida",
@@ -357,7 +412,7 @@ public sealed class AbrirChamadoUseCaseTests
         var dados = await SeedBasico(context);
         var useCase = CriarUseCase(context, dados.UsuarioContexto);
 
-        await Assert.ThrowsAsync<ArgumentException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(new CriarChamadoRequest
         {
             Titulo = "Titulo valido",
             Descricao = "  ",
@@ -664,6 +719,8 @@ public sealed class AbrirChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<HistoricoInventarioAtivo>(context),
             SlaTestFactory.CriarService(context),
             new FakeCodigoChamadoService(),
+            new PrioridadeChamadoMatrizService(PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context)),
+            new CamposObrigatoriosChamadoService(),
             new FakeUsuarioContextoAplicacaoService(usuario),
             PortalUseCasesTestFactory.Uow(context));
 

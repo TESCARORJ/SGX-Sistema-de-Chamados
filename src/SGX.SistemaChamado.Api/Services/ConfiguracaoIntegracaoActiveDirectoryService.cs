@@ -138,7 +138,11 @@ public sealed class ConfiguracaoIntegracaoActiveDirectoryService(
             request.PerfilPadrao,
             request.TimeoutConexaoSegundos);
 
-        ValidarConfiguracao(opcoes, request.ConfirmacaoPermitirLdapSemTls, strict: true);
+        var errosValidacao = ValidarConfiguracao(opcoes, request.ConfirmacaoPermitirLdapSemTls, strict: true);
+        if (errosValidacao.Count > 0)
+        {
+            throw new InvalidOperationException(string.Join(' ', errosValidacao));
+        }
 
         await UpsertParametroAsync(Chaves.Ativo, opcoes.Ativo ? "true" : "false", false, "Active Directory tecnico ativo.", cancellationToken);
         await UpsertParametroAsync(Chaves.Servidor, opcoes.Servidor, false, "Servidor LDAP/LDAPS.", cancellationToken);

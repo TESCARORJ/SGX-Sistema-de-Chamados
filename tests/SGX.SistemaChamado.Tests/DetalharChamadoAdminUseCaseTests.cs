@@ -1,4 +1,5 @@
 using SGX.SistemaChamado.Application.Interfaces;
+using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -15,6 +16,8 @@ public sealed class DetalharChamadoAdminUseCaseTests
 
         var useCase = new DetalharChamadoAdminUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
 
         var response = await useCase.ExecutarAsync(dados.Chamado.Id);
@@ -25,6 +28,13 @@ public sealed class DetalharChamadoAdminUseCaseTests
         Assert.Equal("Acesso", response.Subcategoria);
         Assert.Equal("Incidente", response.TipoSolicitacao);
         Assert.Equal("Matriz", response.LocalUnidade);
+        Assert.True(Enum.IsDefined(response.NaturezaChamado));
+        Assert.True(Enum.IsDefined(response.ImpactoChamado));
+        Assert.True(Enum.IsDefined(response.UrgenciaChamado));
+        Assert.NotEmpty(response.StatusPermitidosCodigos);
+        Assert.NotEmpty(response.AcoesDisponiveisCodigos);
+        Assert.Contains("AlterarStatus", response.AcoesDisponiveisCodigos);
+        Assert.Contains((int)StatusChamadoEnum.Aberto, response.StatusPermitidosCodigos);
         Assert.Contains(response.Historico, item => item.Descricao == "Chamado criado pelo portal");
         Assert.Contains(response.Anexos, item => item.NomeArquivo == "evidencia.pdf");
     }
@@ -48,6 +58,8 @@ public sealed class DetalharChamadoAdminUseCaseTests
 
         var useCase = new DetalharChamadoAdminUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
 
         var response = await useCase.ExecutarAsync(dados.Chamado.Id);
@@ -78,6 +90,8 @@ public sealed class DetalharChamadoAdminUseCaseTests
 
         var useCase = new DetalharChamadoAdminUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
             new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
 
         var response = await useCase.ExecutarAsync(dados.Chamado.Id);
@@ -88,7 +102,32 @@ public sealed class DetalharChamadoAdminUseCaseTests
         Assert.Equal(aprovacao.Id, response.AprovacaoChamadoId);
     }
 
-    private static async Task<(Chamado Chamado, Usuario Solicitante, UsuarioContextoAplicacao ContextoAdmin)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    [Fact]
+    public async Task DetalheAdminDeveRetornarStatusPermitidosConformeNatureza()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context, NaturezaChamadoEnum.EventoAlerta);
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.Equal(NaturezaChamadoEnum.EventoAlerta, response.NaturezaChamado);
+        Assert.DoesNotContain((int)StatusChamadoEnum.AguardandoSolicitante, response.StatusPermitidosCodigos);
+        Assert.DoesNotContain((int)StatusChamadoEnum.EmAtendimento, response.StatusPermitidosCodigos);
+        Assert.Contains((int)StatusChamadoEnum.EmAnalise, response.StatusPermitidosCodigos);
+        Assert.Contains((int)StatusChamadoEnum.Correlacionado, response.StatusPermitidosCodigos);
+        Assert.Contains((int)StatusChamadoEnum.Tratado, response.StatusPermitidosCodigos);
+        Assert.Contains((int)StatusChamadoEnum.Encerrado, response.StatusPermitidosCodigos);
+    }
+
+    private static async Task<(Chamado Chamado, Usuario Solicitante, UsuarioContextoAplicacao ContextoAdmin)> SeedAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao)
     {
         var admin = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Admin", "admin.det@empresa.com", TipoPerfil.Administrador);
         var solicitante = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante", "sol.det@empresa.com", TipoPerfil.Solicitante);
@@ -110,7 +149,8 @@ public sealed class DetalharChamadoAdminUseCaseTests
             "DET",
             subcategoriaId: subcategoria.Id,
             tipoSolicitacaoId: tipoSolicitacao.Id,
-            localUnidadeId: localUnidade.Id);
+            localUnidadeId: localUnidade.Id,
+            naturezaChamado: naturezaChamado);
 
         subcategoria.Desativar("teste");
         tipoSolicitacao.Desativar("teste");

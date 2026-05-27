@@ -45,7 +45,8 @@ internal static class AdminUseCasesTestFactory
         string criadoPor = "teste",
         Guid? subcategoriaId = null,
         Guid? tipoSolicitacaoId = null,
-        Guid? localUnidadeId = null)
+        Guid? localUnidadeId = null,
+        NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao)
     {
         var prioridade = prioridadeId.HasValue
             ? await context.PrioridadesChamado.FirstAsync(x => x.Id == prioridadeId.Value)
@@ -66,13 +67,17 @@ internal static class AdminUseCasesTestFactory
             categoria.DepartamentoId,
             subcategoriaId,
             tipoSolicitacaoId,
-            localUnidadeId);
+            localUnidadeId,
+            naturezaChamado: naturezaChamado);
 
         context.Chamados.Add(chamado);
         await context.SaveChangesAsync();
         return chamado;
     }
 
+    public static UsuarioContextoAplicacao Contexto(Usuario usuario, string[] perfis, string[]? permissoes = null)
+        => new(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, perfis, permissoes);
+
     public static UsuarioContextoAplicacao Contexto(Usuario usuario, params string[] perfis)
-        => new(usuario.Id, usuario.Nome, usuario.Email, usuario.Login, perfis);
+        => Contexto(usuario, perfis, null);
 }

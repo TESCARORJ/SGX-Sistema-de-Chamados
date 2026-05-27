@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import type { AdminContextoResponse } from '../../types/admin'
 import type { FiltroIndicadoresRequest } from '../../types/indicadores'
+import { NaturezaChamado } from '../../types/portal'
 
 const props = defineProps<{
   contexto: AdminContextoResponse | null
@@ -18,7 +19,18 @@ const state = reactive({
   departamentoId: '',
   categoriaId: '',
   responsavelId: '',
+  naturezaChamado: '' as '' | NaturezaChamado,
 })
+
+const opcoesNatureza = [
+  { label: 'Todos', value: undefined },
+  { label: 'Incidente', value: NaturezaChamado.Incidente },
+  { label: 'Requisicao', value: NaturezaChamado.Requisicao },
+  { label: 'Mudanca', value: NaturezaChamado.Mudanca },
+  { label: 'Problema', value: NaturezaChamado.Problema },
+  { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
+  { label: 'Tarefa operacional', value: NaturezaChamado.TarefaOperacional },
+]
 
 function emitirFiltros(): void {
   emit('filtrar', {
@@ -27,6 +39,7 @@ function emitirFiltros(): void {
     departamentoId: state.departamentoId || undefined,
     categoriaId: state.categoriaId || undefined,
     responsavelId: state.responsavelId || undefined,
+    naturezaChamado: state.naturezaChamado || undefined,
   })
 }
 
@@ -36,6 +49,7 @@ function limpar(): void {
   state.departamentoId = ''
   state.categoriaId = ''
   state.responsavelId = ''
+  state.naturezaChamado = ''
   emitirFiltros()
 }
 </script>
@@ -86,6 +100,19 @@ function limpar(): void {
         :disable="props.loading"
         :options="props.contexto?.atendentes.map((a) => ({ label: a.nome, value: a.id })) ?? []"
         label="Responsável"
+      />
+    </div>
+
+    <div class="col-12 col-md-3">
+      <q-select
+        v-model="state.naturezaChamado"
+        outlined
+        clearable
+        emit-value
+        map-options
+        :disable="props.loading"
+        :options="opcoesNatureza"
+        label="Natureza ITSM"
       />
     </div>
 

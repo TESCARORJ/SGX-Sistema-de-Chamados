@@ -24,6 +24,7 @@ const columns: QTableColumn<ChamadoAdminResumo>[] = [
   { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', sortable: true },
   { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true },
   { name: 'solicitante', label: 'Solicitante', field: 'solicitanteNome', align: 'left', sortable: true },
+  { name: 'itsm', label: 'Classificação ITSM', field: 'naturezaChamado', align: 'left' },
   { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
   { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
@@ -39,6 +40,36 @@ function formatarData(value: string | null): string {
   }
 
   return new Date(value).toLocaleString('pt-BR')
+}
+
+function labelNaturezaChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Incidente'
+    case 2: return 'Requisicao'
+    case 3: return 'Mudanca'
+    case 4: return 'Problema'
+    case 5: return 'Evento/Alerta'
+    case 6: return 'Tarefa Operacional'
+    default: return `#${value}`
+  }
+}
+
+function labelImpactoChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Baixo'
+    case 2: return 'Medio'
+    case 3: return 'Alto'
+    default: return `#${value}`
+  }
+}
+
+function labelUrgenciaChamado(value: number): string {
+  switch (value) {
+    case 1: return 'Baixa'
+    case 2: return 'Media'
+    case 3: return 'Alta'
+    default: return `#${value}`
+  }
 }
 
 function podeAssumir(row: ChamadoAdminResumo): boolean {
@@ -87,6 +118,20 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
     <template #body-cell-status="slotProps">
       <q-td :props="slotProps">
         <StatusBadge :texto="slotProps.row.status" />
+      </q-td>
+    </template>
+
+    <template #body-cell-itsm="slotProps">
+      <q-td :props="slotProps">
+        <div class="column q-gutter-xs">
+          <q-chip dense square color="blue-1" text-color="primary">
+            {{ labelNaturezaChamado(slotProps.row.naturezaChamado) }}
+          </q-chip>
+          <div class="text-caption text-grey-8">
+            Impacto: {{ labelImpactoChamado(slotProps.row.impactoChamado) }} | Urgencia:
+            {{ labelUrgenciaChamado(slotProps.row.urgenciaChamado) }}
+          </div>
+        </div>
       </q-td>
     </template>
 
@@ -146,6 +191,13 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
               <div class="text-caption text-grey-7">{{ slotProps.row.codigo }}</div>
               <div class="text-subtitle1 text-weight-medium">{{ slotProps.row.titulo }}</div>
               <div class="text-caption text-grey-7 q-mt-xs">Categoria: {{ slotProps.row.categoria }}</div>
+              <div class="text-caption text-grey-7">
+                Natureza: {{ labelNaturezaChamado(slotProps.row.naturezaChamado) }}
+              </div>
+              <div class="text-caption text-grey-7">
+                Impacto: {{ labelImpactoChamado(slotProps.row.impactoChamado) }} | Urgencia:
+                {{ labelUrgenciaChamado(slotProps.row.urgenciaChamado) }}
+              </div>
               <div class="text-caption text-grey-7">Solicitante: {{ slotProps.row.solicitanteNome }}</div>
               <div class="text-caption text-grey-7">Responsável: {{ slotProps.row.responsavelNome || '-' }}</div>
               <div class="text-caption text-grey-7">Aberto em: {{ formatarData(slotProps.row.abertoEm) }}</div>

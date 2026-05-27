@@ -13,6 +13,7 @@ public sealed class UsuarioContextoAplicacaoService(IUsuarioAtualService usuario
             usuario.Nome,
             usuario.Email,
             usuario.Login,
-            usuario.Perfis);
+            usuario.Perfis,
+            usuario.Permissoes);
     }
 }

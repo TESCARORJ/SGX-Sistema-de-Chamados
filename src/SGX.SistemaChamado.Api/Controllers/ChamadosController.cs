@@ -6,6 +6,7 @@ using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Api.Services;
 using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.DTOs;
+using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Domain.Entities;
@@ -23,6 +24,7 @@ public sealed class ChamadosController(
     IRepository<Chamado> chamadoRepository,
     IUnitOfWork unitOfWork,
     SGX.SistemaChamado.Application.Interfaces.ICodigoChamadoService codigoChamadoService,
+    IPrioridadeChamadoMatrizService prioridadeChamadoMatrizService,
     IValidator<CriarChamadoDto> validator,
     IUsuarioAtualService usuarioAtualService,
     IValidator<CriarComentarioChamadoRequest> comentarioValidator,
@@ -56,6 +58,9 @@ public sealed class ChamadosController(
                 x.LocalUnidadeId,
                 x.StatusId,
                 x.Origem,
+                x.NaturezaChamado,
+                x.ImpactoChamado,
+                x.UrgenciaChamado,
                 x.AbertoEm,
                 x.EncerradoEm,
                 x.CriadoEm,
@@ -104,6 +109,9 @@ public sealed class ChamadosController(
                 x.LocalUnidadeId,
                 x.StatusId,
                 x.Origem,
+                x.NaturezaChamado,
+                x.ImpactoChamado,
+                x.UrgenciaChamado,
                 x.AbertoEm,
                 x.EncerradoEm,
                 x.CriadoEm,
@@ -155,10 +163,16 @@ public sealed class ChamadosController(
             return BadRequest(new { mensagem = "Categoria nao encontrada ou inativa." });
         }
 
-        var existePrioridade = await dbContext.PrioridadesChamado.AnyAsync(x => x.Id == request.PrioridadeId && x.Ativo, cancellationToken);
-        if (!existePrioridade)
+        var impactoChamado = request.ImpactoChamado ?? ImpactoChamadoEnum.Baixo;
+        if (!Enum.IsDefined(impactoChamado))
         {
-            return BadRequest(new { mensagem = "Prioridade nao encontrada ou inativa." });
+            return BadRequest(new { mensagem = "Impacto do chamado invalido." });
+        }
+
+        var urgenciaChamado = request.UrgenciaChamado ?? UrgenciaChamadoEnum.Baixa;
+        if (!Enum.IsDefined(urgenciaChamado))
+        {
+            return BadRequest(new { mensagem = "Urgencia do chamado invalida." });
         }
 
         if (request.SubcategoriaId.HasValue)
@@ -216,6 +230,28 @@ public sealed class ChamadosController(
             _ => OrigemChamado.Portal
         };
 
+        if (origem == OrigemChamado.Email && request.NaturezaChamado == NaturezaChamadoEnum.Incidente && urgenciaChamado == UrgenciaChamadoEnum.Baixa)
+        {
+            urgenciaChamado = UrgenciaChamadoEnum.Media;
+        }
+
+        var prioridadeCalculada = await prioridadeChamadoMatrizService.ObterPrioridadeAsync(impactoChamado, urgenciaChamado, cancellationToken);
+        var prioridadeIdEfetiva = prioridadeCalculada?.Id;
+
+        if (!prioridadeIdEfetiva.HasValue)
+        {
+            var prioridadeFallback = await dbContext.PrioridadesChamado
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.PrioridadeId && x.Ativo, cancellationToken);
+
+            if (prioridadeFallback is null)
+            {
+                return BadRequest(new { mensagem = "Prioridade nao encontrada ou inativa." });
+            }
+
+            prioridadeIdEfetiva = prioridadeFallback.Id;
+        }
+
         var codigo = await codigoChamadoService.GerarAsync(cancellationToken);
         var chamado = new Chamado(
             codigo,
@@ -223,14 +259,17 @@ public sealed class ChamadosController(
             request.Descricao,
             solicitanteId,
             request.CategoriaId,
-            request.PrioridadeId,
+            prioridadeIdEfetiva.Value,
             SeedData.StatusAbertoId,
             origem,
             usuarioAtual.Login,
             request.DepartamentoId,
             request.SubcategoriaId,
             request.TipoSolicitacaoId,
-            request.LocalUnidadeId);
+            request.LocalUnidadeId,
+            naturezaChamado: request.NaturezaChamado,
+            impactoChamado: impactoChamado,
+            urgenciaChamado: urgenciaChamado);
 
         await chamadoRepository.AddAsync(chamado, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -251,6 +290,9 @@ public sealed class ChamadosController(
             chamado.LocalUnidadeId,
             chamado.StatusId,
             chamado.Origem,
+            chamado.NaturezaChamado,
+            chamado.ImpactoChamado,
+            chamado.UrgenciaChamado,
             chamado.AbertoEm,
             chamado.EncerradoEm,
             chamado.CriadoEm,
