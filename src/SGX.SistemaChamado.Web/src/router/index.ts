@@ -1,4 +1,4 @@
-﻿import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import type { PerfilUsuario } from '../types/auth'
 
@@ -82,7 +82,26 @@ declare module 'vue-router' {
   }
 }
 
-const perfisPortal: PerfilUsuario[] = ['Solicitante', 'Atendente', 'Administrador']
+const perfisPortal: PerfilUsuario[] = [
+  'Solicitante',
+  'Atendente',
+  'Administrador',
+  'Atendente N1',
+  'Técnico N2',
+  'Coordenador Service Desk',
+  'Gestor TI',
+  'Auditor Governança'
+]
+
+const perfisAdministrativos: PerfilUsuario[] = [
+  'Administrador',
+  'Atendente',
+  'Atendente N1',
+  'Técnico N2',
+  'Coordenador Service Desk',
+  'Gestor TI',
+  'Auditor Governança'
+]
 
 const routes: RouteRecordRaw[] = [
   {
@@ -173,128 +192,224 @@ const routes: RouteRecordRaw[] = [
     component: AdminLayout,
     meta: {
       requiresAuth: true,
-      perfisPermitidos: ['Administrador', 'Atendente'],
+      perfisPermitidos: perfisAdministrativos,
     },
     children: [
       {
         path: '',
         name: 'admin-dashboard',
         component: AdminDashboardView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Dashboard.Visualizar', 'RelatoriosAvancados.Gerencial', 'RelatoriosAvancados.Operacional'],
+        },
       },
       {
         path: 'chamados',
         name: 'admin-chamados',
         component: AdminChamadosView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Chamados.Visualizar', 'Chamados.VisualizarTodos'],
+        },
       },
       {
         path: 'notificacoes',
         name: 'admin-notificacoes',
         component: AdminNotificacoesView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Notificacoes.Visualizar'],
+        },
       },
       {
         path: 'chamados/:id',
         name: 'admin-chamados-detalhe',
         component: AdminDetalheChamadoView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Chamados.Visualizar', 'Chamados.VisualizarTodos'],
+        },
       },
       {
         path: 'atendimento/aprovacao-chamados',
         name: 'admin-atendimento-aprovacao-chamados',
         component: AprovacaoChamadosListPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['AprovacaoChamados.Visualizar', 'AprovacaoChamados.Gerenciar'],
+        },
       },
       {
         path: 'atendimento/aprovacao-chamados/:id',
         name: 'admin-atendimento-aprovacao-chamados-detalhe',
         component: AprovacaoChamadosDetalhePage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['AprovacaoChamados.Visualizar', 'AprovacaoChamados.Gerenciar'],
+        },
       },
       {
         path: 'cadastros/usuarios',
         name: 'admin-cadastros-usuarios',
         component: UsuariosAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Usuarios.Visualizar', 'Usuarios.Gerenciar'],
+        },
       },
       {
         path: 'cadastros/usuarios/:id',
         name: 'admin-cadastros-usuarios-detalhe',
         component: UsuarioAdminDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Usuarios.Visualizar', 'Usuarios.Gerenciar'],
+        },
       },
       {
         path: 'cadastros/perfis',
         name: 'admin-cadastros-perfis',
         component: PerfisAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Perfis.Visualizar', 'Perfis.Gerenciar'],
+        },
       },
       {
         path: 'cadastros/perfis/:id',
         name: 'admin-cadastros-perfis-detalhe',
         component: PerfilAdminDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Perfis.Visualizar', 'Perfis.Gerenciar'],
+        },
       },
       {
         path: 'cadastros/departamentos',
         name: 'admin-cadastros-departamentos',
         component: DepartamentosAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/departamentos/:id',
         name: 'admin-cadastros-departamentos-detalhe',
         component: DepartamentoDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/categorias',
         name: 'admin-cadastros-categorias',
         component: CategoriasAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/categorias/:id',
         name: 'admin-cadastros-categorias-detalhe',
         component: CategoriaDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/subcategorias',
         name: 'admin-cadastros-subcategorias',
         component: SubcategoriasAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/subcategorias/:id',
         name: 'admin-cadastros-subcategorias-detalhe',
         component: SubcategoriaDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/prioridades',
         name: 'admin-cadastros-prioridades',
         component: PrioridadesAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/prioridades/:id',
         name: 'admin-cadastros-prioridades-detalhe',
         component: PrioridadeDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/tipos-solicitacao',
         name: 'admin-cadastros-tipos-solicitacao',
         component: TiposSolicitacaoAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/tipos-solicitacao/:id',
         name: 'admin-cadastros-tipos-solicitacao-detalhe',
         component: TipoSolicitacaoDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/locais',
         name: 'admin-cadastros-locais',
         component: LocaisUnidadesAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/locais/:id',
         name: 'admin-cadastros-locais-detalhe',
         component: LocalUnidadeDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/status',
         name: 'admin-cadastros-status',
         component: StatusAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'cadastros/status/:id',
         name: 'admin-cadastros-status-detalhe',
         component: StatusDetalheView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
       },
       {
         path: 'configuracoes/parametros',
@@ -302,7 +417,8 @@ const routes: RouteRecordRaw[] = [
         component: ParametrosSistemaView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Parametros.Visualizar', 'Parametros.Gerenciar'],
         },
       },
       {
@@ -311,18 +427,27 @@ const routes: RouteRecordRaw[] = [
         component: ParametroSistemaDetalheView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Parametros.Visualizar', 'Parametros.Gerenciar'],
         },
       },
       {
         path: 'integracoes/email',
         name: 'admin-integracoes-email',
         component: IntegracaoEmailLogsView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['IntegracoesEmail.Visualizar'],
+        },
       },
       {
         path: 'integracoes/microsoft-entra-id',
         name: 'admin-integracoes-microsoft-entra-id',
         component: IntegracaoMicrosoftEntraIdView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['IntegracoesMicrosoft.Visualizar', 'IntegracoesMicrosoft.Gerenciar'],
+        },
       },
       {
         path: 'integracoes/active-directory',
@@ -330,7 +455,7 @@ const routes: RouteRecordRaw[] = [
         component: ActiveDirectoryIntegracaoAdminView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
           requiredAnyPermissions: ['IntegracoesActiveDirectory.Visualizar', 'IntegracoesActiveDirectory.Gerenciar'],
         },
       },
@@ -340,7 +465,7 @@ const routes: RouteRecordRaw[] = [
         component: MetodosLoginAdminView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
           requiredAnyPermissions: ['AutenticacaoProvedores.Visualizar', 'AutenticacaoProvedores.Gerenciar'],
         },
       },
@@ -352,21 +477,37 @@ const routes: RouteRecordRaw[] = [
         path: 'sla/policies',
         name: 'admin-sla-policies',
         component: SlaPoliciesAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Sla.Visualizar', 'Sla.Criar', 'Sla.Editar', 'Sla.Excluir', 'Sla.AtivarDesativar'],
+        },
       },
       {
         path: 'sla/alertas',
         name: 'admin-sla-alertas',
         component: SlaAlertasAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Sla.Visualizar', 'Sla.Editar'],
+        },
       },
       {
         path: 'sla/calendarios',
         name: 'admin-sla-calendarios',
         component: SlaCalendariosAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Sla.Visualizar', 'Sla.Editar'],
+        },
       },
       {
         path: 'sla/painel',
         name: 'admin-sla-painel',
         component: SlaDashboardAdminView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['Sla.Visualizar'],
+        },
       },
       {
         path: 'roadmap-itsm',
@@ -374,7 +515,8 @@ const routes: RouteRecordRaw[] = [
         component: RoadmapItsmView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Roadmap.Visualizar', 'Roadmap.Gerenciar'],
         },
       },
       {
@@ -383,7 +525,8 @@ const routes: RouteRecordRaw[] = [
         component: RoadmapItsmView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Roadmap.Visualizar', 'Roadmap.Gerenciar'],
         },
       },
       {
@@ -392,7 +535,8 @@ const routes: RouteRecordRaw[] = [
         component: GestaoItsmDocumentacaoView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Roadmap.Visualizar'],
         },
       },
       {
@@ -401,7 +545,8 @@ const routes: RouteRecordRaw[] = [
         component: AuditoriaAdminView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['Auditoria.Visualizar', 'Auditoria.Gerenciar'],
         },
       },
       {
@@ -410,7 +555,7 @@ const routes: RouteRecordRaw[] = [
         component: AuditoriaAutenticacaoAdminView,
         meta: {
           requiresAuth: true,
-          perfisPermitidos: ['Administrador', 'Atendente'],
+          perfisPermitidos: perfisAdministrativos,
           requiredAnyPermissions: ['AuditoriaAutenticacao.Visualizar'],
         },
       },
@@ -418,86 +563,154 @@ const routes: RouteRecordRaw[] = [
         path: 'conhecimento/base-conhecimento',
         name: 'admin-conhecimento-base-conhecimento',
         component: BaseConhecimentoListPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['BaseConhecimento.Visualizar'],
+        },
       },
       {
         path: 'conhecimento/base-conhecimento/:id',
         name: 'admin-conhecimento-base-conhecimento-detalhe',
         component: BaseConhecimentoFormPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['BaseConhecimento.Visualizar', 'BaseConhecimento.Gerenciar'],
+        },
       },
       {
         path: 'conhecimento/catalogo-servicos',
         name: 'admin-conhecimento-catalogo-servicos',
         component: CatalogoServicosListPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['CatalogoServicos.Visualizar'],
+        },
       },
       {
         path: 'conhecimento/catalogo-servicos/novo',
         name: 'admin-conhecimento-catalogo-servicos-novo',
         component: CatalogoServicosFormPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['CatalogoServicos.Gerenciar'],
+        },
       },
       {
         path: 'conhecimento/catalogo-servicos/:id',
         name: 'admin-conhecimento-catalogo-servicos-detalhe',
         component: CatalogoServicosFormPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['CatalogoServicos.Visualizar', 'CatalogoServicos.Gerenciar'],
+        },
       },
       {
         path: 'infraestrutura/inventario-ativos',
         name: 'admin-infraestrutura-inventario-ativos',
         component: InventarioAtivosListPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['InventarioAtivos.Visualizar'],
+        },
       },
       {
         path: 'infraestrutura/inventario-ativos/novo',
         name: 'admin-infraestrutura-inventario-ativos-novo',
         component: InventarioAtivosFormPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['InventarioAtivos.Gerenciar'],
+        },
       },
       {
         path: 'infraestrutura/inventario-ativos/:id',
         name: 'admin-infraestrutura-inventario-ativos-detalhe',
         component: InventarioAtivosDetalhePage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['InventarioAtivos.Visualizar'],
+        },
       },
       {
         path: 'infraestrutura/inventario-ativos/:id/editar',
         name: 'admin-infraestrutura-inventario-ativos-editar',
         component: InventarioAtivosFormPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['InventarioAtivos.Gerenciar'],
+        },
       },
       {
         path: 'relatorios/avancados',
         name: 'admin-relatorios-avancados-dashboard',
         component: RelatoriosAvancadosDashboardPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar', 'RelatoriosAvancados.Gerencial'],
+        },
       },
       {
         path: 'relatorios/chamados',
         name: 'admin-relatorios-chamados',
         component: RelatoriosChamadosPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar', 'RelatoriosAvancados.Operacional'],
+        },
       },
       {
         path: 'relatorios/sla',
         name: 'admin-relatorios-sla',
         component: RelatoriosSlaPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar'],
+        },
       },
       {
         path: 'relatorios/aprovacoes',
         name: 'admin-relatorios-aprovacoes',
         component: RelatoriosAprovacoesPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar'],
+        },
       },
       {
         path: 'relatorios/catalogo-servicos',
         name: 'admin-relatorios-catalogo-servicos',
         component: RelatoriosCatalogoServicosPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar'],
+        },
       },
       {
         path: 'relatorios/inventario-ativos',
         name: 'admin-relatorios-inventario-ativos',
         component: RelatoriosInventarioAtivosPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar'],
+        },
       },
       {
         path: 'relatorios/base-conhecimento',
         name: 'admin-relatorios-base-conhecimento',
         component: RelatoriosBaseConhecimentoPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar'],
+        },
       },
       {
         path: 'relatorios/auditoria',
         name: 'admin-relatorios-auditoria',
         component: RelatoriosAuditoriaPage,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['RelatoriosAvancados.Visualizar', 'RelatoriosAvancados.Auditoria'],
+        },
       },
     ],
   },

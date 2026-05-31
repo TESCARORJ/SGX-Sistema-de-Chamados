@@ -1,4 +1,4 @@
-﻿namespace SGX.SistemaChamado.Api.Authorization;
+namespace SGX.SistemaChamado.Api.Authorization;
 
 public static class PermissionPolicies
 {
@@ -59,4 +59,14 @@ public static class PermissionPolicies
     public const string RelatoriosAvancadosGerencial = Prefixo + PermissoesConstants.RelatoriosAvancadosGerencial;
     public const string RelatoriosAvancadosOperacional = Prefixo + PermissoesConstants.RelatoriosAvancadosOperacional;
     public const string RelatoriosAvancadosAuditoria = Prefixo + PermissoesConstants.RelatoriosAvancadosAuditoria;
+
+    public const string ProblemasVisualizar = Prefixo + PermissoesConstants.ProblemasVisualizar;
+    public const string ProblemasGerenciar = Prefixo + PermissoesConstants.ProblemasGerenciar;
+
+    public const string MudancasVisualizar = Prefixo + PermissoesConstants.MudancasVisualizar;
+    public const string MudancasGerenciar = Prefixo + PermissoesConstants.MudancasGerenciar;
+
+    public const string TarefasVisualizar = Prefixo + PermissoesConstants.TarefasVisualizar;
+    public const string TarefasGerenciar = Prefixo + PermissoesConstants.TarefasGerenciar;
 }
+

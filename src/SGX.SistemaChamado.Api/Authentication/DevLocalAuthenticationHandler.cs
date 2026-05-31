@@ -37,6 +37,7 @@ public sealed class DevLocalAuthenticationHandler(
         email = (email ?? string.Empty).Trim().ToLowerInvariant();
         nome = string.IsNullOrWhiteSpace(nome) ? authOptions.Value.AdminLocalNome : nome.Trim();
         perfil = string.IsNullOrWhiteSpace(perfil) ? PerfisInternos.Administrador : perfil.Trim();
+        perfil = NormalizarPerfil(perfil);
 
         if (string.IsNullOrWhiteSpace(email))
         {
@@ -75,5 +76,48 @@ public sealed class DevLocalAuthenticationHandler(
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, AuthSchemes.LocalDevelopment);
         return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+    private static string NormalizarPerfil(string perfil)
+    {
+        if (string.IsNullOrWhiteSpace(perfil))
+        {
+            return PerfisInternos.Administrador;
+        }
+
+        var normalized = perfil.Trim().Replace(" ", "").ToLowerInvariant();
+
+        switch (normalized)
+        {
+            case "administrador":
+                return "Administrador";
+            case "solicitante":
+                return "Solicitante";
+            case "atendente":
+                return "Atendente";
+            case "atendenten1":
+            case "atendenten1homologacao":
+                return "Atendente N1";
+            case "tecnicon2":
+            case "tecnicon2homologacao":
+                return "Técnico N2";
+            case "coordenadorservicedesk":
+            case "coordenadorservicedeskhomologacao":
+                return "Coordenador Service Desk";
+            case "gestorti":
+            case "gestortihomologacao":
+                return "Gestor TI";
+            case "auditorgovernanca":
+            case "auditorgovernancahomologacao":
+                return "Auditor Governança";
+            default:
+                var normalizedWithSpaces = perfil.Trim().ToLowerInvariant();
+                if (normalizedWithSpaces.Contains("atendente n1")) return "Atendente N1";
+                if (normalizedWithSpaces.Contains("tecnico n2") || normalizedWithSpaces.Contains("têcnico n2")) return "Técnico N2";
+                if (normalizedWithSpaces.Contains("coordenador service desk")) return "Coordenador Service Desk";
+                if (normalizedWithSpaces.Contains("gestor ti")) return "Gestor TI";
+                if (normalizedWithSpaces.Contains("auditor governanca") || normalizedWithSpaces.Contains("auditor governança")) return "Auditor Governança";
+                
+                return perfil;
+        }
     }
 }

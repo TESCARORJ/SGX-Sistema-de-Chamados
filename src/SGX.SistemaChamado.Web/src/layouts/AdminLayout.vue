@@ -1,10 +1,11 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/authStore'
+import { useAuthStore, obterRotaInicialParaPerfil } from '../stores/authStore'
 import NotificationsMenu from '../components/ui/NotificationsMenu.vue'
 import { permissoes } from '../constants/permissoes'
+import type { PerfilEmulado } from '../types/auth'
 
 type MenuItem = {
   label: string
@@ -59,32 +60,368 @@ const gruposMenuDefinicao: Array<Omit<GrupoMenu, 'items'>> = [
   { key: 'relatorios', label: 'Relatórios', icon: 'analytics' },
 ]
 
-const menu: MenuItem[] = [
-  {
-    label: 'Dashboard',
-    icon: 'space_dashboard',
-    to: '/admin',
-    requiredAnyPermissions: [permissoes.dashboardVisualizar],
-  },
-  {
-    label: 'Relatórios',
-    icon: 'analytics',
-    requiredAnyPermissions: [
-      permissoes.relatoriosAvancadosVisualizar,
-      permissoes.relatoriosAvancadosGerencial,
-      permissoes.relatoriosAvancadosOperacional,
-      permissoes.relatoriosAvancadosAuditoria,
-    ],
-    children: [
+const menu = computed<MenuItem[]>(() => {
+  const perfis = authStore.usuario?.perfis ?? []
+
+  if (perfis.includes('Administrador')) {
+    return [
       {
-        label: 'Relatórios avançados',
+        label: 'Usuários',
+        icon: 'group',
+        to: '/admin/cadastros/usuarios',
+        requiredAnyPermissions: [permissoes.usuariosVisualizar],
+      },
+      {
+        label: 'Perfis e permissões',
+        icon: 'badge',
+        to: '/admin/cadastros/perfis',
+        requiredAnyPermissions: [permissoes.perfisVisualizar],
+      },
+      {
+        label: 'Cadastros administrativos',
+        icon: 'dataset',
+        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+        children: [
+          {
+            label: 'Departamentos',
+            icon: 'apartment',
+            to: '/admin/cadastros/departamentos',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Categorias',
+            icon: 'category',
+            to: '/admin/cadastros/categorias',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Subcategorias',
+            icon: 'account_tree',
+            to: '/admin/cadastros/subcategorias',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Prioridades',
+            icon: 'priority_high',
+            to: '/admin/cadastros/prioridades',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Tipos de Solicitação',
+            icon: 'sell',
+            to: '/admin/cadastros/tipos-solicitacao',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Locais / Unidades',
+            icon: 'location_city',
+            to: '/admin/cadastros/locais',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+          {
+            label: 'Status',
+            icon: 'flag',
+            to: '/admin/cadastros/status',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
+        ],
+      },
+      {
+        label: 'SLA',
+        icon: 'schedule',
+        requiredAnyPermissions: [permissoes.slaVisualizar],
+        children: [
+          {
+            label: 'Políticas',
+            icon: 'rule',
+            to: '/admin/sla/policies',
+            requiredAnyPermissions: [permissoes.slaVisualizar],
+          },
+          {
+            label: 'Painel',
+            icon: 'monitoring',
+            to: '/admin/sla/painel',
+            requiredAnyPermissions: [permissoes.slaVisualizar],
+          },
+          {
+            label: 'Alertas',
+            icon: 'notifications_active',
+            to: '/admin/sla/alertas',
+            requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+          },
+          {
+            label: 'Calendários',
+            icon: 'event_available',
+            to: '/admin/sla/calendarios',
+            requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+          },
+        ],
+      },
+      {
+        label: 'Integrações',
+        icon: 'hub',
+        requiredAnyPermissions: [
+          permissoes.integracoesEmailVisualizar,
+          permissoes.integracoesMicrosoftVisualizar,
+          permissoes.integracoesActiveDirectoryVisualizar,
+          permissoes.autenticacaoProvedoresVisualizar,
+        ],
+        children: [
+          {
+            label: 'E-mail',
+            icon: 'mail',
+            to: '/admin/integracoes/email',
+            requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
+          },
+          {
+            label: 'Microsoft Entra ID',
+            icon: 'shield',
+            to: '/admin/integracoes/microsoft-entra-id',
+            requiredAnyPermissions: [permissoes.integracoesMicrosoftVisualizar],
+          },
+          {
+            label: 'Active Directory / LDAP',
+            icon: 'domain',
+            to: '/admin/integracoes/active-directory',
+            requiredAnyPermissions: [permissoes.integracoesActiveDirectoryVisualizar],
+          },
+          {
+            label: 'Métodos de login',
+            icon: 'login',
+            to: '/admin/integracoes/metodos-login',
+            requiredAnyPermissions: [permissoes.autenticacaoProvedoresVisualizar],
+          },
+        ],
+      },
+      {
+        label: 'Configurações',
+        icon: 'settings',
+        requiredAnyPermissions: [permissoes.parametrosVisualizar],
+        children: [
+          {
+            label: 'Parâmetros do Sistema',
+            icon: 'tune',
+            to: '/admin/configuracoes/parametros',
+            requiredAnyPermissions: [permissoes.parametrosVisualizar],
+          },
+        ],
+      },
+      {
+        label: 'Roadmap',
+        icon: 'insights',
+        requiredAnyPermissions: [permissoes.roadmapVisualizar],
+        children: [
+          {
+            label: 'Roadmap ITSM',
+            icon: 'account_tree',
+            to: '/admin/gestao-itsm/roadmap',
+            requiredAnyPermissions: [permissoes.roadmapVisualizar],
+          },
+          {
+            label: 'Documentação',
+            icon: 'library_books',
+            to: '/admin/gestao-itsm/documentacao',
+            requiredAnyPermissions: [permissoes.roadmapVisualizar],
+          },
+        ],
+      },
+    ]
+  }
+
+  if (perfis.includes('Coordenador Service Desk')) {
+    return [
+      {
+        label: 'Dashboard operacional',
+        icon: 'space_dashboard',
+        to: '/admin',
+        requiredAnyPermissions: [permissoes.dashboardVisualizar],
+      },
+      {
+        label: 'Fila geral',
+        icon: 'toc',
+        to: '/admin/chamados',
+        requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Chamados críticos',
+        icon: 'priority_high',
+        to: '/admin/chamados?prioridade=critica',
+        requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'SLA',
+        icon: 'schedule',
+        requiredAnyPermissions: [permissoes.slaVisualizar],
+        children: [
+          {
+            label: 'Políticas',
+            icon: 'rule',
+            to: '/admin/sla/policies',
+            requiredAnyPermissions: [permissoes.slaVisualizar],
+          },
+          {
+            label: 'Painel',
+            icon: 'monitoring',
+            to: '/admin/sla/painel',
+            requiredAnyPermissions: [permissoes.slaVisualizar],
+          },
+          {
+            label: 'Alertas',
+            icon: 'notifications_active',
+            to: '/admin/sla/alertas',
+            requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+          },
+          {
+            label: 'Calendários',
+            icon: 'event_available',
+            to: '/admin/sla/calendarios',
+            requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
+          },
+        ],
+      },
+      {
+        label: 'Atribuições',
+        icon: 'group_add',
+        to: '/admin/chamados',
+        requiredAnyPermissions: [permissoes.chamadosAtribuir],
+      },
+      {
+        label: 'Relatórios operacionais',
+        icon: 'analytics',
+        to: '/admin/relatorios/chamados',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosOperacional],
+      },
+    ]
+  }
+
+  if (perfis.includes('Técnico N2')) {
+    return [
+      {
+        label: 'Minha fila técnica',
+        icon: 'engineering',
+        to: '/admin/chamados?filtro=tecnico',
+        requiredAnyPermissions: [permissoes.chamadosVisualizar],
+      },
+      {
+        label: 'Chamados escalados',
+        icon: 'arrow_upward',
+        to: '/admin/chamados?filtro=escalados',
+        requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Problemas',
+        icon: 'report_problem',
+        to: '/admin/chamados?tipo=Problema',
+        requiredAnyPermissions: [permissoes.problemasVisualizar],
+      },
+      {
+        label: 'Mudanças',
+        icon: 'published_with_changes',
+        to: '/admin/chamados?tipo=Mudanca',
+        requiredAnyPermissions: [permissoes.mudancasVisualizar],
+      },
+      {
+        label: 'Tarefas operacionais',
+        icon: 'playlist_add_check',
+        to: '/admin/chamados?tipo=Tarefa',
+        requiredAnyPermissions: [permissoes.tarefasVisualizar],
+      },
+      {
+        label: 'Base de conhecimento',
+        icon: 'menu_book',
+        to: '/admin/conhecimento/base-conhecimento',
+        requiredAnyPermissions: [permissoes.baseConhecimentoVisualizar],
+      },
+    ]
+  }
+
+  if (perfis.includes('Atendente N1')) {
+    return [
+      {
+        label: 'Fila de atendimento',
+        icon: 'list_alt',
+        to: '/admin/chamados',
+        requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Meus atendimentos',
+        icon: 'assignment_ind',
+        to: '/admin/chamados?filtro=meus',
+        requiredAnyPermissions: [permissoes.chamadosVisualizar],
+      },
+      {
+        label: 'Triagem',
+        icon: 'assignment',
+        to: '/admin/chamados?filtro=triagem',
+        requiredAnyPermissions: [permissoes.chamadosAtribuir],
+      },
+      {
+        label: 'Base de conhecimento',
+        icon: 'menu_book',
+        to: '/admin/conhecimento/base-conhecimento',
+        requiredAnyPermissions: [permissoes.baseConhecimentoVisualizar],
+      },
+    ]
+  }
+
+  if (perfis.includes('Gestor TI')) {
+    return [
+      {
+        label: 'Dashboard executivo',
         icon: 'dashboard',
         to: '/admin/relatorios/avancados',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosGerencial],
+      },
+      {
+        label: 'Indicadores ITSM',
+        icon: 'trending_up',
+        to: '/admin/relatorios/chamados',
+        requiredAnyPermissions: [permissoes.dashboardVisualizar],
+      },
+      {
+        label: 'Relatórios',
+        icon: 'analytics',
+        to: '/admin/relatorios/chamados',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
       {
-        label: 'Chamados',
-        icon: 'support_agent',
+        label: 'SLA',
+        icon: 'schedule',
+        to: '/admin/relatorios/sla',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Mudanças',
+        icon: 'published_with_changes',
+        to: '/admin/relatorios/aprovacoes',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+      {
+        label: 'Problemas recorrentes',
+        icon: 'sync_problem',
+        to: '/admin/relatorios/auditoria',
+        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
+      },
+    ]
+  }
+
+  if (perfis.includes('Auditor Governança')) {
+    return [
+      {
+        label: 'Consulta de chamados',
+        icon: 'search',
+        to: '/admin/chamados',
+        requiredAnyPermissions: [permissoes.chamadosVisualizar],
+      },
+      {
+        label: 'Histórico e auditoria',
+        icon: 'manage_search',
+        to: '/admin/governanca/auditoria',
+        requiredAnyPermissions: [permissoes.auditoriaVisualizar],
+      },
+      {
+        label: 'Relatórios',
+        icon: 'analytics',
         to: '/admin/relatorios/chamados',
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
@@ -101,336 +438,36 @@ const menu: MenuItem[] = [
         requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
       },
       {
-        label: 'Catálogo de serviços',
-        icon: 'inventory_2',
-        to: '/admin/relatorios/catalogo-servicos',
-        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar],
-      },
-      {
-        label: 'Inventário/Ativos',
-        icon: 'memory',
-        to: '/admin/relatorios/inventario-ativos',
-        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosGerencial],
-      },
-      {
-        label: 'Base de conhecimento',
-        icon: 'menu_book',
-        to: '/admin/relatorios/base-conhecimento',
-        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosGerencial],
-      },
-      {
-        label: 'Auditoria',
-        icon: 'manage_search',
-        to: '/admin/relatorios/auditoria',
-        requiredAnyPermissions: [permissoes.relatoriosAvancadosVisualizar, permissoes.relatoriosAvancadosAuditoria],
-      },
-    ],
-  },
-  {
-    label: 'Atendimento',
-    icon: 'support_agent',
-    requiredAnyPermissions: [
-      permissoes.chamadosVisualizar,
-      permissoes.chamadosVisualizarTodos,
-      permissoes.aprovacaoChamadosVisualizar,
-      permissoes.aprovacaoChamadosGerenciar,
-      permissoes.aprovacaoChamadosAprovar,
-      permissoes.aprovacaoChamadosReprovar,
-      permissoes.aprovacaoChamadosCancelar,
-    ],
-    children: [
-      {
-        label: 'Fila de chamados',
-        icon: 'list_alt',
-        to: '/admin/chamados',
-        requiredAnyPermissions: [permissoes.chamadosVisualizar, permissoes.chamadosVisualizarTodos],
-      },
-      {
-        label: 'Aprovação de chamados',
-        icon: 'fact_check',
-        to: '/admin/atendimento/aprovacao-chamados',
-        requiredAnyPermissions: [
-          permissoes.aprovacaoChamadosVisualizar,
-          permissoes.aprovacaoChamadosGerenciar,
-          permissoes.aprovacaoChamadosAprovar,
-          permissoes.aprovacaoChamadosReprovar,
-          permissoes.aprovacaoChamadosCancelar,
-        ],
-      },
-    ],
-  },
-  {
-    label: 'SLA',
-    icon: 'schedule',
-    requiredAnyPermissions: [
-      permissoes.slaVisualizar,
-      permissoes.slaCriar,
-      permissoes.slaEditar,
-      permissoes.slaAtivarDesativar,
-    ],
-    children: [
-      {
-        label: 'Políticas',
-        icon: 'rule',
-        to: '/admin/sla/policies',
-        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaCriar, permissoes.slaEditar],
-      },
-      {
-        label: 'Painel',
-        icon: 'monitoring',
-        to: '/admin/sla/painel',
-        requiredAnyPermissions: [permissoes.slaVisualizar],
-      },
-      {
-        label: 'Alertas',
-        icon: 'notifications_active',
-        to: '/admin/sla/alertas',
-        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
-      },
-      {
-        label: 'Calendários',
-        icon: 'event_available',
-        to: '/admin/sla/calendarios',
-        requiredAnyPermissions: [permissoes.slaVisualizar, permissoes.slaEditar],
-      },
-    ],
-  },
-  {
-    label: 'Notificações',
-    icon: 'notifications_active',
-    to: '/admin/notificacoes',
-    requiredAnyPermissions: [permissoes.notificacoesVisualizar],
-  },
-  {
-    label: 'Cadastros',
-    icon: 'dataset',
-    requiredAnyPermissions: [
-      permissoes.cadastrosVisualizar,
-      permissoes.usuariosVisualizar,
-      permissoes.usuariosGerenciar,
-      permissoes.perfisVisualizar,
-      permissoes.perfisGerenciar,
-    ],
-    children: [
-      {
-        label: 'Usuários',
-        icon: 'group',
-        to: '/admin/cadastros/usuarios',
-        requiredAnyPermissions: [permissoes.usuariosVisualizar, permissoes.usuariosGerenciar],
-      },
-      {
-        label: 'Perfis',
-        icon: 'badge',
-        to: '/admin/cadastros/perfis',
-        requiredAnyPermissions: [permissoes.perfisVisualizar, permissoes.perfisGerenciar],
-      },
-      {
-        label: 'Departamentos',
-        icon: 'apartment',
-        to: '/admin/cadastros/departamentos',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Categorias',
-        icon: 'category',
-        to: '/admin/cadastros/categorias',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Subcategorias',
-        icon: 'account_tree',
-        to: '/admin/cadastros/subcategorias',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Prioridades',
-        icon: 'priority_high',
-        to: '/admin/cadastros/prioridades',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Tipos de Solicitação',
-        icon: 'sell',
-        to: '/admin/cadastros/tipos-solicitacao',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Locais / Unidades',
-        icon: 'location_city',
-        to: '/admin/cadastros/locais',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-      {
-        label: 'Status',
-        icon: 'flag',
-        to: '/admin/cadastros/status',
-        requiredAnyPermissions: [permissoes.cadastrosVisualizar],
-      },
-    ],
-  },
-  {
-    label: 'Conhecimento',
-    icon: 'menu_book',
-    requiredAnyPermissions: [
-      permissoes.baseConhecimentoVisualizar,
-      permissoes.baseConhecimentoGerenciar,
-      permissoes.baseConhecimentoPublicar,
-      permissoes.baseConhecimentoArquivar,
-      permissoes.catalogoServicosVisualizar,
-      permissoes.catalogoServicosGerenciar,
-      permissoes.catalogoServicosPublicar,
-      permissoes.catalogoServicosArquivar,
-    ],
-    children: [
-      {
-        label: 'Base de conhecimento',
-        icon: 'article',
-        to: '/admin/conhecimento/base-conhecimento',
-        requiredAnyPermissions: [
-          permissoes.baseConhecimentoVisualizar,
-          permissoes.baseConhecimentoGerenciar,
-          permissoes.baseConhecimentoPublicar,
-          permissoes.baseConhecimentoArquivar,
-        ],
-      },
-      {
-        label: 'Catálogo de serviços',
-        icon: 'inventory_2',
-        to: '/admin/conhecimento/catalogo-servicos',
-        requiredAnyPermissions: [
-          permissoes.catalogoServicosVisualizar,
-          permissoes.catalogoServicosGerenciar,
-          permissoes.catalogoServicosPublicar,
-          permissoes.catalogoServicosArquivar,
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Infraestrutura',
-    icon: 'memory',
-    requiredAnyPermissions: [
-      permissoes.inventarioAtivosVisualizar,
-      permissoes.inventarioAtivosGerenciar,
-      permissoes.inventarioAtivosInativar,
-      permissoes.inventarioAtivosMovimentar,
-      permissoes.inventarioAtivosVincularChamado,
-    ],
-    children: [
-      {
-        label: 'Inventário/Ativos',
-        icon: 'inventory',
-        to: '/admin/infraestrutura/inventario-ativos',
-        requiredAnyPermissions: [
-          permissoes.inventarioAtivosVisualizar,
-          permissoes.inventarioAtivosGerenciar,
-          permissoes.inventarioAtivosInativar,
-          permissoes.inventarioAtivosMovimentar,
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Configurações',
-    icon: 'settings',
-    requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
-    children: [
-      {
-        label: 'Parâmetros do Sistema',
-        icon: 'tune',
-        to: '/admin/configuracoes/parametros',
-        requiredAnyPermissions: [permissoes.parametrosVisualizar, permissoes.parametrosGerenciar],
-      },
-    ],
-  },
-  {
-    label: 'Integrações',
-    icon: 'hub',
-    requiredAnyPermissions: [
-      permissoes.integracoesEmailVisualizar,
-      permissoes.integracoesMicrosoftVisualizar,
-      permissoes.integracoesMicrosoftGerenciar,
-      permissoes.integracoesActiveDirectoryVisualizar,
-      permissoes.integracoesActiveDirectoryGerenciar,
-      permissoes.autenticacaoProvedoresVisualizar,
-      permissoes.autenticacaoProvedoresGerenciar,
-    ],
-    children: [
-      {
-        label: 'E-mail',
-        icon: 'mail',
-        to: '/admin/integracoes/email',
-        requiredAnyPermissions: [permissoes.integracoesEmailVisualizar],
-      },
-      {
-        label: 'Microsoft Entra ID',
-        icon: 'shield',
-        to: '/admin/integracoes/microsoft-entra-id',
-        requiredAnyPermissions: [permissoes.integracoesMicrosoftVisualizar, permissoes.integracoesMicrosoftGerenciar],
-      },
-      {
-        label: 'Active Directory / LDAP',
-        icon: 'domain',
-        to: '/admin/integracoes/active-directory',
-        requiredAnyPermissions: [
-          permissoes.integracoesActiveDirectoryVisualizar,
-          permissoes.integracoesActiveDirectoryGerenciar,
-        ],
-      },
-      {
-        label: 'Métodos de login',
-        icon: 'login',
-        to: '/admin/integracoes/metodos-login',
-        requiredAnyPermissions: [
-          permissoes.autenticacaoProvedoresVisualizar,
-          permissoes.autenticacaoProvedoresGerenciar,
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Gestão ITSM',
-    icon: 'insights',
-    requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
-    children: [
-      {
-        label: 'Roadmap ITSM',
-        icon: 'account_tree',
-        to: '/admin/gestao-itsm/roadmap',
-        requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
-      },
-      {
-        label: 'Documentação',
-        icon: 'library_books',
-        to: '/admin/gestao-itsm/documentacao',
-        requiredAnyPermissions: [permissoes.roadmapVisualizar, permissoes.roadmapGerenciar],
-      },
-    ],
-  },
-  {
-    label: 'Governança',
-    icon: 'fact_check',
-    requiredAnyPermissions: [
-      permissoes.auditoriaVisualizar,
-      permissoes.auditoriaGerenciar,
-      permissoes.auditoriaAutenticacaoVisualizar,
-    ],
-    children: [
-      {
-        label: 'Auditoria',
-        icon: 'manage_search',
-        to: '/admin/governanca/auditoria',
-        requiredAnyPermissions: [permissoes.auditoriaVisualizar, permissoes.auditoriaGerenciar],
-      },
-      {
-        label: 'Auditoria de autenticação',
+        label: 'Logs/Auditoria',
         icon: 'security',
         to: '/admin/governanca/auditoria-autenticacao',
         requiredAnyPermissions: [permissoes.auditoriaAutenticacaoVisualizar],
       },
-    ],
-  },
-]
+    ]
+  }
+
+  // Fallback / Atendente padrão legado
+  return [
+    {
+      label: 'Dashboard',
+      icon: 'space_dashboard',
+      to: '/admin',
+      requiredAnyPermissions: [permissoes.dashboardVisualizar],
+    },
+    {
+      label: 'Fila de chamados',
+      icon: 'list_alt',
+      to: '/admin/chamados',
+      requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+    },
+    {
+      label: 'Base de conhecimento',
+      icon: 'menu_book',
+      to: '/admin/conhecimento/base-conhecimento',
+      requiredAnyPermissions: [permissoes.baseConhecimentoVisualizar],
+    },
+  ]
+})
 
 const usuarioNome = computed(() => authStore.usuario?.nome || 'Administrador SGX')
 const usuarioEmail = computed(() => authStore.usuario?.email || '-')
@@ -438,6 +475,50 @@ const usuarioPerfil = computed(() => authStore.usuario?.perfis?.[0] || 'Perfil n
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const quantidadePermissoes = computed(() => authStore.usuario?.permissoes?.length ?? 0)
 const fallbackAdminSemPermissoes = computed(() => usuarioEhAdministrador.value && quantidadePermissoes.value === 0)
+const podeEmularQualquerPerfil = computed(() => {
+  if (!authStore.modoLocal) {
+    return false
+  }
+  const originalEhAdmin = authStore.obterUsuarioOriginalPersistido()?.perfil === 'Administrador'
+  const atualEhAdmin = (authStore.usuario?.perfis ?? []).includes('Administrador')
+  return originalEhAdmin || atualEhAdmin
+})
+
+const opcoesEmulacao = computed(() => {
+  const opcoes = [
+    { label: 'Administrador', value: 'Administrador' },
+    { label: 'Solicitante', value: 'Solicitante' },
+    { label: 'Atendente', value: 'Atendente' },
+    { label: 'Atendente N1', value: 'Atendente N1' },
+    { label: 'Técnico N2', value: 'Técnico N2' },
+    { label: 'Coordenador Service Desk', value: 'Coordenador Service Desk' },
+    { label: 'Gestor TI', value: 'Gestor TI' },
+    { label: 'Auditor Governança', value: 'Auditor Governança' }
+  ]
+
+  if (authStore.emulandoPerfil) {
+    opcoes.unshift({ label: 'Perfil original', value: 'Original' })
+  }
+
+  return opcoes
+})
+
+const perfilSelecionado = computed({
+  get() {
+    if (authStore.emulandoPerfil && authStore.perfilEmulado) {
+      return authStore.perfilEmulado
+    }
+    return authStore.usuario?.perfis?.[0] || 'Administrador'
+  },
+  async set(val: string) {
+    if (val === 'Original') {
+      await voltarParaAdministrador()
+    } else {
+      await alterarVisaoHomologacao(val as PerfilEmulado)
+    }
+  }
+})
+
 const emulacaoDisponivel = computed(
   () => authStore.podeEmularSolicitante && authStore.podeEmularAtendente && !authStore.emulandoPerfil
 )
@@ -462,7 +543,7 @@ function podeExibirItemMenu(item: MenuItem): boolean {
 }
 
 const menuVisivel = computed<MenuItem[]>(() =>
-  menu
+  menu.value
     .filter((item) => podeExibirItemMenu(item))
     .map((item) => {
       if (!item.children?.length) {
@@ -485,6 +566,9 @@ const menuVisivel = computed<MenuItem[]>(() =>
 function resolverGrupoMenu(item: MenuItem): GrupoMenuKey {
   switch (item.label) {
     case 'Cadastros':
+    case 'Usuários':
+    case 'Perfis e permissões':
+    case 'Cadastros administrativos':
       return 'cadastros'
     case 'Configurações':
       return 'configuracoes'
@@ -492,18 +576,39 @@ function resolverGrupoMenu(item: MenuItem): GrupoMenuKey {
       return 'integracoes'
     case 'SLA':
       return 'sla'
+    case 'Roadmap':
     case 'Gestão ITSM':
       return 'gestao-itsm'
     case 'Governança':
+    case 'Histórico e auditoria':
+    case 'Logs/Auditoria':
       return 'governanca'
     case 'Conhecimento':
+    case 'Base de conhecimento':
       return 'conhecimento'
     case 'Infraestrutura':
       return 'infraestrutura'
     case 'Relatórios':
+    case 'Dashboard executivo':
+    case 'Relatórios operacionais':
+    case 'Problemas recorrentes':
+    case 'Aprovações':
       return 'relatorios'
     case 'Dashboard':
     case 'Atendimento':
+    case 'Fila de atendimento':
+    case 'Meus atendimentos':
+    case 'Triagem':
+    case 'Minha fila técnica':
+    case 'Chamados escalados':
+    case 'Problemas':
+    case 'Mudanças':
+    case 'Tarefas operacionais':
+    case 'Dashboard operacional':
+    case 'Fila geral':
+    case 'Chamados críticos':
+    case 'Atribuições':
+    case 'Consulta de chamados':
     case 'Notificações':
     default:
       return 'atendimento'
@@ -649,50 +754,72 @@ async function logout(): Promise<void> {
   await router.replace('/login')
 }
 
-async function visualizarComoSolicitante(): Promise<void> {
-  if (!emulacaoDisponivel.value || emulacaoSolicitanteCarregando.value || emulacaoAtendenteCarregando.value) {
-    return
-  }
+function obterRotaPadraoPerfil(perfil: PerfilEmulado): string {
+  return obterRotaInicialParaPerfil(perfil)
+}
 
-  emulacaoSolicitanteCarregando.value = true
-
+async function alterarVisaoHomologacao(perfil: PerfilEmulado): Promise<void> {
   try {
-    await authStore.iniciarEmulacaoSolicitante()
-    await router.replace('/portal')
+    await authStore.iniciarEmulacaoPerfil(perfil)
+
+    const currentRoute = router.currentRoute.value
+    
+    if (perfil === 'Solicitante') {
+      await router.replace('/portal/chamados')
+      return
+    }
+
+    if (!currentRoute.path.startsWith('/admin')) {
+      await router.replace(obterRotaPadraoPerfil(perfil))
+      return
+    }
+
+    const perfisPermitidos = currentRoute.meta.perfisPermitidos
+    const requiredAnyPermissions = currentRoute.meta.requiredAnyPermissions
+    
+    let permitido = true
+    if (perfisPermitidos?.length) {
+      const perfisUsuario = authStore.usuario?.perfis ?? []
+      permitido = perfisPermitidos.some((p) => perfisUsuario.includes(p))
+    }
+    
+    if (permitido && requiredAnyPermissions?.length) {
+      const usuarioEhAdministrador = (authStore.usuario?.perfis ?? []).includes('Administrador')
+      const fallbackAdminSemPermissoes = usuarioEhAdministrador && (authStore.usuario?.permissoes?.length ?? 0) === 0
+      permitido = fallbackAdminSemPermissoes || authStore.possuiAlgumaPermissao(requiredAnyPermissions)
+    }
+
+    if (!permitido) {
+      await router.replace(obterRotaPadraoPerfil(perfil))
+    } else {
+      await router.replace(currentRoute.fullPath)
+    }
+    
+    $q.notify({
+      type: 'success',
+      message: `Visão alterada para ${perfil}`,
+      position: 'top',
+      timeout: 1000
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
       type: 'negative',
       message,
     })
-  } finally {
-    emulacaoSolicitanteCarregando.value = false
   }
+}
+
+async function visualizarComoSolicitante(): Promise<void> {
+  await alterarVisaoHomologacao('Solicitante')
 }
 
 async function visualizarComoAtendente(): Promise<void> {
-  if (!emulacaoDisponivel.value || emulacaoAtendenteCarregando.value || emulacaoSolicitanteCarregando.value) {
-    return
-  }
-
-  emulacaoAtendenteCarregando.value = true
-
-  try {
-    await authStore.iniciarEmulacaoAtendente()
-    await router.replace('/admin/chamados')
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
-    $q.notify({
-      type: 'negative',
-      message,
-    })
-  } finally {
-    emulacaoAtendenteCarregando.value = false
-  }
+  await alterarVisaoHomologacao('Atendente')
 }
 
 async function voltarParaAdministrador(): Promise<void> {
-  if (!emulandoAtendente.value || retornoEmulacaoCarregando.value) {
+  if (!authStore.emulandoPerfil || retornoEmulacaoCarregando.value) {
     return
   }
 
@@ -700,7 +827,13 @@ async function voltarParaAdministrador(): Promise<void> {
 
   try {
     await authStore.encerrarEmulacao()
-    await router.replace('/admin')
+    await router.replace(authStore.rotaInicial)
+    $q.notify({
+      type: 'success',
+      message: 'Voltou para o perfil original',
+      position: 'top',
+      timeout: 1000
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Não foi possível concluir a ação.'
     $q.notify({
@@ -819,32 +952,24 @@ watch(
 
         <q-separator />
 
-        <div v-if="emulacaoDisponivel" class="q-px-md q-py-sm emulacao-acoes">
-          <q-btn
-            color="primary"
-            unelevated
-            icon="visibility"
-            :label="drawerMini ? '' : 'Visualizar como Solicitante'"
-            aria-label="Visualizar como Solicitante"
-            class="full-width drawer-emulacao-btn"
-            :loading="emulacaoSolicitanteCarregando"
-            @click="visualizarComoSolicitante"
+        <div v-if="podeEmularQualquerPerfil" class="q-px-md q-py-sm emulacao-acoes">
+          <q-select
+            v-model="perfilSelecionado"
+            :options="opcoesEmulacao"
+            label="Visão de homologação"
+            outlined
+            dense
+            options-dense
+            emit-value
+            map-options
+            bg-color="white"
+            class="full-width q-mb-sm drawer-emulacao-select"
           >
-            <q-tooltip>Simula a experiência do Solicitante em ambiente local.</q-tooltip>
-          </q-btn>
-
-          <q-btn
-            color="primary"
-            unelevated
-            icon="support_agent"
-            :label="drawerMini ? '' : 'Visualizar como Atendente'"
-            aria-label="Visualizar como Atendente"
-            class="full-width drawer-emulacao-btn"
-            :loading="emulacaoAtendenteCarregando"
-            @click="visualizarComoAtendente"
-          >
-            <q-tooltip>Simula a experiência do Atendente em ambiente local.</q-tooltip>
-          </q-btn>
+            <template #prepend>
+              <q-icon name="visibility" size="20px" color="primary" />
+            </template>
+            <q-tooltip>Simula a experiência de qualquer perfil em ambiente local.</q-tooltip>
+          </q-select>
         </div>
 
         <q-separator />
@@ -938,21 +1063,21 @@ watch(
     </q-drawer>
 
     <q-page-container class="admin-page-container">
-      <div v-if="emulandoAtendente" class="q-pa-sm q-pa-md">
+      <div v-if="authStore.emulandoPerfil" class="q-pa-sm q-pa-md">
         <q-banner rounded class="bg-amber-2 text-dark emulacao-banner">
           <template #avatar>
             <q-icon name="badge" />
           </template>
 
-          <div class="text-weight-medium">Visualizando como Atendente Demo</div>
-          <div class="text-caption">Você está visualizando como Atendente Demo.</div>
+          <div class="text-weight-medium">Visualizando como {{ authStore.perfilEmulado }}</div>
+          <div class="text-caption">Você está simulando a visão de {{ authStore.perfilEmulado }}.</div>
 
           <template #action>
             <q-btn
               color="primary"
               flat
               icon="undo"
-              label="Voltar para Administrador"
+              label="Voltar para Perfil original"
               :loading="retornoEmulacaoCarregando"
               @click="voltarParaAdministrador"
             />

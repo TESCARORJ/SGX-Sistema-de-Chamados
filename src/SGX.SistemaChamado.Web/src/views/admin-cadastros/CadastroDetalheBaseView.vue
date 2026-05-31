@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -120,17 +120,17 @@ const modulosPermissoes = computed(() => {
 
   for (const permissao of disponiveis) {
     const chaveModulo = permissao.modulo || 'Outros'
-    if (!grupos.has(chaveModulo)) {
-      grupos.set(chaveModulo, [])
+    const labelGrupo = mapModuloLabel(chaveModulo)
+    if (!grupos.has(labelGrupo)) {
+      grupos.set(labelGrupo, [])
     }
 
-    grupos.get(chaveModulo)!.push(permissao)
+    grupos.get(labelGrupo)!.push(permissao)
   }
 
   return Array.from(grupos.entries())
-    .map(([modulo, permissoes]) => ({
-      modulo,
-      moduloLabel: mapModuloLabel(modulo),
+    .map(([moduloLabel, permissoes]) => ({
+      moduloLabel,
       permissoes: [...permissoes].sort((a, b) => a.codigo.localeCompare(b.codigo)),
     }))
     .sort((a, b) => a.moduloLabel.localeCompare(b.moduloLabel))
@@ -232,16 +232,31 @@ const regraCorHex = (valor: string): true | string => {
 
 function mapModuloLabel(modulo: string): string {
   const mapa: Record<string, string> = {
-    Dashboard: 'Dashboard',
+    Dashboard: 'Chamados',
     Chamados: 'Chamados',
-    Cadastros: 'Cadastros',
-    Usuarios: 'UsuÃ¡rios',
+    AprovacaoChamados: 'Chamados',
+    Problemas: 'Problemas',
+    Mudancas: 'Mudanças',
+    Tarefas: 'Tarefas',
+    Sla: 'SLA',
+    RelatoriosAvancados: 'Relatórios',
+    Usuarios: 'Usuários',
     Perfis: 'Perfis',
-    Parametros: 'ParÃ¢metros',
-    IntegracoesEmail: 'IntegraÃ§Ãµes',
-    IntegracoesMicrosoft: 'IntegraÃ§Ãµes',
-    Notificacoes: 'NotificaÃ§Ãµes',
-    Indicadores: 'Indicadores',
+    Cadastros: 'Cadastros',
+    BaseConhecimento: 'Cadastros',
+    CatalogoServicos: 'Cadastros',
+    InventarioAtivos: 'Cadastros',
+    Auditoria: 'Auditoria',
+    AuditoriaAutenticacao: 'Auditoria',
+    Parametros: 'Configurações',
+    IntegracoesEmail: 'Configurações',
+    IntegracoesMicrosoft: 'Configurações',
+    IntegracoesActiveDirectory: 'Configurações',
+    AutenticacaoProvedores: 'Configurações',
+    Notificacoes: 'Configurações',
+    Indicadores: 'Configurações',
+    Roadmap: 'Roadmap',
+    RoadmapImplementacoes: 'Roadmap',
   }
 
   return mapa[modulo] ?? modulo
@@ -1264,7 +1279,7 @@ watch(
         <template v-else>
           <q-expansion-item
             v-for="modulo in modulosPermissoes"
-            :key="modulo.modulo"
+            :key="modulo.moduloLabel"
             switch-toggle-side
             expand-separator
             default-opened

@@ -1,4 +1,4 @@
-﻿namespace SGX.SistemaChamado.Api.Authorization;
+namespace SGX.SistemaChamado.Api.Authorization;
 
 public static class PermissoesConstants
 {
@@ -57,4 +57,14 @@ public static class PermissoesConstants
     public const string RelatoriosAvancadosGerencial = "RelatoriosAvancados.Gerencial";
     public const string RelatoriosAvancadosOperacional = "RelatoriosAvancados.Operacional";
     public const string RelatoriosAvancadosAuditoria = "RelatoriosAvancados.Auditoria";
+
+    public const string ProblemasVisualizar = "Problemas.Visualizar";
+    public const string ProblemasGerenciar = "Problemas.Gerenciar";
+
+    public const string MudancasVisualizar = "Mudancas.Visualizar";
+    public const string MudancasGerenciar = "Mudancas.Gerenciar";
+
+    public const string TarefasVisualizar = "Tarefas.Visualizar";
+    public const string TarefasGerenciar = "Tarefas.Gerenciar";
 }
+

@@ -1,4 +1,4 @@
-﻿export const permissoes = {
+export const permissoes = {
   dashboardVisualizar: 'Dashboard.Visualizar',
   chamadosVisualizar: 'Chamados.Visualizar',
   chamadosVisualizarTodos: 'Chamados.VisualizarTodos',
@@ -60,7 +60,17 @@
   relatoriosAvancadosGerencial: 'RelatoriosAvancados.Gerencial',
   relatoriosAvancadosOperacional: 'RelatoriosAvancados.Operacional',
   relatoriosAvancadosAuditoria: 'RelatoriosAvancados.Auditoria',
+  
+  problemasVisualizar: 'Problemas.Visualizar',
+  problemasGerenciar: 'Problemas.Gerenciar',
+  
+  mudancasVisualizar: 'Mudancas.Visualizar',
+  mudancasGerenciar: 'Mudancas.Gerenciar',
+  
+  tarefasVisualizar: 'Tarefas.Visualizar',
+  tarefasGerenciar: 'Tarefas.Gerenciar',
 } as const
+
 
 export const permissoesCriticas = [
   permissoes.usuariosGerenciar,

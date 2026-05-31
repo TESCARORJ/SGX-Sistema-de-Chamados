@@ -35,7 +35,12 @@ public static class PerfisInternos
     [
         Administrador,
         Atendente,
-        Solicitante
+        Solicitante,
+        "Atendente N1",
+        "Técnico N2",
+        "Coordenador Service Desk",
+        "Gestor TI",
+        "Auditor Governança"
     ];
 
     public static IReadOnlyCollection<string> ObterPermissoes(IEnumerable<string> perfis)
@@ -57,6 +62,19 @@ public static class PerfisInternos
         if (string.IsNullOrWhiteSpace(perfil))
         {
             return false;
+        }
+
+        var normalized = perfil.Trim().Replace(" ", "").ToLowerInvariant();
+        if (normalized == "administrador" ||
+            normalized == "atendente" ||
+            normalized == "solicitante" ||
+            normalized == "atendenten1" ||
+            normalized == "tecnicon2" ||
+            normalized == "coordenadorservicedesk" ||
+            normalized == "gestorti" ||
+            normalized == "auditorgovernanca")
+        {
+            return true;
         }
 
         return Todos.Contains(perfil.Trim(), StringComparer.OrdinalIgnoreCase);

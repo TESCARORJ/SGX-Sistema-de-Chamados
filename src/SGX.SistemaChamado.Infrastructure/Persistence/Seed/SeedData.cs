@@ -1,4 +1,4 @@
-﻿using SGX.SistemaChamado.Domain.Enums;
+using SGX.SistemaChamado.Domain.Enums;
 
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Seed;
 
@@ -10,6 +10,12 @@ public static class SeedData
     public static readonly Guid PerfilAdministradorId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     public static readonly Guid PerfilAtendenteId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     public static readonly Guid PerfilSolicitanteId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+    public static readonly Guid PerfilAtendenteN1Id = Guid.Parse("22222222-2222-2222-2222-222222222201");
+    public static readonly Guid PerfilTecnicoN2Id = Guid.Parse("22222222-2222-2222-2222-222222222202");
+    public static readonly Guid PerfilCoordenadorServiceDeskId = Guid.Parse("22222222-2222-2222-2222-222222222203");
+    public static readonly Guid PerfilGestorTiId = Guid.Parse("22222222-2222-2222-2222-222222222204");
+    public static readonly Guid PerfilAuditorGovernancaId = Guid.Parse("22222222-2222-2222-2222-222222222205");
 
     public static readonly Guid PermissaoDashboardVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888801");
     public static readonly Guid PermissaoChamadosVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888802");
@@ -82,6 +88,13 @@ public static class SeedData
     public static readonly Guid PermissaoAuditoriaAutenticacaoVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888869");
     public static readonly Guid PermissaoIntegracoesActiveDirectoryVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888870");
     public static readonly Guid PermissaoIntegracoesActiveDirectoryGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888871");
+    public static readonly Guid PermissaoProblemasVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888872");
+    public static readonly Guid PermissaoProblemasGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888873");
+    public static readonly Guid PermissaoMudancasVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888874");
+    public static readonly Guid PermissaoMudancasGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888875");
+    public static readonly Guid PermissaoTarefasVisualizarId = Guid.Parse("88888888-8888-8888-8888-888888888876");
+    public static readonly Guid PermissaoTarefasGerenciarId = Guid.Parse("88888888-8888-8888-8888-888888888877");
+
 
     public static readonly Guid StatusAbertoId = Guid.Parse("44444444-4444-4444-4444-444444444441");
     public static readonly Guid StatusEmAtendimentoId = Guid.Parse("44444444-4444-4444-4444-444444444442");
@@ -372,6 +385,66 @@ public static class SeedData
             CriadoPor = UsuarioSistema,
             AtualizadoEm = (DateTime?)null,
             AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = PerfilAtendenteN1Id,
+            Nome = "Atendente N1",
+            TipoPerfil = TipoPerfil.Atendente,
+            Descricao = "Perfil responsavel por triagem, abertura e atendimento operacional inicial.",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = PerfilTecnicoN2Id,
+            Nome = "Técnico N2",
+            TipoPerfil = TipoPerfil.Atendente,
+            Descricao = "Perfil tecnico especializado para atendimento complexo, incidentes graves e problemas.",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = PerfilCoordenadorServiceDeskId,
+            Nome = "Coordenador Service Desk",
+            TipoPerfil = TipoPerfil.Atendente,
+            Descricao = "Coordenacao operacional da fila, prioridades, distribuicao e gestao de SLA.",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = PerfilGestorTiId,
+            Nome = "Gestor TI",
+            TipoPerfil = TipoPerfil.Atendente,
+            Descricao = "Perfil gerencial voltado a dashboards, indicadores corporativos e SLA global.",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = PerfilAuditorGovernancaId,
+            Nome = "Auditor Governança",
+            TipoPerfil = TipoPerfil.Atendente,
+            Descricao = "Acesso exclusivo a relatorios e logs de auditoria e conformidade ITIL.",
+            Ativo = true,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
         }
     ];
 
@@ -447,8 +520,15 @@ public static class SeedData
         (PermissaoRelatoriosAvancadosExportarId, "RelatoriosAvancados.Exportar"),
         (PermissaoRelatoriosAvancadosGerencialId, "RelatoriosAvancados.Gerencial"),
         (PermissaoRelatoriosAvancadosOperacionalId, "RelatoriosAvancados.Operacional"),
-        (PermissaoRelatoriosAvancadosAuditoriaId, "RelatoriosAvancados.Auditoria")
+        (PermissaoRelatoriosAvancadosAuditoriaId, "RelatoriosAvancados.Auditoria"),
+        (PermissaoProblemasVisualizarId, "Problemas.Visualizar"),
+        (PermissaoProblemasGerenciarId, "Problemas.Gerenciar"),
+        (PermissaoMudancasVisualizarId, "Mudancas.Visualizar"),
+        (PermissaoMudancasGerenciarId, "Mudancas.Gerenciar"),
+        (PermissaoTarefasVisualizarId, "Tarefas.Visualizar"),
+        (PermissaoTarefasGerenciarId, "Tarefas.Gerenciar")
     ];
+
 
     private static readonly IReadOnlyDictionary<string, Guid> PermissoesSistemaPorCodigo = CatalogoPermissoesSistema
         .ToDictionary(x => x.Codigo, x => x.Id, StringComparer.Ordinal);
@@ -481,8 +561,12 @@ public static class SeedData
         "InventarioAtivos.Movimentar",
         "InventarioAtivos.VincularChamado",
         "RelatoriosAvancados.Visualizar",
-        "RelatoriosAvancados.Operacional"
+        "RelatoriosAvancados.Operacional",
+        "Problemas.Visualizar",
+        "Mudancas.Visualizar",
+        "Tarefas.Visualizar"
     ];
+
 
     private static readonly string[] CodigosPermissoesSolicitante =
     [
@@ -491,6 +575,130 @@ public static class SeedData
         "Chamados.Comentar",
         "Chamados.Anexar",
         "Notificacoes.Visualizar"
+    ];
+
+    private static readonly string[] CodigosPermissoesAtendenteN1 =
+    [
+        "Dashboard.Visualizar",
+        "Chamados.Visualizar",
+        "Chamados.VisualizarTodos",
+        "Chamados.Abrir",
+        "Chamados.Comentar",
+        "Chamados.Anexar",
+        "Chamados.Assumir",
+        "Chamados.Atribuir",
+        "Chamados.AlterarStatus",
+        "Chamados.AlterarPrioridade",
+        "Chamados.AlterarCategoria",
+        "Chamados.Encerrar",
+        "Chamados.Reabrir",
+        "Cadastros.Visualizar",
+        "Notificacoes.Visualizar",
+        "Indicadores.Visualizar",
+        "Sla.Visualizar",
+        "BaseConhecimento.Visualizar",
+        "BaseConhecimento.VincularChamado",
+        "CatalogoServicos.Visualizar",
+        "InventarioAtivos.Visualizar",
+        "InventarioAtivos.Movimentar",
+        "InventarioAtivos.VincularChamado",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Operacional"
+    ];
+
+    private static readonly string[] CodigosPermissoesTecnicoN2 =
+    [
+        "Dashboard.Visualizar",
+        "Chamados.Visualizar",
+        "Chamados.VisualizarTodos",
+        "Chamados.Abrir",
+        "Chamados.Comentar",
+        "Chamados.Anexar",
+        "Chamados.Assumir",
+        "Chamados.Atribuir",
+        "Chamados.AlterarStatus",
+        "Chamados.AlterarPrioridade",
+        "Chamados.AlterarCategoria",
+        "Chamados.Encerrar",
+        "Chamados.Reabrir",
+        "Cadastros.Visualizar",
+        "Notificacoes.Visualizar",
+        "Indicadores.Visualizar",
+        "Sla.Visualizar",
+        "BaseConhecimento.Visualizar",
+        "BaseConhecimento.VincularChamado",
+        "CatalogoServicos.Visualizar",
+        "InventarioAtivos.Visualizar",
+        "InventarioAtivos.Movimentar",
+        "InventarioAtivos.VincularChamado",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Operacional",
+        "Problemas.Visualizar",
+        "Problemas.Gerenciar",
+        "Mudancas.Visualizar",
+        "Mudancas.Gerenciar",
+        "Tarefas.Visualizar",
+        "Tarefas.Gerenciar"
+    ];
+
+    private static readonly string[] CodigosPermissoesCoordenadorServiceDesk =
+    [
+        "Dashboard.Visualizar",
+        "Chamados.Visualizar",
+        "Chamados.VisualizarTodos",
+        "Chamados.Abrir",
+        "Chamados.Comentar",
+        "Chamados.Anexar",
+        "Chamados.Assumir",
+        "Chamados.Atribuir",
+        "Chamados.AlterarStatus",
+        "Chamados.AlterarPrioridade",
+        "Chamados.AlterarCategoria",
+        "Chamados.Encerrar",
+        "Chamados.Reabrir",
+        "Cadastros.Visualizar",
+        "Notificacoes.Visualizar",
+        "Indicadores.Visualizar",
+        "Sla.Visualizar",
+        "Sla.Criar",
+        "Sla.Editar",
+        "Sla.AtivarDesativar",
+        "BaseConhecimento.Visualizar",
+        "BaseConhecimento.VincularChamado",
+        "CatalogoServicos.Visualizar",
+        "InventarioAtivos.Visualizar",
+        "InventarioAtivos.Movimentar",
+        "InventarioAtivos.VincularChamado",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Operacional",
+        "Problemas.Visualizar",
+        "Problemas.Gerenciar",
+        "Mudancas.Visualizar",
+        "Mudancas.Gerenciar",
+        "Tarefas.Visualizar",
+        "Tarefas.Gerenciar",
+        "AprovacaoChamados.Visualizar",
+        "AprovacaoChamados.Gerenciar",
+        "AprovacaoChamados.Aprovar",
+        "AprovacaoChamados.Reprovar",
+        "AprovacaoChamados.Cancelar"
+    ];
+
+    private static readonly string[] CodigosPermissoesGestorTi =
+    [
+        "Dashboard.Visualizar",
+        "Indicadores.Visualizar",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Gerencial",
+        "RelatoriosAvancados.Operacional"
+    ];
+
+    private static readonly string[] CodigosPermissoesAuditorGovernanca =
+    [
+        "Auditoria.Visualizar",
+        "AuditoriaAutenticacao.Visualizar",
+        "RelatoriosAvancados.Visualizar",
+        "RelatoriosAvancados.Auditoria"
     ];
 
     public static readonly object[] PermissoesSistema = CatalogoPermissoesSistema
@@ -2588,6 +2796,11 @@ public static class SeedData
         vinculos.AddRange(CatalogoPermissoesSistema.Select(x => (PerfilAdministradorId, x.Codigo)));
         vinculos.AddRange(CodigosPermissoesAtendente.Select(codigo => (PerfilAtendenteId, codigo)));
         vinculos.AddRange(CodigosPermissoesSolicitante.Select(codigo => (PerfilSolicitanteId, codigo)));
+        vinculos.AddRange(CodigosPermissoesAtendenteN1.Select(codigo => (PerfilAtendenteN1Id, codigo)));
+        vinculos.AddRange(CodigosPermissoesTecnicoN2.Select(codigo => (PerfilTecnicoN2Id, codigo)));
+        vinculos.AddRange(CodigosPermissoesCoordenadorServiceDesk.Select(codigo => (PerfilCoordenadorServiceDeskId, codigo)));
+        vinculos.AddRange(CodigosPermissoesGestorTi.Select(codigo => (PerfilGestorTiId, codigo)));
+        vinculos.AddRange(CodigosPermissoesAuditorGovernanca.Select(codigo => (PerfilAuditorGovernancaId, codigo)));
 
         return vinculos
             .Distinct()

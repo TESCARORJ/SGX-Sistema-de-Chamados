@@ -25,7 +25,15 @@ public sealed class DevelopmentSeedServiceTests
         ["atendente.demo@sgxdigital.com"] = TipoPerfil.Atendente,
         ["atendente2.demo@sgxdigital.com"] = TipoPerfil.Atendente,
         ["solicitante.demo@sgxdigital.com"] = TipoPerfil.Solicitante,
-        ["solicitante2.demo@sgxdigital.com"] = TipoPerfil.Solicitante
+        ["solicitante2.demo@sgxdigital.com"] = TipoPerfil.Solicitante,
+
+        ["solicitante.hml@sgx.local"] = TipoPerfil.Solicitante,
+        ["atendente.n1.hml@sgx.local"] = TipoPerfil.Atendente,
+        ["tecnico.n2.hml@sgx.local"] = TipoPerfil.Atendente,
+        ["coordenador.service.desk.hml@sgx.local"] = TipoPerfil.Atendente,
+        ["gestor.ti.hml@sgx.local"] = TipoPerfil.Atendente,
+        ["administrador.hml@sgx.local"] = TipoPerfil.Administrador,
+        ["auditor.governanca.hml@sgx.local"] = TipoPerfil.Atendente
     };
 
     [Fact]
@@ -43,11 +51,11 @@ public sealed class DevelopmentSeedServiceTests
             .Where(x => x.Ativo && x.Situacao == SituacaoUsuario.Ativo)
             .ToListAsync();
 
-        Assert.Equal(6, usuariosAtivos.Count);
+        Assert.Equal(13, usuariosAtivos.Count);
         Assert.All(usuariosAtivos, usuario => Assert.Contains(usuario.Email, UsuariosOficiaisPorEmail.Keys, StringComparer.OrdinalIgnoreCase));
-        Assert.Equal(2, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Administrador)));
-        Assert.Equal(2, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Atendente)));
-        Assert.Equal(2, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Solicitante)));
+        Assert.Equal(3, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Administrador)));
+        Assert.Equal(7, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Atendente)));
+        Assert.Equal(3, usuariosAtivos.Count(x => x.UsuarioPerfis.Any(p => p.PerfilAcesso.TipoPerfil == TipoPerfil.Solicitante)));
 
         foreach (var usuario in usuariosAtivos)
         {
@@ -77,8 +85,8 @@ public sealed class DevelopmentSeedServiceTests
             .AsNoTracking()
             .Where(x => UsuariosOficiaisPorEmail.Keys.Contains(x.Email))
             .ToListAsync();
-        Assert.Equal(6, oficiais.Count);
-        Assert.Equal(6, oficiais.Select(x => x.Email).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+        Assert.Equal(13, oficiais.Count);
+        Assert.Equal(13, oficiais.Select(x => x.Email).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 
         var demoAntigo = await dbContext.Usuarios
             .AsNoTracking()
@@ -134,7 +142,7 @@ public sealed class DevelopmentSeedServiceTests
 
         var antigos = await dbContext.Usuarios
             .AsNoTracking()
-            .Where(x => emailsAntigos.Contains(x.Email) || x.Nome.Contains("Homol"))
+            .Where(x => (emailsAntigos.Contains(x.Email) || x.Nome.Contains("Homol")) && !UsuariosOficiaisPorEmail.Keys.Contains(x.Email))
             .ToListAsync();
 
         Assert.NotEmpty(antigos);
@@ -328,15 +336,106 @@ public sealed class DevelopmentSeedServiceTests
         _ = Assert.Single(locais, x => NormalizarChaveTexto(x.Nome) == NormalizarChaveTexto("Datacenter"));
     }
 
+    [Fact]
+    public async Task SeedGaranteUsuariosDeHomologacaoEMassaDeChamadosSemDuplicidade()
+    {
+        await using var dbContext = CriarContexto();
+        var service = CriarService(dbContext);
+
+        await service.SeedAsync();
+
+        // 1. Validar usuários de homologação
+        var solicitante = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "solicitante.hml@sgx.local");
+        Assert.NotNull(solicitante);
+        Assert.True(solicitante.Ativo);
+        Assert.Equal("Solicitante", solicitante.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var atendenteN1 = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "atendente.n1.hml@sgx.local");
+        Assert.NotNull(atendenteN1);
+        Assert.True(atendenteN1.Ativo);
+        Assert.Equal("Atendente N1", atendenteN1.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var tecnicoN2 = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "tecnico.n2.hml@sgx.local");
+        Assert.NotNull(tecnicoN2);
+        Assert.True(tecnicoN2.Ativo);
+        Assert.Equal("Técnico N2", tecnicoN2.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var coordenador = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "coordenador.service.desk.hml@sgx.local");
+        Assert.NotNull(coordenador);
+        Assert.True(coordenador.Ativo);
+        Assert.Equal("Coordenador Service Desk", coordenador.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var gestor = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "gestor.ti.hml@sgx.local");
+        Assert.NotNull(gestor);
+        Assert.True(gestor.Ativo);
+        Assert.Equal("Gestor TI", gestor.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var admin = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "administrador.hml@sgx.local");
+        Assert.NotNull(admin);
+        Assert.True(admin.Ativo);
+        Assert.Equal("Administrador", admin.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        var auditor = await dbContext.Usuarios.Include(x => x.UsuarioPerfis).ThenInclude(x => x.PerfilAcesso)
+            .SingleOrDefaultAsync(x => x.Email == "auditor.governanca.hml@sgx.local");
+        Assert.NotNull(auditor);
+        Assert.True(auditor.Ativo);
+        Assert.Equal("Auditor Governança", auditor.UsuarioPerfis.Single().PerfilAcesso.Nome);
+
+        // 2. Validar chamados de homologação
+        var chamados = await dbContext.Chamados.ToListAsync();
+        Assert.Equal(6, chamados.Count);
+
+        var inc = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.Incidente);
+        Assert.Equal("HML-INC-001", inc.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Alto, inc.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Alta, inc.UrgenciaChamado);
+        Assert.Equal(tecnicoN2.Id, inc.ResponsavelId);
+
+        var req = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.Requisicao);
+        Assert.Equal("HML-REQ-002", req.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Baixo, req.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Media, req.UrgenciaChamado);
+
+        var mud = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.Mudanca);
+        Assert.Equal("HML-MUD-003", mud.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Alto, mud.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Media, mud.UrgenciaChamado);
+
+        var prob = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.Problema);
+        Assert.Equal("HML-PROB-004", prob.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Medio, prob.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Media, prob.UrgenciaChamado);
+
+        var alr = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.EventoAlerta);
+        Assert.Equal("HML-ALR-005", alr.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Medio, alr.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Alta, alr.UrgenciaChamado);
+
+        var tar = Assert.Single(chamados, x => x.NaturezaChamado == NaturezaChamadoEnum.TarefaOperacional);
+        Assert.Equal("HML-TAR-006", tar.Codigo);
+        Assert.Equal(ImpactoChamadoEnum.Baixo, tar.ImpactoChamado);
+        Assert.Equal(UrgenciaChamadoEnum.Baixa, tar.UrgenciaChamado);
+
+        // 3. Validar idempotência rodando de novo
+        await service.SeedAsync();
+        var chamadosNovos = await dbContext.Chamados.ToListAsync();
+        Assert.Equal(6, chamadosNovos.Count);
+    }
+
     private static async Task<Dictionary<TipoPerfil, PerfilAcesso>> CarregarPerfisAsync(SGXSistemaChamadoDbContext dbContext)
     {
-        return await dbContext.PerfisAcesso
+        var perfis = await dbContext.PerfisAcesso
             .AsNoTracking()
-            .Where(x => x.Ativo)
-            .Where(x => x.TipoPerfil == TipoPerfil.Administrador
-                || x.TipoPerfil == TipoPerfil.Atendente
-                || x.TipoPerfil == TipoPerfil.Solicitante)
-            .ToDictionaryAsync(x => x.TipoPerfil, x => x);
+            .Where(x => x.Ativo && (x.Nome == "Administrador" || x.Nome == "Atendente" || x.Nome == "Solicitante"))
+            .ToListAsync();
+
+        return perfis.ToDictionary(x => x.TipoPerfil, x => x);
     }
 
     private static async Task<Usuario> CriarUsuarioAsync(

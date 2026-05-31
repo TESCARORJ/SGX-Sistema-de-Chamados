@@ -1,4 +1,4 @@
-﻿import { defineStore } from 'pinia'
+import { defineStore } from 'pinia'
 import { authService } from '../services/authService'
 import {
   HttpRequestError,
@@ -48,16 +48,69 @@ interface LocalContextSessionPayload {
   usuarioOriginal: UsuarioOriginalEmulacao | null
 }
 
-function perfilParaRota(perfis: PerfilUsuario[]): '/admin' | '/portal' | '/acesso-negado' {
-  if (perfis.includes('Administrador') || perfis.includes('Atendente')) {
+export function obterRotaInicialParaPerfil(perfil: string): string {
+  const normalized = perfil?.trim() || ''
+  if (normalized === 'Administrador') {
     return '/admin'
   }
-
-  if (perfis.includes('Solicitante')) {
-    return '/portal'
+  if (normalized === 'Gestor TI' || normalized === 'GestorTI') {
+    return '/admin/relatorios/avancados'
   }
+  if (normalized === 'Auditor Governança' || normalized === 'AuditorGovernanca') {
+    return '/admin/governanca/auditoria'
+  }
+  if (normalized === 'Coordenador Service Desk' || normalized === 'CoordenadorServiceDesk') {
+    return '/admin'
+  }
+  if (
+    normalized === 'Atendente' ||
+    normalized === 'Atendente N1' ||
+    normalized === 'Técnico N2' ||
+    normalized === 'AtendenteN1' ||
+    normalized === 'TecnicoN2'
+  ) {
+    return '/admin/chamados'
+  }
+  if (normalized === 'Solicitante') {
+    return '/portal/chamados'
+  }
+  return '/portal/chamados'
+}
 
-  return '/acesso-negado'
+function removerAcentos(str: string): string {
+  if (!str) return ''
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
+function perfilParaRota(perfis: PerfilUsuario[]): string {
+  if (!perfis || perfis.length === 0) {
+    return '/login'
+  }
+  if (perfis.includes('Administrador')) {
+    return obterRotaInicialParaPerfil('Administrador')
+  }
+  if (perfis.includes('Gestor TI') || perfis.includes('GestorTI')) {
+    return obterRotaInicialParaPerfil('Gestor TI')
+  }
+  if (perfis.includes('Auditor Governança') || perfis.includes('AuditorGovernanca')) {
+    return obterRotaInicialParaPerfil('Auditor Governança')
+  }
+  if (perfis.includes('Coordenador Service Desk') || perfis.includes('CoordenadorServiceDesk')) {
+    return obterRotaInicialParaPerfil('Coordenador Service Desk')
+  }
+  if (perfis.includes('Atendente')) {
+    return obterRotaInicialParaPerfil('Atendente')
+  }
+  if (perfis.includes('Atendente N1') || perfis.includes('AtendenteN1')) {
+    return obterRotaInicialParaPerfil('Atendente N1')
+  }
+  if (perfis.includes('Técnico N2') || perfis.includes('TecnicoN2')) {
+    return obterRotaInicialParaPerfil('Técnico N2')
+  }
+  if (perfis.includes('Solicitante')) {
+    return obterRotaInicialParaPerfil('Solicitante')
+  }
+  return obterRotaInicialParaPerfil(perfis[0])
 }
 
 function ehAdministrador(perfil: PerfilUsuario): boolean {
@@ -77,11 +130,39 @@ function obterPerfilAdministrativo(perfis: PerfilUsuario[], fallback: PerfilUsua
 }
 
 function ehPerfilUsuarioValido(perfil: unknown): perfil is PerfilUsuario {
-  return perfil === 'Administrador' || perfil === 'Atendente' || perfil === 'Solicitante'
+  return (
+    perfil === 'Administrador' ||
+    perfil === 'Atendente' ||
+    perfil === 'Solicitante' ||
+    perfil === 'Atendente N1' ||
+    perfil === 'Técnico N2' ||
+    perfil === 'Coordenador Service Desk' ||
+    perfil === 'Gestor TI' ||
+    perfil === 'Auditor Governança' ||
+    perfil === 'AtendenteN1' ||
+    perfil === 'TecnicoN2' ||
+    perfil === 'CoordenadorServiceDesk' ||
+    perfil === 'GestorTI' ||
+    perfil === 'AuditorGovernanca'
+  )
 }
 
 function ehPerfilEmuladoValido(perfil: unknown): perfil is PerfilEmulado {
-  return perfil === 'Solicitante' || perfil === 'Atendente'
+  return (
+    perfil === 'Administrador' ||
+    perfil === 'Solicitante' ||
+    perfil === 'Atendente' ||
+    perfil === 'Atendente N1' ||
+    perfil === 'Técnico N2' ||
+    perfil === 'Coordenador Service Desk' ||
+    perfil === 'Gestor TI' ||
+    perfil === 'Auditor Governança' ||
+    perfil === 'AtendenteN1' ||
+    perfil === 'TecnicoN2' ||
+    perfil === 'CoordenadorServiceDesk' ||
+    perfil === 'GestorTI' ||
+    perfil === 'AuditorGovernanca'
+  )
 }
 
 function salvarEmulacaoSessionStorage(payload: EmulacaoSessionPayload): void {
@@ -213,20 +294,77 @@ function obterDadosPerfilEmulado(perfil: PerfilEmulado): {
   perfil: PerfilUsuario
   descricao: string
 } {
-  if (perfil === 'Atendente') {
-    return {
-      email: atendenteDemoEmail,
-      nome: atendenteDemoNome,
-      perfil: atendenteDemoPerfil,
-      descricao: 'Atendente',
-    }
-  }
+  let key: string = perfil
+  if (perfil === 'Atendente N1') key = 'AtendenteN1'
+  if (perfil === 'Técnico N2') key = 'TecnicoN2'
+  if (perfil === 'Coordenador Service Desk') key = 'CoordenadorServiceDesk'
+  if (perfil === 'Gestor TI') key = 'GestorTI'
+  if (perfil === 'Auditor Governança') key = 'AuditorGovernanca'
 
-  return {
-    email: solicitanteDemoEmail,
-    nome: solicitanteDemoNome,
-    perfil: solicitanteDemoPerfil,
-    descricao: 'Solicitante',
+  switch (key) {
+    case 'Administrador':
+      return {
+        email: 'admin@sgxdigital.com',
+        nome: 'Administrador Demo 1',
+        perfil: 'Administrador',
+        descricao: 'Administrador',
+      }
+    case 'Solicitante':
+      return {
+        email: 'solicitante.demo@sgxdigital.com',
+        nome: 'Solicitante Demo 1',
+        perfil: 'Solicitante',
+        descricao: 'Solicitante',
+      }
+    case 'Atendente':
+      return {
+        email: 'atendente.demo@sgxdigital.com',
+        nome: 'Atendente Demo 1',
+        perfil: 'Atendente',
+        descricao: 'Atendente',
+      }
+    case 'AtendenteN1':
+      return {
+        email: 'atendente.n1.hml@sgx.local',
+        nome: 'Atendente N1 Homologacao',
+        perfil: 'Atendente N1',
+        descricao: 'Atendente N1',
+      }
+    case 'TecnicoN2':
+      return {
+        email: 'tecnico.n2.hml@sgx.local',
+        nome: 'Tecnico N2 Homologacao',
+        perfil: 'Técnico N2',
+        descricao: 'Técnico N2',
+      }
+    case 'CoordenadorServiceDesk':
+      return {
+        email: 'coordenador.service.desk.hml@sgx.local',
+        nome: 'Coordenador Service Desk Homologacao',
+        perfil: 'Coordenador Service Desk',
+        descricao: 'Coordenador Service Desk',
+      }
+    case 'GestorTI':
+      return {
+        email: 'gestor.ti.hml@sgx.local',
+        nome: 'Gestor TI Homologacao',
+        perfil: 'Gestor TI',
+        descricao: 'Gestor TI',
+      }
+    case 'AuditorGovernanca':
+      return {
+        email: 'auditor.governanca.hml@sgx.local',
+        nome: 'Auditor Governanca Homologacao',
+        perfil: 'Auditor Governança',
+        descricao: 'Auditor Governança',
+      }
+    default:
+      return {
+        email: solicitanteDemoEmail,
+        nome: solicitanteDemoNome,
+        perfil: solicitanteDemoPerfil,
+        descricao: 'Solicitante',
+      }
   }
 }
 
@@ -317,7 +455,7 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   getters: {
-    rotaInicial(state): '/admin' | '/portal' | '/acesso-negado' {
+    rotaInicial(state): string {
       return perfilParaRota(state.usuario?.perfis ?? [])
     },
     possuiPerfil:
@@ -943,8 +1081,20 @@ export const useAuthStore = defineStore('auth', {
           this.persistirContextoLocal()
         }
 
-        const mensagem = error instanceof Error ? error.message : 'Não foi possível sincronizar usuário emulado.'
-        throw new Error(`Não foi possível iniciar a emulação de ${dadosPerfilEmulado.descricao}. ${mensagem}`)
+        let causaErro = 'Não foi possível sincronizar o usuário emulado.'
+        if (error instanceof HttpRequestError) {
+          if (error.status === 401 || error.status === 403) {
+            causaErro = 'Perfil de homologação não aceito pelo backend.'
+          } else {
+            causaErro = `Erro na API de desenvolvimento (HTTP ${error.status}).`
+          }
+        } else if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('fetch') || error.message.includes('NetworkError'))) {
+          causaErro = 'API de desenvolvimento indisponível ou não foi possível conectar à API.'
+        } else if (error instanceof Error) {
+          causaErro = error.message
+        }
+
+        throw new Error(`Não foi possível iniciar a emulação de ${dadosPerfilEmulado.descricao}. ${causaErro}`)
       }
     },
 
@@ -1003,8 +1153,20 @@ export const useAuthStore = defineStore('auth', {
 
         this.persistirContextoLocal()
 
-        const mensagem = error instanceof Error ? error.message : 'Não foi possível restaurar usuário administrativo.'
-        throw new Error(`Não foi possível encerrar a emulação. ${mensagem}`)
+        let causaErro = 'Não foi possível restaurar usuário administrativo.'
+        if (error instanceof HttpRequestError) {
+          if (error.status === 401 || error.status === 403) {
+            causaErro = 'Perfil original não aceito pelo backend.'
+          } else {
+            causaErro = `Erro na API de desenvolvimento (HTTP ${error.status}).`
+          }
+        } else if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('fetch') || error.message.includes('NetworkError'))) {
+          causaErro = 'API de desenvolvimento indisponível ou não foi possível conectar à API.'
+        } else if (error instanceof Error) {
+          causaErro = error.message
+        }
+
+        throw new Error(`Não foi possível encerrar a emulação. ${causaErro}`)
       }
     },
 

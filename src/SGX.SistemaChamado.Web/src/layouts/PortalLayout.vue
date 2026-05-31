@@ -20,11 +20,10 @@ const drawerOpen = ref(!$q.screen.lt.md)
 const retornoEmulacaoCarregando = ref(false)
 
 const menuNavegacao: PortalMenuItem[] = [
-  { label: 'Dashboard', icon: 'space_dashboard', to: '/portal' },
   { label: 'Meus chamados', icon: 'receipt_long', to: '/portal/chamados' },
-  { label: 'Novo chamado', icon: 'add_circle', to: '/portal/chamados/novo', destaque: true },
-  { label: 'Catalogo de servicos', icon: 'inventory_2', to: '/portal/catalogo-servicos' },
+  { label: 'Abrir chamado', icon: 'add_circle', to: '/portal/chamados/novo', destaque: true },
   { label: 'Base de conhecimento', icon: 'menu_book', to: '/portal/base-conhecimento' },
+  { label: 'Minha conta', icon: 'person', to: '/alterar-senha' },
 ]
 
 const atalhoHeader = computed(() => menuNavegacao.filter((item) => item.to !== '/portal'))

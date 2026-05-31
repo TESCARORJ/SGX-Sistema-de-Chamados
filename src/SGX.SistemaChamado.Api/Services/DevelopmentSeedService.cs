@@ -23,12 +23,20 @@ public sealed class DevelopmentSeedService(
 
     private static readonly UsuarioDemoDef[] UsuariosDemo =
     [
-        new("Administrador Demo 1", "admin@sgxdigital.com", TipoPerfil.Administrador),
-        new("Administrador Demo 2", "admin2@sgxdigital.com", TipoPerfil.Administrador),
-        new("Atendente Demo 1", "atendente.demo@sgxdigital.com", TipoPerfil.Atendente),
-        new("Atendente Demo 2", "atendente2.demo@sgxdigital.com", TipoPerfil.Atendente),
-        new("Solicitante Demo 1", "solicitante.demo@sgxdigital.com", TipoPerfil.Solicitante),
-        new("Solicitante Demo 2", "solicitante2.demo@sgxdigital.com", TipoPerfil.Solicitante)
+        new("Administrador Demo 1", "admin@sgxdigital.com", "Administrador"),
+        new("Administrador Demo 2", "admin2@sgxdigital.com", "Administrador"),
+        new("Atendente Demo 1", "atendente.demo@sgxdigital.com", "Atendente"),
+        new("Atendente Demo 2", "atendente2.demo@sgxdigital.com", "Atendente"),
+        new("Solicitante Demo 1", "solicitante.demo@sgxdigital.com", "Solicitante"),
+        new("Solicitante Demo 2", "solicitante2.demo@sgxdigital.com", "Solicitante"),
+
+        new("Solicitante Homologacao", "solicitante.hml@sgx.local", "Solicitante"),
+        new("Atendente N1 Homologacao", "atendente.n1.hml@sgx.local", "Atendente N1"),
+        new("Tecnico N2 Homologacao", "tecnico.n2.hml@sgx.local", "Técnico N2"),
+        new("Coordenador Service Desk Homologacao", "coordenador.service.desk.hml@sgx.local", "Coordenador Service Desk"),
+        new("Gestor TI Homologacao", "gestor.ti.hml@sgx.local", "Gestor TI"),
+        new("Administrador Homologacao", "administrador.hml@sgx.local", "Administrador"),
+        new("Auditor Governanca Homologacao", "auditor.governanca.hml@sgx.local", "Auditor Governança")
     ];
 
     private static readonly HashSet<string> EmailsDemoLegados = new(StringComparer.OrdinalIgnoreCase)
@@ -156,17 +164,11 @@ public sealed class DevelopmentSeedService(
         await GarantirTiposSolicitacaoIniciaisAsync(cancellationToken);
         await GarantirLocaisUnidadeIniciaisAsync(cancellationToken);
 
-        var perfis = await dbContext.PerfisAcesso
+        var perfisLista = await dbContext.PerfisAcesso
             .Where(x => x.Ativo)
-            .ToDictionaryAsync(x => x.TipoPerfil, x => x, cancellationToken);
+            .ToListAsync(cancellationToken);
 
-        if (!perfis.ContainsKey(TipoPerfil.Administrador)
-            || !perfis.ContainsKey(TipoPerfil.Atendente)
-            || !perfis.ContainsKey(TipoPerfil.Solicitante))
-        {
-            logger.LogWarning("Perfis base nao encontrados para seed Development.");
-            return;
-        }
+        var perfisPorNome = perfisLista.ToDictionary(x => x.Nome, x => x, StringComparer.OrdinalIgnoreCase);
 
         var emailsPermitidos = new HashSet<string>(
             UsuariosDemo.Select(x => x.Email),
@@ -243,7 +245,12 @@ public sealed class DevelopmentSeedService(
                 }
             }
 
-            var perfilEsperado = perfis[usuarioDemo.Perfil];
+            if (!perfisPorNome.TryGetValue(usuarioDemo.PerfilNome, out var perfilEsperado))
+            {
+                logger.LogWarning("Perfil '{PerfilNome}' nao encontrado para o usuario demo '{Email}'. Pulo.", usuarioDemo.PerfilNome, usuarioDemo.Email);
+                continue;
+            }
+
             var jaPossuiPerfil = usuario.UsuarioPerfis.Any(x => x.PerfilAcessoId == perfilEsperado.Id);
             if (!jaPossuiPerfil)
             {
@@ -266,7 +273,127 @@ public sealed class DevelopmentSeedService(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seed Development aplicado com 2 usuarios por perfil (Administrador, Atendente, Solicitante).");
+        logger.LogInformation("Seed Development de usuarios de homologacao aplicado com sucesso.");
+
+        // Tarefa 2 — Massa de chamados para homologação
+        var categoriasDb = await dbContext.CategoriasChamado.ToListAsync(cancellationToken);
+        var categoriaSistema = categoriasDb.FirstOrDefault(x => x.Nome == "Sistema") ?? categoriasDb.First();
+        var categoriaAcesso = categoriasDb.FirstOrDefault(x => x.Nome == "Acesso") ?? categoriasDb.First();
+        var categoriaRede = categoriasDb.FirstOrDefault(x => x.Nome == "Rede") ?? categoriasDb.First();
+        var categoriaSuporte = categoriasDb.FirstOrDefault(x => x.Nome == "Suporte Tecnico") ?? categoriasDb.First();
+
+        var statusDb = await dbContext.StatusChamado.ToListAsync(cancellationToken);
+        var statusAberto = statusDb.FirstOrDefault(x => x.Codigo == StatusChamadoEnum.Aberto) ?? statusDb.First();
+        var statusEmAtendimento = statusDb.FirstOrDefault(x => x.Codigo == StatusChamadoEnum.EmAtendimento) ?? statusDb.First();
+        var statusEncerrado = statusDb.FirstOrDefault(x => x.Codigo == StatusChamadoEnum.Encerrado) ?? statusDb.First();
+
+        var prioridadesDb = await dbContext.PrioridadesChamado.ToListAsync(cancellationToken);
+        var prioridadeBaixa = prioridadesDb.FirstOrDefault(x => x.Nivel == PrioridadeChamadoEnum.Baixa) ?? prioridadesDb.First();
+        var prioridadeMedia = prioridadesDb.FirstOrDefault(x => x.Nivel == PrioridadeChamadoEnum.Media) ?? prioridadesDb.First();
+        var prioridadeAlta = prioridadesDb.FirstOrDefault(x => x.Nivel == PrioridadeChamadoEnum.Alta) ?? prioridadesDb.First();
+        var prioridadeCritica = prioridadesDb.FirstOrDefault(x => x.Nivel == PrioridadeChamadoEnum.Critica) ?? prioridadesDb.First();
+
+        var solicitanteHml = usuariosRelacionados.First(x => x.Email == "solicitante.hml@sgx.local");
+        var atendenteN1Hml = usuariosRelacionados.First(x => x.Email == "atendente.n1.hml@sgx.local");
+        var tecnicoN2Hml = usuariosRelacionados.First(x => x.Email == "tecnico.n2.hml@sgx.local");
+
+        if (!await dbContext.Chamados.AnyAsync(cancellationToken))
+        {
+            var chamado1 = new Chamado(
+                "HML-INC-001",
+                "Sistema indisponível para usuário final",
+                "O portal corporativo está apresentando erro HTTP 500 para todos os usuários da rede interna.",
+                solicitanteHml.Id,
+                categoriaSistema.Id,
+                prioridadeCritica.Id,
+                statusEmAtendimento.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.Incidente,
+                impactoChamado: ImpactoChamadoEnum.Alto,
+                urgenciaChamado: UrgenciaChamadoEnum.Alta);
+            chamado1.AtribuirResponsavel(tecnicoN2Hml.Id, UsuarioTecnico);
+
+            var chamado2 = new Chamado(
+                "HML-REQ-002",
+                "Solicitação de acesso a sistema",
+                "Favor liberar acesso ao módulo financeiro do ERP para a nova analista de contas a pagar.",
+                solicitanteHml.Id,
+                categoriaAcesso.Id,
+                prioridadeBaixa.Id,
+                statusAberto.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.Requisicao,
+                impactoChamado: ImpactoChamadoEnum.Baixo,
+                urgenciaChamado: UrgenciaChamadoEnum.Media);
+
+            var chamado3 = new Chamado(
+                "HML-MUD-003",
+                "Alteração planejada em configuração de servidor",
+                "Upgrade de memória RAM e processadores do servidor de banco de dados em homologação.",
+                solicitanteHml.Id,
+                categoriaSuporte.Id,
+                prioridadeAlta.Id,
+                statusAberto.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.Mudanca,
+                impactoChamado: ImpactoChamadoEnum.Alto,
+                urgenciaChamado: UrgenciaChamadoEnum.Media);
+
+            var chamado4 = new Chamado(
+                "HML-PROB-004",
+                "Falha recorrente em autenticação",
+                "Investigação da causa raiz de quedas de login que ocorrem diariamente às 14h.",
+                solicitanteHml.Id,
+                categoriaSistema.Id,
+                prioridadeMedia.Id,
+                statusEmAtendimento.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.Problema,
+                impactoChamado: ImpactoChamadoEnum.Medio,
+                urgenciaChamado: UrgenciaChamadoEnum.Media);
+            chamado4.AtribuirResponsavel(tecnicoN2Hml.Id, UsuarioTecnico);
+
+            var chamado5 = new Chamado(
+                "HML-ALR-005",
+                "Alerta de monitoramento de serviço crítico",
+                "Uso de CPU acima de 95% detectado no Datacenter Principal.",
+                solicitanteHml.Id,
+                categoriaRede.Id,
+                prioridadeAlta.Id,
+                statusAberto.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.EventoAlerta,
+                impactoChamado: ImpactoChamadoEnum.Medio,
+                urgenciaChamado: UrgenciaChamadoEnum.Alta);
+
+            var chamado6 = new Chamado(
+                "HML-TAR-006",
+                "Rotina de verificação de backup",
+                "Execução da rotina semanal de restore e validação da integridade dos backups do ERP.",
+                solicitanteHml.Id,
+                categoriaSuporte.Id,
+                prioridadeBaixa.Id,
+                statusEncerrado.Id,
+                OrigemChamado.Portal,
+                UsuarioTecnico,
+                naturezaChamado: NaturezaChamadoEnum.TarefaOperacional,
+                impactoChamado: ImpactoChamadoEnum.Baixo,
+                urgenciaChamado: UrgenciaChamadoEnum.Baixa);
+            chamado6.AtribuirResponsavel(atendenteN1Hml.Id, UsuarioTecnico);
+            chamado6.Encerrar(statusEncerrado.Id, UsuarioTecnico);
+
+            await dbContext.Chamados.AddRangeAsync(
+                [chamado1, chamado2, chamado3, chamado4, chamado5, chamado6],
+                cancellationToken);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            logger.LogInformation("Massa de 6 chamados de homologacao criada com sucesso.");
+        }
     }
 
     private static bool EhAdministradorInicialProtegido(Usuario usuario, string email, string? emailAdminInicialProtegido)
@@ -639,5 +766,5 @@ public sealed class DevelopmentSeedService(
         string Cor,
         int PrazoPrimeiraRespostaHoras,
         int PrazoResolucaoHoras);
-    private sealed record UsuarioDemoDef(string Nome, string Email, TipoPerfil Perfil);
+    private sealed record UsuarioDemoDef(string Nome, string Email, string PerfilNome);
 }
