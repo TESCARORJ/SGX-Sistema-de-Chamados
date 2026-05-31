@@ -150,6 +150,10 @@ export function setHttpAuthToken(token: string | null): void {
   bearerToken = token
 }
 
+export function getHttpApiBaseUrl(): string {
+  return API_BASE_URL
+}
+
 export function setHttpLocalDevHeaders(headers: Record<string, string> | null): void {
   devHeaders = import.meta.env.PROD ? null : headers
 }

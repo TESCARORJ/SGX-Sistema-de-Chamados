@@ -13,6 +13,15 @@ builder.Services.AddApiServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 var startupLogger = app.Logger;
+var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+var authModoLocalHabilitado = builder.Configuration.GetValue<bool>("Authentication:ModoLocalHabilitado");
+
+startupLogger.LogInformation(
+    "Ambiente da API: {Environment}. ModoLocalHabilitado={ModoLocalHabilitado}. CorsOriginsCarregadas={CorsOrigins}. PoliticaCors={PolicyName}",
+    app.Environment.EnvironmentName,
+    authModoLocalHabilitado,
+    string.Join(", ", corsAllowedOrigins),
+    ServiceCollectionExtensions.AppCorsPolicyName);
 
 using (var scope = app.Services.CreateScope())
 {
@@ -73,9 +82,10 @@ if (app.Environment.IsDevelopment() || swaggerOutsideDevelopmentHabilitado)
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors(ServiceCollectionExtensions.AppCorsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();

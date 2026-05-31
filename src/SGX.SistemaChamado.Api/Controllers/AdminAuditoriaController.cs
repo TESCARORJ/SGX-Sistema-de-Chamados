@@ -12,7 +12,7 @@ namespace SGX.SistemaChamado.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/auditoria")]
-[Authorize(Policy = Policies.AdminOuAtendente)]
+[Authorize]
 public sealed class AdminAuditoriaController(
     IListarEventosAuditoriaUseCase listarEventosAuditoriaUseCase,
     IObterEventoAuditoriaUseCase obterEventoAuditoriaUseCase,

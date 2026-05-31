@@ -18,7 +18,7 @@ public sealed class ListarEventosAuditoriaUseCase(
         CancellationToken cancellationToken = default)
     {
         var usuario = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
-        if (!AdminUseCaseHelpers.PodeOperarAdmin(usuario))
+        if (!AuditoriaAdminAutorizacaoHelper.PodeOperarAuditoria(usuario))
         {
             throw new UnauthorizedAccessException("Acesso administrativo negado.");
         }
@@ -260,7 +260,7 @@ public sealed class ObterEventoAuditoriaUseCase(
         }
 
         var usuario = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
-        if (!AdminUseCaseHelpers.PodeOperarAdmin(usuario))
+        if (!AuditoriaAdminAutorizacaoHelper.PodeOperarAuditoria(usuario))
         {
             throw new UnauthorizedAccessException("Acesso administrativo negado.");
         }
@@ -304,7 +304,7 @@ public sealed class ObterDashboardAuditoriaUseCase(
         CancellationToken cancellationToken = default)
     {
         var usuario = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
-        if (!AdminUseCaseHelpers.PodeOperarAdmin(usuario))
+        if (!AuditoriaAdminAutorizacaoHelper.PodeOperarAuditoria(usuario))
         {
             throw new UnauthorizedAccessException("Acesso administrativo negado.");
         }
@@ -378,4 +378,12 @@ public sealed class ObterDashboardAuditoriaUseCase(
             UltimasFalhas = ultimasFalhas.Select(ListarEventosAuditoriaUseCase.MapResumo).ToArray()
         };
     }
+
+}
+
+internal static class AuditoriaAdminAutorizacaoHelper
+{
+    public static bool PodeOperarAuditoria(UsuarioContextoAplicacao usuario)
+        => AdminUseCaseHelpers.PodeOperarAdmin(usuario)
+            || usuario.PossuiQualquerPerfil("Auditor Governança", "AuditorGovernanca");
 }

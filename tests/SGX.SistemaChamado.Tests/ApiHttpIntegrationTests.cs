@@ -35,6 +35,38 @@ public sealed class ApiHttpIntegrationTests : IClassFixture<ApiIntegrationTestFa
     }
 
     [Fact]
+    public async Task PreflightMeRetornaCorsHeadersParaOrigemLocalhost5173()
+    {
+        using var client = _factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Options, "/api/me");
+        request.Headers.TryAddWithoutValidation("Origin", "http://localhost:5173");
+        request.Headers.TryAddWithoutValidation("Access-Control-Request-Method", "GET");
+        request.Headers.TryAddWithoutValidation(
+            "Access-Control-Request-Headers",
+            "authorization,content-type,x-dev-user-role,x-dev-user-email");
+
+        var response = await client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("Access-Control-Allow-Origin", out var values));
+        Assert.Contains("http://localhost:5173", values);
+    }
+
+    [Fact]
+    public async Task GetMeComOriginRetornaCorsHeaderParaOrigemLocalhost5173()
+    {
+        using var client = _factory.CreateClient();
+        AddDevHeaders(client, "tecnico.n2.hml@sgx.local", "Tecnico N2 Homologacao", "TecnicoN2");
+        client.DefaultRequestHeaders.TryAddWithoutValidation("Origin", "http://localhost:5173");
+
+        var response = await client.GetAsync("/api/me");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("Access-Control-Allow-Origin", out var values));
+        Assert.Contains("http://localhost:5173", values);
+    }
+
+    [Fact]
     public async Task LoginLocalSgxRetornaTokenEApiMeComAutenticadoPorLocalSgx()
     {
         const string email = "local.login@empresa.com";

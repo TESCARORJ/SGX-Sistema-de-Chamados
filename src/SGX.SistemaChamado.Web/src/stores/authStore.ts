@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { authService } from '../services/authService'
 import {
+  getHttpApiBaseUrl,
   HttpRequestError,
   httpClient,
   setHttpAuthRedirectSuppressed,
@@ -377,6 +378,23 @@ function normalizarUsuarioAutenticado(usuario: MeResponse): MeResponse {
   }
 }
 
+function obterPerfilHeaderDev(perfil: PerfilUsuario): string {
+  switch (perfil) {
+    case 'Atendente N1':
+      return 'AtendenteN1'
+    case 'Técnico N2':
+      return 'TecnicoN2'
+    case 'Coordenador Service Desk':
+      return 'CoordenadorServiceDesk'
+    case 'Gestor TI':
+      return 'GestorTI'
+    case 'Auditor Governança':
+      return 'AuditorGovernanca'
+    default:
+      return perfil
+  }
+}
+
 function construirUsuarioLocalFallback(contexto: LocalContextSessionPayload): MeResponse {
   return {
     id: contexto.email,
@@ -422,6 +440,194 @@ function ehErroCancelamento(error: unknown): boolean {
   }
 
   return false
+}
+
+type DiagnosticoFalhaConexaoApi = 'api_indisponivel' | 'cors' | 'certificado_https' | 'desconhecido'
+
+function normalizarTextoErro(valor: unknown): string {
+  if (typeof valor === 'string') {
+    return valor.toLowerCase()
+  }
+
+  if (valor instanceof Error) {
+    return valor.message.toLowerCase()
+  }
+
+  return ''
+}
+
+function extrairResumoErro(error: Error): string {
+  const candidato = error as Error & { cause?: unknown }
+  const mensagemPrincipal = normalizarTextoErro(candidato.message)
+  const mensagemCausa = normalizarTextoErro(candidato.cause)
+
+  return `${mensagemPrincipal} ${mensagemCausa}`.trim()
+}
+
+function contemQualquerTermo(texto: string, termos: string[]): boolean {
+  return termos.some((termo) => texto.includes(termo))
+}
+
+function tentarConstruirUrlApi(caminho: string): URL | null {
+  try {
+    return new URL(caminho, getHttpApiBaseUrl())
+  } catch {
+    return null
+  }
+}
+
+async function probeConectividadeSemCors(url: URL): Promise<boolean> {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  try {
+    await fetch(url.toString(), {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'no-store',
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+function ehOrigemCruzada(url: URL): boolean {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return url.origin !== window.location.origin
+}
+
+function ehCenarioMixedContentBloqueado(url: URL): boolean {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  return window.location.protocol === 'https:' && url.protocol === 'http:'
+}
+
+function ehHostLocal(url: URL): boolean {
+  return (
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.hostname === '[::1]' ||
+    url.hostname === '::1'
+  )
+}
+
+async function diagnosticarFalhaConexaoApi(error: Error): Promise<DiagnosticoFalhaConexaoApi> {
+  const resumoErro = extrairResumoErro(error)
+
+  if (
+    contemQualquerTermo(resumoErro, [
+      'cors',
+      'access-control-allow-origin',
+      'preflight',
+      'same-origin policy',
+      'cross-origin',
+    ])
+  ) {
+    return 'cors'
+  }
+
+  if (
+    contemQualquerTermo(resumoErro, [
+      'err_cert',
+      'certificado',
+      'certificate',
+      'ssl',
+      'tls',
+      'authority_invalid',
+      'self signed',
+      'net::err_cert',
+    ])
+  ) {
+    return 'certificado_https'
+  }
+
+  const endpointSaude = tentarConstruirUrlApi('/api/saude')
+  if (!endpointSaude) {
+    return 'desconhecido'
+  }
+
+  if (ehCenarioMixedContentBloqueado(endpointSaude)) {
+    return 'cors'
+  }
+
+  const apiRespondeSemCors = await probeConectividadeSemCors(endpointSaude)
+  if (apiRespondeSemCors && ehOrigemCruzada(endpointSaude)) {
+    return 'cors'
+  }
+
+  if (!apiRespondeSemCors && endpointSaude.protocol === 'https:' && ehHostLocal(endpointSaude)) {
+    const endpointSaudeHttp = new URL(endpointSaude.toString())
+    endpointSaudeHttp.protocol = 'http:'
+
+    if (await probeConectividadeSemCors(endpointSaudeHttp)) {
+      return 'certificado_https'
+    }
+  }
+
+  if (!apiRespondeSemCors) {
+    return 'api_indisponivel'
+  }
+
+  return 'desconhecido'
+}
+
+async function traduzirErroEmulacao(
+  error: unknown,
+  mensagens: {
+    tituloPadrao: string
+    perfilRejeitado: string
+  }
+): Promise<string> {
+  if (error instanceof HttpRequestError) {
+    if (error.status === 400) {
+      return 'Requisição inválida para a API de desenvolvimento (HTTP 400). Verifique o perfil enviado no header X-Dev-User-Role.'
+    }
+
+    if (error.status === 401 || error.status === 403) {
+      return `${mensagens.perfilRejeitado} (HTTP ${error.status}).`
+    }
+
+    return `Erro na API de desenvolvimento (HTTP ${error.status}).`
+  }
+
+  if (error instanceof Error) {
+    const resumoErro = extrairResumoErro(error)
+    if (
+      contemQualquerTermo(resumoErro, [
+        'failed to fetch',
+        'networkerror',
+        'network request failed',
+        'load failed',
+        'fetch',
+      ])
+    ) {
+      const diagnostico = await diagnosticarFalhaConexaoApi(error)
+      if (diagnostico === 'cors') {
+        return 'Requisição bloqueada por CORS/origem entre frontend e API.'
+      }
+
+      if (diagnostico === 'certificado_https') {
+        return 'Falha no certificado HTTPS da API (confiança/validade SSL/TLS).'
+      }
+
+      if (diagnostico === 'api_indisponivel') {
+        return 'API de desenvolvimento fora do ar ou indisponível na URL configurada.'
+      }
+
+      return 'Falha de conectividade com a API de desenvolvimento.'
+    }
+
+    return error.message
+  }
+
+  return mensagens.tituloPadrao
 }
 
 function mensagemContaMicrosoftNaoAutorizada(): string {
@@ -543,7 +749,7 @@ export const useAuthStore = defineStore('auth', {
       setHttpLocalDevHeaders({
         'X-Dev-User-Email': this.localDevEmail,
         'X-Dev-User-Name': this.localDevNome,
-        'X-Dev-User-Role': this.localDevPerfil,
+        'X-Dev-User-Role': obterPerfilHeaderDev(this.localDevPerfil),
       })
     },
 
@@ -1081,18 +1287,10 @@ export const useAuthStore = defineStore('auth', {
           this.persistirContextoLocal()
         }
 
-        let causaErro = 'Não foi possível sincronizar o usuário emulado.'
-        if (error instanceof HttpRequestError) {
-          if (error.status === 401 || error.status === 403) {
-            causaErro = 'Perfil de homologação não aceito pelo backend.'
-          } else {
-            causaErro = `Erro na API de desenvolvimento (HTTP ${error.status}).`
-          }
-        } else if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-          causaErro = 'API de desenvolvimento indisponível ou não foi possível conectar à API.'
-        } else if (error instanceof Error) {
-          causaErro = error.message
-        }
+        const causaErro = await traduzirErroEmulacao(error, {
+          tituloPadrao: 'Não foi possível sincronizar o usuário emulado.',
+          perfilRejeitado: 'Perfil de homologação rejeitado pelo backend',
+        })
 
         throw new Error(`Não foi possível iniciar a emulação de ${dadosPerfilEmulado.descricao}. ${causaErro}`)
       }
@@ -1153,18 +1351,10 @@ export const useAuthStore = defineStore('auth', {
 
         this.persistirContextoLocal()
 
-        let causaErro = 'Não foi possível restaurar usuário administrativo.'
-        if (error instanceof HttpRequestError) {
-          if (error.status === 401 || error.status === 403) {
-            causaErro = 'Perfil original não aceito pelo backend.'
-          } else {
-            causaErro = `Erro na API de desenvolvimento (HTTP ${error.status}).`
-          }
-        } else if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('fetch') || error.message.includes('NetworkError'))) {
-          causaErro = 'API de desenvolvimento indisponível ou não foi possível conectar à API.'
-        } else if (error instanceof Error) {
-          causaErro = error.message
-        }
+        const causaErro = await traduzirErroEmulacao(error, {
+          tituloPadrao: 'Não foi possível restaurar usuário administrativo.',
+          perfilRejeitado: 'Perfil original rejeitado pelo backend',
+        })
 
         throw new Error(`Não foi possível encerrar a emulação. ${causaErro}`)
       }
