@@ -66,6 +66,23 @@ public sealed class ReabrirChamadoRequest
     public string Mensagem { get; init; } = string.Empty;
 }
 
+public sealed class CriarChamadoDerivadoAdminRequest
+{
+    public string Titulo { get; init; } = string.Empty;
+    public string Descricao { get; init; } = string.Empty;
+    public Guid? SolicitanteId { get; init; }
+    public Guid? CategoriaId { get; init; }
+    public Guid? SubcategoriaId { get; init; }
+    public Guid? TipoSolicitacaoId { get; init; }
+    public Guid? LocalUnidadeId { get; init; }
+    public Guid? DepartamentoId { get; init; }
+    public Guid? PrioridadeId { get; init; }
+    public NaturezaChamadoEnum? NaturezaChamado { get; init; }
+    public ImpactoChamadoEnum? ImpactoChamado { get; init; }
+    public UrgenciaChamadoEnum? UrgenciaChamado { get; init; }
+    public string? JustificativaDerivacao { get; init; }
+}
+
 public sealed class VincularArtigoChamadoRequest
 {
     public string? Observacao { get; init; }

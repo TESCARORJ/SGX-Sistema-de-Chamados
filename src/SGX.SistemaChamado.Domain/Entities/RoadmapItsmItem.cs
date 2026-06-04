@@ -380,6 +380,7 @@ public sealed class RoadmapItsmItem : AuditableEntity
         var ativos = checklistItens.Where(x => x.Ativo).ToArray();
         if (ativos.Length == 0)
         {
+            PercentualImplementacao = 0;
             return;
         }
 

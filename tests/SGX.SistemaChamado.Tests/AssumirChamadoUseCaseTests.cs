@@ -84,7 +84,7 @@ public sealed class AssumirChamadoUseCaseTests
             PortalUseCasesTestFactory.Uow(context));
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.Chamado.Id));
-        Assert.Contains("aguarda aprovacao", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Este chamado possui aprovacao pendente e nao pode avancar enquanto a aprovacao bloqueante nao for decidida.", ex.Message);
     }
 
     private static async Task<(Chamado Chamado, Usuario Atendente, UsuarioContextoAplicacao AtendenteContexto, UsuarioContextoAplicacao SolicitanteContexto)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)

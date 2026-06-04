@@ -33,6 +33,83 @@ public sealed class AlterarStatusChamadoUseCaseTests
         Assert.Contains(context.HistoricosChamado, x => x.Tipo == TipoHistoricoChamado.StatusAlterado);
     }
 
+    [Theory]
+    [InlineData(NaturezaChamadoEnum.Requisicao, StatusChamadoEnum.Resolvido)]
+    [InlineData(NaturezaChamadoEnum.Requisicao, StatusChamadoEnum.Encerrado)]
+    [InlineData(NaturezaChamadoEnum.Requisicao, StatusChamadoEnum.Cancelado)]
+    [InlineData(NaturezaChamadoEnum.TarefaOperacional, StatusChamadoEnum.Concluida)]
+    public async Task DependenciaAtivaImpedeAlteracaoParaStatusFinal(
+        NaturezaChamadoEnum natureza,
+        StatusChamadoEnum statusFinal)
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context, natureza, $"STA-FIN-{statusFinal}");
+        var bloqueador = await CriarChamadoRelacionadoAsync(context, dados.Chamado, $"STA-BLOQ-{statusFinal}", natureza);
+        context.ChamadosRelacionamentos.Add(new ChamadoRelacionamento(
+            bloqueador.Id,
+            dados.Chamado.Id,
+            TipoRelacionamentoChamadoEnum.Bloqueia,
+            dados.Admin.Id,
+            dados.Admin.Login,
+            "Bloqueia fechamento operacional"));
+        await context.SaveChangesAsync();
+        var statusFinalId = context.StatusChamado.First(x => x.Codigo == statusFinal).Id;
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusFinalId }));
+
+        Assert.Equal("Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.", ex.Message);
+        Assert.DoesNotContain(context.HistoricosChamado, x => x.ChamadoId == dados.Chamado.Id && x.Tipo == TipoHistoricoChamado.StatusAlterado);
+    }
+
+    [Fact]
+    public async Task DependenciaAtivaNaoImpedeAlteracaoParaStatusIntermediario()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var bloqueador = await CriarChamadoRelacionadoAsync(context, dados.Chamado, "STA-INTER");
+        context.ChamadosRelacionamentos.Add(new ChamadoRelacionamento(
+            bloqueador.Id,
+            dados.Chamado.Id,
+            TipoRelacionamentoChamadoEnum.Bloqueia,
+            dados.Admin.Id,
+            dados.Admin.Login,
+            "Bloqueio ativo"));
+        await context.SaveChangesAsync();
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = dados.StatusEmAtendimentoId });
+
+        Assert.Equal("Em Atendimento", response.Status);
+        Assert.Contains(context.HistoricosChamado, x => x.ChamadoId == dados.Chamado.Id && x.Tipo == TipoHistoricoChamado.StatusAlterado);
+    }
+
+    [Fact]
+    public async Task VinculoDeBloqueioInativoNaoImpedeAlteracaoParaStatusFinal()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var bloqueador = await CriarChamadoRelacionadoAsync(context, dados.Chamado, "STA-INAT");
+        var relacionamento = new ChamadoRelacionamento(
+            bloqueador.Id,
+            dados.Chamado.Id,
+            TipoRelacionamentoChamadoEnum.Bloqueia,
+            dados.Admin.Id,
+            dados.Admin.Login,
+            "Bloqueio removido");
+        relacionamento.Inativar(dados.Admin.Id, dados.Admin.Login, "Resolvido");
+        context.ChamadosRelacionamentos.Add(relacionamento);
+        await context.SaveChangesAsync();
+        var statusResolvidoId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Resolvido).Id;
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusResolvidoId });
+
+        Assert.Equal("Resolvido", response.Status);
+        Assert.Contains(context.HistoricosChamado, x => x.ChamadoId == dados.Chamado.Id && x.Tipo == TipoHistoricoChamado.StatusAlterado);
+    }
+
     [Fact]
     public async Task RejeitaStatusInexistenteInativo()
     {
@@ -45,7 +122,7 @@ public sealed class AlterarStatusChamadoUseCaseTests
     }
 
     [Fact]
-    public async Task BloqueiaAvancoQuandoChamadoTemAprovacaoPendente()
+    public async Task AprovacaoPendenteBloqueanteNaoImpedeStatusIntermediario()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
         var dados = await SeedAsync(context);
@@ -62,9 +139,44 @@ public sealed class AlterarStatusChamadoUseCaseTests
         await context.SaveChangesAsync();
 
         var useCase = CriarUseCase(context, dados.AdminContexto);
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = dados.StatusEmAtendimentoId }));
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = dados.StatusEmAtendimentoId });
 
-        Assert.Contains("aguarda aprovacao", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Em Atendimento", response.Status);
+    }
+
+    [Fact]
+    public async Task AprovacaoPendenteBloqueanteImpedeAlteracaoParaStatusFinal()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        context.AprovacoesChamado.Add(CriarAprovacao(dados, bloqueiaAvancoAtendimento: true));
+        await context.SaveChangesAsync();
+        var statusResolvidoId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Resolvido).Id;
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusResolvidoId }));
+
+        Assert.Equal("Este chamado possui aprovacao pendente e nao pode avancar enquanto a aprovacao bloqueante nao for decidida.", ex.Message);
+        Assert.DoesNotContain(context.HistoricosChamado, x => x.ChamadoId == dados.Chamado.Id && x.Tipo == TipoHistoricoChamado.StatusAlterado);
+    }
+
+    [Fact]
+    public async Task AprovacaoPendenteNaoBloqueanteNaoImpedeAlteracaoParaStatusFinal()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        context.AprovacoesChamado.Add(CriarAprovacao(dados, bloqueiaAvancoAtendimento: false));
+        await context.SaveChangesAsync();
+        var statusResolvidoId = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.Resolvido).Id;
+
+        var useCase = CriarUseCase(context, dados.AdminContexto);
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = statusResolvidoId });
+
+        Assert.Equal("Resolvido", response.Status);
+        Assert.Contains(context.HistoricosChamado, x => x.ChamadoId == dados.Chamado.Id && x.Tipo == TipoHistoricoChamado.StatusAlterado);
     }
 
     [Fact]
@@ -92,7 +204,7 @@ public sealed class AlterarStatusChamadoUseCaseTests
     }
 
     [Fact]
-    public async Task AvancoPermaneceBloqueadoAposReprovacao()
+    public async Task AvancoFuncionaAposReprovacao()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
         var dados = await SeedAsync(context);
@@ -110,9 +222,9 @@ public sealed class AlterarStatusChamadoUseCaseTests
         await context.SaveChangesAsync();
 
         var useCase = CriarUseCase(context, dados.AdminContexto);
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = dados.StatusEmAtendimentoId }));
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new AlterarStatusChamadoRequest { StatusId = dados.StatusEmAtendimentoId });
 
-        Assert.Contains("reprovado", ex.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Em Atendimento", response.Status);
     }
 
     [Fact]
@@ -188,9 +300,65 @@ public sealed class AlterarStatusChamadoUseCaseTests
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
             new FluxoStatusChamadoService(),
             new AcoesChamadoService(new FluxoStatusChamadoService()),
+            CriarRelacionamentosUseCase(context, contexto),
+            CriarAprovacoesUseCase(context, contexto),
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(contexto),
             PortalUseCasesTestFactory.Uow(context));
+
+    private static RelacionamentosChamadoUseCases CriarRelacionamentosUseCase(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        UsuarioContextoAplicacao contexto)
+        => new(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            PortalUseCasesTestFactory.Repo<ChamadoRelacionamento>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(contexto),
+            PortalUseCasesTestFactory.Uow(context));
+
+    private static ChamadoAprovacoesUseCases CriarAprovacoesUseCase(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        UsuarioContextoAplicacao contexto)
+        => new(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            PortalUseCasesTestFactory.Repo<AprovacaoChamado>(context),
+            PortalUseCasesTestFactory.Repo<Usuario>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            new FakeUsuarioContextoAplicacaoService(contexto),
+            PortalUseCasesTestFactory.Uow(context));
+
+    private static AprovacaoChamado CriarAprovacao(
+        (Chamado Chamado, Guid StatusEmAtendimentoId, Usuario Admin, UsuarioContextoAplicacao AdminContexto) dados,
+        bool bloqueiaAvancoAtendimento)
+        => new(
+            dados.Chamado.Id,
+            TipoOrigemAprovacaoChamado.CatalogoServico,
+            dados.Admin.Id,
+            dados.Admin.Login,
+            dados.Chamado.SolicitanteId,
+            "Servico catalogo",
+            "Aguarda aprovacao",
+            bloqueiaAvancoAtendimento: bloqueiaAvancoAtendimento);
+
+    private static async Task<Chamado> CriarChamadoRelacionadoAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
+        Chamado chamadoBase,
+        string sufixoCodigo,
+        NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao)
+    {
+        var solicitante = await context.Usuarios.FindAsync(chamadoBase.SolicitanteId)
+            ?? throw new InvalidOperationException("Solicitante de teste nao encontrado.");
+        var categoria = await context.CategoriasChamado.FindAsync(chamadoBase.CategoriaId)
+            ?? throw new InvalidOperationException("Categoria de teste nao encontrada.");
+
+        return await AdminUseCasesTestFactory.CriarChamadoAsync(
+            context,
+            solicitante,
+            categoria,
+            StatusChamadoEnum.Aberto,
+            sufixoCodigo: sufixoCodigo,
+            naturezaChamado: naturezaChamado);
+    }
 
     private static async Task<(Chamado Chamado, Guid StatusEmAtendimentoId, Usuario Admin, UsuarioContextoAplicacao AdminContexto)> SeedAsync(
         SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,

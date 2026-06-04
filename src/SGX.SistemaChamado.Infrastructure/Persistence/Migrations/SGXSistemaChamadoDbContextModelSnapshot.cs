@@ -130,6 +130,18 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("atualizado_por_usuario_id");
 
+                    b.Property<bool>("BloqueiaAvancoAtendimento")
+                        .HasColumnType("boolean")
+                        .HasColumnName("bloqueia_avanco_atendimento");
+
+                    b.Property<DateTime?>("CanceladoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelado_em");
+
+                    b.Property<Guid?>("CanceladoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancelado_por_usuario_id");
+
                     b.Property<Guid>("ChamadoId")
                         .HasColumnType("uuid")
                         .HasColumnName("chamado_id");
@@ -152,6 +164,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("decidida_em");
 
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
                     b.Property<string>("JustificativaDecisao")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)")
@@ -161,6 +178,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)")
                         .HasColumnName("justificativa_solicitacao");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_cancelamento");
 
                     b.Property<string>("OrigemDescricao")
                         .HasMaxLength(300)
@@ -183,13 +205,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("tipo_origem");
 
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("titulo");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AprovadorId")
                         .HasDatabaseName("ix_aprovacoes_chamado_aprovador_id");
 
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_aprovacoes_chamado_ativo");
+
                     b.HasIndex("AtualizadoPorUsuarioId")
                         .HasDatabaseName("ix_aprovacoes_chamado_atualizado_por_usuario_id");
+
+                    b.HasIndex("CanceladoPorUsuarioId")
+                        .HasDatabaseName("ix_aprovacoes_chamado_cancelado_por_usuario_id");
 
                     b.HasIndex("ChamadoId")
                         .HasDatabaseName("ix_aprovacoes_chamado_chamado_id");
@@ -207,9 +241,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_aprovacoes_chamado_status");
 
                     b.HasIndex("ChamadoId", "Ativo", "Status")
-                        .IsUnique()
-                        .HasDatabaseName("ux_aprovacoes_chamado_chamado_id_pendente_ativo")
-                        .HasFilter("ativo = true AND status = 1");
+                        .HasDatabaseName("ix_aprovacoes_chamado_chamado_id_ativo_status");
 
                     b.ToTable("aprovacoes_chamado", (string)null);
                 });
@@ -826,6 +858,101 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("chamados_artigos_conhecimento", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoRelacionamento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("ChamadoDestinoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_destino_id");
+
+                    b.Property<Guid>("ChamadoOrigemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_origem_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<string>("Justificativa")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("justificativa");
+
+                    b.Property<string>("MotivoRemocao")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_remocao");
+
+                    b.Property<DateTime?>("RemovidoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("removido_em");
+
+                    b.Property<Guid?>("RemovidoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("removido_por_usuario_id");
+
+                    b.Property<int>("TipoRelacionamento")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_relacionamento");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChamadoDestinoId")
+                        .HasDatabaseName("ix_chamados_relacionamentos_chamado_destino_id");
+
+                    b.HasIndex("ChamadoOrigemId")
+                        .HasDatabaseName("ix_chamados_relacionamentos_chamado_origem_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_chamados_relacionamentos_criado_por_usuario_id");
+
+                    b.HasIndex("RemovidoPorUsuarioId")
+                        .HasDatabaseName("ix_chamados_relacionamentos_removido_por_usuario_id");
+
+                    b.HasIndex("TipoRelacionamento")
+                        .HasDatabaseName("ix_chamados_relacionamentos_tipo_relacionamento");
+
+                    b.HasIndex("ChamadoOrigemId", "ChamadoDestinoId", "TipoRelacionamento")
+                        .IsUnique()
+                        .HasDatabaseName("ux_chamados_relacionamentos_origem_destino_tipo_ativo")
+                        .HasFilter("ativo = true");
+
+                    b.HasIndex("ChamadoOrigemId", "ChamadoDestinoId", "TipoRelacionamento", "Ativo")
+                        .HasDatabaseName("ix_chamados_relacionamentos_origem_destino_tipo_ativo");
+
+                    b.ToTable("chamados_relacionamentos", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_chamados_relacionamentos_origem_destino_diferentes", "chamado_origem_id <> chamado_destino_id");
+                        });
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
                 {
                     b.Property<Guid>("Id")
@@ -952,6 +1079,115 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("PrioridadeId");
 
                     b.ToTable("chamado_slas", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoTarefa", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime?>("CanceladoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelado_em");
+
+                    b.Property<Guid?>("CanceladoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancelado_por_usuario_id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<DateTime?>("ConcluidoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("concluido_em");
+
+                    b.Property<Guid?>("ConcluidoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("concluido_por_usuario_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_cancelamento");
+
+                    b.Property<DateTime?>("Prazo")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("prazo");
+
+                    b.Property<Guid?>("ResponsavelUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("responsavel_usuario_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("titulo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_chamados_tarefas_ativo");
+
+                    b.HasIndex("CanceladoPorUsuarioId");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_chamados_tarefas_chamado_id");
+
+                    b.HasIndex("ConcluidoPorUsuarioId");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_chamados_tarefas_criado_por_usuario_id");
+
+                    b.HasIndex("Prazo")
+                        .HasDatabaseName("ix_chamados_tarefas_prazo");
+
+                    b.HasIndex("ResponsavelUsuarioId")
+                        .HasDatabaseName("ix_chamados_tarefas_responsavel_usuario_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_chamados_tarefas_status");
+
+                    b.ToTable("chamados_tarefas", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ComentarioChamado", b =>
@@ -11103,6 +11339,468 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 4,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777735"),
                             Titulo = "Registrar homologacao e aceite"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000181"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 1,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Modelar entidade de relacionamento entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000182"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar enum de tipos de vinculo entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000183"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Definir vinculos iniciais: Relacionado, Pai, Filho, Duplicado, Bloqueia, BloqueadoPor, DerivadoDe e Origina."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000184"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar configuracao ORM da entidade de relacionamento."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000185"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar migration ou ajuste de persistencia necessario."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000186"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Implementar validacao contra vinculo duplicado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000187"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Implementar validacao contra vinculo circular indevido."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000188"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Registrar usuario, data, tipo de vinculo e justificativa."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000189"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Registrar historico de vinculo criado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000190"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Registrar historico de vinculo removido."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000191"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar servico de aplicacao para gerenciar vinculos entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000192"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar endpoint para listar vinculos de um chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000193"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar endpoint para criar vinculo entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000194"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar endpoint para remover ou inativar vinculo."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000195"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Validar permissoes para criacao e remocao de vinculos."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000196"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Implementar regra de dependencia entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000197"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Implementar regra de bloqueio entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000198"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Impedir fechamento indevido de chamado com dependencia obrigatoria ativa."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000199"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar fluxo de chamado derivado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000200"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar vinculo automatico entre chamado origem e chamado derivado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000201"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar suporte a tarefas vinculadas ao chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000202"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar suporte a aprovacao vinculada ao chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000203"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Bloquear avanco de chamado com aprovacao pendente, quando aplicavel."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000204"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar secao ou aba de relacionamentos no detalhe do chamado."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000205"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Exibir chamados vinculados no frontend."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000206"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Exibir bloqueios, dependencias, derivacoes, tarefas e aprovacoes pendentes."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000207"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar testes de dominio para relacionamentos entre chamados."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000208"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Criar testes de integracao dos endpoints."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000209"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Homologar cenario incidente-problema."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000210"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Homologar cenario problema-mudanca."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000211"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Homologar cenario requisicao com aprovacao."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000212"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Homologar historico completo dos vinculos."
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000213"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777736"),
+                            Titulo = "Atualizar documentacao tecnica e funcional da Sprint 2."
                         });
                 });
 
@@ -13220,6 +13918,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasForeignKey("AtualizadoPorUsuarioId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CanceladoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CanceladoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
                         .WithMany("Aprovacoes")
                         .HasForeignKey("ChamadoId")
@@ -13240,6 +13943,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Aprovador");
 
                     b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CanceladoPorUsuario");
 
                     b.Navigation("Chamado");
 
@@ -13467,6 +14172,40 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("VinculadoPorUsuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoRelacionamento", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "ChamadoDestino")
+                        .WithMany("RelacionamentosDestino")
+                        .HasForeignKey("ChamadoDestinoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "ChamadoOrigem")
+                        .WithMany("RelacionamentosOrigem")
+                        .HasForeignKey("ChamadoOrigemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "RemovidoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("RemovidoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ChamadoDestino");
+
+                    b.Navigation("ChamadoOrigem");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("RemovidoPorUsuario");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoSla", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.CalendarioCorporativo", "CalendarioCorporativo")
@@ -13498,6 +14237,46 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("PoliticaSla");
 
                     b.Navigation("Prioridade");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ChamadoTarefa", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CanceladoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CanceladoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany("Tarefas")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "ConcluidoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("ConcluidoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "ResponsavelUsuario")
+                        .WithMany()
+                        .HasForeignKey("ResponsavelUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CanceladoPorUsuario");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("ConcluidoPorUsuario");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("ResponsavelUsuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ComentarioChamado", b =>
@@ -13927,7 +14706,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Historicos");
 
+                    b.Navigation("RelacionamentosDestino");
+
+                    b.Navigation("RelacionamentosOrigem");
+
                     b.Navigation("SlaControle");
+
+                    b.Navigation("Tarefas");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Departamento", b =>

@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import ComentariosAdministrativos from '../components/admin/ComentariosAdministrativos.vue'
+import ChamadoRelacionamentosSection from '../components/admin/ChamadoRelacionamentosSection.vue'
 import ModalAlterarCategoria from '../components/admin/ModalAlterarCategoria.vue'
 import ModalAlterarPrioridade from '../components/admin/ModalAlterarPrioridade.vue'
 import ModalAlterarStatus from '../components/admin/ModalAlterarStatus.vue'
@@ -96,8 +97,12 @@ const removendoVinculoAtivo = ref(false)
 const ativoVinculadoDetalhe = ref<InventarioAtivoDetalhe | null>(null)
 
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
+const usuarioEhAtendente = computed(() => (authStore.usuario?.perfis ?? []).includes('Atendente'))
 const fallbackAdminSemPermissoes = computed(
   () => usuarioEhAdministrador.value && (authStore.usuario?.permissoes?.length ?? 0) === 0
+)
+const podeGerenciarOrquestracao = computed(() =>
+  fallbackAdminSemPermissoes.value || usuarioEhAdministrador.value || usuarioEhAtendente.value
 )
 const podeVincularArtigoConhecimento = computed(() =>
   fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.baseConhecimentoVincularChamado)
@@ -1346,6 +1351,11 @@ onMounted(carregar)
           @reabrir="showReabrir = true"
         />
       </AppSectionCard>
+
+      <ChamadoRelacionamentosSection
+        :chamado-id="detalhe.id"
+        :can-manage="podeGerenciarOrquestracao"
+      />
 
       <AppSectionCard
         v-if="podeVincularArtigoConhecimento"

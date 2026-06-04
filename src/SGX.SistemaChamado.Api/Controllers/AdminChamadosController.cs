@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SGX.SistemaChamado.Api.Authorization;
@@ -28,6 +28,9 @@ public sealed class AdminChamadosController(
     IVincularArtigoConhecimentoAoChamadoUseCase vincularArtigoConhecimentoAoChamadoUseCase,
     IRemoverArtigoConhecimentoDoChamadoUseCase removerArtigoConhecimentoDoChamadoUseCase,
     IBuscarArtigosConhecimentoParaVinculoUseCase buscarArtigosConhecimentoParaVinculoUseCase,
+    IAdminRelacionamentosChamadoUseCases relacionamentosChamadoUseCases,
+    IAdminChamadoTarefasUseCases chamadoTarefasUseCases,
+    IAdminChamadoAprovacoesUseCases chamadoAprovacoesUseCases,
     IValidator<FiltroChamadosAdminRequest> filtroValidator,
     IValidator<AtribuirChamadoRequest> atribuirValidator,
     IValidator<AlterarStatusChamadoRequest> alterarStatusValidator,
@@ -454,6 +457,357 @@ public sealed class AdminChamadosController(
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/relacionamentos")]
+    public async Task<IActionResult> ListarRelacionamentos(
+        Guid chamadoId,
+        [FromQuery] bool incluirInativos = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await relacionamentosChamadoUseCases.ListarPorChamadoAsync(chamadoId, incluirInativos, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/relacionamentos")]
+    public async Task<IActionResult> CriarRelacionamento(
+        Guid chamadoId,
+        [FromBody] CriarChamadoRelacionamentoAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await relacionamentosChamadoUseCases.CriarAsync(new CriarChamadoRelacionamentoRequest
+            {
+                ChamadoOrigemId = chamadoId,
+                ChamadoDestinoId = request.ChamadoDestinoId,
+                TipoRelacionamento = request.TipoRelacionamento,
+                Justificativa = request.Justificativa
+            }, cancellationToken);
+
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpDelete("chamados/{chamadoId:guid}/relacionamentos/{relacionamentoId:guid}")]
+    public async Task<IActionResult> RemoverRelacionamento(
+        Guid chamadoId,
+        Guid relacionamentoId,
+        [FromBody] RemoverChamadoRelacionamentoAdminRequest? request = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await relacionamentosChamadoUseCases.RemoverAsync(new RemoverChamadoRelacionamentoRequest
+            {
+                ChamadoId = chamadoId,
+                RelacionamentoId = relacionamentoId,
+                Motivo = request?.MotivoRemocao
+            }, cancellationToken);
+
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/tarefas")]
+    public async Task<IActionResult> ListarTarefas(
+        Guid chamadoId,
+        [FromQuery] bool incluirInativas = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await chamadoTarefasUseCases.ListarPorChamadoAsync(chamadoId, incluirInativas, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/tarefas")]
+    public async Task<IActionResult> CriarTarefa(
+        Guid chamadoId,
+        [FromBody] CriarChamadoTarefaAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await chamadoTarefasUseCases.CriarAsync(chamadoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPatch("chamados/{chamadoId:guid}/tarefas/{tarefaId:guid}/status")]
+    public async Task<IActionResult> AtualizarStatusTarefa(
+        Guid chamadoId,
+        Guid tarefaId,
+        [FromBody] AtualizarStatusChamadoTarefaAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await chamadoTarefasUseCases.AtualizarStatusAsync(chamadoId, tarefaId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpDelete("chamados/{chamadoId:guid}/tarefas/{tarefaId:guid}")]
+    public async Task<IActionResult> CancelarTarefa(
+        Guid chamadoId,
+        Guid tarefaId,
+        [FromBody] CancelarChamadoTarefaAdminRequest? request = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await chamadoTarefasUseCases.CancelarAsync(chamadoId, tarefaId, request, cancellationToken);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpGet("chamados/{chamadoId:guid}/aprovacoes")]
+    public async Task<IActionResult> ListarAprovacoesVinculadas(
+        Guid chamadoId,
+        [FromQuery] bool incluirInativas = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await chamadoAprovacoesUseCases.ListarPorChamadoAsync(chamadoId, incluirInativas, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/aprovacoes")]
+    public async Task<IActionResult> CriarAprovacaoVinculada(
+        Guid chamadoId,
+        [FromBody] CriarChamadoAprovacaoAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await chamadoAprovacoesUseCases.CriarAsync(chamadoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/aprovacoes/{aprovacaoId:guid}/aprovar")]
+    public async Task<IActionResult> AprovarAprovacaoVinculada(
+        Guid chamadoId,
+        Guid aprovacaoId,
+        [FromBody] DecidirChamadoAprovacaoAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await chamadoAprovacoesUseCases.AprovarAsync(chamadoId, aprovacaoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{chamadoId:guid}/aprovacoes/{aprovacaoId:guid}/reprovar")]
+    public async Task<IActionResult> ReprovarAprovacaoVinculada(
+        Guid chamadoId,
+        Guid aprovacaoId,
+        [FromBody] DecidirChamadoAprovacaoAdminRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await chamadoAprovacoesUseCases.ReprovarAsync(chamadoId, aprovacaoId, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpDelete("chamados/{chamadoId:guid}/aprovacoes/{aprovacaoId:guid}")]
+    public async Task<IActionResult> CancelarAprovacaoVinculada(
+        Guid chamadoId,
+        Guid aprovacaoId,
+        [FromBody] CancelarChamadoAprovacaoAdminRequest? request = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await chamadoAprovacoesUseCases.CancelarAsync(chamadoId, aprovacaoId, request, cancellationToken);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
         }
     }
 }

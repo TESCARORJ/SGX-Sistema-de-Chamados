@@ -41,4 +41,50 @@ public sealed class RoadmapItsmItemTests
         Assert.Equal(DateTimeKind.Utc, item.PrazoAlvo!.Value.Kind);
         Assert.Equal(new DateTime(2026, 5, 9, 0, 0, 0, DateTimeKind.Utc), item.PrazoAlvo.Value);
     }
+
+    [Fact]
+    public void DeveZerarPercentualQuandoChecklistNaoPossuirItensAtivos()
+    {
+        var roadmap = new RoadmapItsmItem(
+            "Sprint 2 - Relacionamentos",
+            "ITIL/ITSM",
+            "Objetivo",
+            null,
+            "Situacao atual",
+            "Atencao tecnica",
+            StatusRoadmapItsm.Pendente,
+            PrioridadeRoadmapItsm.Alta,
+            ImpactoRoadmapItsm.Alto,
+            DecisaoRoadmapItsm.DesenvolverAgora,
+            null,
+            null,
+            null,
+            102,
+            StatusImplementacaoRoadmapItsm.Planejado,
+            StatusTecnicoRoadmapItsm.NaoAvaliado,
+            25,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "teste");
+
+        var checklistInativo = new RoadmapChecklistItem(
+            roadmap.Id,
+            "Checklist inativo",
+            null,
+            GrupoRoadmapChecklist.Desenvolvimento,
+            1,
+            true,
+            true,
+            "teste");
+        checklistInativo.Desativar("teste");
+
+        roadmap.RecalcularPercentualImplementacao(new[] { checklistInativo });
+
+        Assert.Equal(0, roadmap.PercentualImplementacao);
+    }
 }

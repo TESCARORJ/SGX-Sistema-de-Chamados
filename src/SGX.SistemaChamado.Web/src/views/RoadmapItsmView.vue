@@ -188,7 +188,7 @@ const podeGerenciarImplementacoes = computed(
 )
 
 const modoSomenteLeitura = computed(() => modoDetalhe.value === 'visualizar')
-const percentualCalculadoPorChecklist = computed(() => (detalheAtual.value?.quantidadeChecklistAtivo ?? 0) > 0)
+const percentualCalculadoPorChecklist = computed(() => detalheAtual.value?.percentualCalculadoPorChecklist ?? false)
 const mostrarBannerImplementadoFuncionalmente = computed(() => formRoadmap.statusImplementacao === 3)
 const mostrarPendenciasEvolutivas = computed(() => formRoadmap.statusTecnico === 3)
 
@@ -734,9 +734,12 @@ onMounted(async () => {
             </div>
             <div class="col-12">
               <q-linear-progress :value="(formRoadmap.percentualImplementacao || 0) / 100" color="primary" size="10px" rounded />
-              <div class="text-caption q-mt-xs">{{ formRoadmap.percentualImplementacao }}% - {{ percentualCalculadoPorChecklist ? 'calculado pelo checklist' : 'valor legado/manual' }}</div>
+              <div class="text-caption q-mt-xs">{{ formRoadmap.percentualImplementacao }}% - {{ percentualCalculadoPorChecklist ? 'calculado pelo checklist ativo' : 'sem checklist ativo' }}</div>
               <q-banner v-if="percentualCalculadoPorChecklist" dense class="bg-blue-1 text-primary q-mt-sm">
                 O percentual é calculado automaticamente com base no checklist ativo.
+              </q-banner>
+              <q-banner v-else dense class="bg-grey-2 text-grey-8 q-mt-sm">
+                Sem checklist ativo, o progresso exibido permanece em 0%.
               </q-banner>
             </div>
 

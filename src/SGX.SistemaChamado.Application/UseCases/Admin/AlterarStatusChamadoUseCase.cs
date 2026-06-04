@@ -18,11 +18,18 @@ public sealed class AlterarStatusChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     IFluxoStatusChamadoService fluxoStatusChamadoService,
     IAcoesChamadoService acoesChamadoService,
+    IAdminRelacionamentosChamadoUseCases relacionamentosChamadoUseCases,
+    IAdminChamadoAprovacoesUseCases chamadoAprovacoesUseCases,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null) : IAlterarStatusChamadoUseCase
 {
+    private const string MensagemBloqueioDependenciaAtiva =
+        "Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.";
+    private const string MensagemBloqueioAprovacaoPendente =
+        AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente;
+
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AlterarStatusChamadoRequest request, CancellationToken cancellationToken = default)
     {
         if (chamadoId == Guid.Empty)
@@ -55,14 +62,8 @@ public sealed class AlterarStatusChamadoUseCase(
 
         fluxoStatusChamadoService.ValidarStatusPermitido(chamado.NaturezaChamado, novoStatus.Codigo);
 
-        if (novoStatus.Codigo is StatusChamadoEnum.EmAtendimento or StatusChamadoEnum.Resolvido or StatusChamadoEnum.Encerrado)
-        {
-            var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
-            if (estadoAprovacao.BloqueiaAvancoAtendimento)
-            {
-                throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
-            }
-        }
+        await GarantirAlteracaoFinalSemAprovacaoPendenteBloqueanteAsync(chamado.Id, novoStatus, cancellationToken);
+        await GarantirAlteracaoFinalSemDependenciaAtivaAsync(chamado.Id, novoStatus, cancellationToken);
 
         var statusAnterior = chamado.Status;
         chamado.AlterarStatus(novoStatus.Id, usuario.Login);
@@ -110,4 +111,43 @@ public sealed class AlterarStatusChamadoUseCase(
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
     }
+
+    private async Task GarantirAlteracaoFinalSemDependenciaAtivaAsync(
+        Guid chamadoId,
+        StatusChamado novoStatus,
+        CancellationToken cancellationToken)
+    {
+        if (!StatusRepresentaFechamentoOperacional(novoStatus))
+        {
+            return;
+        }
+
+        if (await relacionamentosChamadoUseCases.EstaBloqueadoPorDependenciaAsync(chamadoId, cancellationToken))
+        {
+            throw new InvalidOperationException(MensagemBloqueioDependenciaAtiva);
+        }
+    }
+
+    private async Task GarantirAlteracaoFinalSemAprovacaoPendenteBloqueanteAsync(
+        Guid chamadoId,
+        StatusChamado novoStatus,
+        CancellationToken cancellationToken)
+    {
+        if (!StatusRepresentaFechamentoOperacional(novoStatus))
+        {
+            return;
+        }
+
+        if (await chamadoAprovacoesUseCases.PossuiAprovacaoPendenteBloqueanteAsync(chamadoId, cancellationToken))
+        {
+            throw new InvalidOperationException(MensagemBloqueioAprovacaoPendente);
+        }
+    }
+
+    private static bool StatusRepresentaFechamentoOperacional(StatusChamado status)
+        => status.EhStatusFinal ||
+           status.Codigo is StatusChamadoEnum.Resolvido
+               or StatusChamadoEnum.Encerrado
+               or StatusChamadoEnum.Cancelado
+               or StatusChamadoEnum.Concluida;
 }

@@ -197,6 +197,19 @@ public sealed class ChamadoAdminDetalheResponse
     public SlaAdminResponse? Sla { get; init; }
 }
 
+public sealed class ChamadoDerivadoAdminResponse
+{
+    public Guid ChamadoOrigemId { get; init; }
+    public string ChamadoOrigemCodigo { get; init; } = string.Empty;
+    public Guid ChamadoDerivadoId { get; init; }
+    public string ChamadoDerivadoCodigo { get; init; } = string.Empty;
+    public Guid? RelacionamentoId { get; init; }
+    public TipoRelacionamentoChamadoEnum? TipoRelacionamento { get; init; }
+    public string Titulo { get; init; } = string.Empty;
+    public string Status { get; init; } = string.Empty;
+    public DateTime CriadoEm { get; init; }
+}
+
 public sealed record ChamadoArtigoConhecimentoDto(
     Guid ArtigoId,
     string Titulo,

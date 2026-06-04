@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Infrastructure.Persistence;
 
@@ -26,6 +28,8 @@ public sealed class DbContextModelTests
         var eventoAuditoriaEntity = context.Model.FindEntityType(typeof(EventoAuditoria));
         var baseConhecimentoArtigoEntity = context.Model.FindEntityType(typeof(BaseConhecimentoArtigo));
         var chamadoArtigoConhecimentoEntity = context.Model.FindEntityType(typeof(ChamadoArtigoConhecimento));
+        var chamadoRelacionamentoEntity = context.Model.FindEntityType(typeof(ChamadoRelacionamento));
+        var chamadoTarefaEntity = context.Model.FindEntityType(typeof(ChamadoTarefa));
         var aprovacaoChamadoEntity = context.Model.FindEntityType(typeof(AprovacaoChamado));
         var catalogoServicoEntity = context.Model.FindEntityType(typeof(CatalogoServico));
         var tipoAtivoInventarioEntity = context.Model.FindEntityType(typeof(TipoAtivoInventario));
@@ -43,6 +47,8 @@ public sealed class DbContextModelTests
         Assert.NotNull(eventoAuditoriaEntity);
         Assert.NotNull(baseConhecimentoArtigoEntity);
         Assert.NotNull(chamadoArtigoConhecimentoEntity);
+        Assert.NotNull(chamadoRelacionamentoEntity);
+        Assert.NotNull(chamadoTarefaEntity);
         Assert.NotNull(aprovacaoChamadoEntity);
         Assert.NotNull(catalogoServicoEntity);
         Assert.NotNull(tipoAtivoInventarioEntity);
@@ -59,6 +65,8 @@ public sealed class DbContextModelTests
         Assert.Equal("eventos_auditoria", eventoAuditoriaEntity!.GetTableName());
         Assert.Equal("base_conhecimento_artigos", baseConhecimentoArtigoEntity!.GetTableName());
         Assert.Equal("chamados_artigos_conhecimento", chamadoArtigoConhecimentoEntity!.GetTableName());
+        Assert.Equal("chamados_relacionamentos", chamadoRelacionamentoEntity!.GetTableName());
+        Assert.Equal("chamados_tarefas", chamadoTarefaEntity!.GetTableName());
         Assert.Equal("aprovacoes_chamado", aprovacaoChamadoEntity!.GetTableName());
         Assert.Equal("catalogo_servicos", catalogoServicoEntity!.GetTableName());
         Assert.Equal("tipos_ativo_inventario", tipoAtivoInventarioEntity!.GetTableName());
@@ -89,8 +97,23 @@ public sealed class DbContextModelTests
         Assert.True(indiceCodigoInventario!.IsUnique);
 
         var indiceAprovacaoPendente = aprovacaoChamadoEntity.GetIndexes()
-            .FirstOrDefault(x => x.GetDatabaseName() == "ux_aprovacoes_chamado_chamado_id_pendente_ativo");
+            .FirstOrDefault(x => x.GetDatabaseName() == "ix_aprovacoes_chamado_chamado_id_ativo_status");
         Assert.NotNull(indiceAprovacaoPendente);
-        Assert.True(indiceAprovacaoPendente!.IsUnique);
+        Assert.False(indiceAprovacaoPendente!.IsUnique);
+
+        var indiceRelacionamentoAtivo = chamadoRelacionamentoEntity.GetIndexes()
+            .FirstOrDefault(x => x.GetDatabaseName() == "ux_chamados_relacionamentos_origem_destino_tipo_ativo");
+        Assert.NotNull(indiceRelacionamentoAtivo);
+        Assert.True(indiceRelacionamentoAtivo!.IsUnique);
+
+        var designTimeModel = context.GetService<IDesignTimeModel>().Model;
+        var chamadoRelacionamentoDesignEntity = designTimeModel.FindEntityType(typeof(ChamadoRelacionamento));
+        var checkConstraintRelacionamento = chamadoRelacionamentoDesignEntity!.GetCheckConstraints()
+            .FirstOrDefault(x => x.Name == "ck_chamados_relacionamentos_origem_destino_diferentes");
+        Assert.NotNull(checkConstraintRelacionamento);
+
+        var indiceTarefaChamado = chamadoTarefaEntity.GetIndexes()
+            .FirstOrDefault(x => x.GetDatabaseName() == "ix_chamados_tarefas_chamado_id");
+        Assert.NotNull(indiceTarefaChamado);
     }
 }

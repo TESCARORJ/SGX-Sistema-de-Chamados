@@ -192,6 +192,13 @@ public sealed class ListarLinhaTempoChamadoUseCase(
             TipoHistoricoChamado.AprovacaoCancelada => ("aprovacao", "Aprovacao", "Aprovacao cancelada", false),
             TipoHistoricoChamado.Encerrado => ("encerramento", "Encerramento", "Chamado encerrado", false),
             TipoHistoricoChamado.Reaberto => ("reabertura", "Reabertura", "Chamado reaberto", false),
+            TipoHistoricoChamado.TarefaCriada => ("tarefa", "Tarefa", "Tarefa vinculada criada", true),
+            TipoHistoricoChamado.TarefaStatusAlterado => ("tarefa", "Tarefa", "Status da tarefa vinculada alterado", true),
+            TipoHistoricoChamado.TarefaConcluida => ("tarefa", "Tarefa", "Tarefa vinculada concluida", true),
+            TipoHistoricoChamado.TarefaCancelada => ("tarefa", "Tarefa", "Tarefa vinculada cancelada", true),
+            TipoHistoricoChamado.AprovacaoCriada => ("aprovacao", "Aprovacao", "Aprovacao vinculada criada", true),
+            TipoHistoricoChamado.AprovacaoAprovada => ("aprovacao", "Aprovacao", "Aprovacao vinculada aprovada", true),
+            TipoHistoricoChamado.AprovacaoReprovada => ("aprovacao", "Aprovacao", "Aprovacao vinculada reprovada", true),
             TipoHistoricoChamado.IntegracaoEmail => ("historico", "Historico", "Atualizacao interna", true),
             _ => ("historico", "Historico", "Atualizacao do chamado", true)
         };

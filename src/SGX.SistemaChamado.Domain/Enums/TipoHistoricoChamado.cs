@@ -1,4 +1,4 @@
-﻿namespace SGX.SistemaChamado.Domain.Enums;
+namespace SGX.SistemaChamado.Domain.Enums;
 
 public enum TipoHistoricoChamado
 {
@@ -20,5 +20,18 @@ public enum TipoHistoricoChamado
     AprovacaoSolicitada = 16,
     ChamadoAprovado = 17,
     ChamadoReprovado = 18,
-    AprovacaoCancelada = 19
+    AprovacaoCancelada = 19,
+    RelacionamentoCriado = 20,
+    RelacionamentoRecebido = 21,
+    RelacionamentoRemovido = 22,
+    RelacionamentoRemovidoRecebido = 23,
+    ChamadoDerivadoCriado = 24,
+    CriadoAPartirDeChamado = 25,
+    TarefaCriada = 26,
+    TarefaStatusAlterado = 27,
+    TarefaCancelada = 28,
+    TarefaConcluida = 29,
+    AprovacaoCriada = 30,
+    AprovacaoAprovada = 31,
+    AprovacaoReprovada = 32
 }

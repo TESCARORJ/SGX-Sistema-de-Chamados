@@ -19,11 +19,18 @@ public sealed class EncerrarChamadoUseCase(
     IRepository<HistoricoChamado> historicoRepository,
     IFluxoStatusChamadoService fluxoStatusChamadoService,
     IAcoesChamadoService acoesChamadoService,
+    IAdminRelacionamentosChamadoUseCases relacionamentosChamadoUseCases,
+    IAdminChamadoAprovacoesUseCases chamadoAprovacoesUseCases,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null) : IEncerrarChamadoUseCase
 {
+    private const string MensagemBloqueioDependenciaAtiva =
+        "Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.";
+    private const string MensagemBloqueioAprovacaoPendente =
+        AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente;
+
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, EncerrarChamadoRequest request, CancellationToken cancellationToken = default)
     {
         if (chamadoId == Guid.Empty)
@@ -46,11 +53,7 @@ public sealed class EncerrarChamadoUseCase(
 
         acoesChamadoService.ValidarAcaoDisponivel(chamado, AcaoChamadoEnum.Encerrar, usuario);
 
-        var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
-        if (estadoAprovacao.BloqueiaAvancoAtendimento)
-        {
-            throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
-        }
+        await GarantirChamadoSemAprovacaoPendenteBloqueanteAsync(chamado.Id, cancellationToken);
 
         if (chamado.EncerradoEm.HasValue || chamado.Status.Codigo == StatusChamadoEnum.Encerrado)
         {
@@ -63,6 +66,7 @@ public sealed class EncerrarChamadoUseCase(
             ?? throw new InvalidOperationException("Status Encerrado nao configurado.");
 
         fluxoStatusChamadoService.ValidarStatusPermitido(chamado.NaturezaChamado, statusEncerrado.Codigo);
+        await GarantirChamadoSemDependenciaAtivaAsync(chamado.Id, cancellationToken);
 
         chamado.Encerrar(statusEncerrado.Id, usuario.Login);
         await slaService.RegistrarEncerramentoAsync(chamado, usuario.Login, DateTime.UtcNow);
@@ -122,5 +126,21 @@ public sealed class EncerrarChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task GarantirChamadoSemDependenciaAtivaAsync(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        if (await relacionamentosChamadoUseCases.EstaBloqueadoPorDependenciaAsync(chamadoId, cancellationToken))
+        {
+            throw new InvalidOperationException(MensagemBloqueioDependenciaAtiva);
+        }
+    }
+
+    private async Task GarantirChamadoSemAprovacaoPendenteBloqueanteAsync(Guid chamadoId, CancellationToken cancellationToken)
+    {
+        if (await chamadoAprovacoesUseCases.PossuiAprovacaoPendenteBloqueanteAsync(chamadoId, cancellationToken))
+        {
+            throw new InvalidOperationException(MensagemBloqueioAprovacaoPendente);
+        }
     }
 }

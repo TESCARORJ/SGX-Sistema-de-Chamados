@@ -97,6 +97,10 @@ public static class DependencyInjection
         services.AddScoped<IComentarChamadoAdminUseCase, ComentarChamadoAdminUseCase>();
         services.AddScoped<IEncerrarChamadoUseCase, EncerrarChamadoUseCase>();
         services.AddScoped<IReabrirChamadoUseCase, ReabrirChamadoUseCase>();
+        services.AddScoped<ICriarChamadoDerivadoAdminUseCase, CriarChamadoDerivadoAdminUseCase>();
+        services.AddScoped<IAdminRelacionamentosChamadoUseCases, RelacionamentosChamadoUseCases>();
+        services.AddScoped<IAdminChamadoTarefasUseCases, ChamadoTarefasUseCases>();
+        services.AddScoped<IAdminChamadoAprovacoesUseCases, ChamadoAprovacoesUseCases>();
         services.AddScoped<IVincularInventarioAtivoChamadoUseCase, VincularInventarioAtivoChamadoUseCase>();
         services.AddScoped<IRemoverInventarioAtivoChamadoUseCase, RemoverInventarioAtivoChamadoUseCase>();
         services.AddScoped<IObterDashboardAdminUseCase, AdminIndicadoresUseCases>();

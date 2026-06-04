@@ -47,7 +47,9 @@ public sealed class RoadmapBaseConhecimentoConsistencyTests
         Assert.Equal(StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente, detalhe.StatusImplementacao);
         Assert.Equal(StatusTecnicoRoadmapItsm.RequerValidacao, detalhe.StatusTecnico);
         Assert.Equal("Homologação funcional preparada", detalhe.StatusTecnicoDescricao);
-        Assert.Equal(90, detalhe.PercentualImplementacao);
+        Assert.Equal(0, detalhe.PercentualImplementacao);
+        Assert.Equal(0, detalhe.QuantidadeChecklistAtivo);
+        Assert.Equal(0, detalhe.QuantidadeChecklistConcluido);
         Assert.False(detalhe.PercentualCalculadoPorChecklist);
     }
 }

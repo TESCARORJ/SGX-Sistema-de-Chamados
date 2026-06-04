@@ -5,7 +5,10 @@ import type {
   AlterarPrioridadeChamadoPayload,
   AlterarStatusChamadoPayload,
   AtribuirChamadoPayload,
+  ChamadoAprovacaoAdminResponse,
   ChamadoAdminDetalhe,
+  ChamadoRelacionamentoAdmin,
+  ChamadoTarefaAdminResponse,
   ComentarioAdminChamadoPayload,
   EncerrarChamadoPayload,
   FiltroChamadosAdmin,
@@ -48,6 +51,21 @@ export const adminService = {
     httpClient.get<ListaChamadosAdminResponse>(`/api/admin/chamados${buildQuery(filtros)}`),
 
   obterChamadoAdmin: (id: string) => httpClient.get<ChamadoAdminDetalhe>(`/api/admin/chamados/${id}`),
+
+  listarRelacionamentosChamado: (id: string, incluirInativos = false) =>
+    httpClient.get<ChamadoRelacionamentoAdmin[]>(
+      `/api/admin/chamados/${id}/relacionamentos?incluirInativos=${String(incluirInativos)}`
+    ),
+
+  listarTarefasChamado: (id: string, incluirInativas = false) =>
+    httpClient.get<ChamadoTarefaAdminResponse[]>(
+      `/api/admin/chamados/${id}/tarefas?incluirInativas=${String(incluirInativas)}`
+    ),
+
+  listarAprovacoesChamado: (id: string, incluirInativas = false) =>
+    httpClient.get<ChamadoAprovacaoAdminResponse[]>(
+      `/api/admin/chamados/${id}/aprovacoes?incluirInativas=${String(incluirInativas)}`
+    ),
 
   assumirChamado: (id: string) => httpClient.post<ChamadoAdminDetalhe>(`/api/admin/chamados/${id}/assumir`),
 

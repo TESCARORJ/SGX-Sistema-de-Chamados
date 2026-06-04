@@ -268,6 +268,77 @@ export interface ChamadoAdminDetalhe {
   sla: SlaAdmin | null
 }
 
+export interface ChamadoRelacionamentoAdmin {
+  id: string
+  chamadoOrigemId: string
+  chamadoOrigemCodigo: string
+  chamadoDestinoId: string
+  chamadoDestinoCodigo: string
+  tipoRelacionamento: number
+  tipoRelacionamentoDescricao: string
+  justificativa: string | null
+  ativo: boolean
+  criadoEm: string
+  criadoPor: string | null
+  removidoEm: string | null
+  motivoRemocao: string | null
+}
+
+export enum StatusTarefaChamadoEnum {
+  Pendente = 1,
+  EmAndamento = 2,
+  Concluida = 3,
+  Cancelada = 4,
+}
+
+export enum StatusAprovacaoChamadoAdminEnum {
+  Pendente = 1,
+  Aprovado = 2,
+  Reprovado = 3,
+  Cancelado = 4,
+}
+
+export interface ChamadoTarefaAdminResponse {
+  id: string
+  chamadoId: string
+  titulo: string
+  descricao: string | null
+  status: StatusTarefaChamadoEnum
+  statusDescricao: string
+  responsavelUsuarioId: string | null
+  responsavelNome: string | null
+  prazo: string | null
+  criadoEm: string
+  criadoPor: string
+  atualizadoEm: string | null
+  concluidoEm: string | null
+  canceladoEm: string | null
+  motivoCancelamento: string | null
+  ativo: boolean
+}
+
+export interface ChamadoAprovacaoAdminResponse {
+  id: string
+  chamadoId: string
+  titulo: string
+  descricao: string | null
+  status: StatusAprovacaoChamadoAdminEnum
+  statusDescricao: string
+  aprovadorUsuarioId: string | null
+  aprovadorNome: string | null
+  solicitadoPorUsuarioId: string | null
+  solicitadoPorNome: string | null
+  justificativaSolicitacao: string | null
+  justificativaDecisao: string | null
+  bloqueiaAvancoAtendimento: boolean
+  solicitadaEm: string
+  decididoEm: string | null
+  canceladoEm: string | null
+  motivoCancelamento: string | null
+  criadoEm: string
+  ativo: boolean
+}
+
 export interface ChamadoArtigoConhecimento {
   artigoId: string
   titulo: string

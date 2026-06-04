@@ -69,11 +69,11 @@ public sealed class ReabrirChamadoUseCaseTests
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrir" }));
 
-        Assert.Equal("Este chamado aguarda aprovacao antes de seguir para atendimento.", ex.Message);
+        Assert.Equal("Este chamado possui aprovacao pendente e nao pode avancar enquanto a aprovacao bloqueante nao for decidida.", ex.Message);
     }
 
     [Fact]
-    public async Task BloqueiaReabrirQuandoAprovacaoReprovada()
+    public async Task ReabreQuandoAprovacaoReprovadaFoiDecidida()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
         var dados = await SeedEncerradoAsync(context);
@@ -81,10 +81,9 @@ public sealed class ReabrirChamadoUseCaseTests
 
         var useCase = CriarUseCase(context, dados.AdminContexto);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrir" }));
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id, new ReabrirChamadoRequest { Mensagem = "Reabrir" });
 
-        Assert.Equal("Este chamado foi reprovado e nao pode seguir para atendimento.", ex.Message);
+        Assert.Equal("Em Atendimento", response.Status);
     }
 
     private static ReabrirChamadoUseCase CriarUseCase(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao contexto)

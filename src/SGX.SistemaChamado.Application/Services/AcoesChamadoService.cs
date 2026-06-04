@@ -44,10 +44,8 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
 
         var podeAlterarStatus = !chamadoEmStatusFinal
             && statusAtualPermitidoPelaNatureza
-            && !estadoAprovacao.BloqueiaAvancoAtendimento
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosAlterarStatus);
         var podeEncerrar = !chamadoEmStatusFinal
-            && !estadoAprovacao.BloqueiaAvancoAtendimento
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosEncerrar);
         var podeReabrir = chamadoReabrivel
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosReabrir);
@@ -122,8 +120,6 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
         var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
         if (estadoAprovacao.BloqueiaAvancoAtendimento
             && acao is AcaoChamadoEnum.Assumir
-                or AcaoChamadoEnum.AlterarStatus
-                or AcaoChamadoEnum.Encerrar
                 or AcaoChamadoEnum.Reabrir)
         {
             throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);

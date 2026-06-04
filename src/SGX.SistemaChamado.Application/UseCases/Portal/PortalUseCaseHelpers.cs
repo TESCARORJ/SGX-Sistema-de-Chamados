@@ -200,6 +200,13 @@ internal static class PortalUseCaseHelpers
             TipoHistoricoChamado.ChamadoAprovado => "Chamado aprovado",
             TipoHistoricoChamado.ChamadoReprovado => "Chamado reprovado",
             TipoHistoricoChamado.AprovacaoCancelada => "Aprovacao cancelada",
+            TipoHistoricoChamado.TarefaCriada => "Tarefa vinculada criada",
+            TipoHistoricoChamado.TarefaStatusAlterado => "Status da tarefa vinculada alterado",
+            TipoHistoricoChamado.TarefaConcluida => "Tarefa vinculada concluida",
+            TipoHistoricoChamado.TarefaCancelada => "Tarefa vinculada cancelada",
+            TipoHistoricoChamado.AprovacaoCriada => "Aprovacao vinculada criada",
+            TipoHistoricoChamado.AprovacaoAprovada => "Aprovacao vinculada aprovada",
+            TipoHistoricoChamado.AprovacaoReprovada => "Aprovacao vinculada reprovada",
             _ => tipo.ToString()
         };
 }

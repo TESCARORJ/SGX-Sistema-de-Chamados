@@ -57,6 +57,11 @@ public interface IReabrirChamadoUseCase
     Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, ReabrirChamadoRequest request, CancellationToken cancellationToken = default);
 }
 
+public interface ICriarChamadoDerivadoAdminUseCase
+{
+    Task<ChamadoDerivadoAdminResponse> ExecutarAsync(Guid chamadoOrigemId, CriarChamadoDerivadoAdminRequest request, CancellationToken cancellationToken = default);
+}
+
 public interface IVincularInventarioAtivoChamadoUseCase
 {
     Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, Guid ativoId, CancellationToken cancellationToken = default);

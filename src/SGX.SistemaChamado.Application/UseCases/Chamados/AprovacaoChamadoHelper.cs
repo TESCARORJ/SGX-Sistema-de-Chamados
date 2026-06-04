@@ -5,7 +5,7 @@ namespace SGX.SistemaChamado.Application.UseCases.Chamados;
 
 internal static class AprovacaoChamadoHelper
 {
-    public const string MensagemBloqueioAprovacaoPendente = "Este chamado aguarda aprovacao antes de seguir para atendimento.";
+    public const string MensagemBloqueioAprovacaoPendente = "Este chamado possui aprovacao pendente e nao pode avancar enquanto a aprovacao bloqueante nao for decidida.";
     public const string MensagemBloqueioAprovacaoReprovada = "Este chamado foi reprovado e nao pode seguir para atendimento.";
     public const string MensagemPortalSemAprovacao = "Este chamado nao requer aprovacao.";
     public const string MensagemPortalAguardandoAprovacao = "Seu chamado esta aguardando aprovacao antes de seguir para atendimento.";
@@ -16,7 +16,7 @@ internal static class AprovacaoChamadoHelper
     public static EstadoAprovacaoChamado ObterEstado(Chamado chamado)
     {
         var aprovacoesAtivas = chamado.Aprovacoes
-            .Where(x => x.Ativo)
+            .Where(x => x.Ativo && x.BloqueiaAvancoAtendimento)
             .ToArray();
 
         if (aprovacoesAtivas.Length == 0)
@@ -52,7 +52,6 @@ internal static class AprovacaoChamadoHelper
             .ThenByDescending(x => x.CriadoEm)
             .First();
 
-        var bloqueiaPorReprovacao = ultimaDecisao.Status == StatusAprovacaoChamado.Reprovado;
         return new EstadoAprovacaoChamado(
             RequerAprovacao: true,
             AprovacaoPendente: false,
@@ -64,8 +63,8 @@ internal static class AprovacaoChamadoHelper
             JustificativaReprovacao: ultimaDecisao.Status == StatusAprovacaoChamado.Reprovado ? ultimaDecisao.JustificativaDecisao : null,
             JustificativaDecisao: ultimaDecisao.JustificativaDecisao,
             MensagemOrientativa: ObterMensagemPortal(ultimaDecisao.Status),
-            BloqueiaAvancoAtendimento: bloqueiaPorReprovacao,
-            MensagemBloqueio: bloqueiaPorReprovacao ? MensagemBloqueioAprovacaoReprovada : null);
+            BloqueiaAvancoAtendimento: false,
+            MensagemBloqueio: null);
     }
 
     public static string ObterMensagemPortal(StatusAprovacaoChamado? statusAprovacao)

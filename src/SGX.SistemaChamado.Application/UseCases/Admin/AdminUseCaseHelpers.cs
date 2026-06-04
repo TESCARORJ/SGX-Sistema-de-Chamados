@@ -63,6 +63,39 @@ internal static class AdminUseCaseHelpers
             TipoHistoricoChamado.AprovacaoCancelada => string.IsNullOrWhiteSpace(detalhe)
                 ? "Aprovacao cancelada"
                 : detalhe,
+            TipoHistoricoChamado.RelacionamentoCriado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Vinculo criado com outro chamado"
+                : detalhe,
+            TipoHistoricoChamado.RelacionamentoRecebido => string.IsNullOrWhiteSpace(detalhe)
+                ? "Vinculo recebido de outro chamado"
+                : detalhe,
+            TipoHistoricoChamado.ChamadoDerivadoCriado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Chamado derivado criado"
+                : detalhe,
+            TipoHistoricoChamado.CriadoAPartirDeChamado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Chamado criado a partir de outro chamado"
+                : detalhe,
+            TipoHistoricoChamado.TarefaCriada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Tarefa vinculada criada"
+                : detalhe,
+            TipoHistoricoChamado.TarefaStatusAlterado => string.IsNullOrWhiteSpace(detalhe)
+                ? "Status da tarefa vinculada alterado"
+                : detalhe,
+            TipoHistoricoChamado.TarefaConcluida => string.IsNullOrWhiteSpace(detalhe)
+                ? "Tarefa vinculada concluida"
+                : detalhe,
+            TipoHistoricoChamado.TarefaCancelada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Tarefa vinculada cancelada"
+                : detalhe,
+            TipoHistoricoChamado.AprovacaoCriada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Aprovacao vinculada criada"
+                : detalhe,
+            TipoHistoricoChamado.AprovacaoAprovada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Aprovacao vinculada aprovada"
+                : detalhe,
+            TipoHistoricoChamado.AprovacaoReprovada => string.IsNullOrWhiteSpace(detalhe)
+                ? "Aprovacao vinculada reprovada"
+                : detalhe,
             _ => detalhe ?? tipo.ToString()
         };
 

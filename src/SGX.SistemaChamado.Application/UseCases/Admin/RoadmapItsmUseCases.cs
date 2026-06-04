@@ -1511,7 +1511,7 @@ internal static class RoadmapItsmMaps
         var checklistAtivo = item.ChecklistItens.Where(x => x.Ativo).ToArray();
         if (checklistAtivo.Length == 0)
         {
-            return (item.PercentualImplementacao, false, 0, 0);
+            return (0, false, 0, 0);
         }
 
         var concluidos = checklistAtivo.Count(x => x.Concluido);
