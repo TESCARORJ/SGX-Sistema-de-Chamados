@@ -27,6 +27,71 @@ public interface IAtribuirChamadoUseCase
     Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AtribuirChamadoRequest request, CancellationToken cancellationToken = default);
 }
 
+public interface ITransferirGrupoTecnicoChamadoUseCase
+{
+    Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, TransferirGrupoTecnicoChamadoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IDirecionarChamadoGrupoTecnicoAdminUseCase
+{
+    Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, DirecionarChamadoGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAssumirChamadoFilaAdminUseCase
+{
+    Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AssumirChamadoFilaRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IListarGruposTecnicosAdminUseCase
+{
+    Task<PagedResultResponse<GrupoTecnicoResumoResponse>> ExecutarAsync(ListarGruposTecnicosRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IObterGrupoTecnicoAdminUseCase
+{
+    Task<GrupoTecnicoResponse> ExecutarAsync(Guid id, CancellationToken cancellationToken = default);
+}
+
+public interface ICriarGrupoTecnicoAdminUseCase
+{
+    Task<GrupoTecnicoResponse> ExecutarAsync(CriarGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarGrupoTecnicoAdminUseCase
+{
+    Task<GrupoTecnicoResponse> ExecutarAsync(Guid id, AtualizarGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarStatusGrupoTecnicoAdminUseCase
+{
+    Task<AlterarSituacaoCadastroResponse> ExecutarAsync(Guid id, AlterarStatusGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IListarMembrosGrupoTecnicoAdminUseCase
+{
+    Task<IReadOnlyCollection<MembroGrupoTecnicoResponse>> ExecutarAsync(Guid grupoTecnicoId, ListarMembrosGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IListarFilasAtendimentoGrupoTecnicoAdminUseCase
+{
+    Task<IReadOnlyCollection<FilaAtendimentoResumoResponse>> ExecutarAsync(Guid grupoTecnicoId, ListarFilasAtendimentoGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAdicionarMembroGrupoTecnicoAdminUseCase
+{
+    Task<MembroGrupoTecnicoResponse> ExecutarAsync(Guid grupoTecnicoId, AdicionarMembroGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IAtualizarStatusMembroGrupoTecnicoAdminUseCase
+{
+    Task<MembroGrupoTecnicoResponse> ExecutarAsync(Guid membroId, AlterarStatusMembroGrupoTecnicoRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IListarGruposTecnicosDoUsuarioAdminUseCase
+{
+    Task<IReadOnlyCollection<GrupoTecnicoDoUsuarioResponse>> ExecutarAsync(Guid usuarioId, bool? ativo = true, CancellationToken cancellationToken = default);
+}
+
 public interface IAlterarStatusChamadoUseCase
 {
     Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AlterarStatusChamadoRequest request, CancellationToken cancellationToken = default);

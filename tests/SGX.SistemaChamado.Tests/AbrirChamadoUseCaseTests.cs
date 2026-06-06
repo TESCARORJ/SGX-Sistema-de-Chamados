@@ -51,6 +51,9 @@ public sealed class AbrirChamadoUseCaseTests
         });
 
         Assert.Equal(dados.Usuario.Id, context.Chamados.Single().SolicitanteId);
+        Assert.Null(context.Chamados.Single().GrupoTecnicoId);
+        Assert.Null(context.Chamados.Single().FilaAtendimentoId);
+        Assert.Null(context.Chamados.Single().ResponsavelId);
         Assert.Equal("Portal nao autentica", response.Titulo);
         Assert.Equal(NaturezaChamadoEnum.Incidente, context.Chamados.Single().NaturezaChamado);
     }

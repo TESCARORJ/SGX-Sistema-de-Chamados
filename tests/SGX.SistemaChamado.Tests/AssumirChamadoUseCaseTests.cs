@@ -22,7 +22,10 @@ public sealed class AssumirChamadoUseCaseTests
 
         var response = await useCase.ExecutarAsync(dados.Chamado.Id);
 
-        Assert.Equal(dados.Atendente.Id, context.Chamados.Single().ResponsavelId);
+        var chamado = context.Chamados.Single();
+        Assert.Equal(dados.Atendente.Id, chamado.ResponsavelId);
+        Assert.Null(chamado.GrupoTecnicoId);
+        Assert.Null(chamado.FilaAtendimentoId);
         Assert.Equal(dados.Chamado.Id, response.Id);
     }
 
@@ -42,6 +45,31 @@ public sealed class AssumirChamadoUseCaseTests
         await useCase.ExecutarAsync(dados.Chamado.Id);
 
         Assert.Contains(context.HistoricosChamado, x => x.Tipo == TipoHistoricoChamado.ResponsavelAlterado);
+    }
+
+    [Fact]
+    public async Task PreservaGrupoEFilaAoAssumirChamado()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var (grupo, fila) = await CriarGrupoEFilaAsync(context);
+        dados.Chamado.DefinirGrupoTecnico(grupo.Id, "teste");
+        dados.Chamado.DefinirFilaAtendimento(fila.Id, "teste");
+        await context.SaveChangesAsync();
+
+        var useCase = new AssumirChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),
+            SlaTestFactory.CriarService(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto),
+            PortalUseCasesTestFactory.Uow(context));
+
+        await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        var chamado = context.Chamados.Single();
+        Assert.Equal(dados.Atendente.Id, chamado.ResponsavelId);
+        Assert.Equal(grupo.Id, chamado.GrupoTecnicoId);
+        Assert.Equal(fila.Id, chamado.FilaAtendimentoId);
     }
 
     [Fact]
@@ -99,6 +127,19 @@ public sealed class AssumirChamadoUseCaseTests
             atendente,
             AdminUseCasesTestFactory.Contexto(atendente, "Atendente"),
             AdminUseCasesTestFactory.Contexto(solicitante, "Solicitante"));
+    }
+
+    private static async Task<(GrupoTecnico Grupo, FilaAtendimento Fila)> CriarGrupoEFilaAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    {
+        var grupo = new GrupoTecnico("Service Desk Teste", "Grupo tecnico de teste", "teste");
+        context.GruposTecnicos.Add(grupo);
+        await context.SaveChangesAsync();
+
+        var fila = new FilaAtendimento(grupo.Id, "Fila Service Desk Teste", "Fila de teste", "teste");
+        context.FilasAtendimento.Add(fila);
+        await context.SaveChangesAsync();
+
+        return (grupo, fila);
     }
 }
 

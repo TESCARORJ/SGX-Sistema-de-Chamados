@@ -17,6 +17,8 @@ internal static class AdminChamadoLoader
             .Include(x => x.TipoSolicitacao)
             .Include(x => x.LocalUnidade)
             .Include(x => x.Departamento)
+            .Include(x => x.GrupoTecnico)
+            .Include(x => x.FilaAtendimento)
             .Include(x => x.InventarioAtivo)
             .Include(x => x.Aprovacoes)
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)

@@ -203,7 +203,138 @@ public sealed class ListarChamadosAdminUseCaseTests
         Assert.Contains(response.Items, item => item.Codigo == "CH-ADMIN-001");
     }
 
-    private static async Task<(UsuarioContextoAplicacao AtendenteContexto, Guid StatusEmAtendimentoId, Guid PrioridadeAltaId, Guid CategoriaInfraId, Guid SubcategoriaInfraId, Guid TipoSolicitacaoIncidenteId, Guid LocalUnidadeMatrizId)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    [Fact]
+    public async Task ListagemAdminAceitaChamadosComGrupoEFilaNulos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest());
+        var chamadoLegado = context.Chamados.Single(x => x.Codigo == "CH-ADMIN-001");
+
+        Assert.Null(chamadoLegado.GrupoTecnicoId);
+        Assert.Null(chamadoLegado.FilaAtendimentoId);
+        Assert.Contains(response.Items, item => item.Codigo == "CH-ADMIN-001");
+    }
+
+    [Fact]
+    public async Task ListagemAdminRetornaGrupoEFilaQuandoPreenchidos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest());
+        var item = Assert.Single(response.Items, x => x.Codigo == "CH-ADMIN-002");
+
+        Assert.Equal(dados.GrupoTecnicoId, item.GrupoTecnicoId);
+        Assert.Equal("Grupo Sistemas", item.GrupoTecnicoNome);
+        Assert.Equal(dados.FilaAtendimentoId, item.FilaAtendimentoId);
+        Assert.Equal("Fila Sistemas", item.FilaAtendimentoNome);
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorGrupoTecnico()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { GrupoTecnicoId = dados.GrupoTecnicoId });
+
+        Assert.Single(response.Items);
+        Assert.All(response.Items, x => Assert.Equal(dados.GrupoTecnicoId, x.GrupoTecnicoId));
+        Assert.Contains(response.Items, x => x.Codigo == "CH-ADMIN-002");
+    }
+
+    [Fact]
+    public async Task AplicaFiltroPorFilaAtendimento()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { FilaAtendimentoId = dados.FilaAtendimentoId });
+
+        Assert.Single(response.Items);
+        Assert.All(response.Items, x => Assert.Equal(dados.FilaAtendimentoId, x.FilaAtendimentoId));
+        Assert.Contains(response.Items, x => x.Codigo == "CH-ADMIN-002");
+    }
+
+    [Fact]
+    public async Task AplicaFiltroCombinadoPorGrupoTecnicoEFilaAtendimento()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest
+        {
+            GrupoTecnicoId = dados.GrupoTecnicoId,
+            FilaAtendimentoId = dados.FilaAtendimentoId
+        });
+
+        var item = Assert.Single(response.Items);
+        Assert.Equal("CH-ADMIN-002", item.Codigo);
+        Assert.Equal(dados.GrupoTecnicoId, item.GrupoTecnicoId);
+        Assert.Equal(dados.FilaAtendimentoId, item.FilaAtendimentoId);
+        Assert.Equal(1, response.Total);
+    }
+
+    [Fact]
+    public async Task FiltroPorResponsavelContinuaFuncionando()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        var response = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { ResponsavelId = dados.AtendenteId });
+
+        Assert.Single(response.Items);
+        Assert.Contains(response.Items, x => x.Codigo == "CH-ADMIN-002");
+    }
+
+    [Fact]
+    public async Task ListagemFiltrosNaoAlteramResponsavelDoChamado()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var chamadoAntes = context.Chamados.Single(x => x.Codigo == "CH-ADMIN-002");
+        Assert.Equal(dados.AtendenteId, chamadoAntes.ResponsavelId);
+
+        var useCase = new ListarChamadosAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.AtendenteContexto));
+
+        _ = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest());
+        _ = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { GrupoTecnicoId = dados.GrupoTecnicoId });
+        _ = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { FilaAtendimentoId = dados.FilaAtendimentoId });
+        _ = await useCase.ExecutarAsync(new FiltroChamadosAdminRequest { ResponsavelId = dados.AtendenteId });
+
+        var chamadoDepois = context.Chamados.Single(x => x.Codigo == "CH-ADMIN-002");
+        Assert.Equal(dados.AtendenteId, chamadoDepois.ResponsavelId);
+    }
+
+    private static async Task<(UsuarioContextoAplicacao AtendenteContexto, Guid AtendenteId, Guid StatusEmAtendimentoId, Guid PrioridadeAltaId, Guid CategoriaInfraId, Guid SubcategoriaInfraId, Guid TipoSolicitacaoIncidenteId, Guid LocalUnidadeMatrizId, Guid GrupoTecnicoId, Guid FilaAtendimentoId)> SeedAsync(SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
     {
         var atendente = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Atendente", "aten@empresa.com", TipoPerfil.Atendente);
         var solicitante1 = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Solicitante 1", "sol1@empresa.com", TipoPerfil.Solicitante);
@@ -234,7 +365,7 @@ public sealed class ListarChamadosAdminUseCaseTests
             tipoSolicitacaoId: tipoIncidente.Id,
             localUnidadeId: localMatriz.Id,
             naturezaChamado: NaturezaChamadoEnum.Incidente);
-        _ = await AdminUseCasesTestFactory.CriarChamadoAsync(
+        var chamadoComGrupoFila = await AdminUseCasesTestFactory.CriarChamadoAsync(
             context,
             solicitante2,
             categoriaSistemas,
@@ -246,16 +377,32 @@ public sealed class ListarChamadosAdminUseCaseTests
             localUnidadeId: localFilial.Id,
             naturezaChamado: NaturezaChamadoEnum.Requisicao);
 
+        var grupo = new GrupoTecnico("Grupo Sistemas", "Grupo para testes de listagem", "teste");
+        context.GruposTecnicos.Add(grupo);
+        await context.SaveChangesAsync();
+
+        var fila = new FilaAtendimento(grupo.Id, "Fila Sistemas", "Fila para testes de listagem", "teste");
+        context.FilasAtendimento.Add(fila);
+        await context.SaveChangesAsync();
+
+        chamadoComGrupoFila.DefinirGrupoTecnico(grupo.Id, "teste");
+        chamadoComGrupoFila.DefinirFilaAtendimento(fila.Id, "teste");
+        chamadoComGrupoFila.AtribuirResponsavel(atendente.Id, "teste");
+        await context.SaveChangesAsync();
+
         var statusEmAtendimento = context.StatusChamado.First(x => x.Codigo == StatusChamadoEnum.EmAtendimento);
 
         return (
             AdminUseCasesTestFactory.Contexto(atendente, "Atendente"),
+            atendente.Id,
             statusEmAtendimento.Id,
             prioridadeAlta.Id,
             categoriaInfra.Id,
             subcategoriaInfra.Id,
             tipoIncidente.Id,
-            localMatriz.Id);
+            localMatriz.Id,
+            grupo.Id,
+            fila.Id);
     }
 }
 

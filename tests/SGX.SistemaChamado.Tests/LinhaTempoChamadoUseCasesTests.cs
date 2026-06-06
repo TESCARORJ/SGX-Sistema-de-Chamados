@@ -96,6 +96,22 @@ public sealed class LinhaTempoChamadoUseCasesTests
     }
 
     [Fact]
+    public async Task LinhaDoTempoAceitaChamadoComGrupoEFilaNulos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        await PopularEventosBaseAsync(context, dados);
+
+        var useCase = CriarListarUseCase(context, dados.AdminContexto);
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.Null(dados.ChamadoSolicitante.GrupoTecnicoId);
+        Assert.Null(dados.ChamadoSolicitante.FilaAtendimentoId);
+        Assert.Contains(response.Items, x => x.Tipo == "abertura");
+        Assert.Contains(response.Items, x => x.Tipo == "status");
+    }
+
+    [Fact]
     public async Task LinhaDoTempoRetornaOrdenacaoCronologicaCrescente()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
@@ -214,6 +230,122 @@ public sealed class LinhaTempoChamadoUseCasesTests
         var response = await listar.ExecutarAsync(dados.ChamadoSolicitante.Id);
 
         Assert.Contains(response.Items, x => x.Tipo == "anexo" && x.Descricao == "timeline-anexo.pdf");
+    }
+
+    [Fact]
+    public async Task LinhaDoTempoMapeiaHistoricosDeGrupoFilaEResponsavel()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        context.HistoricosChamado.AddRange(
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.GrupoTecnicoDefinido,
+                "Grupo tecnico definido como Service Desk.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.GrupoTecnicoTransferido,
+                "Grupo tecnico transferido de Service Desk para Infraestrutura.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.FilaAtendimentoDefinida,
+                "Fila de atendimento definida como Fila Service Desk.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.FilaAtendimentoRemovida,
+                "Fila de atendimento removida: Fila Service Desk.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.FilaAtendimentoTransferida,
+                "Fila de atendimento transferida de Fila Service Desk para Fila Infraestrutura.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.ResponsavelRemovidoPorTransferenciaGrupo,
+                "Responsavel individual removido pela transferencia de grupo tecnico.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.ChamadoAssumidoDaFila,
+                "Chamado assumido da fila Fila Service Desk por Atendente.",
+                dados.Atendente.Id,
+                "teste"),
+            new HistoricoChamado(
+                dados.ChamadoSolicitante.Id,
+                TipoHistoricoChamado.ResponsavelAlterado,
+                "Responsavel alterado de Atendente para Outro Atendente.",
+                dados.Atendente.Id,
+                "teste"));
+        await context.SaveChangesAsync();
+
+        var useCase = CriarListarUseCase(context, dados.AdminContexto);
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.Contains(response.Items, x => x.Tipo == "grupo-tecnico" && x.Titulo == "Grupo tecnico definido");
+        Assert.Contains(response.Items, x => x.Tipo == "grupo-tecnico" && x.Titulo == "Grupo tecnico transferido");
+        Assert.Contains(response.Items, x => x.Tipo == "fila-atendimento" && x.Titulo == "Fila de atendimento definida");
+        Assert.Contains(response.Items, x => x.Tipo == "fila-atendimento" && x.Titulo == "Fila de atendimento removida");
+        Assert.Contains(response.Items, x => x.Tipo == "fila-atendimento" && x.Titulo == "Fila de atendimento transferida");
+        Assert.Contains(response.Items, x => x.Tipo == "responsavel" && x.Titulo == "Responsavel removido por transferencia de grupo");
+        Assert.Contains(response.Items, x => x.Tipo == "responsavel" && x.Titulo == "Chamado assumido da fila");
+        Assert.Contains(response.Items, x => x.Tipo == "responsavel" && x.Titulo == "Responsavel alterado");
+        Assert.Contains(response.Items, x => x.Descricao.Contains("Service Desk", StringComparison.Ordinal));
+        Assert.Contains(response.Items, x => x.Descricao.Contains("Infraestrutura", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TipoHistoricoChamadoMantemValoresPersistidosSemReordenacao()
+    {
+        Assert.Equal(1, (int)TipoHistoricoChamado.Criado);
+        Assert.Equal(2, (int)TipoHistoricoChamado.StatusAlterado);
+        Assert.Equal(3, (int)TipoHistoricoChamado.PrioridadeAlterada);
+        Assert.Equal(4, (int)TipoHistoricoChamado.CategoriaAlterada);
+        Assert.Equal(5, (int)TipoHistoricoChamado.ResponsavelAlterado);
+        Assert.Equal(6, (int)TipoHistoricoChamado.ComentarioAdicionado);
+        Assert.Equal(7, (int)TipoHistoricoChamado.AnexoAdicionado);
+        Assert.Equal(8, (int)TipoHistoricoChamado.Encerrado);
+        Assert.Equal(9, (int)TipoHistoricoChamado.Reaberto);
+        Assert.Equal(10, (int)TipoHistoricoChamado.IntegracaoEmail);
+        Assert.Equal(11, (int)TipoHistoricoChamado.ArtigoConhecimentoVinculado);
+        Assert.Equal(12, (int)TipoHistoricoChamado.ArtigoConhecimentoDesvinculado);
+        Assert.Equal(13, (int)TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+        Assert.Equal(14, (int)TipoHistoricoChamado.AtivoVinculado);
+        Assert.Equal(15, (int)TipoHistoricoChamado.AtivoRemovido);
+        Assert.Equal(16, (int)TipoHistoricoChamado.AprovacaoSolicitada);
+        Assert.Equal(17, (int)TipoHistoricoChamado.ChamadoAprovado);
+        Assert.Equal(18, (int)TipoHistoricoChamado.ChamadoReprovado);
+        Assert.Equal(19, (int)TipoHistoricoChamado.AprovacaoCancelada);
+        Assert.Equal(20, (int)TipoHistoricoChamado.RelacionamentoCriado);
+        Assert.Equal(21, (int)TipoHistoricoChamado.RelacionamentoRecebido);
+        Assert.Equal(22, (int)TipoHistoricoChamado.RelacionamentoRemovido);
+        Assert.Equal(23, (int)TipoHistoricoChamado.RelacionamentoRemovidoRecebido);
+        Assert.Equal(24, (int)TipoHistoricoChamado.ChamadoDerivadoCriado);
+        Assert.Equal(25, (int)TipoHistoricoChamado.CriadoAPartirDeChamado);
+        Assert.Equal(26, (int)TipoHistoricoChamado.TarefaCriada);
+        Assert.Equal(27, (int)TipoHistoricoChamado.TarefaStatusAlterado);
+        Assert.Equal(28, (int)TipoHistoricoChamado.TarefaCancelada);
+        Assert.Equal(29, (int)TipoHistoricoChamado.TarefaConcluida);
+        Assert.Equal(30, (int)TipoHistoricoChamado.AprovacaoCriada);
+        Assert.Equal(31, (int)TipoHistoricoChamado.AprovacaoAprovada);
+        Assert.Equal(32, (int)TipoHistoricoChamado.AprovacaoReprovada);
+        Assert.Equal(33, (int)TipoHistoricoChamado.GrupoTecnicoTransferido);
+        Assert.Equal(34, (int)TipoHistoricoChamado.GrupoTecnicoDefinido);
+        Assert.Equal(35, (int)TipoHistoricoChamado.FilaAtendimentoDefinida);
+        Assert.Equal(36, (int)TipoHistoricoChamado.FilaAtendimentoRemovida);
+        Assert.Equal(37, (int)TipoHistoricoChamado.FilaAtendimentoTransferida);
+        Assert.Equal(38, (int)TipoHistoricoChamado.ResponsavelRemovidoPorTransferenciaGrupo);
+        Assert.Equal(39, (int)TipoHistoricoChamado.ChamadoAssumidoDaFila);
     }
 
     private static ListarLinhaTempoChamadoUseCase CriarListarUseCase(SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao usuario)

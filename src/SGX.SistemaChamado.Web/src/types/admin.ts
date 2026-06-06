@@ -81,6 +81,88 @@ export interface StatusAdmin {
   codigo: number
 }
 
+export interface ListarGruposTecnicosFiltro {
+  texto?: string
+  ativo?: boolean
+  pagina?: number
+  tamanhoPagina?: number
+  ordenarPor?: string
+  direcaoOrdenacao?: 'asc' | 'desc'
+}
+
+export interface GrupoTecnicoResumo {
+  id: string
+  nome: string
+  ativo: boolean
+}
+
+export interface GrupoTecnicoDetalhe {
+  id: string
+  nome: string
+  descricao: string | null
+  ativo: boolean
+  criadoEm: string
+  atualizadoEm: string | null
+}
+
+export interface ListaGruposTecnicosResponse {
+  items: GrupoTecnicoResumo[]
+  total: number
+  pagina: number
+  tamanhoPagina: number
+}
+
+export interface SalvarGrupoTecnicoPayload {
+  nome: string
+  descricao?: string | null
+}
+
+export interface AlterarStatusGrupoTecnicoPayload {
+  ativo: boolean
+}
+
+export interface ListarMembrosGrupoTecnicoFiltro {
+  ativo?: boolean
+}
+
+export interface ListarFilasAtendimentoGrupoTecnicoFiltro {
+  ativo?: boolean
+  busca?: string
+}
+
+export interface AdicionarMembroGrupoTecnicoPayload {
+  usuarioId: string
+}
+
+export interface AlterarStatusMembroGrupoTecnicoPayload {
+  ativo: boolean
+}
+
+export interface MembroGrupoTecnicoResponse {
+  id: string
+  grupoTecnicoId: string
+  usuarioId: string
+  usuarioNome: string
+  usuarioEmail: string
+  ativo: boolean
+  criadoEm: string
+  atualizadoEm: string | null
+}
+
+export interface GrupoTecnicoDoUsuarioResponse {
+  grupoTecnicoId: string
+  nome: string
+  ativo: boolean
+}
+
+export interface FilaAtendimentoGrupoTecnicoResponse {
+  id: string
+  grupoTecnicoId: string
+  nome: string
+  descricao: string | null
+  ativo: boolean
+}
+
 export interface AtendenteResumo {
   id: string
   nome: string
@@ -110,6 +192,8 @@ export interface FiltroChamadosAdmin {
   localUnidadeId?: string
   departamentoId?: string
   responsavelId?: string
+  grupoTecnicoId?: string
+  filaAtendimentoId?: string
   solicitanteId?: string
   dataInicio?: string
   dataFim?: string
@@ -139,6 +223,10 @@ export interface ChamadoAdminResumo {
   tipoSolicitacao: string | null
   localUnidade: string | null
   departamento: string | null
+  grupoTecnicoId: string | null
+  grupoTecnicoNome: string | null
+  filaAtendimentoId: string | null
+  filaAtendimentoNome: string | null
   categoriaId: string
   subcategoriaId: string | null
   prioridadeId: string
@@ -243,6 +331,10 @@ export interface ChamadoAdminDetalhe {
   tipoSolicitacao: string | null
   localUnidade: string | null
   departamento: string | null
+  grupoTecnicoId: string | null
+  grupoTecnicoNome: string | null
+  filaAtendimentoId: string | null
+  filaAtendimentoNome: string | null
   categoriaId: string
   subcategoriaId: string | null
   prioridadeId: string
@@ -387,6 +479,16 @@ export interface ArtigosConhecimentoDisponiveisResponse {
 
 export interface AtribuirChamadoPayload {
   responsavelId: string
+}
+
+export interface AssumirChamadoFilaPayload {
+  usuarioId: string
+  observacao?: string | null
+}
+
+export interface TransferirGrupoTecnicoChamadoPayload {
+  grupoTecnicoId: string
+  filaAtendimentoId?: string | null
 }
 
 export interface AlterarStatusChamadoPayload {

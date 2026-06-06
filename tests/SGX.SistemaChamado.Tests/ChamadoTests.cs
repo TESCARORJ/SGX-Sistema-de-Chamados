@@ -80,6 +80,33 @@ public sealed class ChamadoTests
     }
 
     [Fact]
+    public void ChamadoLegadoSemGrupoFilaEResponsavelPermaneceValido()
+    {
+        var chamado = CriarChamado();
+
+        chamado.DefinirGrupoTecnico(null, "teste");
+        chamado.DefinirFilaAtendimento(null, "teste");
+        chamado.AtribuirResponsavel(null, "teste");
+
+        Assert.Null(chamado.GrupoTecnicoId);
+        Assert.Null(chamado.FilaAtendimentoId);
+        Assert.Null(chamado.ResponsavelId);
+    }
+
+    [Fact]
+    public void ChamadoLegadoComResponsavelEGrupoFilaNulosPermaneceValido()
+    {
+        var chamado = CriarChamado();
+        var responsavelId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        chamado.AtribuirResponsavel(responsavelId, "gestor@sgx.local");
+
+        Assert.Equal(responsavelId, chamado.ResponsavelId);
+        Assert.Null(chamado.GrupoTecnicoId);
+        Assert.Null(chamado.FilaAtendimentoId);
+    }
+
+    [Fact]
     public void DevePermitirEncerrarChamado()
     {
         var chamado = CriarChamado();

@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import ComentariosAdministrativos from '../components/admin/ComentariosAdministrativos.vue'
@@ -35,6 +35,8 @@ import type {
   ArtigoConhecimentoDisponivelParaVinculo,
   ChamadoAdminDetalhe,
   ChamadoArtigoConhecimento,
+  FilaAtendimentoGrupoTecnicoResponse,
+  GrupoTecnicoResumo,
 } from '../types/admin'
 import type { InventarioAtivoDetalhe, InventarioAtivoListagem } from '../types/inventarioAtivos'
 
@@ -66,9 +68,15 @@ const showVincularAtivo = ref(false)
 const showConfirmarRemocaoAtivo = ref(false)
 const showAcaoAprovacao = ref(false)
 const showSolicitarAprovacao = ref(false)
+const showConfirmarAssumirFila = ref(false)
+const showTransferirGrupo = ref(false)
 
 const comentarioMensagem = ref('')
 const comentarioInterno = ref(false)
+const transferenciaGrupoForm = reactive({
+  grupoTecnicoId: '',
+  filaAtendimentoId: '',
+})
 const acaoAprovacaoSelecionada = ref<'aprovar' | 'reprovar' | 'cancelar' | null>(null)
 const justificativaAcaoAprovacao = ref('')
 const origemDescricaoSolicitacaoAprovacao = ref('')
@@ -95,6 +103,10 @@ const loadingAtivosDisponiveis = ref(false)
 const vinculandoAtivoId = ref<string | null>(null)
 const removendoVinculoAtivo = ref(false)
 const ativoVinculadoDetalhe = ref<InventarioAtivoDetalhe | null>(null)
+const gruposTransferencia = ref<GrupoTecnicoResumo[]>([])
+const filasTransferencia = ref<FilaAtendimentoGrupoTecnicoResponse[]>([])
+const loadingGruposTransferencia = ref(false)
+const loadingFilasTransferencia = ref(false)
 
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const usuarioEhAtendente = computed(() => (authStore.usuario?.perfis ?? []).includes('Atendente'))
@@ -130,6 +142,19 @@ const podeCancelarAprovacaoPermissao = computed(() =>
 
 const acoesDisponiveisSet = computed(() => new Set(detalhe.value?.acoesDisponiveisCodigos ?? []))
 const podeAssumir = computed(() => acoesDisponiveisSet.value.has('Assumir'))
+const podeAssumirFila = computed(
+  () =>
+    Boolean(detalhe.value?.grupoTecnicoId) &&
+    Boolean(detalhe.value?.filaAtendimentoId) &&
+    !detalhe.value?.responsavel &&
+    Boolean(contexto.value?.usuario.id) &&
+    (usuarioEhAdministrador.value || usuarioEhAtendente.value)
+)
+const podeTransferirGrupoTecnico = computed(
+  () =>
+    Boolean(detalhe.value?.grupoTecnicoId) &&
+    (usuarioEhAdministrador.value || usuarioEhAtendente.value)
+)
 const podeAtribuir = computed(() => acoesDisponiveisSet.value.has('Atribuir'))
 const podeAlterarStatus = computed(() => acoesDisponiveisSet.value.has('AlterarStatus'))
 const podeAlterarPrioridade = computed(() => acoesDisponiveisSet.value.has('AlterarPrioridade'))
@@ -230,6 +255,17 @@ const corAcaoAprovacao = computed(() => {
   if (acaoAprovacaoSelecionada.value === 'reprovar') return 'negative'
   return 'warning'
 })
+const opcoesGruposTransferencia = computed(() =>
+  gruposTransferencia.value
+    .filter((grupo) => grupo.id !== detalhe.value?.grupoTecnicoId)
+    .map((grupo) => ({ label: grupo.nome, value: grupo.id }))
+)
+const opcoesFilasTransferencia = computed(() =>
+  filasTransferencia.value.map((fila) => ({ label: fila.nome, value: fila.id }))
+)
+const grupoDestinoIgualAtual = computed(
+  () => Boolean(transferenciaGrupoForm.grupoTecnicoId) && transferenciaGrupoForm.grupoTecnicoId === detalhe.value?.grupoTecnicoId
+)
 
 const slaProximo = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento')
 const totalPaginasArtigosDisponiveis = computed(() =>
@@ -247,6 +283,10 @@ const mensagemConfirmarRemocaoAtivo = computed(() => {
   const nome = detalhe.value?.inventarioAtivoNome ?? ''
   const referencia = [codigo, nome].filter(Boolean).join(' - ')
   return `Deseja remover o vinculo do ativo "${referencia || 'selecionado'}" deste chamado?`
+})
+const mensagemConfirmarAssumirFila = computed(() => {
+  const fila = detalhe.value?.filaAtendimentoNome ? ` da fila "${detalhe.value.filaAtendimentoNome}"` : ' da fila'
+  return `Deseja assumir este chamado${fila}?`
 })
 
 const atualizadoEm = computed(() => {
@@ -426,6 +466,119 @@ async function assumir(): Promise<void> {
     registrarSucesso('Chamado assumido com sucesso.')
   } catch (error) {
     registrarErro(error, 'Não foi possível concluir a ação.')
+  } finally {
+    processing.value = false
+  }
+}
+
+async function assumirFila(): Promise<void> {
+  if (!detalhe.value || !contexto.value?.usuario.id) return
+  if (!podeAssumirFila.value) {
+    registrarErro(new Error('A acao Assumir da fila nao esta disponivel para este chamado no estado atual.'), 'Nao foi possivel concluir a acao.')
+    return
+  }
+
+  processing.value = true
+  erro.value = null
+
+  try {
+    await adminService.assumirChamadoFila(detalhe.value.id, { usuarioId: contexto.value.usuario.id })
+    await recarregarDetalhe()
+    showConfirmarAssumirFila.value = false
+    registrarSucesso('Chamado assumido da fila com sucesso.')
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel assumir o chamado da fila.')
+  } finally {
+    processing.value = false
+  }
+}
+
+function limparTransferenciaGrupo(): void {
+  transferenciaGrupoForm.grupoTecnicoId = ''
+  transferenciaGrupoForm.filaAtendimentoId = ''
+  filasTransferencia.value = []
+}
+
+async function carregarGruposTransferencia(): Promise<void> {
+  loadingGruposTransferencia.value = true
+
+  try {
+    const response = await adminService.listarGruposTecnicos({
+      ativo: true,
+      pagina: 1,
+      tamanhoPagina: 100,
+      ordenarPor: 'nome',
+      direcaoOrdenacao: 'asc',
+    })
+    gruposTransferencia.value = response.items
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel carregar os grupos tecnicos.')
+  } finally {
+    loadingGruposTransferencia.value = false
+  }
+}
+
+async function carregarFilasTransferencia(grupoTecnicoId: string): Promise<void> {
+  filasTransferencia.value = []
+  transferenciaGrupoForm.filaAtendimentoId = ''
+
+  if (!grupoTecnicoId) {
+    return
+  }
+
+  loadingFilasTransferencia.value = true
+
+  try {
+    filasTransferencia.value = await adminService.listarFilasAtendimentoGrupoTecnico(grupoTecnicoId, { ativo: true })
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel carregar as filas do grupo tecnico.')
+  } finally {
+    loadingFilasTransferencia.value = false
+  }
+}
+
+async function abrirTransferenciaGrupo(): Promise<void> {
+  if (!podeTransferirGrupoTecnico.value) {
+    registrarErro(new Error('A acao Transferir grupo nao esta disponivel para este chamado no estado atual.'), 'Nao foi possivel concluir a acao.')
+    return
+  }
+
+  limparTransferenciaGrupo()
+  showTransferirGrupo.value = true
+  await carregarGruposTransferencia()
+}
+
+async function aoSelecionarGrupoTransferencia(grupoTecnicoId: string | null): Promise<void> {
+  await carregarFilasTransferencia(grupoTecnicoId ?? '')
+}
+
+async function transferirGrupoTecnico(): Promise<void> {
+  if (!detalhe.value) return
+
+  if (!transferenciaGrupoForm.grupoTecnicoId) {
+    registrarErro(new Error('Selecione o grupo tecnico de destino.'), 'Nao foi possivel concluir a acao.')
+    return
+  }
+
+  if (grupoDestinoIgualAtual.value) {
+    registrarErro(new Error('Selecione um grupo tecnico diferente do grupo atual.'), 'Nao foi possivel concluir a acao.')
+    return
+  }
+
+  processing.value = true
+  erro.value = null
+
+  try {
+    await adminService.transferirGrupoTecnicoChamado(detalhe.value.id, {
+      grupoTecnicoId: transferenciaGrupoForm.grupoTecnicoId,
+      filaAtendimentoId: transferenciaGrupoForm.filaAtendimentoId || null,
+    })
+    await recarregarDetalhe()
+    showTransferirGrupo.value = false
+    limparTransferenciaGrupo()
+    registrarSucesso('Chamado transferido para outro grupo tecnico com sucesso.')
+  } catch (error) {
+    registrarErro(error, 'Nao foi possivel transferir o chamado para outro grupo tecnico.')
   } finally {
     processing.value = false
   }
@@ -955,9 +1108,23 @@ onMounted(carregar)
         <MetricCard
           title="Responsavel"
           :value="detalhe.responsavel?.nome || 'Nao atribuido'"
-          caption="Fila de atendimento atual"
+          caption="Responsavel atual"
           icon="person"
           :tone="detalhe.responsavel ? 'info' : 'warning'"
+        />
+        <MetricCard
+          title="Grupo tecnico"
+          :value="detalhe.grupoTecnicoNome || 'Sem grupo tecnico'"
+          caption="Grupo responsavel pelo atendimento"
+          icon="groups"
+          :tone="detalhe.grupoTecnicoNome ? 'info' : 'warning'"
+        />
+        <MetricCard
+          title="Fila"
+          :value="detalhe.filaAtendimentoNome || 'Sem fila'"
+          caption="Fila de atendimento atual"
+          icon="list_alt"
+          :tone="detalhe.filaAtendimentoNome ? 'primary' : 'warning'"
         />
         <MetricCard
           title="SLA em risco"
@@ -1020,12 +1187,23 @@ onMounted(carregar)
 
           <q-item>
             <q-item-section>
-              <q-item-label caption>Solicitante</q-item-label>
-              <q-item-label>{{ detalhe.solicitante.nome }} ({{ detalhe.solicitante.email }})</q-item-label>
+              <q-item-label caption>Grupo tecnico</q-item-label>
+              <q-item-label>{{ detalhe.grupoTecnicoNome || 'Sem grupo tecnico' }}</q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-item-label caption>Responsável</q-item-label>
+              <q-item-label caption>Fila de atendimento</q-item-label>
+              <q-item-label>{{ detalhe.filaAtendimentoNome || 'Sem fila' }}</q-item-label>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label caption>Responsavel</q-item-label>
               <q-item-label>{{ detalhe.responsavel?.nome || 'Não atribuído' }}</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item>
+            <q-item-section>
+              <q-item-label caption>Solicitante</q-item-label>
+              <q-item-label>{{ detalhe.solicitante.nome }} ({{ detalhe.solicitante.email }})</q-item-label>
             </q-item-section>
             <q-item-section>
               <q-item-label caption>Aberto em</q-item-label>
@@ -1334,6 +1512,8 @@ onMounted(carregar)
           :chamado="detalhe"
           :loading="processing"
           :can-assumir="podeAssumir"
+          :can-assumir-fila="podeAssumirFila"
+          :can-transferir-grupo="podeTransferirGrupoTecnico"
           :can-atribuir="podeAtribuir"
           :can-alterar-status="podeAlterarStatus"
           :can-alterar-prioridade="podeAlterarPrioridade"
@@ -1342,6 +1522,8 @@ onMounted(carregar)
           :can-encerrar="podeEncerrar"
           :can-reabrir="podeReabrir"
           @assumir="assumir"
+          @assumir-fila="showConfirmarAssumirFila = true"
+          @transferir-grupo="abrirTransferenciaGrupo"
           @atribuir="showAtribuir = true"
           @alterar-status="showStatus = true"
           @alterar-prioridade="showPrioridade = true"
@@ -1597,6 +1779,76 @@ onMounted(carregar)
 
     <ModalReabrirChamado v-model="showReabrir" :loading="processing" @confirmar="reabrir" />
 
+    <q-dialog v-model="showTransferirGrupo">
+      <q-card class="sgx-card transferencia-grupo-dialog-card">
+        <q-card-section>
+          <div class="text-h6">Transferir chamado para outro grupo tecnico</div>
+          <div class="text-body2 text-grey-7 q-mt-xs">
+            O backend validara grupo, fila e regras de transferencia antes de atualizar o chamado.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="column q-gutter-md">
+          <q-banner rounded class="bg-blue-1 text-primary">
+            A transferencia remove o responsavel atual conforme regra de negocio e recarrega o detalhe apos sucesso.
+          </q-banner>
+
+          <q-select
+            v-model="transferenciaGrupoForm.grupoTecnicoId"
+            outlined
+            emit-value
+            map-options
+            label="Grupo tecnico de destino"
+            :options="opcoesGruposTransferencia"
+            :loading="loadingGruposTransferencia"
+            :disable="processing || loadingGruposTransferencia"
+            :rules="[(v) => !!v || 'Selecione o grupo tecnico de destino']"
+            @update:model-value="aoSelecionarGrupoTransferencia"
+          >
+            <template #no-option>
+              <q-item>
+                <q-item-section class="text-grey-7">Nenhum grupo tecnico ativo disponivel.</q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+
+          <q-banner v-if="grupoDestinoIgualAtual" rounded class="bg-amber-1 text-dark">
+            Selecione um grupo tecnico diferente do grupo atual.
+          </q-banner>
+
+          <q-select
+            v-model="transferenciaGrupoForm.filaAtendimentoId"
+            outlined
+            clearable
+            emit-value
+            map-options
+            label="Fila de destino (opcional)"
+            :options="opcoesFilasTransferencia"
+            :loading="loadingFilasTransferencia"
+            :disable="processing || loadingFilasTransferencia || !transferenciaGrupoForm.grupoTecnicoId"
+          >
+            <template #no-option>
+              <q-item>
+                <q-item-section class="text-grey-7">Nenhuma fila ativa disponivel para este grupo.</q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" :disable="processing" @click="showTransferirGrupo = false" />
+          <q-btn
+            color="primary"
+            icon="move_up"
+            label="Transferir grupo"
+            :loading="processing"
+            :disable="loadingGruposTransferencia || loadingFilasTransferencia || !transferenciaGrupoForm.grupoTecnicoId || grupoDestinoIgualAtual"
+            @click="transferirGrupoTecnico"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="showComentar">
       <q-card class="sgx-card comment-dialog-card">
         <q-card-section>
@@ -1839,6 +2091,16 @@ onMounted(carregar)
       :loading="removendoVinculoAtivo"
       @confirm="confirmarRemocaoAtivoVinculado"
     />
+
+    <ConfirmDialog
+      v-model="showConfirmarAssumirFila"
+      titulo="Assumir chamado da fila"
+      :mensagem="mensagemConfirmarAssumirFila"
+      confirmar-label="Assumir da fila"
+      color="primary"
+      :loading="processing"
+      @confirm="assumirFila"
+    />
   </q-page>
 </template>
 
@@ -1855,6 +2117,10 @@ onMounted(carregar)
 .vinculo-ativo-dialog-card {
   width: min(980px, 96vw);
   max-height: 90vh;
+}
+
+.transferencia-grupo-dialog-card {
+  width: min(720px, 94vw);
 }
 
 .detalhe-top-grid {

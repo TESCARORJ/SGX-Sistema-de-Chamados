@@ -125,6 +125,77 @@ public sealed class DetalharChamadoAdminUseCaseTests
         Assert.Contains((int)StatusChamadoEnum.Encerrado, response.StatusPermitidosCodigos);
     }
 
+    [Fact]
+    public async Task DetalheAdminAceitaChamadoComGrupoEFilaNulos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.Null(dados.Chamado.GrupoTecnicoId);
+        Assert.Null(dados.Chamado.FilaAtendimentoId);
+        Assert.Null(dados.Chamado.ResponsavelId);
+        Assert.Equal(dados.Chamado.Id, response.Id);
+        Assert.Null(response.GrupoTecnicoId);
+        Assert.Null(response.GrupoTecnicoNome);
+        Assert.Null(response.FilaAtendimentoId);
+        Assert.Null(response.FilaAtendimentoNome);
+        Assert.Null(response.Responsavel);
+    }
+
+    [Fact]
+    public async Task DetalheAdminRetornaGrupoEFilaQuandoPreenchidos()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var (grupo, fila) = await CriarGrupoEFilaAsync(context);
+        dados.Chamado.DefinirGrupoTecnico(grupo.Id, "teste");
+        dados.Chamado.DefinirFilaAtendimento(fila.Id, "teste");
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.Equal(grupo.Id, response.GrupoTecnicoId);
+        Assert.Equal("Grupo Detalhe", response.GrupoTecnicoNome);
+        Assert.Equal(fila.Id, response.FilaAtendimentoId);
+        Assert.Equal("Fila Detalhe", response.FilaAtendimentoNome);
+    }
+
+    [Fact]
+    public async Task DetalheAdminExibeResponsavelSemAlterarResponsavelDoChamado()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+        var responsavel = await AdminUseCasesTestFactory.CriarUsuarioComPerfilAsync(context, "Responsavel Detalhe", "responsavel.det@empresa.com", TipoPerfil.Atendente);
+        dados.Chamado.AtribuirResponsavel(responsavel.Id, "teste");
+        await context.SaveChangesAsync();
+
+        var useCase = new DetalharChamadoAdminUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FluxoStatusChamadoService(),
+            new AcoesChamadoService(new FluxoStatusChamadoService()),
+            new FakeUsuarioContextoAplicacaoService(dados.ContextoAdmin));
+
+        var response = await useCase.ExecutarAsync(dados.Chamado.Id);
+
+        Assert.NotNull(response.Responsavel);
+        Assert.Equal(responsavel.Id, response.Responsavel.Id);
+        Assert.Equal(responsavel.Id, context.Chamados.Single(x => x.Id == dados.Chamado.Id).ResponsavelId);
+    }
+
     private static async Task<(Chamado Chamado, Usuario Solicitante, UsuarioContextoAplicacao ContextoAdmin)> SeedAsync(
         SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
         NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao)
@@ -179,5 +250,19 @@ public sealed class DetalharChamadoAdminUseCaseTests
         await context.SaveChangesAsync();
 
         return (chamado, solicitante, AdminUseCasesTestFactory.Contexto(admin, "Administrador"));
+    }
+
+    private static async Task<(GrupoTecnico Grupo, FilaAtendimento Fila)> CriarGrupoEFilaAsync(
+        SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context)
+    {
+        var grupo = new GrupoTecnico("Grupo Detalhe", "Grupo para teste de detalhe", "teste");
+        context.GruposTecnicos.Add(grupo);
+        await context.SaveChangesAsync();
+
+        var fila = new FilaAtendimento(grupo.Id, "Fila Detalhe", "Fila para teste de detalhe", "teste");
+        context.FilasAtendimento.Add(fila);
+        await context.SaveChangesAsync();
+
+        return (grupo, fila);
     }
 }

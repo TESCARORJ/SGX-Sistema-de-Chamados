@@ -55,6 +55,10 @@ public sealed class ChamadoAdminResumoResponse
     public string? TipoSolicitacao { get; init; }
     public string? LocalUnidade { get; init; }
     public string? Departamento { get; init; }
+    public Guid? GrupoTecnicoId { get; init; }
+    public string? GrupoTecnicoNome { get; init; }
+    public Guid? FilaAtendimentoId { get; init; }
+    public string? FilaAtendimentoNome { get; init; }
     public Guid CategoriaId { get; init; }
     public Guid? SubcategoriaId { get; init; }
     public Guid PrioridadeId { get; init; }
@@ -172,6 +176,10 @@ public sealed class ChamadoAdminDetalheResponse
     public string? TipoSolicitacao { get; init; }
     public string? LocalUnidade { get; init; }
     public string? Departamento { get; init; }
+    public Guid? GrupoTecnicoId { get; init; }
+    public string? GrupoTecnicoNome { get; init; }
+    public Guid? FilaAtendimentoId { get; init; }
+    public string? FilaAtendimentoNome { get; init; }
     public Guid CategoriaId { get; init; }
     public Guid? SubcategoriaId { get; init; }
     public Guid PrioridadeId { get; init; }

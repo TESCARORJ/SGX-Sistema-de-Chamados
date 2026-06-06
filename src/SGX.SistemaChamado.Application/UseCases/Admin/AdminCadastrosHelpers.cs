@@ -27,9 +27,12 @@ internal static class AdminCadastrosHelpers
     }
 
     public static (int pagina, int tamanho) NormalizarPaginacao(FiltroCadastroRequest request)
+        => NormalizarPaginacao(request.Pagina, request.TamanhoPagina);
+
+    public static (int pagina, int tamanho) NormalizarPaginacao(int paginaRequest, int tamanhoPaginaRequest)
     {
-        var pagina = request.Pagina <= 0 ? 1 : request.Pagina;
-        var tamanho = request.TamanhoPagina <= 0 ? 20 : Math.Min(request.TamanhoPagina, 100);
+        var pagina = paginaRequest <= 0 ? 1 : paginaRequest;
+        var tamanho = tamanhoPaginaRequest <= 0 ? 20 : Math.Min(tamanhoPaginaRequest, 100);
         return (pagina, tamanho);
     }
 

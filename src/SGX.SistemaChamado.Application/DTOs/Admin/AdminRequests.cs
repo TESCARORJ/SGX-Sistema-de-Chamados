@@ -13,6 +13,8 @@ public sealed class FiltroChamadosAdminRequest
     public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
     public Guid? ResponsavelId { get; init; }
+    public Guid? GrupoTecnicoId { get; init; }
+    public Guid? FilaAtendimentoId { get; init; }
     public Guid? SolicitanteId { get; init; }
     public DateTime? DataInicio { get; init; }
     public DateTime? DataFim { get; init; }
@@ -28,6 +30,25 @@ public sealed class FiltroChamadosAdminRequest
 public sealed class AtribuirChamadoRequest
 {
     public Guid ResponsavelId { get; init; }
+}
+
+public sealed class TransferirGrupoTecnicoChamadoRequest
+{
+    public Guid GrupoTecnicoId { get; init; }
+    public Guid? FilaAtendimentoId { get; init; }
+}
+
+public sealed class DirecionarChamadoGrupoTecnicoRequest
+{
+    public Guid GrupoTecnicoId { get; init; }
+    public Guid? FilaAtendimentoId { get; init; }
+    public string? Observacao { get; init; }
+}
+
+public sealed class AssumirChamadoFilaRequest
+{
+    public Guid UsuarioId { get; init; }
+    public string? Observacao { get; init; }
 }
 
 public sealed class AlterarStatusChamadoRequest

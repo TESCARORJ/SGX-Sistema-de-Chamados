@@ -25,6 +25,7 @@ const columns: QTableColumn<ChamadoAdminResumo>[] = [
   { name: 'titulo', label: 'Título', field: 'titulo', align: 'left', sortable: true },
   { name: 'solicitante', label: 'Solicitante', field: 'solicitanteNome', align: 'left', sortable: true },
   { name: 'itsm', label: 'Classificação ITSM', field: 'naturezaChamado', align: 'left' },
+  { name: 'atendimento', label: 'Atendimento', field: 'grupoTecnicoNome', align: 'left' },
   { name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true },
   { name: 'prioridade', label: 'Prioridade', field: 'prioridade', align: 'left', sortable: true },
   { name: 'sla', label: 'SLA', field: 'slaVencido', align: 'left' },
@@ -135,6 +136,19 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
       </q-td>
     </template>
 
+    <template #body-cell-atendimento="slotProps">
+      <q-td :props="slotProps">
+        <div class="column q-gutter-xs">
+          <div class="text-body2 text-weight-medium">
+            {{ slotProps.row.grupoTecnicoNome || 'Sem grupo' }}
+          </div>
+          <div class="text-caption text-grey-7">
+            Fila: {{ slotProps.row.filaAtendimentoNome || 'Sem fila' }}
+          </div>
+        </div>
+      </q-td>
+    </template>
+
     <template #body-cell-prioridade="slotProps">
       <q-td :props="slotProps">
         <PrioridadeBadge :texto="slotProps.row.prioridade" />
@@ -199,6 +213,12 @@ function podeAssumir(row: ChamadoAdminResumo): boolean {
                 {{ labelUrgenciaChamado(slotProps.row.urgenciaChamado) }}
               </div>
               <div class="text-caption text-grey-7">Solicitante: {{ slotProps.row.solicitanteNome }}</div>
+              <div class="text-caption text-grey-7">
+                Grupo: {{ slotProps.row.grupoTecnicoNome || 'Sem grupo' }}
+              </div>
+              <div class="text-caption text-grey-7">
+                Fila: {{ slotProps.row.filaAtendimentoNome || 'Sem fila' }}
+              </div>
               <div class="text-caption text-grey-7">Responsável: {{ slotProps.row.responsavelNome || '-' }}</div>
               <div class="text-caption text-grey-7">Aberto em: {{ formatarData(slotProps.row.abertoEm) }}</div>
             </div>

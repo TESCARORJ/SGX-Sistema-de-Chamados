@@ -10,6 +10,8 @@ public sealed class Chamado : AuditableEntity
     public string Descricao { get; private set; } = string.Empty;
     public Guid SolicitanteId { get; private set; }
     public Guid? ResponsavelId { get; private set; }
+    public Guid? GrupoTecnicoId { get; private set; }
+    public Guid? FilaAtendimentoId { get; private set; }
     public Guid? DepartamentoId { get; private set; }
     public Guid CategoriaId { get; private set; }
     public Guid? SubcategoriaId { get; private set; }
@@ -28,6 +30,8 @@ public sealed class Chamado : AuditableEntity
 
     public Usuario Solicitante { get; private set; } = default!;
     public Usuario? Responsavel { get; private set; }
+    public GrupoTecnico? GrupoTecnico { get; private set; }
+    public FilaAtendimento? FilaAtendimento { get; private set; }
     public Departamento? Departamento { get; private set; }
     public CategoriaChamado Categoria { get; private set; } = default!;
     public SubcategoriaChamado? Subcategoria { get; private set; }
@@ -184,6 +188,63 @@ public sealed class Chamado : AuditableEntity
         }
 
         ResponsavelId = responsavelId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void DefinirGrupoTecnico(Guid? grupoTecnicoId, string atualizadoPor)
+    {
+        if (grupoTecnicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O grupo tecnico informado e invalido.", nameof(grupoTecnicoId));
+        }
+
+        GrupoTecnicoId = grupoTecnicoId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void DefinirFilaAtendimento(Guid? filaAtendimentoId, string atualizadoPor)
+    {
+        if (filaAtendimentoId == Guid.Empty)
+        {
+            throw new ArgumentException("A fila de atendimento informada e invalida.", nameof(filaAtendimentoId));
+        }
+
+        FilaAtendimentoId = filaAtendimentoId;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void TransferirGrupoTecnico(Guid grupoTecnicoId, Guid? filaAtendimentoId, string atualizadoPor)
+    {
+        if (grupoTecnicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O grupo tecnico de destino e obrigatorio.", nameof(grupoTecnicoId));
+        }
+
+        if (filaAtendimentoId == Guid.Empty)
+        {
+            throw new ArgumentException("A fila de atendimento de destino informada e invalida.", nameof(filaAtendimentoId));
+        }
+
+        GrupoTecnicoId = grupoTecnicoId;
+        FilaAtendimentoId = filaAtendimentoId;
+        ResponsavelId = null;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void DirecionarGrupoTecnico(Guid grupoTecnicoId, Guid? filaAtendimentoId, string atualizadoPor)
+    {
+        if (grupoTecnicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O grupo tecnico e obrigatorio.", nameof(grupoTecnicoId));
+        }
+
+        if (filaAtendimentoId == Guid.Empty)
+        {
+            throw new ArgumentException("A fila de atendimento informada e invalida.", nameof(filaAtendimentoId));
+        }
+
+        GrupoTecnicoId = grupoTecnicoId;
+        FilaAtendimentoId = filaAtendimentoId;
         AtualizarAuditoria(atualizadoPor);
     }
 

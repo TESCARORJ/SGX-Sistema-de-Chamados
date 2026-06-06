@@ -124,6 +124,12 @@ const menu = computed<MenuItem[]>(() => {
             to: '/admin/cadastros/status',
             requiredAnyPermissions: [permissoes.cadastrosVisualizar],
           },
+          {
+            label: 'Grupos Tecnicos',
+            icon: 'groups',
+            to: '/admin/cadastros/grupos-tecnicos',
+            requiredAnyPermissions: [permissoes.cadastrosVisualizar],
+          },
         ],
       },
       {
@@ -466,6 +472,11 @@ const menu = computed<MenuItem[]>(() => {
       to: '/admin/conhecimento/base-conhecimento',
       requiredAnyPermissions: [permissoes.baseConhecimentoVisualizar],
     },
+    {
+      label: 'Grupos Tecnicos',
+      icon: 'groups',
+      to: '/admin/cadastros/grupos-tecnicos',
+    },
   ]
 })
 
@@ -569,6 +580,7 @@ function resolverGrupoMenu(item: MenuItem): GrupoMenuKey {
     case 'Usuários':
     case 'Perfis e permissões':
     case 'Cadastros administrativos':
+    case 'Grupos Tecnicos':
       return 'cadastros'
     case 'Configurações':
       return 'configuracoes'
@@ -666,6 +678,7 @@ const tituloPagina = computed(() => {
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
   if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovação de chamados'
   if (route.path === '/admin/notificacoes') return 'Central de Notificações'
+  if (route.path.startsWith('/admin/cadastros/grupos-tecnicos')) return 'Grupos Tecnicos'
   if (route.path.startsWith('/admin/sla/alertas')) return 'Alertas de SLA'
   if (route.path.startsWith('/admin/sla/calendarios')) return 'Calendários de SLA'
   if (route.path.startsWith('/admin/sla/painel')) return 'Painel de SLA'

@@ -716,6 +716,14 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("encerrado_em");
 
+                    b.Property<Guid?>("FilaAtendimentoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("fila_atendimento_id");
+
+                    b.Property<Guid?>("GrupoTecnicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grupo_tecnico_id");
+
                     b.Property<int>("ImpactoChamado")
                         .HasColumnType("integer")
                         .HasColumnName("impacto_chamado");
@@ -782,6 +790,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_chamados_codigo");
 
                     b.HasIndex("DepartamentoId");
+
+                    b.HasIndex("FilaAtendimentoId")
+                        .HasDatabaseName("ix_chamados_fila_atendimento_id");
+
+                    b.HasIndex("GrupoTecnicoId")
+                        .HasDatabaseName("ix_chamados_grupo_tecnico_id");
 
                     b.HasIndex("InventarioAtivoId")
                         .HasDatabaseName("ix_chamados_inventario_ativo_id");
@@ -1643,6 +1657,199 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.ToTable("excecoes_calendario_corporativo", (string)null);
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<Guid>("GrupoTecnicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grupo_tecnico_id");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_filas_atendimento_ativo");
+
+                    b.HasIndex("GrupoTecnicoId")
+                        .HasDatabaseName("ix_filas_atendimento_grupo_tecnico_id");
+
+                    b.HasIndex("GrupoTecnicoId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_filas_atendimento_grupo_nome");
+
+                    b.ToTable("filas_atendimento", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("94949494-9494-9494-9494-949494949401"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Fila operacional para triagem e atendimento inicial.",
+                            GrupoTecnicoId = new Guid("93939393-9393-9393-9393-939393939301"),
+                            Nome = "Fila Service Desk"
+                        },
+                        new
+                        {
+                            Id = new Guid("94949494-9494-9494-9494-949494949402"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Fila operacional para suporte tecnico de usuarios, estacoes e perifericos.",
+                            GrupoTecnicoId = new Guid("93939393-9393-9393-9393-939393939302"),
+                            Nome = "Fila Suporte Tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("94949494-9494-9494-9494-949494949403"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Fila operacional para infraestrutura corporativa.",
+                            GrupoTecnicoId = new Guid("93939393-9393-9393-9393-939393939303"),
+                            Nome = "Fila Infraestrutura"
+                        },
+                        new
+                        {
+                            Id = new Guid("94949494-9494-9494-9494-949494949404"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Fila operacional para sistemas corporativos e aplicacoes.",
+                            GrupoTecnicoId = new Guid("93939393-9393-9393-9393-939393939304"),
+                            Nome = "Fila Sistemas"
+                        });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_grupos_tecnicos_ativo");
+
+                    b.HasIndex("Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_grupos_tecnicos_nome");
+
+                    b.ToTable("grupos_tecnicos", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("93939393-9393-9393-9393-939393939301"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo responsavel pela triagem e atendimento inicial de chamados.",
+                            Nome = "Service Desk"
+                        },
+                        new
+                        {
+                            Id = new Guid("93939393-9393-9393-9393-939393939302"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo responsavel por atendimento tecnico de estacoes, perifericos e suporte operacional.",
+                            Nome = "Suporte Tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("93939393-9393-9393-9393-939393939303"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo responsavel por servidores, redes e componentes de infraestrutura corporativa.",
+                            Nome = "Infraestrutura"
+                        },
+                        new
+                        {
+                            Id = new Guid("93939393-9393-9393-9393-939393939304"),
+                            Ativo = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Grupo responsavel por sistemas corporativos, aplicacoes e sustentacao funcional.",
+                            Nome = "Sistemas"
+                        });
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HistoricoChamado", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2248,6 +2455,62 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_logs_integracao_email_status");
 
                     b.ToTable("logs_integracao_email", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MembroGrupoTecnico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("GrupoTecnicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grupo_tecnico_id");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_membros_grupos_tecnicos_ativo");
+
+                    b.HasIndex("GrupoTecnicoId")
+                        .HasDatabaseName("ix_membros_grupos_tecnicos_grupo_tecnico_id");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("ix_membros_grupos_tecnicos_usuario_id");
+
+                    b.HasIndex("GrupoTecnicoId", "UsuarioId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_membros_grupos_tecnicos_grupo_usuario");
+
+                    b.ToTable("membros_grupos_tecnicos", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MetaSla", b =>
@@ -10456,39 +10719,777 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
-                            Titulo = "Planejar escopo e criterios de aceite"
+                            Titulo = "Planejar escopo e criterios de aceite da Sprint 3"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000118"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000214"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Mapear impacto do modelo atual de responsavel por chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000215"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Modelar entidade GrupoTecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000216"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Modelar entidade MembroGrupoTecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000217"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Modelar entidade FilaAtendimento ou estrutura equivalente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000218"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Definir vinculo entre chamado e grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000219"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Definir vinculo entre chamado e fila de atendimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000220"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Definir regras de atribuicao individual sem quebrar o responsavel atual"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000221"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Definir regras de transferencia entre grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000222"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Definir regras de auditoria para entrada, saida e transferencia de fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000223"),
+                            Ativo = true,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
                             Grupo = 2,
                             Obrigatorio = true,
-                            Ordem = 2,
+                            Ordem = 11,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Criar migration para grupos tecnicos"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000119"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000224"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar migration para membros de grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000225"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar migration para fila ou vinculo de fila do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000226"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar indices necessarios para consulta por grupo, fila e responsavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000227"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Garantir compatibilidade com chamados existentes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000228"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar contratos de grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000229"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar servico de aplicacao para cadastro de grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000230"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar servico de aplicacao para membros de grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000231"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar regra para direcionar chamado a grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000232"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar regra para assumir chamado da fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000233"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar regra para transferir chamado entre grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000234"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar regra para atribuir chamado a tecnico especifico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000235"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar historico/auditoria das movimentacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000236"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Ajustar consultas de chamados para considerar grupo tecnico e fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000237"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Validar permissoes de acesso as operacoes de grupo e fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000238"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoints de cadastro de grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000239"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoints de membros de grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000240"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoints de direcionamento para grupo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000241"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoint para assumir chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000242"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoint para transferencia de chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000243"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar endpoint/listagem de fila por grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000244"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar tela ou secao de cadastro de grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000245"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Criar tela ou secao de membros por grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000246"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 34,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Exibir grupo tecnico no detalhe do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000247"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 35,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Exibir fila de atendimento por grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000248"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 36,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Permitir assumir chamado pela fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000249"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 37,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Permitir transferir chamado para outro grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000250"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 38,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Ajustar listagem/filtros para grupo tecnico e fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000251"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
                             Grupo = 3,
                             Obrigatorio = true,
-                            Ordem = 3,
+                            Ordem = 39,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Testar cadastro de grupo tecnico"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000120"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000252"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 40,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar inclusao e remocao de membros"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000253"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 41,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar direcionamento de chamado para grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000254"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 42,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar assumir chamado da fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000255"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 43,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar transferencia entre grupos tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000256"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 44,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar preservacao do responsavel atual do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000257"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 45,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar auditoria das movimentacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000258"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 46,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar filtros/listagens por grupo e fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000259"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 47,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Testar regressao do fluxo atual de abertura e atribuicao de chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000260"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 48,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Documentar modelo de grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000261"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 49,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Documentar regras de roteamento e transferencia"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000262"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 50,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Documentar impacto no fluxo atual de chamados"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000263"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 51,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Documentar criterios de testes tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000264"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -10496,9 +11497,37 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
                             Grupo = 5,
                             Obrigatorio = true,
-                            Ordem = 4,
+                            Ordem = 52,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Preparar roteiro de homologacao de produtividade por grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000265"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 53,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Preparar roteiro de homologacao de visibilidade por fila"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000266"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 3 Grupos tecnicos, filas e atribuicao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 54,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777720"),
+                            Titulo = "Registrar homologacao e aceite final"
                         },
                         new
                         {
@@ -12596,9 +13625,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 103,
                             PendenciasHomologacao = "Validar produtividade e visibilidade por grupo tecnico.",
                             PendenciasTecnicas = "Cadastro de grupos, membros, fila, roteamento, transferencia e escalonamento.",
-                            PercentualImplementacao = 25,
+                            PercentualImplementacao = 87,
                             Prioridade = 1,
-                            ProximaAcao = "Modelar GrupoTecnico e regras de roteamento inicial.",
+                            ProximaAcao = "Documentar modelo de grupo tecnico, filas e atribuicao.",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Existe responsavel por chamado, mas sem conceito formal de grupo tecnico e fila.",
@@ -14079,6 +15108,16 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasForeignKey("DepartamentoId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", "FilaAtendimento")
+                        .WithMany("Chamados")
+                        .HasForeignKey("FilaAtendimentoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", "GrupoTecnico")
+                        .WithMany("Chamados")
+                        .HasForeignKey("GrupoTecnicoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.InventarioAtivo", "InventarioAtivo")
                         .WithMany("Chamados")
                         .HasForeignKey("InventarioAtivoId")
@@ -14127,6 +15166,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Departamento");
+
+                    b.Navigation("FilaAtendimento");
+
+                    b.Navigation("GrupoTecnico");
 
                     b.Navigation("InventarioAtivo");
 
@@ -14335,6 +15378,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("CalendarioCorporativo");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", "GrupoTecnico")
+                        .WithMany("FilasAtendimento")
+                        .HasForeignKey("GrupoTecnicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GrupoTecnico");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HistoricoChamado", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
@@ -14481,6 +15535,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Chamado");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MembroGrupoTecnico", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", "GrupoTecnico")
+                        .WithMany("Membros")
+                        .HasForeignKey("GrupoTecnicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GrupoTecnico");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.MetaSla", b =>
@@ -14724,6 +15797,20 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("SlaConfiguracoes");
 
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", b =>
+                {
+                    b.Navigation("Chamados");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", b =>
+                {
+                    b.Navigation("Chamados");
+
+                    b.Navigation("FilasAtendimento");
+
+                    b.Navigation("Membros");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InventarioAtivo", b =>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import FilterBar from '../ui/FilterBar.vue'
-import type { AdminContextoResponse, FiltroChamadosAdmin } from '../../types/admin'
+import { adminService } from '../../services/adminService'
+import type { AdminContextoResponse, FilaAtendimentoGrupoTecnicoResponse, FiltroChamadosAdmin, GrupoTecnicoResumo } from '../../types/admin'
 import { NaturezaChamado } from '../../types/portal'
 
 const props = defineProps<{
@@ -21,6 +22,10 @@ const filtros = reactive<FiltroChamadosAdmin>({
   ordenarPor: 'atualizadoEm',
   direcaoOrdenacao: 'desc',
 })
+const gruposTecnicos = ref<GrupoTecnicoResumo[]>([])
+const filasAtendimento = ref<FilaAtendimentoGrupoTecnicoResponse[]>([])
+const loadingGruposTecnicos = ref(false)
+const loadingFilasAtendimento = ref(false)
 
 const opcoesNatureza = [
   { label: 'Todos', value: undefined },
@@ -31,6 +36,12 @@ const opcoesNatureza = [
   { label: 'Evento/Alerta', value: NaturezaChamado.EventoAlerta },
   { label: 'Tarefa operacional', value: NaturezaChamado.TarefaOperacional },
 ]
+const opcoesGruposTecnicos = computed(() =>
+  gruposTecnicos.value.map((grupo) => ({ label: grupo.nome, value: grupo.id }))
+)
+const opcoesFilasAtendimento = computed(() =>
+  filasAtendimento.value.map((fila) => ({ label: fila.nome, value: fila.id }))
+)
 
 watch(
   () => props.textoInicial,
@@ -40,6 +51,48 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => props.contexto,
+  async (contexto) => {
+    if (!contexto) return
+    await carregarGruposTecnicos()
+  },
+  { immediate: true }
+)
+
+async function carregarGruposTecnicos(): Promise<void> {
+  loadingGruposTecnicos.value = true
+
+  try {
+    const response = await adminService.listarGruposTecnicos({
+      ativo: true,
+      pagina: 1,
+      tamanhoPagina: 100,
+      ordenarPor: 'nome',
+      direcaoOrdenacao: 'asc',
+    })
+    gruposTecnicos.value = response.items
+  } finally {
+    loadingGruposTecnicos.value = false
+  }
+}
+
+async function carregarFilasAtendimento(grupoTecnicoId: string): Promise<void> {
+  filasAtendimento.value = []
+
+  if (!grupoTecnicoId) {
+    return
+  }
+
+  loadingFilasAtendimento.value = true
+
+  try {
+    filasAtendimento.value = await adminService.listarFilasAtendimentoGrupoTecnico(grupoTecnicoId, { ativo: true })
+  } finally {
+    loadingFilasAtendimento.value = false
+  }
+}
 
 function opcoesSubcategorias() {
   const categoriaSelecionada = filtros.categoriaId
@@ -67,6 +120,11 @@ function onCategoriaChange(): void {
   }
 }
 
+async function onGrupoTecnicoChange(value: string | null): Promise<void> {
+  filtros.filaAtendimentoId = undefined
+  await carregarFilasAtendimento(value ?? '')
+}
+
 function aplicar(): void {
   filtros.pagina = 1
   emit('filtrar', { ...filtros })
@@ -82,6 +140,8 @@ function limpar(): void {
   filtros.localUnidadeId = undefined
   filtros.departamentoId = undefined
   filtros.responsavelId = undefined
+  filtros.grupoTecnicoId = undefined
+  filtros.filaAtendimentoId = undefined
   filtros.solicitanteId = undefined
   filtros.dataInicio = undefined
   filtros.dataFim = undefined
@@ -92,6 +152,7 @@ function limpar(): void {
   filtros.tamanhoPagina = 20
   filtros.ordenarPor = 'atualizadoEm'
   filtros.direcaoOrdenacao = 'desc'
+  filasAtendimento.value = []
 
   emit('limpar', { ...filtros })
 }
@@ -154,6 +215,51 @@ function limpar(): void {
           outlined
           label="Responsável"
         />
+      </div>
+
+      <div class="col-12">
+        <q-separator class="q-my-sm" />
+        <div class="text-caption text-weight-semibold sgx-muted">Atendimento</div>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-select
+          v-model="filtros.grupoTecnicoId"
+          :options="opcoesGruposTecnicos"
+          :loading="loadingGruposTecnicos"
+          emit-value
+          map-options
+          clearable
+          outlined
+          label="Grupo tecnico"
+          @update:model-value="onGrupoTecnicoChange"
+        >
+          <template #no-option>
+            <q-item>
+              <q-item-section class="text-grey-7">Nenhum grupo tecnico ativo disponivel.</q-item-section>
+            </q-item>
+          </template>
+        </q-select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-select
+          v-model="filtros.filaAtendimentoId"
+          :options="opcoesFilasAtendimento"
+          :loading="loadingFilasAtendimento"
+          :disable="!filtros.grupoTecnicoId || loadingFilasAtendimento"
+          emit-value
+          map-options
+          clearable
+          outlined
+          label="Fila de atendimento"
+        >
+          <template #no-option>
+            <q-item>
+              <q-item-section class="text-grey-7">Nenhuma fila ativa disponivel para este grupo.</q-item-section>
+            </q-item>
+          </template>
+        </q-select>
       </div>
 
       <div class="col-12">

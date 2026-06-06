@@ -5,6 +5,8 @@ defineProps<{
   chamado: ChamadoAdminDetalhe
   loading?: boolean
   canAssumir?: boolean
+  canAssumirFila?: boolean
+  canTransferirGrupo?: boolean
   canAtribuir?: boolean
   canAlterarStatus?: boolean
   canAlterarPrioridade?: boolean
@@ -16,6 +18,8 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'assumir'): void
+  (e: 'assumir-fila'): void
+  (e: 'transferir-grupo'): void
   (e: 'atribuir'): void
   (e: 'alterar-status'): void
   (e: 'alterar-prioridade'): void
@@ -32,6 +36,25 @@ const emit = defineEmits<{
 
     <div class="painel-acoes">
       <q-btn color="secondary" icon="assignment_ind" label="Assumir" :loading="loading" :disable="canAssumir === false" @click="emit('assumir')" />
+
+      <q-btn
+        v-if="canAssumirFila"
+        color="primary"
+        icon="playlist_add_check"
+        label="Assumir da fila"
+        :loading="loading"
+        @click="emit('assumir-fila')"
+      />
+
+      <q-btn
+        v-if="canTransferirGrupo"
+        outline
+        color="primary"
+        icon="move_up"
+        label="Transferir grupo"
+        :loading="loading"
+        @click="emit('transferir-grupo')"
+      />
 
       <q-btn
         v-if="canAtribuir !== false"

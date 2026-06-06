@@ -96,6 +96,27 @@ internal static class AdminUseCaseHelpers
             TipoHistoricoChamado.AprovacaoReprovada => string.IsNullOrWhiteSpace(detalhe)
                 ? "Aprovacao vinculada reprovada"
                 : detalhe,
+            TipoHistoricoChamado.GrupoTecnicoTransferido => string.IsNullOrWhiteSpace(detalhe)
+                ? "Grupo tecnico transferido"
+                : detalhe,
+            TipoHistoricoChamado.GrupoTecnicoDefinido => string.IsNullOrWhiteSpace(detalhe)
+                ? "Grupo tecnico definido"
+                : detalhe,
+            TipoHistoricoChamado.FilaAtendimentoDefinida => string.IsNullOrWhiteSpace(detalhe)
+                ? "Fila de atendimento definida"
+                : detalhe,
+            TipoHistoricoChamado.FilaAtendimentoRemovida => string.IsNullOrWhiteSpace(detalhe)
+                ? "Fila de atendimento removida"
+                : detalhe,
+            TipoHistoricoChamado.FilaAtendimentoTransferida => string.IsNullOrWhiteSpace(detalhe)
+                ? "Fila de atendimento transferida"
+                : detalhe,
+            TipoHistoricoChamado.ResponsavelRemovidoPorTransferenciaGrupo => string.IsNullOrWhiteSpace(detalhe)
+                ? "Responsavel removido por transferencia de grupo tecnico"
+                : detalhe,
+            TipoHistoricoChamado.ChamadoAssumidoDaFila => string.IsNullOrWhiteSpace(detalhe)
+                ? "Chamado assumido da fila"
+                : detalhe,
             _ => detalhe ?? tipo.ToString()
         };
 
@@ -123,6 +144,10 @@ internal static class AdminUseCaseHelpers
             TipoSolicitacao = chamado.TipoSolicitacao?.Nome,
             LocalUnidade = chamado.LocalUnidade?.Nome,
             Departamento = chamado.Departamento?.Nome,
+            GrupoTecnicoId = chamado.GrupoTecnicoId,
+            GrupoTecnicoNome = chamado.GrupoTecnico?.Nome,
+            FilaAtendimentoId = chamado.FilaAtendimentoId,
+            FilaAtendimentoNome = chamado.FilaAtendimento?.Nome,
             CategoriaId = chamado.CategoriaId,
             SubcategoriaId = chamado.SubcategoriaId,
             PrioridadeId = chamado.PrioridadeId,
@@ -186,6 +211,10 @@ internal static class AdminUseCaseHelpers
             TipoSolicitacao = chamado.TipoSolicitacao?.Nome,
             LocalUnidade = chamado.LocalUnidade?.Nome,
             Departamento = chamado.Departamento?.Nome,
+            GrupoTecnicoId = chamado.GrupoTecnicoId,
+            GrupoTecnicoNome = chamado.GrupoTecnico?.Nome,
+            FilaAtendimentoId = chamado.FilaAtendimentoId,
+            FilaAtendimentoNome = chamado.FilaAtendimento?.Nome,
             CategoriaId = chamado.CategoriaId,
             SubcategoriaId = chamado.SubcategoriaId,
             PrioridadeId = chamado.PrioridadeId,

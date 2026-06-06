@@ -44,6 +44,9 @@ const LocaisUnidadesAdminView = () => import('../views/LocaisUnidadesAdminView.v
 const LocalUnidadeDetalheView = () => import('../views/LocalUnidadeDetalheView.vue')
 const StatusAdminView = () => import('../views/StatusAdminView.vue')
 const StatusDetalheView = () => import('../views/StatusDetalheView.vue')
+const GruposTecnicosAdminView = () => import('../views/GruposTecnicosAdminView.vue')
+const GrupoTecnicoMembrosAdminView = () => import('../views/GrupoTecnicoMembrosAdminView.vue')
+const GrupoTecnicoFilasAdminView = () => import('../views/GrupoTecnicoFilasAdminView.vue')
 const ParametrosSistemaView = () => import('../views/ParametrosSistemaView.vue')
 const ParametroSistemaDetalheView = () => import('../views/ParametroSistemaDetalheView.vue')
 const IntegracaoEmailLogsView = () => import('../views/IntegracaoEmailLogsView.vue')
@@ -409,6 +412,33 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requiresAuth: true,
           requiredAnyPermissions: ['Cadastros.Visualizar'],
+        },
+      },
+      {
+        path: 'cadastros/grupos-tecnicos',
+        name: 'admin-cadastros-grupos-tecnicos',
+        component: GruposTecnicosAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'cadastros/grupos-tecnicos/:id/membros',
+        name: 'admin-cadastros-grupos-tecnicos-membros',
+        component: GrupoTecnicoMembrosAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
+        },
+      },
+      {
+        path: 'cadastros/grupos-tecnicos/:id/filas',
+        name: 'admin-cadastros-grupos-tecnicos-filas',
+        component: GrupoTecnicoFilasAdminView,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: ['Administrador', 'Atendente'],
         },
       },
       {

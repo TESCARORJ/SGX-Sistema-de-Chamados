@@ -17,6 +17,8 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.Property(x => x.Descricao).HasColumnName("descricao").HasMaxLength(4000).IsRequired();
         builder.Property(x => x.SolicitanteId).HasColumnName("solicitante_id").IsRequired();
         builder.Property(x => x.ResponsavelId).HasColumnName("responsavel_id");
+        builder.Property(x => x.GrupoTecnicoId).HasColumnName("grupo_tecnico_id");
+        builder.Property(x => x.FilaAtendimentoId).HasColumnName("fila_atendimento_id");
         builder.Property(x => x.DepartamentoId).HasColumnName("departamento_id");
         builder.Property(x => x.CategoriaId).HasColumnName("categoria_id").IsRequired();
         builder.Property(x => x.SubcategoriaId).HasColumnName("subcategoria_id");
@@ -40,6 +42,8 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
 
         builder.HasIndex(x => x.Codigo).IsUnique().HasDatabaseName("ux_chamados_codigo");
         builder.HasIndex(x => x.CatalogoServicoId).HasDatabaseName("ix_chamados_catalogo_servico_id");
+        builder.HasIndex(x => x.FilaAtendimentoId).HasDatabaseName("ix_chamados_fila_atendimento_id");
+        builder.HasIndex(x => x.GrupoTecnicoId).HasDatabaseName("ix_chamados_grupo_tecnico_id");
         builder.HasIndex(x => x.InventarioAtivoId).HasDatabaseName("ix_chamados_inventario_ativo_id");
 
         builder.HasOne(x => x.Solicitante)
@@ -50,6 +54,16 @@ public sealed class ChamadoConfiguration : IEntityTypeConfiguration<Chamado>
         builder.HasOne(x => x.Responsavel)
             .WithMany()
             .HasForeignKey(x => x.ResponsavelId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.GrupoTecnico)
+            .WithMany(x => x.Chamados)
+            .HasForeignKey(x => x.GrupoTecnicoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.FilaAtendimento)
+            .WithMany(x => x.Chamados)
+            .HasForeignKey(x => x.FilaAtendimentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Departamento)

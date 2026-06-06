@@ -14,6 +14,7 @@ namespace SGX.SistemaChamado.Application.UseCases.Admin;
 public sealed class AtribuirChamadoUseCase(
     IRepository<Chamado> chamadoRepository,
     IRepository<Usuario> usuarioRepository,
+    IRepository<MembroGrupoTecnico> membroGrupoTecnicoRepository,
     IRepository<HistoricoChamado> historicoRepository,
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
@@ -40,6 +41,8 @@ public sealed class AtribuirChamadoUseCase(
 
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Responsavel)
+            .Include(x => x.GrupoTecnico)
+            .Include(x => x.FilaAtendimento)
             .Include(x => x.ChamadoSla)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
@@ -60,14 +63,52 @@ public sealed class AtribuirChamadoUseCase(
             throw new InvalidOperationException("Usuario destino nao possui perfil de atendimento.");
         }
 
+        if (chamado.GrupoTecnicoId.HasValue)
+        {
+            if (chamado.GrupoTecnico is null || !chamado.GrupoTecnico.Ativo)
+            {
+                throw new InvalidOperationException("Grupo tecnico do chamado nao encontrado ou inativo.");
+            }
+
+            var membroAtivo = await membroGrupoTecnicoRepository.Query()
+                .AsNoTracking()
+                .AnyAsync(x =>
+                    x.GrupoTecnicoId == chamado.GrupoTecnicoId.Value &&
+                    x.UsuarioId == responsavel.Id &&
+                    x.Ativo,
+                    cancellationToken);
+
+            if (!membroAtivo)
+            {
+                throw new InvalidOperationException("Responsavel informado nao e membro ativo do grupo tecnico do chamado.");
+            }
+
+            if (chamado.FilaAtendimentoId.HasValue)
+            {
+                if (chamado.FilaAtendimento is null || !chamado.FilaAtendimento.Ativo)
+                {
+                    throw new InvalidOperationException("Fila de atendimento do chamado nao encontrada ou inativa.");
+                }
+
+                if (chamado.FilaAtendimento.GrupoTecnicoId != chamado.GrupoTecnicoId.Value)
+                {
+                    throw new InvalidOperationException("Fila de atendimento do chamado nao pertence ao grupo tecnico do chamado.");
+                }
+            }
+        }
+
         chamado.AtribuirResponsavel(responsavel.Id, usuario.Login);
         await slaService.RegistrarPrimeiraRespostaAsync(chamado, usuario.Login, DateTime.UtcNow, cancellationToken);
         chamadoRepository.Update(chamado);
 
+        var descricaoHistorico = string.IsNullOrWhiteSpace(responsavelAnterior)
+            ? $"Responsavel alterado para {responsavel.Nome}"
+            : $"Responsavel alterado de {responsavelAnterior} para {responsavel.Nome}";
+
         var historico = new HistoricoChamado(
             chamado.Id,
             TipoHistoricoChamado.ResponsavelAlterado,
-            AdminUseCaseHelpers.ObterDescricaoHistorico(TipoHistoricoChamado.ResponsavelAlterado, $"Responsavel alterado para {responsavel.Nome}"),
+            AdminUseCaseHelpers.ObterDescricaoHistorico(TipoHistoricoChamado.ResponsavelAlterado, descricaoHistorico),
             usuario.Id,
             usuario.Login);
 

@@ -16,6 +16,9 @@ public sealed class AdminChamadosController(
     IDetalharChamadoAdminUseCase detalharChamadoAdminUseCase,
     IAssumirChamadoUseCase assumirChamadoUseCase,
     IAtribuirChamadoUseCase atribuirChamadoUseCase,
+    IDirecionarChamadoGrupoTecnicoAdminUseCase direcionarChamadoGrupoTecnicoUseCase,
+    IAssumirChamadoFilaAdminUseCase assumirChamadoFilaUseCase,
+    ITransferirGrupoTecnicoChamadoUseCase transferirGrupoTecnicoChamadoUseCase,
     IAlterarStatusChamadoUseCase alterarStatusChamadoUseCase,
     IAlterarPrioridadeChamadoUseCase alterarPrioridadeChamadoUseCase,
     IAlterarCategoriaChamadoUseCase alterarCategoriaChamadoUseCase,
@@ -139,6 +142,84 @@ public sealed class AdminChamadosController(
             return NotFound(new { mensagem = ex.Message });
         }
         catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{id:guid}/direcionar-grupo-tecnico")]
+    public async Task<IActionResult> DirecionarGrupoTecnico(Guid id, [FromBody] DirecionarChamadoGrupoTecnicoRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await direcionarChamadoGrupoTecnicoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{id:guid}/assumir-fila")]
+    public async Task<IActionResult> AssumirChamadoFila(Guid id, [FromBody] AssumirChamadoFilaRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await assumirChamadoFilaUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{id:guid}/transferir-grupo-tecnico")]
+    public async Task<IActionResult> TransferirGrupoTecnico(Guid id, [FromBody] TransferirGrupoTecnicoChamadoRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await transferirGrupoTecnicoChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
         {
             return BadRequest(new { mensagem = ex.Message });
         }

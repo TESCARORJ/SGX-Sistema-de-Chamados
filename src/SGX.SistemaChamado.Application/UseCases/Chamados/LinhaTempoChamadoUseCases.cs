@@ -199,6 +199,13 @@ public sealed class ListarLinhaTempoChamadoUseCase(
             TipoHistoricoChamado.AprovacaoCriada => ("aprovacao", "Aprovacao", "Aprovacao vinculada criada", true),
             TipoHistoricoChamado.AprovacaoAprovada => ("aprovacao", "Aprovacao", "Aprovacao vinculada aprovada", true),
             TipoHistoricoChamado.AprovacaoReprovada => ("aprovacao", "Aprovacao", "Aprovacao vinculada reprovada", true),
+            TipoHistoricoChamado.GrupoTecnicoDefinido => ("grupo-tecnico", "Grupo tecnico", "Grupo tecnico definido", true),
+            TipoHistoricoChamado.GrupoTecnicoTransferido => ("grupo-tecnico", "Grupo tecnico", "Grupo tecnico transferido", true),
+            TipoHistoricoChamado.FilaAtendimentoDefinida => ("fila-atendimento", "Fila", "Fila de atendimento definida", true),
+            TipoHistoricoChamado.FilaAtendimentoRemovida => ("fila-atendimento", "Fila", "Fila de atendimento removida", true),
+            TipoHistoricoChamado.FilaAtendimentoTransferida => ("fila-atendimento", "Fila", "Fila de atendimento transferida", true),
+            TipoHistoricoChamado.ResponsavelRemovidoPorTransferenciaGrupo => ("responsavel", "Responsavel", "Responsavel removido por transferencia de grupo", true),
+            TipoHistoricoChamado.ChamadoAssumidoDaFila => ("responsavel", "Responsavel", "Chamado assumido da fila", true),
             TipoHistoricoChamado.IntegracaoEmail => ("historico", "Historico", "Atualizacao interna", true),
             _ => ("historico", "Historico", "Atualizacao do chamado", true)
         };

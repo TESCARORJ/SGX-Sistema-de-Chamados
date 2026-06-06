@@ -26,4 +26,19 @@ describe('DetalheChamadoView - linha do tempo', () => {
     expect(fonte).toContain('await carregar()')
     expect(fonte).toContain('listarLinhaTempoChamado')
   })
+
+  it('deve exibir eventos de grupo fila e responsavel vindos da API sem fabricar eventos locais', () => {
+    const caminho = new URL('./DetalheChamadoView.vue', import.meta.url)
+    const fonte = readFileSync(caminho, 'utf-8')
+
+    expect(fonte).toContain(':title="item.titulo"')
+    expect(fonte).toContain(':subtitle="formatarData(item.dataHora)"')
+    expect(fonte).toContain('<div class="text-body2 q-mt-xs">{{ item.descricao }}</div>')
+    expect(fonte).toContain('<div v-if="item.usuario"')
+    expect(fonte).toContain(':icon="iconeLinhaTempo(item.tipo)"')
+    expect(fonte).toContain(':color="corLinhaTempo(item.tipo, item.interno)"')
+    expect(fonte).toContain('linhaTempo.value = linhaTempoResponse.items')
+    expect(fonte).toContain("if (tipo === 'responsavel') return 'person'")
+    expect(fonte).not.toContain('linhaTempo.value.push')
+  })
 })

@@ -33,5 +33,12 @@ public enum TipoHistoricoChamado
     TarefaConcluida = 29,
     AprovacaoCriada = 30,
     AprovacaoAprovada = 31,
-    AprovacaoReprovada = 32
+    AprovacaoReprovada = 32,
+    GrupoTecnicoTransferido = 33,
+    GrupoTecnicoDefinido = 34,
+    FilaAtendimentoDefinida = 35,
+    FilaAtendimentoRemovida = 36,
+    FilaAtendimentoTransferida = 37,
+    ResponsavelRemovidoPorTransferenciaGrupo = 38,
+    ChamadoAssumidoDaFila = 39
 }
