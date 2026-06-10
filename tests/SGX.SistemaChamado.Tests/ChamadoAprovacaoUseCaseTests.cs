@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.UseCases.Admin;
@@ -221,6 +222,52 @@ public sealed class ChamadoAprovacaoUseCaseTests
             solicitanteUseCase.CriarAsync(dados.Chamado.Id, CriarRequest()));
 
         Assert.Equal("Acesso administrativo negado.", ex.Message);
+    }
+
+    [Fact]
+    public async Task DeveCoexistirFluxoLegadoComMotorNovoSemInterferencia()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var dados = await SeedAsync(context);
+
+        // Cria aprovação legada
+        var useCaseLegado = CriarUseCase(context, dados.ContextoAdmin);
+        var aprovacaoLegada = await useCaseLegado.CriarAsync(dados.Chamado.Id, CriarRequest(titulo: "Aprovacao legada"));
+
+        // Cria instância no motor novo
+        var instanciaNova = new InstanciaAprovacaoChamado(
+            chamadoId: dados.Chamado.Id,
+            solicitanteId: dados.Solicitante.Id,
+            origem: OrigemInstanciaAprovacaoChamado.Manual,
+            tipoFluxoAprovacao: TipoFluxoAprovacao.Simples,
+            efeitoOperacional: EfeitoOperacionalRegraAprovacao.ExigirAprovacao,
+            escopoRegra: EscopoRegraAprovacao.AtendimentoChamado,
+            tipoRegra: TipoRegraAprovacao.NaturezaItsm,
+            exigeAprovacao: true,
+            bloqueante: true,
+            tipoResolucaoAprovador: TipoResolucaoAprovadorRegraAprovacao.AprovadorPadrao,
+            criadoPorUsuarioId: dados.Admin.Id,
+            criadoPor: "teste",
+            naturezaChamado: NaturezaChamadoEnum.Mudanca,
+            aprovadorPadraoUsuarioId: dados.Aprovador.Id,
+            regraNomeSnapshot: "Motor Novo",
+            regraVersaoSnapshot: 1,
+            regraCriterioSnapshot: "Mudanca");
+            
+        context.InstanciasAprovacaoChamado.Add(instanciaNova);
+        await context.SaveChangesAsync();
+
+        // Aprova legado
+        var responseLegado = await useCaseLegado.AprovarAsync(
+            dados.Chamado.Id,
+            aprovacaoLegada.Id,
+            new DecidirChamadoAprovacaoAdminRequest { JustificativaDecisao = "Acesso aprovado legado" });
+
+        Assert.Equal(StatusAprovacaoChamado.Aprovado, responseLegado.Status);
+
+        // Instancia nova continua pendente sem sofrer interferencia do fluxo legado
+        var persistidaNova = await context.InstanciasAprovacaoChamado.SingleAsync(x => x.Id == instanciaNova.Id);
+        Assert.Equal(StatusInstanciaAprovacaoChamado.Pendente, persistidaNova.Status);
     }
 
     private static CriarChamadoAprovacaoAdminRequest CriarRequest(

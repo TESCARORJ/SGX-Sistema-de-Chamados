@@ -16,7 +16,7 @@ Sprints consolidadas:
 1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
 3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
-4. Sprint 4 - Motor de Aprovacoes ITSM (50% - Implementado funcionalmente)
+4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
 6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
 7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
@@ -45,7 +45,7 @@ Observacao:
 | Sprint 1 - Fundacao ITSM do chamado | ITIL/ITSM | Implementado e validado | Concluido | 100% |
 | Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 25% |
-| Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 62% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
@@ -2057,7 +2057,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Backend administrativo e consulta do portal implementados
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual sugerido apos conclusao: 60%
+Percentual sugerido apos conclusao: 62%
 
 Objetivo:
 Permitir consulta da Base de Conhecimento no portal com seguranca por perfil e sem exposicao de artigos internos para usuarios nao autorizados.
@@ -2285,7 +2285,7 @@ Area: Catalogo de Servicos
 Categoria: Conhecimento
 Status da implementacao: Consulta do portal implementada
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual: 60%
+Percentual: 62%
 Objetivo:
 Habilitar consulta de servicos publicados no portal com controle de visibilidade por perfil, mantendo o catalogo institucional e multiarea.
 Entregas consolidadas:
@@ -2497,7 +2497,7 @@ Categoria: Infraestrutura
 
 Status da implementacao: Historico e movimentacao implementados
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual: 60%
+Percentual: 62%
 
 Objetivo:
 Garantir rastreabilidade operacional dos ativos de inventario por meio de historico estruturado e movimentacao administrativa com trilha de alteracoes.

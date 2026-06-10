@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Application.UseCases.Chamados;
@@ -22,7 +24,8 @@ public sealed class ReabrirChamadoUseCase(
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
-    IAuditoriaService? auditoriaService = null) : IReabrirChamadoUseCase
+    IAuditoriaService? auditoriaService = null,
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IReabrirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, ReabrirChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -48,12 +51,7 @@ public sealed class ReabrirChamadoUseCase(
 
         var statusAnterior = chamado.Status.Nome;
         var encerradoAnterior = chamado.EncerradoEm;
-        var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
-
-        if (estadoAprovacao.BloqueiaAvancoAtendimento)
-        {
-            throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio);
-        }
+        await GarantirMovimentacaoPermitidaAsync(chamado, cancellationToken);
 
         var podeReabrir = chamado.EncerradoEm.HasValue || chamado.Status.EhStatusFinal;
 
@@ -132,6 +130,33 @@ public sealed class ReabrirChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task GarantirMovimentacaoPermitidaAsync(Chamado chamado, CancellationToken cancellationToken)
+    {
+        if (validarBloqueioMovimentacaoUseCase is null)
+        {
+            var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+            if (estadoAprovacao.BloqueiaAvancoAtendimento)
+            {
+                throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+            }
+
+            return;
+        }
+
+        var avaliacao = await validarBloqueioMovimentacaoUseCase.ExecutarAsync(
+            new()
+            {
+                ChamadoId = chamado.Id,
+                TipoAcao = TipoAcaoMovimentacaoChamado.Reabrir
+            },
+            cancellationToken);
+
+        if (avaliacao.Bloqueado)
+        {
+            throw new InvalidOperationException(avaliacao.MensagemUsuario ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+        }
     }
 
     private static StatusChamadoEnum ObterStatusDestinoReabertura(

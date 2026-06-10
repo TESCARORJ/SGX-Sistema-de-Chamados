@@ -24,8 +24,11 @@ const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
 const AdminNotificacoesView = () => import('../views/AdminNotificacoesView.vue')
 const AdminDetalheChamadoView = () => import('../views/AdminDetalheChamadoView.vue')
+const AdminConfiguracoesRegrasAprovacaoListPage = () => import('../views/AdminConfiguracoesRegrasAprovacaoListPage.vue')
+const AdminConfiguracoesRegrasAprovacaoFormPage = () => import('../views/AdminConfiguracoesRegrasAprovacaoFormPage.vue')
 const AprovacaoChamadosListPage = () => import('../views/AprovacaoChamadosListPage.vue')
 const AprovacaoChamadosDetalhePage = () => import('../views/AprovacaoChamadosDetalhePage.vue')
+const AdminAprovacoesPendentesView = () => import('../views/AdminAprovacoesPendentesView.vue')
 const UsuariosAdminView = () => import('../views/UsuariosAdminView.vue')
 const UsuarioAdminDetalheView = () => import('../views/UsuarioAdminDetalheView.vue')
 const PerfisAdminView = () => import('../views/PerfisAdminView.vue')
@@ -232,6 +235,15 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requiresAuth: true,
           requiredAnyPermissions: ['Chamados.Visualizar', 'Chamados.VisualizarTodos'],
+        },
+      },
+      {
+        path: 'atendimento/aprovacoes-pendentes',
+        name: 'admin-atendimento-aprovacoes-pendentes',
+        component: AdminAprovacoesPendentesView,
+        meta: {
+          requiresAuth: true,
+          requiredAnyPermissions: ['AprovacaoChamados.Visualizar', 'AprovacaoChamados.Gerenciar', 'Chamados.Visualizar', 'Chamados.VisualizarTodos'],
         },
       },
       {
@@ -459,6 +471,36 @@ const routes: RouteRecordRaw[] = [
           requiresAuth: true,
           perfisPermitidos: perfisAdministrativos,
           requiredAnyPermissions: ['Parametros.Visualizar', 'Parametros.Gerenciar'],
+        },
+      },
+      {
+        path: 'configuracoes/regras-aprovacao',
+        name: 'admin-configuracoes-regras-aprovacao',
+        component: AdminConfiguracoesRegrasAprovacaoListPage,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['AprovacaoChamados.Visualizar', 'AprovacaoChamados.Gerenciar'],
+        },
+      },
+      {
+        path: 'configuracoes/regras-aprovacao/nova',
+        name: 'admin-configuracoes-regras-aprovacao-nova',
+        component: AdminConfiguracoesRegrasAprovacaoFormPage,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['AprovacaoChamados.Gerenciar'],
+        },
+      },
+      {
+        path: 'configuracoes/regras-aprovacao/:id',
+        name: 'admin-configuracoes-regras-aprovacao-detalhe',
+        component: AdminConfiguracoesRegrasAprovacaoFormPage,
+        meta: {
+          requiresAuth: true,
+          perfisPermitidos: perfisAdministrativos,
+          requiredAnyPermissions: ['AprovacaoChamados.Visualizar', 'AprovacaoChamados.Gerenciar'],
         },
       },
       {

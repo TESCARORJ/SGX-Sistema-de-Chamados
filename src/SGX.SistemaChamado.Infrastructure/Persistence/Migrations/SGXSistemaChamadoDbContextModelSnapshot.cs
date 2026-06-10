@@ -1335,6 +1335,493 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ConfiguracaoRegraAprovacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AprovadorEspecificoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_especifico_usuario_id");
+
+                    b.Property<Guid?>("AprovadorPadraoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_padrao_usuario_id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<bool>("Bloqueante")
+                        .HasColumnType("boolean")
+                        .HasColumnName("bloqueante");
+
+                    b.Property<Guid?>("CatalogoServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("catalogo_servico_id");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<decimal?>("CustoMinimo")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("custo_minimo");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<int>("EfeitoOperacional")
+                        .HasColumnType("integer")
+                        .HasColumnName("efeito_operacional");
+
+                    b.Property<int>("EscopoRegra")
+                        .HasColumnType("integer")
+                        .HasColumnName("escopo_regra");
+
+                    b.Property<bool>("ExigeAprovacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exige_aprovacao");
+
+                    b.Property<int?>("ImpactoMinimo")
+                        .HasColumnType("integer")
+                        .HasColumnName("impacto_minimo");
+
+                    b.Property<int?>("NaturezaChamado")
+                        .HasColumnType("integer")
+                        .HasColumnName("natureza_chamado");
+
+                    b.Property<int?>("NivelRiscoMinimo")
+                        .HasColumnType("integer")
+                        .HasColumnName("nivel_risco_minimo");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem");
+
+                    b.Property<bool>("PermiteFallback")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_fallback");
+
+                    b.Property<bool>("PermiteReenvio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_reenvio");
+
+                    b.Property<int?>("PrazoDecisaoHoras")
+                        .HasColumnType("integer")
+                        .HasColumnName("prazo_decisao_horas");
+
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("integer")
+                        .HasColumnName("prioridade");
+
+                    b.Property<int?>("PrioridadeMinima")
+                        .HasColumnType("integer")
+                        .HasColumnName("prioridade_minima");
+
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subcategoria_id");
+
+                    b.Property<int>("TipoFluxoAprovacao")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_fluxo_aprovacao");
+
+                    b.Property<int>("TipoRegra")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_regra");
+
+                    b.Property<int>("TipoResolucaoAprovador")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_resolucao_aprovador");
+
+                    b.Property<Guid?>("TipoSolicitacaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tipo_solicitacao_id");
+
+                    b.Property<int?>("UrgenciaMinima")
+                        .HasColumnType("integer")
+                        .HasColumnName("urgencia_minima");
+
+                    b.Property<int>("Versao")
+                        .HasColumnType("integer")
+                        .HasColumnName("versao");
+
+                    b.Property<DateTime?>("VigenteAte")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vigente_ate");
+
+                    b.Property<DateTime?>("VigenteDe")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vigente_de");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AprovadorEspecificoUsuarioId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_aprovador_especifico_usuario_id");
+
+                    b.HasIndex("AprovadorPadraoUsuarioId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_aprovador_padrao_usuario_id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_ativo");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_atualizado_por_usuario_id");
+
+                    b.HasIndex("CatalogoServicoId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_catalogo_servico_id");
+
+                    b.HasIndex("CategoriaId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_categoria_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_criado_por_usuario_id");
+
+                    b.HasIndex("ImpactoMinimo")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_impacto_minimo");
+
+                    b.HasIndex("NaturezaChamado")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_natureza");
+
+                    b.HasIndex("PrioridadeMinima")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_prioridade_minima");
+
+                    b.HasIndex("SubcategoriaId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_subcategoria_id");
+
+                    b.HasIndex("TipoRegra")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_tipo_regra");
+
+                    b.HasIndex("TipoSolicitacaoId")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_tipo_solicitacao_id");
+
+                    b.HasIndex("UrgenciaMinima")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_urgencia_minima");
+
+                    b.HasIndex("Nome", "Versao")
+                        .IsUnique()
+                        .HasDatabaseName("ux_configuracoes_regras_aprovacao_nome_versao");
+
+                    b.HasIndex("VigenteDe", "VigenteAte")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_vigencia");
+
+                    b.HasIndex("Ativo", "EscopoRegra", "Ordem", "Prioridade")
+                        .HasDatabaseName("ix_configuracoes_regras_aprovacao_escopo_ordem_prioridade");
+
+                    b.ToTable("configuracoes_regras_aprovacao", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_configuracoes_regras_aprovacao_custo_minimo", "custo_minimo IS NULL OR custo_minimo >= 0");
+
+                            t.HasCheckConstraint("ck_configuracoes_regras_aprovacao_nivel_risco", "nivel_risco_minimo IS NULL OR nivel_risco_minimo > 0");
+
+                            t.HasCheckConstraint("ck_configuracoes_regras_aprovacao_prazo_decisao", "prazo_decisao_horas IS NULL OR prazo_decisao_horas > 0");
+
+                            t.HasCheckConstraint("ck_configuracoes_regras_aprovacao_subcategoria_categoria", "subcategoria_id IS NULL OR categoria_id IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_configuracoes_regras_aprovacao_vigencia", "vigente_ate IS NULL OR vigente_de IS NULL OR vigente_ate >= vigente_de");
+                        });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.DecisaoAprovacaoChamado", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<string>("AutoridadeDecisorSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("autoridade_decisor_snapshot");
+
+                    b.Property<bool>("CancelaFluxo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("cancela_fluxo");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<DateTime>("DataDecisao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("data_decisao");
+
+                    b.Property<bool>("DecisaoFinal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisao_final");
+
+                    b.Property<bool>("DecisaoParcial")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisao_parcial");
+
+                    b.Property<bool>("DecisorEhAprovadorEspecifico")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisor_eh_aprovador_especifico");
+
+                    b.Property<bool>("DecisorEhAprovadorPadrao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisor_eh_aprovador_padrao");
+
+                    b.Property<bool>("DecisorEhMembroGrupo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisor_eh_membro_grupo");
+
+                    b.Property<bool>("DecisorPorDelegacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("decisor_por_delegacao");
+
+                    b.Property<Guid?>("DecisorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("decisor_usuario_id");
+
+                    b.Property<int>("EfeitoOperacional")
+                        .HasColumnType("integer")
+                        .HasColumnName("efeito_operacional");
+
+                    b.Property<string>("EscopoDecididoSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("escopo_decidido_snapshot");
+
+                    b.Property<Guid?>("EtapaAprovacaoChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("etapa_aprovacao_chamado_id");
+
+                    b.Property<bool>("ExigeReavaliacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exige_reavaliacao");
+
+                    b.Property<string>("GrupoAprovadorSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("grupo_aprovador_snapshot");
+
+                    b.Property<Guid>("InstanciaAprovacaoChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instancia_aprovacao_chamado_id");
+
+                    b.Property<string>("Justificativa")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("justificativa");
+
+                    b.Property<bool>("LiberaAvanco")
+                        .HasColumnType("boolean")
+                        .HasColumnName("libera_avanco");
+
+                    b.Property<bool>("MantemBloqueio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mantem_bloqueio");
+
+                    b.Property<int?>("NivelEtapaSnapshot")
+                        .HasColumnType("integer")
+                        .HasColumnName("nivel_etapa_snapshot");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("observacao");
+
+                    b.Property<int?>("OrdemEtapaSnapshot")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem_etapa_snapshot");
+
+                    b.Property<string>("PapelDecisorSnapshot")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("papel_decisor_snapshot");
+
+                    b.Property<bool>("PermiteNovaSolicitacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_nova_solicitacao");
+
+                    b.Property<int?>("QuorumAtingido")
+                        .HasColumnType("integer")
+                        .HasColumnName("quorum_atingido");
+
+                    b.Property<int?>("QuorumEsperado")
+                        .HasColumnType("integer")
+                        .HasColumnName("quorum_esperado");
+
+                    b.Property<string>("RamoEtapaSnapshot")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("ramo_etapa_snapshot");
+
+                    b.Property<string>("RegraCriterioSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("regra_criterio_snapshot");
+
+                    b.Property<string>("RegraNomeSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("regra_nome_snapshot");
+
+                    b.Property<int?>("RegraVersaoSnapshot")
+                        .HasColumnType("integer")
+                        .HasColumnName("regra_versao_snapshot");
+
+                    b.Property<int>("Resultado")
+                        .HasColumnType("integer")
+                        .HasColumnName("resultado");
+
+                    b.Property<Guid?>("StatusChamadoAnteriorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("status_chamado_anterior_id");
+
+                    b.Property<Guid?>("StatusChamadoNovoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("status_chamado_novo_id");
+
+                    b.Property<int?>("StatusEtapaAnterior")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_etapa_anterior");
+
+                    b.Property<int?>("StatusEtapaNovo")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_etapa_novo");
+
+                    b.Property<int>("StatusInstanciaAnterior")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_instancia_anterior");
+
+                    b.Property<int>("StatusInstanciaNovo")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_instancia_novo");
+
+                    b.Property<int>("TipoDecisao")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_decisao");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_ativo");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_atualizado_por_usuario_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_criado_por_usuario_id");
+
+                    b.HasIndex("DataDecisao")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_data_decisao");
+
+                    b.HasIndex("DecisorUsuarioId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_decisor_usuario_id");
+
+                    b.HasIndex("EtapaAprovacaoChamadoId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_etapa_aprovacao_chamado_id");
+
+                    b.HasIndex("InstanciaAprovacaoChamadoId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_instancia_aprovacao_chamado_id");
+
+                    b.HasIndex("Resultado")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_resultado");
+
+                    b.HasIndex("StatusChamadoAnteriorId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_status_chamado_anterior_id");
+
+                    b.HasIndex("StatusChamadoNovoId")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_status_chamado_novo_id");
+
+                    b.HasIndex("TipoDecisao")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_tipo_decisao");
+
+                    b.HasIndex("EtapaAprovacaoChamadoId", "InstanciaAprovacaoChamadoId");
+
+                    b.HasIndex("InstanciaAprovacaoChamadoId", "DataDecisao")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_instancia_data_decisao");
+
+                    b.HasIndex("InstanciaAprovacaoChamadoId", "EtapaAprovacaoChamadoId", "TipoDecisao")
+                        .HasDatabaseName("ix_decisoes_aprovacao_chamado_instancia_etapa_tipo_decisao");
+
+                    b.ToTable("decisoes_aprovacao_chamado", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_bloqueio_liberacao", "NOT (libera_avanco AND mantem_bloqueio)");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_etapa_status", "(etapa_aprovacao_chamado_id IS NULL AND status_etapa_anterior IS NULL AND status_etapa_novo IS NULL AND nivel_etapa_snapshot IS NULL AND ordem_etapa_snapshot IS NULL AND ramo_etapa_snapshot IS NULL) OR (etapa_aprovacao_chamado_id IS NOT NULL AND status_etapa_anterior IS NOT NULL AND status_etapa_novo IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_nivel_etapa_snapshot", "nivel_etapa_snapshot IS NULL OR nivel_etapa_snapshot > 0");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_ordem_etapa_snapshot", "ordem_etapa_snapshot IS NULL OR ordem_etapa_snapshot >= 0");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_quorum_atingido", "quorum_atingido IS NULL OR quorum_atingido > 0");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_quorum_dependencia", "quorum_atingido IS NULL OR quorum_esperado IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_quorum_esperado", "quorum_esperado IS NULL OR quorum_esperado > 0");
+
+                            t.HasCheckConstraint("ck_decisoes_aprovacao_chamado_regra_versao_snapshot", "regra_versao_snapshot IS NULL OR regra_versao_snapshot > 0");
+                        });
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Departamento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1389,6 +1876,252 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_departamentos_sigla");
 
                     b.ToTable("departamentos", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EtapaAprovacaoChamado", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AprovadorEspecificoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_especifico_usuario_id");
+
+                    b.Property<Guid?>("AprovadorPadraoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_padrao_usuario_id");
+
+                    b.Property<Guid?>("AprovadorResolvidoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_resolvido_usuario_id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<DateTime?>("CanceladaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelada_em");
+
+                    b.Property<Guid?>("CanceladaPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancelada_por_usuario_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<bool>("CriticaParaConsolidacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("critica_para_consolidacao");
+
+                    b.Property<DateTime?>("DecididaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decidida_em");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<DateTime?>("DeveExpirarEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deve_expirar_em");
+
+                    b.Property<string>("EscopoResumoSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("escopo_resumo_snapshot");
+
+                    b.Property<DateTime?>("ExpiradaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expirada_em");
+
+                    b.Property<string>("GrupoAprovadorSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("grupo_aprovador_snapshot");
+
+                    b.Property<Guid>("InstanciaAprovacaoChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("instancia_aprovacao_chamado_id");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_cancelamento");
+
+                    b.Property<int>("Nivel")
+                        .HasColumnType("integer")
+                        .HasColumnName("nivel");
+
+                    b.Property<bool>("Obrigatoria")
+                        .HasColumnType("boolean")
+                        .HasColumnName("obrigatoria");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem");
+
+                    b.Property<bool>("PermiteDelegacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_delegacao");
+
+                    b.Property<bool>("PermiteFallback")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_fallback");
+
+                    b.Property<bool>("PermiteReenvio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_reenvio");
+
+                    b.Property<int?>("PrazoDecisaoHoras")
+                        .HasColumnType("integer")
+                        .HasColumnName("prazo_decisao_horas");
+
+                    b.Property<int?>("QuantidadeAprovacoesNecessarias")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantidade_aprovacoes_necessarias");
+
+                    b.Property<int?>("QuorumMinimo")
+                        .HasColumnType("integer")
+                        .HasColumnName("quorum_minimo");
+
+                    b.Property<string>("Ramo")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("ramo");
+
+                    b.Property<string>("RegraCriterioSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("regra_criterio_snapshot");
+
+                    b.Property<string>("RegraNomeSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("regra_nome_snapshot");
+
+                    b.Property<int?>("RegraVersaoSnapshot")
+                        .HasColumnType("integer")
+                        .HasColumnName("regra_versao_snapshot");
+
+                    b.Property<DateTime>("SolicitadaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("solicitada_em");
+
+                    b.Property<Guid>("SolicitanteId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("solicitante_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TipoEtapa")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_etapa");
+
+                    b.Property<int>("TipoFluxoAprovacao")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_fluxo_aprovacao");
+
+                    b.Property<int>("TipoResolucaoAprovador")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_resolucao_aprovador");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("titulo");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AprovadorEspecificoUsuarioId");
+
+                    b.HasIndex("AprovadorPadraoUsuarioId");
+
+                    b.HasIndex("AprovadorResolvidoUsuarioId")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_aprovador_resolvido_usuario_id");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_atualizado_por_usuario_id");
+
+                    b.HasIndex("CanceladaPorUsuarioId");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_criado_por_usuario_id");
+
+                    b.HasIndex("DeveExpirarEm")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_deve_expirar_em");
+
+                    b.HasIndex("InstanciaAprovacaoChamadoId")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_instancia_aprovacao_chamado_id");
+
+                    b.HasIndex("SolicitadaEm")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_solicitada_em");
+
+                    b.HasIndex("SolicitanteId")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_solicitante_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_status");
+
+                    b.HasIndex("TipoEtapa")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_tipo_etapa");
+
+                    b.HasIndex("TipoFluxoAprovacao")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_tipo_fluxo_aprovacao");
+
+                    b.HasIndex("Id", "InstanciaAprovacaoChamadoId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_etapas_aprovacao_chamado_id_instancia");
+
+                    b.HasIndex("InstanciaAprovacaoChamadoId", "Nivel", "Ordem", "Ramo")
+                        .HasDatabaseName("ix_etapas_aprovacao_chamado_instancia_nivel_ordem_ramo");
+
+                    b.ToTable("etapas_aprovacao_chamado", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_expiracao_planejada", "deve_expirar_em IS NULL OR deve_expirar_em >= solicitada_em");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_nivel", "nivel > 0");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_ordem", "ordem >= 0");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_prazo_decisao", "prazo_decisao_horas IS NULL OR prazo_decisao_horas > 0");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_qtd_aprovacoes_necessarias", "quantidade_aprovacoes_necessarias IS NULL OR quantidade_aprovacoes_necessarias > 0");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_quorum_minimo", "quorum_minimo IS NULL OR quorum_minimo > 0");
+
+                            t.HasCheckConstraint("ck_etapas_aprovacao_chamado_regra_versao_snapshot", "regra_versao_snapshot IS NULL OR regra_versao_snapshot > 0");
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EventoAuditoria", b =>
@@ -2104,6 +2837,287 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             DiaSemana = 5,
                             HoraFim = new TimeOnly(18, 0, 0),
                             HoraInicio = new TimeOnly(9, 0, 0)
+                        });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InstanciaAprovacaoChamado", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AprovacaoChamadoLegadaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovacao_chamado_legada_id");
+
+                    b.Property<Guid?>("AprovadorEspecificoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_especifico_usuario_id");
+
+                    b.Property<Guid?>("AprovadorPadraoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_padrao_usuario_id");
+
+                    b.Property<Guid?>("AprovadorResolvidoUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("aprovador_resolvido_usuario_id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<bool>("Bloqueante")
+                        .HasColumnType("boolean")
+                        .HasColumnName("bloqueante");
+
+                    b.Property<DateTime?>("CanceladaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelada_em");
+
+                    b.Property<Guid?>("CanceladaPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancelada_por_usuario_id");
+
+                    b.Property<Guid?>("CatalogoServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("catalogo_servico_id");
+
+                    b.Property<Guid?>("CategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("categoria_id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<Guid?>("ConfiguracaoRegraAprovacaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("configuracao_regra_aprovacao_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<decimal?>("CustoAvaliado")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("custo_avaliado");
+
+                    b.Property<DateTime?>("DecididaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decidida_em");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<DateTime?>("DeveExpirarEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deve_expirar_em");
+
+                    b.Property<int>("EfeitoOperacional")
+                        .HasColumnType("integer")
+                        .HasColumnName("efeito_operacional");
+
+                    b.Property<int>("EscopoRegra")
+                        .HasColumnType("integer")
+                        .HasColumnName("escopo_regra");
+
+                    b.Property<bool>("ExigeAprovacao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exige_aprovacao");
+
+                    b.Property<DateTime?>("ExpiradaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expirada_em");
+
+                    b.Property<int?>("ImpactoAvaliado")
+                        .HasColumnType("integer")
+                        .HasColumnName("impacto_avaliado");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_cancelamento");
+
+                    b.Property<int?>("NaturezaChamado")
+                        .HasColumnType("integer")
+                        .HasColumnName("natureza_chamado");
+
+                    b.Property<int?>("NivelRiscoAvaliado")
+                        .HasColumnType("integer")
+                        .HasColumnName("nivel_risco_avaliado");
+
+                    b.Property<int>("Origem")
+                        .HasColumnType("integer")
+                        .HasColumnName("origem");
+
+                    b.Property<bool>("PermiteFallback")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_fallback");
+
+                    b.Property<bool>("PermiteReenvio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("permite_reenvio");
+
+                    b.Property<int?>("PrazoDecisaoHoras")
+                        .HasColumnType("integer")
+                        .HasColumnName("prazo_decisao_horas");
+
+                    b.Property<int?>("PrioridadeAvaliada")
+                        .HasColumnType("integer")
+                        .HasColumnName("prioridade_avaliada");
+
+                    b.Property<string>("RegraCriterioSnapshot")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("regra_criterio_snapshot");
+
+                    b.Property<string>("RegraNomeSnapshot")
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("regra_nome_snapshot");
+
+                    b.Property<int?>("RegraVersaoSnapshot")
+                        .HasColumnType("integer")
+                        .HasColumnName("regra_versao_snapshot");
+
+                    b.Property<DateTime>("SolicitadaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("solicitada_em");
+
+                    b.Property<Guid>("SolicitanteId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("solicitante_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("SubcategoriaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subcategoria_id");
+
+                    b.Property<int>("TipoFluxoAprovacao")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_fluxo_aprovacao");
+
+                    b.Property<int>("TipoRegra")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_regra");
+
+                    b.Property<int>("TipoResolucaoAprovador")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_resolucao_aprovador");
+
+                    b.Property<Guid?>("TipoSolicitacaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tipo_solicitacao_id");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("titulo");
+
+                    b.Property<int?>("UrgenciaAvaliada")
+                        .HasColumnType("integer")
+                        .HasColumnName("urgencia_avaliada");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AprovacaoChamadoLegadaId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_instancias_aprovacao_chamado_aprovacao_chamado_legada_id");
+
+                    b.HasIndex("AprovadorEspecificoUsuarioId");
+
+                    b.HasIndex("AprovadorPadraoUsuarioId");
+
+                    b.HasIndex("AprovadorResolvidoUsuarioId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_aprovador_resolvido_usuario_id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_ativo");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_atualizado_por_usuario_id");
+
+                    b.HasIndex("CanceladaPorUsuarioId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_cancelada_por_usuario_id");
+
+                    b.HasIndex("CatalogoServicoId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_chamado_id");
+
+                    b.HasIndex("ConfiguracaoRegraAprovacaoId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_configuracao_regra_aprovacao_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_criado_por_usuario_id");
+
+                    b.HasIndex("DeveExpirarEm")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_deve_expirar_em");
+
+                    b.HasIndex("Origem")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_origem");
+
+                    b.HasIndex("SolicitadaEm")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_solicitada_em");
+
+                    b.HasIndex("SolicitanteId")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_solicitante_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_status");
+
+                    b.HasIndex("SubcategoriaId");
+
+                    b.HasIndex("TipoSolicitacaoId");
+
+                    b.HasIndex("ChamadoId", "Ativo", "Status")
+                        .HasDatabaseName("ix_instancias_aprovacao_chamado_chamado_id_ativo_status");
+
+                    b.ToTable("instancias_aprovacao_chamado", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_custo_avaliado", "custo_avaliado IS NULL OR custo_avaliado >= 0");
+
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_expiracao_planejada", "deve_expirar_em IS NULL OR deve_expirar_em >= solicitada_em");
+
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_nivel_risco_avaliado", "nivel_risco_avaliado IS NULL OR nivel_risco_avaliado > 0");
+
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_prazo_decisao", "prazo_decisao_horas IS NULL OR prazo_decisao_horas > 0");
+
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_regra_versao_snapshot", "regra_versao_snapshot IS NULL OR regra_versao_snapshot > 0");
+
+                            t.HasCheckConstraint("ck_instancias_aprovacao_chamado_subcategoria_categoria", "subcategoria_id IS NULL OR categoria_id IS NOT NULL");
                         });
                 });
 
@@ -11589,57 +12603,1055 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000125"),
                             Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 4 Motor de Aprovacoes ITSM",
+                            Descricao = "Categoria: Planejamento",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
-                            Titulo = "Planejar escopo e criterios de aceite"
+                            Titulo = "Planejar escopo e criterios de aceite da Sprint 4"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000126"),
                             Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 4 Motor de Aprovacoes ITSM",
-                            Grupo = 2,
+                            Descricao = "Categoria: Planejamento",
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Mapear modulo de aprovacao existente"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000127"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 4 Motor de Aprovacoes ITSM",
-                            Grupo = 3,
+                            Descricao = "Categoria: Planejamento",
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Mapear fluxo atual de aprovacao em chamados"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000128"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 4 Motor de Aprovacoes ITSM",
-                            Grupo = 5,
+                            Descricao = "Categoria: Planejamento",
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 4,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Mapear pontos onde chamado deve ficar bloqueado por aprovacao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000300"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir conceito de motor de aprovacao ITSM reutilizavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000301"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de aprovacao por natureza ITSM"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000302"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de aprovacao por tipo de chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000303"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de aprovacao por servico sensivel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000304"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de aprovacao por impacto e urgencia"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000305"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de aprovacao por custo ou risco"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000306"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir conceito de aprovador padrao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000307"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir conceito de grupo aprovador"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000308"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir conceito de aprovacao multi-nivel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000309"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir comportamento de aprovacao sequencial"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000310"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Arquitetura",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir comportamento de aprovacao paralela"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000311"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Regra de Negocio",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de bloqueio por decisao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000312"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Regra de Negocio",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de liberacao apos aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000313"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Regra de Negocio",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de rejeicao e encerramento ou retorno do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000314"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Regra de Negocio",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de cancelamento de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000315"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Regra de Negocio",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir regra de expiracao de aprovacao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000316"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Auditoria",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir historico/auditoria de solicitacao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000317"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Auditoria",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir historico/auditoria de decisao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000318"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Auditoria",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir historico/auditoria de rejeicao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000319"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Auditoria",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Definir historico/auditoria de aprovacao expirada ou cancelada"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000320"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Compatibilidade",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Avaliar compatibilidade com chamados existentes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000321"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Compatibilidade",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Avaliar compatibilidade com fluxo atual de abertura de chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000322"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Compatibilidade",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Avaliar compatibilidade com fluxo atual de atendimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000323"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Compatibilidade",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Avaliar compatibilidade com SLA atual"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000324"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Modelar configuracao de regra de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000325"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Modelar instancia de aprovacao do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000326"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Modelar etapa de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000327"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Modelar decisao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000328"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar migrations estruturais do motor de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000329"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 34,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar contratos de configuracao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000330"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 35,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar contratos de decisao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000331"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 36,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar servico de aplicacao para regras de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000332"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 37,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar servico de aplicacao para instancia de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000333"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 38,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar regra para gerar aprovacao obrigatoria no chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000334"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 39,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar regra para bloquear movimentacao com aprovacao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000335"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 40,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar regra para aprovar chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000336"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 41,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar regra para rejeitar chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000337"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Desenvolvimento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 42,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar regra para reavaliar aprovacao apos mudanca de dados sensiveis"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000338"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: API",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 43,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar endpoints administrativos de regras de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000339"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: API",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 44,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar endpoints de aprovacao e rejeicao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000340"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: API",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 45,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar endpoints de consulta de pendencias de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000341"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 46,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Exibir status de aprovacao no detalhe do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000342"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 47,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Exibir pendencias de aprovacao para aprovador"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000343"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 48,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Criar tela ou secao de configuracao de regras de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000344"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 49,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Permitir aprovar chamado pela interface"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000345"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 50,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Permitir rejeitar chamado pela interface"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000346"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Frontend",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 51,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Ajustar listagem/filtros para aprovacao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000347"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 52,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar regra de aprovacao por natureza ITSM"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000348"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 53,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar regra de aprovacao por servico sensivel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000349"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 54,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar bloqueio por aprovacao pendente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000350"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 55,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar aprovacao e liberacao do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000351"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 56,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar rejeicao de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000352"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 57,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar aprovacao por grupo aprovador"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000353"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 58,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar aprovacao multi-nivel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000354"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 59,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar regressao do fluxo atual de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000355"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Testes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 60,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Testar regressao de abertura e atendimento de chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000356"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Documentacao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 61,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Documentar modelo do motor de aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000357"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Documentacao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 62,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Documentar regras de aprovacao ITSM"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000358"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Documentacao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 63,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Documentar impacto no fluxo atual de chamados"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000359"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Documentacao",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 64,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Documentar criterios de testes tecnicos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000360"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Homologacao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 65,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Preparar roteiro de homologacao de casos sensiveis"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000361"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Homologacao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 66,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Preparar roteiro de homologacao de aprovacao por grupo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000362"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Homologacao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 67,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Preparar roteiro de homologacao de aprovacao multi-nivel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000363"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Categoria: Homologacao",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 68,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777722"),
+                            Titulo = "Registrar homologacao e aceite final"
                         },
                         new
                         {
@@ -13516,7 +15528,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 109,
                             PendenciasHomologacao = "Homologar ciclo abrir, triar, atender, resolver, reabrir e fechar.",
                             PendenciasTecnicas = "Servico afetado, CI afetado, causa provavel, solucao de contorno e regra de reabertura.",
-                            PercentualImplementacao = 50,
+                            PercentualImplementacao = 51,
                             Prioridade = 1,
                             ProximaAcao = "Implementar estados de incidente e campos especificos no chamado.",
                             Responsavel = "Time Atendimento",
@@ -13571,7 +15583,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 107,
                             PendenciasHomologacao = "Validar abertura guiada por catalogo com regras diferentes por servico.",
                             PendenciasTecnicas = "Fluxo de aprovacao por servico, status proprios, servicos relacionados e conclusao com aceite.",
-                            PercentualImplementacao = 50,
+                            PercentualImplementacao = 51,
                             Prioridade = 1,
                             ProximaAcao = "Vincular fluxo de requisicao ao catalogo no backend e frontend.",
                             Responsavel = "Time Atendimento",
@@ -13598,7 +15610,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 108,
                             PendenciasHomologacao = "Homologar abertura guiada com servicos reais e validacao de aprovacoes.",
                             PendenciasTecnicas = "Campos obrigatorios dinamicos, sugestoes automaticas e visibilidade por perfil refinada.",
-                            PercentualImplementacao = 50,
+                            PercentualImplementacao = 51,
                             Prioridade = 1,
                             ProximaAcao = "Evoluir entidade de catalogo e contrato de abertura guiada.",
                             Responsavel = "Time Catalogo",
@@ -13676,12 +15688,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             EvidenciaImplementacao = "Modulo de aprovacao existente reutilizado como base.",
                             Impacto = 1,
                             Objetivo = "Evoluir aprovacao para motor reutilizavel por tipo de chamado e servico sensivel.",
+                            Observacao = "Evoluir o mecanismo atual de aprovacao do SGX Sistema de Chamados para um motor reutilizavel de aprovacoes ITSM, capaz de bloquear chamados sensiveis ate decisao formal, respeitando tipo de chamado, natureza ITSM, servico solicitado, grupo aprovador e regras futuras de multiplos niveis.",
                             Ordem = 104,
                             PendenciasHomologacao = "Homologar casos sensiveis como custo, acesso e mudanca emergencial.",
-                            PendenciasTecnicas = "Aprovacao por grupo, multi-nivel, aprovador padrao e bloqueio por decisao pendente.",
-                            PercentualImplementacao = 50,
+                            PendenciasTecnicas = "Aprovacao por grupo, multi-nivel, aprovador padrao e trilha estrutural de auditoria/expiracao ainda pendente.",
+                            PercentualImplementacao = 94,
                             Prioridade = 1,
-                            ProximaAcao = "Introduzir regra de aprovacao por servico e natureza ITSM.",
+                            ProximaAcao = "Preparar roteiro de homologacao de casos sensiveis.",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Aprovacao atual cobre base funcional, sem motor multi-nivel completo.",
@@ -15341,6 +17354,183 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ConfiguracaoRegraAprovacao", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorEspecificoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorEspecificoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorPadraoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorPadraoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CatalogoServico", "CatalogoServico")
+                        .WithMany()
+                        .HasForeignKey("CatalogoServicoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", "Subcategoria")
+                        .WithMany()
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.TipoSolicitacao", "TipoSolicitacao")
+                        .WithMany()
+                        .HasForeignKey("TipoSolicitacaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AprovadorEspecificoUsuario");
+
+                    b.Navigation("AprovadorPadraoUsuario");
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CatalogoServico");
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("Subcategoria");
+
+                    b.Navigation("TipoSolicitacao");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.DecisaoAprovacaoChamado", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "DecisorUsuario")
+                        .WithMany()
+                        .HasForeignKey("DecisorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.InstanciaAprovacaoChamado", "InstanciaAprovacaoChamado")
+                        .WithMany("Decisoes")
+                        .HasForeignKey("InstanciaAprovacaoChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.StatusChamado", "StatusChamadoAnterior")
+                        .WithMany()
+                        .HasForeignKey("StatusChamadoAnteriorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.StatusChamado", "StatusChamadoNovo")
+                        .WithMany()
+                        .HasForeignKey("StatusChamadoNovoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.EtapaAprovacaoChamado", "EtapaAprovacaoChamado")
+                        .WithMany("Decisoes")
+                        .HasForeignKey("EtapaAprovacaoChamadoId", "InstanciaAprovacaoChamadoId")
+                        .HasPrincipalKey("Id", "InstanciaAprovacaoChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("DecisorUsuario");
+
+                    b.Navigation("EtapaAprovacaoChamado");
+
+                    b.Navigation("InstanciaAprovacaoChamado");
+
+                    b.Navigation("StatusChamadoAnterior");
+
+                    b.Navigation("StatusChamadoNovo");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EtapaAprovacaoChamado", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorEspecificoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorEspecificoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorPadraoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorPadraoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorResolvidoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorResolvidoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CanceladaPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CanceladaPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.InstanciaAprovacaoChamado", "InstanciaAprovacaoChamado")
+                        .WithMany("Etapas")
+                        .HasForeignKey("InstanciaAprovacaoChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Solicitante")
+                        .WithMany()
+                        .HasForeignKey("SolicitanteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AprovadorEspecificoUsuario");
+
+                    b.Navigation("AprovadorPadraoUsuario");
+
+                    b.Navigation("AprovadorResolvidoUsuario");
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CanceladaPorUsuario");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("InstanciaAprovacaoChamado");
+
+                    b.Navigation("Solicitante");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EventoSla", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
@@ -15477,6 +17667,110 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("CalendarioCorporativo");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InstanciaAprovacaoChamado", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.AprovacaoChamado", "AprovacaoChamadoLegada")
+                        .WithMany()
+                        .HasForeignKey("AprovacaoChamadoLegadaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorEspecificoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorEspecificoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorPadraoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorPadraoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AprovadorResolvidoUsuario")
+                        .WithMany()
+                        .HasForeignKey("AprovadorResolvidoUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CanceladaPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CanceladaPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CatalogoServico", "CatalogoServico")
+                        .WithMany()
+                        .HasForeignKey("CatalogoServicoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany("InstanciasAprovacao")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.ConfiguracaoRegraAprovacao", "ConfiguracaoRegraAprovacao")
+                        .WithMany("InstanciasAprovacao")
+                        .HasForeignKey("ConfiguracaoRegraAprovacaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Solicitante")
+                        .WithMany()
+                        .HasForeignKey("SolicitanteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.SubcategoriaChamado", "Subcategoria")
+                        .WithMany()
+                        .HasForeignKey("SubcategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.TipoSolicitacao", "TipoSolicitacao")
+                        .WithMany()
+                        .HasForeignKey("TipoSolicitacaoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AprovacaoChamadoLegada");
+
+                    b.Navigation("AprovadorEspecificoUsuario");
+
+                    b.Navigation("AprovadorPadraoUsuario");
+
+                    b.Navigation("AprovadorResolvidoUsuario");
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CanceladaPorUsuario");
+
+                    b.Navigation("CatalogoServico");
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("ConfiguracaoRegraAprovacao");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("Solicitante");
+
+                    b.Navigation("Subcategoria");
+
+                    b.Navigation("TipoSolicitacao");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InventarioAtivo", b =>
@@ -15779,6 +18073,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Historicos");
 
+                    b.Navigation("InstanciasAprovacao");
+
                     b.Navigation("RelacionamentosDestino");
 
                     b.Navigation("RelacionamentosOrigem");
@@ -15786,6 +18082,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("SlaControle");
 
                     b.Navigation("Tarefas");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ConfiguracaoRegraAprovacao", b =>
+                {
+                    b.Navigation("InstanciasAprovacao");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Departamento", b =>
@@ -15797,6 +18098,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("SlaConfiguracoes");
 
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.EtapaAprovacaoChamado", b =>
+                {
+                    b.Navigation("Decisoes");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", b =>
@@ -15811,6 +18117,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("FilasAtendimento");
 
                     b.Navigation("Membros");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InstanciaAprovacaoChamado", b =>
+                {
+                    b.Navigation("Decisoes");
+
+                    b.Navigation("Etapas");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.InventarioAtivo", b =>

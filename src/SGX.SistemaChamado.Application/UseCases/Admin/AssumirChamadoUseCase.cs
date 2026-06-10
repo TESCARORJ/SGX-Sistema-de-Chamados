@@ -4,8 +4,10 @@ using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.UseCases.Chamados;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
@@ -18,7 +20,8 @@ public sealed class AssumirChamadoUseCase(
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
-    IAuditoriaService? auditoriaService = null) : IAssumirChamadoUseCase
+    IAuditoriaService? auditoriaService = null,
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IAssumirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, CancellationToken cancellationToken = default)
     {
@@ -41,11 +44,7 @@ public sealed class AssumirChamadoUseCase(
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var responsavelAnterior = chamado.Responsavel?.Nome;
 
-        var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
-        if (estadoAprovacao.BloqueiaAvancoAtendimento)
-        {
-            throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
-        }
+        await GarantirMovimentacaoPermitidaAsync(chamado, cancellationToken);
 
         if (chamado.ResponsavelId.HasValue && chamado.ResponsavelId.Value != usuario.Id && !AdminUseCaseHelpers.EhAdministrador(usuario))
         {
@@ -96,5 +95,32 @@ public sealed class AssumirChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task GarantirMovimentacaoPermitidaAsync(Chamado chamado, CancellationToken cancellationToken)
+    {
+        if (validarBloqueioMovimentacaoUseCase is null)
+        {
+            var estadoAprovacao = AprovacaoChamadoHelper.ObterEstado(chamado);
+            if (estadoAprovacao.BloqueiaAvancoAtendimento)
+            {
+                throw new InvalidOperationException(estadoAprovacao.MensagemBloqueio ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+            }
+
+            return;
+        }
+
+        var avaliacao = await validarBloqueioMovimentacaoUseCase.ExecutarAsync(
+            new()
+            {
+                ChamadoId = chamado.Id,
+                TipoAcao = TipoAcaoMovimentacaoChamado.Assumir
+            },
+            cancellationToken);
+
+        if (avaliacao.Bloqueado)
+        {
+            throw new InvalidOperationException(avaliacao.MensagemUsuario ?? AprovacaoChamadoHelper.MensagemBloqueioAprovacaoPendente);
+        }
     }
 }

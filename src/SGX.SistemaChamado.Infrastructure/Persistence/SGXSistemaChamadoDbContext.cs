@@ -24,6 +24,10 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<ChamadoRelacionamento> ChamadosRelacionamentos => Set<ChamadoRelacionamento>();
     public DbSet<ChamadoTarefa> ChamadosTarefas => Set<ChamadoTarefa>();
     public DbSet<AprovacaoChamado> AprovacoesChamado => Set<AprovacaoChamado>();
+    public DbSet<ConfiguracaoRegraAprovacao> ConfiguracoesRegrasAprovacao => Set<ConfiguracaoRegraAprovacao>();
+    public DbSet<InstanciaAprovacaoChamado> InstanciasAprovacaoChamado => Set<InstanciaAprovacaoChamado>();
+    public DbSet<EtapaAprovacaoChamado> EtapasAprovacaoChamado => Set<EtapaAprovacaoChamado>();
+    public DbSet<DecisaoAprovacaoChamado> DecisoesAprovacaoChamado => Set<DecisaoAprovacaoChamado>();
     public DbSet<HistoricoChamado> HistoricosChamado => Set<HistoricoChamado>();
     public DbSet<ComentarioChamado> ComentariosChamado => Set<ComentarioChamado>();
     public DbSet<AnexoChamado> AnexosChamado => Set<AnexoChamado>();

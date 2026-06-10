@@ -74,6 +74,11 @@ public static class DependencyInjection
         services.AddScoped<IAdicionarComentarioChamadoUseCase, AdicionarComentarioChamadoUseCase>();
         services.AddScoped<IListarLinhaTempoChamadoUseCase, ListarLinhaTempoChamadoUseCase>();
         services.AddScoped<IAbrirChamadoUseCase, AbrirChamadoUseCase>();
+        services.AddScoped<IGerarAprovacaoObrigatoriaChamadoUseCase, GerarAprovacaoObrigatoriaChamadoUseCase>();
+        services.AddScoped<IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase, ValidarBloqueioMovimentacaoAprovacaoPendenteUseCase>();
+        services.AddScoped<IAprovarAprovacaoChamadoUseCase, AprovarAprovacaoChamadoUseCase>();
+        services.AddScoped<IReprovarAprovacaoChamadoUseCase, ReprovarAprovacaoChamadoUseCase>();
+        services.AddScoped<IReavaliarAprovacaoChamadoPorMudancaDadosSensiveisUseCase, ReavaliarAprovacaoChamadoPorMudancaDadosSensiveisUseCase>();
         services.AddScoped<IListarMeusChamadosUseCase, ListarMeusChamadosUseCase>();
         services.AddScoped<IDetalharMeuChamadoUseCase, DetalharMeuChamadoUseCase>();
         services.AddScoped<IObterStatusAprovacaoChamadoPortalUseCase, ObterStatusAprovacaoChamadoPortalUseCase>();
@@ -198,6 +203,8 @@ public static class DependencyInjection
         services.AddScoped<IArquivarArtigoBaseConhecimentoUseCase, ArquivarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IReativarArtigoBaseConhecimentoUseCase, ReativarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IAdminCatalogoServicosUseCases, CatalogoServicosAdminUseCases>();
+        services.AddScoped<IAdminConfiguracaoRegraAprovacaoUseCases, ConfiguracaoRegraAprovacaoAdminUseCases>();
+        services.AddScoped<IAdminInstanciaAprovacaoChamadoUseCases, InstanciaAprovacaoChamadoAdminUseCases>();
         services.AddScoped<IAdminInventarioAtivosUseCases, InventarioAtivosAdminUseCases>();
         services.AddScoped<IAdminAprovacaoChamadosUseCases, AprovacaoChamadosAdminUseCases>();
         services.AddScoped<IAdminRelatoriosAvancadosUseCases, RelatoriosAvancadosAdminUseCases>();

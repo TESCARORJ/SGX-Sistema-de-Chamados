@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Application.UseCases.Chamados;
@@ -23,7 +25,8 @@ public sealed class AlterarStatusChamadoUseCase(
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
-    IAuditoriaService? auditoriaService = null) : IAlterarStatusChamadoUseCase
+    IAuditoriaService? auditoriaService = null,
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IAlterarStatusChamadoUseCase
 {
     private const string MensagemBloqueioDependenciaAtiva =
         "Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.";
@@ -135,6 +138,25 @@ public sealed class AlterarStatusChamadoUseCase(
     {
         if (!StatusRepresentaFechamentoOperacional(novoStatus))
         {
+            return;
+        }
+
+        if (validarBloqueioMovimentacaoUseCase is not null)
+        {
+            var avaliacao = await validarBloqueioMovimentacaoUseCase.ExecutarAsync(
+                new()
+                {
+                    ChamadoId = chamadoId,
+                    TipoAcao = TipoAcaoMovimentacaoChamado.AlterarStatus,
+                    StatusDestinoId = novoStatus.Id
+                },
+                cancellationToken);
+
+            if (avaliacao.Bloqueado)
+            {
+                throw new InvalidOperationException(avaliacao.MensagemUsuario ?? MensagemBloqueioAprovacaoPendente);
+            }
+
             return;
         }
 

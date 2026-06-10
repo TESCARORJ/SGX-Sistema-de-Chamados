@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
@@ -28,8 +28,11 @@ import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminS
 import { permissoes } from '../constants/permissoes'
 import { adminService } from '../services/adminService'
 import { aprovacaoChamadosAdminService } from '../services/aprovacaoChamadosAdminService'
+import { aprovacoesMotorService } from '../services/aprovacoesMotorService'
 import { useAuthStore } from '../stores/authStore'
 import { StatusAprovacaoChamado, TipoOrigemAprovacaoChamado } from '../types/aprovacaoChamados'
+import { StatusInstanciaAprovacaoChamado, TipoRegraAprovacao, EfeitoOperacionalRegraAprovacao } from '../types/aprovacoesMotor'
+import type { InstanciaAprovacaoChamadoResumoResponse } from '../types/aprovacoesMotor'
 import type {
   AdminContextoResponse,
   ArtigoConhecimentoDisponivelParaVinculo,
@@ -107,6 +110,21 @@ const gruposTransferencia = ref<GrupoTecnicoResumo[]>([])
 const filasTransferencia = ref<FilaAtendimentoGrupoTecnicoResponse[]>([])
 const loadingGruposTransferencia = ref(false)
 const loadingFilasTransferencia = ref(false)
+
+const aprovacoesMotor = ref<InstanciaAprovacaoChamadoResumoResponse[]>([])
+const loadingAprovacoesMotor = ref(false)
+const erroAprovacoesMotor = ref<string | null>(null)
+
+const showModalAprovarMotor = ref(false)
+const processingAprovarMotor = ref(false)
+const pendenciaMotorSelecionada = ref<InstanciaAprovacaoChamadoResumoResponse | null>(null)
+const justificativaAprovacaoMotor = ref('')
+
+const showModalReprovarMotor = ref(false)
+const processingReprovarMotor = ref(false)
+const pendenciaReprovarMotorSelecionada = ref<InstanciaAprovacaoChamadoResumoResponse | null>(null)
+const justificativaReprovacaoMotor = ref('')
+const observacaoReprovacaoMotor = ref('')
 
 const usuarioEhAdministrador = computed(() => (authStore.usuario?.perfis ?? []).includes('Administrador'))
 const usuarioEhAtendente = computed(() => (authStore.usuario?.perfis ?? []).includes('Atendente'))
@@ -255,6 +273,14 @@ const corAcaoAprovacao = computed(() => {
   if (acaoAprovacaoSelecionada.value === 'reprovar') return 'negative'
   return 'warning'
 })
+
+const temAprovacaoMotorPendente = computed(() => aprovacoesMotor.value.some(a => a.status === StatusInstanciaAprovacaoChamado.Pendente))
+const temAprovacaoMotorBloqueante = computed(() => aprovacoesMotor.value.some(a => a.status === StatusInstanciaAprovacaoChamado.Pendente && a.bloqueante))
+const temAprovacaoMotorEmReavaliacao = computed(() => aprovacoesMotor.value.some(a => a.status === StatusInstanciaAprovacaoChamado.EmReavaliacao))
+const temAprovacaoMotorInformativa = computed(() => aprovacoesMotor.value.some(a => a.status === StatusInstanciaAprovacaoChamado.Pendente && !a.bloqueante))
+const aprovacaoMotorAprovada = computed(() => aprovacoesMotor.value.length > 0 && aprovacoesMotor.value.every(a => a.status === StatusInstanciaAprovacaoChamado.Aprovado))
+const aprovacaoMotorReprovada = computed(() => aprovacoesMotor.value.some(a => a.status === StatusInstanciaAprovacaoChamado.Reprovado))
+
 const opcoesGruposTransferencia = computed(() =>
   gruposTransferencia.value
     .filter((grupo) => grupo.id !== detalhe.value?.grupoTecnicoId)
@@ -438,6 +464,106 @@ async function carregar(): Promise<void> {
     registrarErro(error, 'Não foi possível carregar o detalhe do chamado.')
   } finally {
     loading.value = false
+  }
+
+  await carregarAprovacoesMotor()
+}
+
+async function carregarAprovacoesMotor(): Promise<void> {
+  loadingAprovacoesMotor.value = true
+  erroAprovacoesMotor.value = null
+
+  try {
+    const response = await aprovacoesMotorService.listarPendenciasPorChamado(chamadoId)
+    aprovacoesMotor.value = response.items || []
+  } catch (error) {
+    erroAprovacoesMotor.value = extrairMensagemErro(error, 'Não foi possível carregar o status de aprovação.')
+  } finally {
+    loadingAprovacoesMotor.value = false
+  }
+}
+
+function abrirAprovarMotorModal(pendencia: InstanciaAprovacaoChamadoResumoResponse): void {
+  pendenciaMotorSelecionada.value = pendencia
+  justificativaAprovacaoMotor.value = ''
+  showModalAprovarMotor.value = true
+}
+
+function fecharAprovarMotorModal(): void {
+  showModalAprovarMotor.value = false
+  pendenciaMotorSelecionada.value = null
+  justificativaAprovacaoMotor.value = ''
+}
+
+async function confirmarAprovacaoMotor(): Promise<void> {
+  if (!pendenciaMotorSelecionada.value) return
+
+  processingAprovarMotor.value = true
+  
+  try {
+    await aprovacoesMotorService.aprovarAprovacao({
+      instanciaAprovacaoChamadoId: pendenciaMotorSelecionada.value.id,
+      decisaoFinal: true, // Aprovação simples por padrão no frontend
+      justificativa: justificativaAprovacaoMotor.value || null,
+      observacao: justificativaAprovacaoMotor.value || null
+    })
+    
+    fecharAprovarMotorModal()
+    await carregarAprovacoesMotor()
+    
+    // Atualizar também o chamado se necessário (dependendo do efeito da aprovação)
+    await recarregarDetalhe()
+
+    registrarSucesso('Aprovação registrada com sucesso.')
+  } catch (error) {
+    registrarErro(error, 'Não foi possível registrar a aprovação.')
+  } finally {
+    processingAprovarMotor.value = false
+  }
+}
+
+function abrirReprovarMotorModal(pendencia: InstanciaAprovacaoChamadoResumoResponse): void {
+  pendenciaReprovarMotorSelecionada.value = pendencia
+  justificativaReprovacaoMotor.value = ''
+  observacaoReprovacaoMotor.value = ''
+  showModalReprovarMotor.value = true
+}
+
+function fecharReprovarMotorModal(): void {
+  showModalReprovarMotor.value = false
+  pendenciaReprovarMotorSelecionada.value = null
+  justificativaReprovacaoMotor.value = ''
+  observacaoReprovacaoMotor.value = ''
+}
+
+async function confirmarReprovacaoMotor(): Promise<void> {
+  if (!pendenciaReprovarMotorSelecionada.value) return
+  if (!justificativaReprovacaoMotor.value || !justificativaReprovacaoMotor.value.trim()) {
+    registrarErro(new Error('Informe a justificativa da rejeição.'), 'Não foi possível registrar a rejeição.')
+    return
+  }
+
+  processingReprovarMotor.value = true
+  
+  try {
+    await aprovacoesMotorService.reprovarAprovacao({
+      instanciaAprovacaoChamadoId: pendenciaReprovarMotorSelecionada.value.id,
+      decisaoFinal: true, // Reprovação simples por padrão no frontend
+      justificativa: justificativaReprovacaoMotor.value.trim(),
+      observacao: observacaoReprovacaoMotor.value || null
+    })
+    
+    fecharReprovarMotorModal()
+    await carregarAprovacoesMotor()
+    
+    // Atualizar também o chamado se necessário (dependendo do efeito da aprovação)
+    await recarregarDetalhe()
+
+    registrarSucesso('Rejeição registrada com sucesso.')
+  } catch (error) {
+    registrarErro(error, 'Não foi possível registrar a rejeição.')
+  } finally {
+    processingReprovarMotor.value = false
   }
 }
 
@@ -812,6 +938,7 @@ async function confirmarAcaoAprovacao(): Promise<void> {
 
     fecharAcaoAprovacao()
     await recarregarDetalhe()
+    await carregarAprovacoesMotor()
   } catch (error) {
     registrarErro(error, 'Nao foi possivel concluir a acao de aprovacao.')
   } finally {
@@ -838,6 +965,7 @@ async function solicitarAprovacaoManual(): Promise<void> {
     origemDescricaoSolicitacaoAprovacao.value = ''
     justificativaSolicitacaoAprovacao.value = ''
     await recarregarDetalhe()
+    await carregarAprovacoesMotor()
     registrarSucesso('Solicitacao de aprovacao registrada com sucesso.')
   } catch (error) {
     registrarErro(error, 'Nao foi possivel solicitar aprovacao manual.')
@@ -1260,7 +1388,163 @@ onMounted(carregar)
         </div>
       </AppSectionCard>
 
-      <AppSectionCard titulo="Aprovacao" subtitulo="Controle de liberacao do chamado para seguimento do atendimento.">
+      <AppSectionCard titulo="Aprovacao do motor ITSM" subtitulo="Acompanhe o status e as pendências de aprovação deste chamado via motor ITSM.">
+        <LoadingState v-if="loadingAprovacoesMotor" inline mensagem="Carregando status de aprovação..." />
+        <ErrorState
+          v-else-if="erroAprovacoesMotor"
+          titulo="Falha ao carregar status de aprovação"
+          :mensagem="erroAprovacoesMotor"
+          @retry="carregarAprovacoesMotor"
+        />
+        <template v-else>
+          <q-banner v-if="temAprovacaoMotorBloqueante" rounded class="bg-orange-1 text-orange-10 q-mb-sm">
+            Este chamado possui aprovacao pendente bloqueante. Algumas acoes sensiveis podem estar bloqueadas ate a decisao.
+          </q-banner>
+          <q-banner v-else-if="temAprovacaoMotorInformativa" rounded class="bg-info text-white q-mb-sm">
+            Existe aprovacao pendente informativa, mas ela nao bloqueia o atendimento comum.
+          </q-banner>
+          <q-banner v-else-if="temAprovacaoMotorEmReavaliacao" rounded class="bg-amber-1 text-amber-10 q-mb-sm">
+            A aprovacao precisa ser reavaliada porque dados sensiveis do chamado foram alterados.
+          </q-banner>
+          <q-banner v-else-if="aprovacaoMotorReprovada" rounded class="bg-red-1 text-negative q-mb-sm">
+            A aprovacao foi reprovada. Verifique a justificativa e as proximas acoes permitidas.
+          </q-banner>
+          <q-banner v-else-if="aprovacaoMotorAprovada" rounded class="bg-green-1 text-positive q-mb-sm">
+            A aprovacao foi concedida para o escopo registrado.
+          </q-banner>
+          <q-banner v-else-if="aprovacoesMotor.length === 0" rounded class="bg-grey-2 text-grey-8 q-mb-sm">
+            Este chamado nao possui pendencia de aprovacao no motor atual.
+          </q-banner>
+
+          <q-list separator v-if="aprovacoesMotor.length > 0">
+            <q-item v-for="aprovacao in aprovacoesMotor" :key="aprovacao.id">
+              <q-item-section>
+                <q-item-label caption>Status</q-item-label>
+                <q-item-label>
+                  <q-chip dense square text-color="white" :color="
+                    aprovacao.status === StatusInstanciaAprovacaoChamado.Pendente ? 'warning' :
+                    aprovacao.status === StatusInstanciaAprovacaoChamado.Aprovado ? 'positive' :
+                    aprovacao.status === StatusInstanciaAprovacaoChamado.Reprovado ? 'negative' :
+                    aprovacao.status === StatusInstanciaAprovacaoChamado.Cancelado || aprovacao.status === StatusInstanciaAprovacaoChamado.Expirado ? 'grey-7' : 'amber'
+                  ">
+                    {{ StatusInstanciaAprovacaoChamado[aprovacao.status] }}
+                  </q-chip>
+                </q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Regra</q-item-label>
+                <q-item-label>{{ aprovacao.nomeRegra || 'Regra não informada' }}</q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Origem/Tipo Regra</q-item-label>
+                <q-item-label>{{ TipoRegraAprovacao[aprovacao.tipoRegra] }}</q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Efeito Operacional</q-item-label>
+                <q-item-label>
+                  <span v-if="aprovacao.efeitoOperacional === EfeitoOperacionalRegraAprovacao.Informativa">Informativa</span>
+                  <span v-else-if="aprovacao.efeitoOperacional === EfeitoOperacionalRegraAprovacao.BloqueiaEncerramento">Bloqueia Encerramento</span>
+                  <span v-else-if="aprovacao.efeitoOperacional === EfeitoOperacionalRegraAprovacao.BloqueiaAtendimento">Bloqueia Atendimento</span>
+                </q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label caption>Solicitada Em</q-item-label>
+                <q-item-label>{{ formatarData(aprovacao.solicitadaEm) }}</q-item-label>
+              </q-item-section>
+              <q-item-section v-if="aprovacao.vencimentoEm">
+                <q-item-label caption>Prazo/Vencimento</q-item-label>
+                <q-item-label>{{ formatarData(aprovacao.vencimentoEm) }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn
+                  v-if="aprovacao.status === StatusInstanciaAprovacaoChamado.Pendente || aprovacao.status === StatusInstanciaAprovacaoChamado.EmReavaliacao"
+                  color="positive"
+                  icon="check_circle"
+                  label="Aprovar"
+                  size="sm"
+                  unelevated
+                  @click="abrirAprovarMotorModal(aprovacao)"
+                  class="q-mr-sm"
+                />
+                <q-btn
+                  v-if="aprovacao.status === StatusInstanciaAprovacaoChamado.Pendente || aprovacao.status === StatusInstanciaAprovacaoChamado.EmReavaliacao"
+                  color="negative"
+                  icon="cancel"
+                  label="Rejeitar"
+                  size="sm"
+                  unelevated
+                  @click="abrirReprovarMotorModal(aprovacao)"
+                />
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <q-dialog v-model="showModalAprovarMotor" persistent>
+            <q-card style="min-width: 400px">
+              <q-card-section class="row items-center q-pb-none">
+                <div class="text-h6">Aprovar pendência</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup />
+              </q-card-section>
+
+              <q-card-section>
+                <p>Confirma a aprovação desta pendência do motor ITSM?</p>
+                <q-input
+                  v-model="justificativaAprovacaoMotor"
+                  type="textarea"
+                  label="Observação (opcional)"
+                  outlined
+                  autogrow
+                  :rules="[val => !val || val.length <= 500 || 'Máximo de 500 caracteres']"
+                />
+              </q-card-section>
+
+              <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="Cancelar" @click="fecharAprovarMotorModal" :disable="processingAprovarMotor" />
+                <q-btn color="positive" label="Confirmar aprovação" @click="confirmarAprovacaoMotor" :loading="processingAprovarMotor" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+
+          <q-dialog v-model="showModalReprovarMotor" persistent>
+            <q-card style="min-width: 400px">
+              <q-card-section class="row items-center q-pb-none">
+                <div class="text-h6">Rejeitar pendência</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup />
+              </q-card-section>
+
+              <q-card-section>
+                <p>Informe a justificativa para rejeitar esta pendência do motor ITSM.</p>
+                <q-input
+                  v-model="justificativaReprovacaoMotor"
+                  type="textarea"
+                  label="Justificativa *"
+                  outlined
+                  autogrow
+                  :rules="[val => (val && val.trim().length > 0) || 'Justificativa é obrigatória', val => val.length <= 500 || 'Máximo de 500 caracteres']"
+                  class="q-mb-md"
+                />
+                <q-input
+                  v-model="observacaoReprovacaoMotor"
+                  type="textarea"
+                  label="Observação (opcional)"
+                  outlined
+                  autogrow
+                  :rules="[val => !val || val.length <= 500 || 'Máximo de 500 caracteres']"
+                />
+              </q-card-section>
+
+              <q-card-actions align="right" class="text-primary">
+                <q-btn flat label="Cancelar" @click="fecharReprovarMotorModal" :disable="processingReprovarMotor" />
+                <q-btn color="negative" label="Confirmar rejeição" @click="confirmarReprovacaoMotor" :loading="processingReprovarMotor" />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+        </template>
+      </AppSectionCard>
+
+      <AppSectionCard titulo="Aprovacao legada" subtitulo="Controle de liberacao do chamado para seguimento do atendimento.">
         <template #actions>
           <div class="row q-gutter-xs">
             <q-btn

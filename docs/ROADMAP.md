@@ -1,4 +1,5 @@
-﻿# Roadmap SGX Sistema de Chamados
+﻿
+;k.lpkçlooçklç´-pppç´~pplçoopopo# Roadmap SGX Sistema de Chamados
 
 ## Visao geral
 
@@ -43,7 +44,7 @@ Nova ordem estrategica do ciclo ITSM:
 1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
 3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
-4. Sprint 4 - Motor de Aprovacoes ITSM (50% - Implementado funcionalmente)
+4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
 6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
 7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
@@ -1223,7 +1224,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Backend administrativo e consulta do portal implementados
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual sugerido apos conclusao: 60%
+Percentual sugerido apos conclusao: 62%
 
 Objetivo:
 Habilitar consulta da Base de Conhecimento no portal, expondo somente artigos publicados e ativos, com visibilidade controlada por perfil.
@@ -1443,7 +1444,7 @@ Area: Catalogo de Servicos
 Categoria: Conhecimento
 Status da implementacao: Consulta do portal implementada
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual: 60%
+Percentual: 62%
 Objetivo:
 Disponibilizar consulta do Catalogo de Servicos no portal para usuarios autenticados, exibindo somente servicos publicados, ativos e visiveis conforme perfil.
 Entregas da sprint:
@@ -1659,7 +1660,7 @@ Categoria: Infraestrutura
 
 Status da implementacao: Historico e movimentacao implementados
 Status tecnico: Sprint 3 concluida apos validacao
-Percentual: 60%
+Percentual: 62%
 
 Objetivo:
 Adicionar rastreabilidade operacional ao inventario com historico de alteracoes e endpoint administrativo dedicado para movimentacao de ativos.

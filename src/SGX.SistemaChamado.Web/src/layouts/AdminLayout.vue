@@ -66,6 +66,12 @@ const menu = computed<MenuItem[]>(() => {
   if (perfis.includes('Administrador')) {
     return [
       {
+        label: 'Minhas pendências',
+        icon: 'fact_check',
+        to: '/admin/atendimento/aprovacoes-pendentes',
+        requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar],
+      },
+      {
         label: 'Usuários',
         icon: 'group',
         to: '/admin/cadastros/usuarios',
@@ -210,6 +216,12 @@ const menu = computed<MenuItem[]>(() => {
             to: '/admin/configuracoes/parametros',
             requiredAnyPermissions: [permissoes.parametrosVisualizar],
           },
+          {
+            label: 'Regras de Aprovação',
+            icon: 'rule',
+            to: '/admin/configuracoes/regras-aprovacao',
+            requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar, permissoes.aprovacaoChamadosGerenciar],
+          },
         ],
       },
       {
@@ -247,6 +259,12 @@ const menu = computed<MenuItem[]>(() => {
         icon: 'toc',
         to: '/admin/chamados',
         requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Minhas pendências',
+        icon: 'fact_check',
+        to: '/admin/atendimento/aprovacoes-pendentes',
+        requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar],
       },
       {
         label: 'Chamados críticos',
@@ -309,6 +327,12 @@ const menu = computed<MenuItem[]>(() => {
         requiredAnyPermissions: [permissoes.chamadosVisualizar],
       },
       {
+        label: 'Minhas pendências',
+        icon: 'fact_check',
+        to: '/admin/atendimento/aprovacoes-pendentes',
+        requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar],
+      },
+      {
         label: 'Chamados escalados',
         icon: 'arrow_upward',
         to: '/admin/chamados?filtro=escalados',
@@ -348,6 +372,12 @@ const menu = computed<MenuItem[]>(() => {
         icon: 'list_alt',
         to: '/admin/chamados',
         requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+      },
+      {
+        label: 'Minhas pendências',
+        icon: 'fact_check',
+        to: '/admin/atendimento/aprovacoes-pendentes',
+        requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar],
       },
       {
         label: 'Meus atendimentos',
@@ -465,6 +495,12 @@ const menu = computed<MenuItem[]>(() => {
       icon: 'list_alt',
       to: '/admin/chamados',
       requiredAnyPermissions: [permissoes.chamadosVisualizarTodos],
+    },
+    {
+      label: 'Minhas pendências',
+      icon: 'fact_check',
+      to: '/admin/atendimento/aprovacoes-pendentes',
+      requiredAnyPermissions: [permissoes.aprovacaoChamadosVisualizar],
     },
     {
       label: 'Base de conhecimento',
@@ -676,6 +712,7 @@ const tituloPagina = computed(() => {
   if (route.path.startsWith('/admin/relatorios/base-conhecimento')) return 'Relatórios - Base de conhecimento'
   if (route.path.startsWith('/admin/relatorios/auditoria')) return 'Relatórios - Auditoria'
   if (route.path === '/admin/chamados') return 'Fila de Chamados'
+  if (route.path.startsWith('/admin/atendimento/aprovacoes-pendentes')) return 'Minhas pendências de aprovação'
   if (route.path.startsWith('/admin/atendimento/aprovacao-chamados')) return 'Aprovação de chamados'
   if (route.path === '/admin/notificacoes') return 'Central de Notificações'
   if (route.path.startsWith('/admin/cadastros/grupos-tecnicos')) return 'Grupos Tecnicos'
