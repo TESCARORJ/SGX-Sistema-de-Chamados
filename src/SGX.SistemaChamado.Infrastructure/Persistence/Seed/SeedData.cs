@@ -2988,4 +2988,37 @@ public static class SeedData
 
     private static Guid GerarIdPerfilPermissao(int indice)
         => Guid.Parse($"99999999-9999-9999-9999-999999999{indice:000}");
+
+    public static readonly Guid ParametroPrazoAutoFechamentoChamadoId = Guid.Parse("p0000000-0000-0000-0000-000000000001".Replace("p", "e"));
+    public static readonly Guid ParametroPrazoReaberturaChamadoId = Guid.Parse("p0000000-0000-0000-0000-000000000002".Replace("p", "e"));
+
+    public static readonly object[] ParametrosSistema =
+    [
+        new
+        {
+            Id = ParametroPrazoAutoFechamentoChamadoId,
+            Chave = "chamados.fechamento_automatico.prazo_aceite_horas",
+            Descricao = "Prazo em horas para fechamento automatico por falta de aceite",
+            Valor = "48",
+            Ativo = true,
+            Sensivel = false,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        },
+        new
+        {
+            Id = ParametroPrazoReaberturaChamadoId,
+            Chave = "chamados.reabertura.prazo_maximo_horas",
+            Descricao = "Prazo maximo em horas para reabertura de chamado encerrado",
+            Valor = "48",
+            Ativo = true,
+            Sensivel = false,
+            CriadoEm = DataBase,
+            CriadoPor = UsuarioSistema,
+            AtualizadoEm = (DateTime?)null,
+            AtualizadoPor = (string?)null
+        }
+    ];
 }

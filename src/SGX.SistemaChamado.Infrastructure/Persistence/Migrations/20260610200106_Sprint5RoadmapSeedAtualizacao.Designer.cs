@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610200106_Sprint5RoadmapSeedAtualizacao")]
+    partial class Sprint5RoadmapSeedAtualizacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -665,12 +668,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("aberto_em");
 
-                    b.Property<DateTime?>("AceitoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("AceitoPorUsuarioId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("Ativo")
                         .HasColumnType("boolean")
                         .HasColumnName("ativo");
@@ -742,15 +739,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("local_unidade_id");
 
-                    b.Property<string>("MotivoRejeicaoSolucao")
-                        .HasColumnType("text");
-
                     b.Property<int>("NaturezaChamado")
                         .HasColumnType("integer")
                         .HasColumnName("natureza_chamado");
-
-                    b.Property<string>("ObservacaoAceite")
-                        .HasColumnType("text");
 
                     b.Property<int>("Origem")
                         .HasColumnType("integer")
@@ -760,9 +751,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("prioridade_id");
 
-                    b.Property<DateTime?>("ResolvidoEm")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid?>("ResponsavelId")
                         .HasColumnType("uuid")
                         .HasColumnName("responsavel_id");
@@ -770,12 +758,6 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("SolicitanteId")
                         .HasColumnType("uuid")
                         .HasColumnName("solicitante_id");
-
-                    b.Property<DateTime?>("SolucaoRejeitadaEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("SolucaoRejeitadaPorUsuarioId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid>("StatusId")
                         .HasColumnType("uuid")
@@ -15754,25 +15736,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777724"),
                             Area = "Sprint 5 - Regras de fechamento, aceite e reabertura",
-                            AtencaoTecnica = "Separar resolvido de fechado e exigir dados obrigatorios de solucao/cancelamento.",
+                            AtencaoTecnica = "Separar conceitualmente e funcionalmente os estados Resolvido e Fechado. Não tratar resolução como encerramento definitivo. Exigir dados obrigatórios de solução para resolução e motivo obrigatório para cancelamento. Preservar compatibilidade com o fluxo legado, com SLA, com atendimento, com histórico, com permissões administrativas e com o motor de aprovações da Sprint 4. Nenhuma regra de fechamento deve ignorar aprovação pendente bloqueante.",
                             Ativo = true,
                             Categoria = "ITIL/ITSM",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "Fluxo contempla resolucao, aceite/rejeicao, fechamento automatico e reabertura auditavel.",
+                            CriterioAceite = "Fluxo contempla resolução, aceite/rejeição pelo solicitante, fechamento automático por prazo, cancelamento com motivo obrigatório, reabertura auditável e compatibilidade com SLA, histórico, permissões e aprovações pendentes bloqueantes.",
                             Decisao = 1,
-                            EvidenciaImplementacao = "Base de encerramento/reabertura existente reaproveitada.",
+                            EvidenciaImplementacao = "Base de encerramento/reabertura existente reaproveitada. Fluxos atuais de EncerrarChamadoUseCase e ReabrirChamadoUseCase devem ser preservados como base evolutiva.",
                             Impacto = 1,
-                            Objetivo = "Criar governanca de encerramento com aceite, fechamento automatico e reabertura controlada.",
+                            Objetivo = "Criar governança de encerramento com aceite, fechamento automático e reabertura controlada.",
                             Ordem = 105,
-                            PendenciasHomologacao = "Validar regras com solicitantes e atendentes reais.",
-                            PendenciasTecnicas = "Aceite, prazo de auto-fechamento, motivo de cancelamento e campo solucao obrigatorio.",
+                            PendenciasHomologacao = "Validar regras com solicitantes, atendentes e administradores reais, incluindo resolução, aceite, rejeição, fechamento automático, cancelamento e reabertura controlada.",
+                            PendenciasTecnicas = "Aceite do solicitante, rejeição da solução, prazo de auto-fechamento, motivo de cancelamento, campo solução obrigatório, política formal de reabertura, auditoria do ciclo resolvido/fechado/reaberto e integração segura com bloqueios de aprovação pendente.",
                             PercentualImplementacao = 50,
                             Prioridade = 1,
-                            ProximaAcao = "Evoluir estados e regras de negocio de ciclo de vida.",
+                            ProximaAcao = "Evoluir estados e regras de negócio de ciclo de vida.",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
-                            SituacaoAtual = "Encerrar e reabrir existem, mas faltam aceite do solicitante e politicas formais.",
+                            SituacaoAtual = "Encerrar e reabrir chamados já existem no sistema, mas o fluxo ainda não possui governança completa de aceite do solicitante, prazo formal de auto-fechamento, rejeição de solução, campos obrigatórios de solução/cancelamento e políticas auditáveis de reabertura.",
                             Status = 3,
                             StatusImplementacao = 2,
                             StatusTecnico = 1

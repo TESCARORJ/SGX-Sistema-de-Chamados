@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260616184207_UpdateSeedData_Sprint5_Item29")]
+    partial class UpdateSeedData_Sprint5_Item29
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -801,6 +804,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AceitoPorUsuarioId");
+
                     b.HasIndex("CatalogoServicoId")
                         .HasDatabaseName("ix_chamados_catalogo_servico_id");
 
@@ -828,6 +833,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("ResponsavelId");
 
                     b.HasIndex("SolicitanteId");
+
+                    b.HasIndex("SolucaoRejeitadaPorUsuarioId");
 
                     b.HasIndex("StatusId");
 
@@ -3717,6 +3724,30 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_parametros_sistema_chave");
 
                     b.ToTable("parametros_sistema", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e0000000-0000-0000-0000-000000000001"),
+                            Ativo = true,
+                            Chave = "chamados.fechamento_automatico.prazo_aceite_horas",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Prazo em horas para fechamento automatico por falta de aceite",
+                            Sensivel = false,
+                            Valor = "48"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0000000-0000-0000-0000-000000000002"),
+                            Ativo = true,
+                            Chave = "chamados.reabertura.prazo_maximo_horas",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Prazo maximo em horas para reabertura de chamado encerrado",
+                            Sensivel = false,
+                            Valor = "48"
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", b =>
@@ -13732,59 +13763,451 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000133"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000801"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
-                            Grupo = 1,
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Planejar escopo e criterios de aceite"
+                            Titulo = "Planejar escopo e criterios de aceite da Sprint 5"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000134"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000802"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
+                            Descricao = "Sprint 5 Regras de fechamento",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Mapear fluxo atual de encerramento e reabertura"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000135"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000803"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
-                            Grupo = 3,
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Validar compatibilidade com Fundacao ITSM do chamado"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000136"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000804"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Validar compatibilidade com Sprint 4 Motor de Aprovacoes ITSM"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000805"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Documentar modelo de ciclo de vida Resolvido/Fechado/Reaberto"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000806"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Separar status Resolvido e Fechado no fluxo de negocio"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000807"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra para exigir solucao tecnica ao resolver chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000808"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra para exigir motivo ao cancelar chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000809"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de aceite do solicitante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000810"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de rejeicao da solucao pelo solicitante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000811"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de retorno ao atendimento apos rejeicao da solucao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000812"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar politica de fechamento automatico apos prazo de aceite"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000813"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar configuracao administrativa do prazo de auto-fechamento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000814"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de reabertura controlada por prazo/politica"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000815"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Registrar auditoria de resolucao, aceite, rejeicao, fechamento e reabertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000816"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Preservar bloqueio por aprovacao pendente antes de fechamento definitivo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000817"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Ajustar endpoints de resolucao, fechamento, aceite e reabertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000818"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Exibir dados de solucao, aceite e fechamento no detalhe do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000819"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Permitir aceite/rejeicao pelo solicitante na interface"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000820"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Exibir historico de fechamento e reabertura na interface administrativa"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000821"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar resolucao com solucao obrigatoria"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000822"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar cancelamento com motivo obrigatorio"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000823"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar aceite e fechamento definitivo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000824"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar rejeicao da solucao e retorno ao atendimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000825"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar fechamento automatico por prazo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000826"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar reabertura controlada e auditavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000827"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar regressao de encerramento/reabertura existente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000828"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar integracao com aprovacao pendente bloqueante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000829"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Documentar impacto no fluxo atual de chamados"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000830"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
-                            Grupo = 5,
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 9,
                             Obrigatorio = true,
-                            Ordem = 4,
+                            Ordem = 30,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Preparar roteiro de homologacao da Sprint 5"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000831"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Registrar homologacao e aceite tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000832"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Atualizar roadmap final da Sprint 5"
                         },
                         new
                         {
@@ -15767,9 +16190,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 105,
                             PendenciasHomologacao = "Validar regras com solicitantes e atendentes reais.",
                             PendenciasTecnicas = "Aceite, prazo de auto-fechamento, motivo de cancelamento e campo solucao obrigatorio.",
-                            PercentualImplementacao = 50,
+                            PercentualImplementacao = 91,
                             Prioridade = 1,
-                            ProximaAcao = "Evoluir estados e regras de negocio de ciclo de vida.",
+                            ProximaAcao = "Preparar roteiro de homologacao da Sprint 5",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Encerrar e reabrir existem, mas faltam aceite do solicitante e politicas formais.",
@@ -17126,6 +17549,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Chamado", b =>
                 {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AceitoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AceitoPorUsuarioId");
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.CatalogoServico", "CatalogoServico")
                         .WithMany("Chamados")
                         .HasForeignKey("CatalogoServicoId")
@@ -17179,6 +17606,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "SolucaoRejeitadaPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("SolucaoRejeitadaPorUsuarioId");
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.StatusChamado", "Status")
                         .WithMany("Chamados")
                         .HasForeignKey("StatusId")
@@ -17194,6 +17625,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .WithMany("Chamados")
                         .HasForeignKey("TipoSolicitacaoId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AceitoPorUsuario");
 
                     b.Navigation("CatalogoServico");
 
@@ -17214,6 +17647,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Responsavel");
 
                     b.Navigation("Solicitante");
+
+                    b.Navigation("SolucaoRejeitadaPorUsuario");
 
                     b.Navigation("Status");
 

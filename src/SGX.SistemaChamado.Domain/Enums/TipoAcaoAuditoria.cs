@@ -18,5 +18,10 @@ public enum TipoAcaoAuditoria
     ExecucaoJob = 14,
     Configuracao = 15,
     Homologacao = 16,
-    Outro = 17
+    Outro = 17,
+    ResolverChamado = 18,
+    FecharChamadoAutomaticamentePorPrazoAceite = 19,
+    RejeitarSolucaoChamado = 20,
+    AceitarSolucaoChamado = 21,
+    ReabrirChamado = 22
 }

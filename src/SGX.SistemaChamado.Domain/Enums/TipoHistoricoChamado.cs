@@ -40,5 +40,10 @@ public enum TipoHistoricoChamado
     FilaAtendimentoRemovida = 36,
     FilaAtendimentoTransferida = 37,
     ResponsavelRemovidoPorTransferenciaGrupo = 38,
-    ChamadoAssumidoDaFila = 39
+    ChamadoAssumidoDaFila = 39,
+    Resolvido = 40,
+    FechamentoAutomatico = 41,
+    Cancelado = 42,
+    SolucaoAceita = 43,
+    SolucaoRejeitada = 44
 }

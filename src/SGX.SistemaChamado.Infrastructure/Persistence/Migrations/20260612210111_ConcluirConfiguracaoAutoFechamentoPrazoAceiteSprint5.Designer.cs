@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612210111_ConcluirConfiguracaoAutoFechamentoPrazoAceiteSprint5")]
+    partial class ConcluirConfiguracaoAutoFechamentoPrazoAceiteSprint5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -436,8 +439,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ativo = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Calendário inicial para cálculo de SLA em horário comercial.",
-                            Nome = "Calendário Corporativo Padrão",
+                            Descricao = "CalendÃ¡rio inicial para cÃ¡lculo de SLA em horÃ¡rio comercial.",
+                            Nome = "CalendÃ¡rio Corporativo PadrÃ£o",
                             Padrao = true,
                             TimeZone = "America/Sao_Paulo"
                         });
@@ -801,6 +804,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AceitoPorUsuarioId");
+
                     b.HasIndex("CatalogoServicoId")
                         .HasDatabaseName("ix_chamados_catalogo_servico_id");
 
@@ -828,6 +833,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.HasIndex("ResponsavelId");
 
                     b.HasIndex("SolicitanteId");
+
+                    b.HasIndex("SolucaoRejeitadaPorUsuarioId");
 
                     b.HasIndex("StatusId");
 
@@ -3717,6 +3724,19 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_parametros_sistema_chave");
 
                     b.ToTable("parametros_sistema", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("57575757-5757-5757-5757-575757575701"),
+                            Ativo = true,
+                            Chave = "chamados.fechamento_automatico.prazo_aceite_horas",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Prazo em horas para fechamento automatico de chamados resolvidos sem manifestacao do solicitante.",
+                            Sensivel = false,
+                            Valor = "72"
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", b =>
@@ -3820,7 +3840,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Perfil tecnico especializado para atendimento complexo, incidentes graves e problemas.",
-                            Nome = "Técnico N2",
+                            Nome = "TÃ©cnico N2",
                             TipoPerfil = 2
                         },
                         new
@@ -3850,7 +3870,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Acesso exclusivo a relatorios e logs de auditoria e conformidade ITIL.",
-                            Nome = "Auditor Governança",
+                            Nome = "Auditor GovernanÃ§a",
                             TipoPerfil = 2
                         });
                 });
@@ -6539,8 +6559,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ativo = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Política inicial de SLA do SGX Sistema de Chamados, usada como base para controle de primeira resposta e resolução dos chamados.",
-                            Nome = "SLA Padrão",
+                            Descricao = "PolÃ­tica inicial de SLA do SGX Sistema de Chamados, usada como base para controle de primeira resposta e resoluÃ§Ã£o dos chamados.",
+                            Nome = "SLA PadrÃ£o",
                             Ordem = 1,
                             PausarQuandoAguardandoSolicitante = true,
                             UsarHorarioComercial = false
@@ -6752,9 +6772,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#D32F2F",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Segurança e controle de acesso.",
+                            Descricao = "SeguranÃ§a e controle de acesso.",
                             Icone = "shield",
-                            Nome = "Segurança",
+                            Nome = "SeguranÃ§a",
                             Ordem = 1
                         },
                         new
@@ -6788,9 +6808,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#00897B",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Integrações com canais e sistemas.",
+                            Descricao = "IntegraÃ§Ãµes com canais e sistemas.",
                             Icone = "hub",
-                            Nome = "Integrações",
+                            Nome = "IntegraÃ§Ãµes",
                             Ordem = 4
                         },
                         new
@@ -6800,7 +6820,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#7B1FA2",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Cadastros e parametrizações administrativas.",
+                            Descricao = "Cadastros e parametrizaÃ§Ãµes administrativas.",
                             Icone = "inventory_2",
                             Nome = "Cadastros",
                             Ordem = 5
@@ -6812,9 +6832,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#F57C00",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Notificações e comunicação.",
+                            Descricao = "NotificaÃ§Ãµes e comunicaÃ§Ã£o.",
                             Icone = "notifications",
-                            Nome = "Notificações",
+                            Nome = "NotificaÃ§Ãµes",
                             Ordem = 6
                         },
                         new
@@ -6824,7 +6844,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#455A64",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Infraestrutura e sustentação.",
+                            Descricao = "Infraestrutura e sustentaÃ§Ã£o.",
                             Icone = "dns",
                             Nome = "Infraestrutura",
                             Ordem = 7
@@ -6836,7 +6856,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#C2185B",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Experiência de uso e interface.",
+                            Descricao = "ExperiÃªncia de uso e interface.",
                             Icone = "palette",
                             Nome = "UX",
                             Ordem = 8
@@ -6848,9 +6868,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#6D4C41",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Relatórios e exportações.",
+                            Descricao = "RelatÃ³rios e exportaÃ§Ãµes.",
                             Icone = "assessment",
-                            Nome = "Relatórios",
+                            Nome = "RelatÃ³rios",
                             Ordem = 9
                         },
                         new
@@ -6860,9 +6880,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#388E3C",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Validações e aceite com usuários.",
+                            Descricao = "ValidaÃ§Ãµes e aceite com usuÃ¡rios.",
                             Icone = "fact_check",
-                            Nome = "Homologação",
+                            Nome = "HomologaÃ§Ã£o",
                             Ordem = 10
                         },
                         new
@@ -6872,9 +6892,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#303F9F",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Documentação técnica e funcional.",
+                            Descricao = "DocumentaÃ§Ã£o tÃ©cnica e funcional.",
                             Icone = "description",
-                            Nome = "Documentação",
+                            Nome = "DocumentaÃ§Ã£o",
                             Ordem = 11
                         },
                         new
@@ -6884,9 +6904,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#3949AB",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Indicadores e governança gerencial.",
+                            Descricao = "Indicadores e governanÃ§a gerencial.",
                             Icone = "insights",
-                            Nome = "Gestão",
+                            Nome = "GestÃ£o",
                             Ordem = 12
                         },
                         new
@@ -6896,9 +6916,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#546E7A",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Rastreabilidade e governança.",
+                            Descricao = "Rastreabilidade e governanÃ§a.",
                             Icone = "gavel",
-                            Nome = "Governança",
+                            Nome = "GovernanÃ§a",
                             Ordem = 13
                         },
                         new
@@ -6908,7 +6928,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#8D6E63",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Base de conhecimento e catálogo.",
+                            Descricao = "Base de conhecimento e catÃ¡logo.",
                             Icone = "menu_book",
                             Nome = "Conhecimento",
                             Ordem = 14
@@ -6920,7 +6940,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Cor = "#1E88E5",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Fluxos e experiência do portal.",
+                            Descricao = "Fluxos e experiÃªncia do portal.",
                             Icone = "language",
                             Nome = "Portal",
                             Ordem = 15
@@ -7041,7 +7061,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Endpoint de criação de chamado validado"
+                            Titulo = "Endpoint de criaÃ§Ã£o de chamado validado"
                         },
                         new
                         {
@@ -7054,7 +7074,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validações obrigatórias implementadas"
+                            Titulo = "ValidaÃ§Ãµes obrigatÃ³rias implementadas"
                         },
                         new
                         {
@@ -7067,7 +7087,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 4,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Solicitante obtido pelo usuário autenticado"
+                            Titulo = "Solicitante obtido pelo usuÃ¡rio autenticado"
                         },
                         new
                         {
@@ -7093,7 +7113,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 6,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Histórico inicial criado"
+                            Titulo = "HistÃ³rico inicial criado"
                         },
                         new
                         {
@@ -7119,7 +7139,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Formulário com validação visual implementado"
+                            Titulo = "FormulÃ¡rio com validaÃ§Ã£o visual implementado"
                         },
                         new
                         {
@@ -7158,7 +7178,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 11,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Redirecionamento para detalhe após abertura implementado"
+                            Titulo = "Redirecionamento para detalhe apÃ³s abertura implementado"
                         },
                         new
                         {
@@ -7197,7 +7217,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 14,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Chamado visível na fila administrativa"
+                            Titulo = "Chamado visÃ­vel na fila administrativa"
                         },
                         new
                         {
@@ -7255,20 +7275,20 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676729"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 19,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Homologação manual com usuário real"
+                            Titulo = "HomologaÃ§Ã£o manual com usuÃ¡rio real"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676730"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 3,
@@ -7281,66 +7301,66 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676731"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 21,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validação real de anexos em ambiente de homologação"
+                            Titulo = "ValidaÃ§Ã£o real de anexos em ambiente de homologaÃ§Ã£o"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676732"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 22,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validação de anexo inválido com mensagem amigável"
+                            Titulo = "ValidaÃ§Ã£o de anexo invÃ¡lido com mensagem amigÃ¡vel"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676733"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 23,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validação completa do fluxo abrir, anexar e acompanhar"
+                            Titulo = "ValidaÃ§Ã£o completa do fluxo abrir, anexar e acompanhar"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676734"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 24,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validação com perfil Solicitante real do Microsoft Entra ID"
+                            Titulo = "ValidaÃ§Ã£o com perfil Solicitante real do Microsoft Entra ID"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676735"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 25,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777701"),
-                            Titulo = "Validação com Atendente visualizando o chamado na fila"
+                            Titulo = "ValidaÃ§Ã£o com Atendente visualizando o chamado na fila"
                         },
                         new
                         {
@@ -7724,7 +7744,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686728"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Homologacao",
@@ -7738,7 +7758,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686729"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Homologacao",
@@ -7752,7 +7772,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686730"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Homologacao",
@@ -7766,7 +7786,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686731"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Evolucao",
@@ -7780,7 +7800,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686732"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Evolucao",
@@ -7794,7 +7814,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686733"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Evolucao",
@@ -7808,7 +7828,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686734"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Evolucao",
@@ -7822,7 +7842,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686735"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Evolucao",
@@ -7836,7 +7856,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686736"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Seguranca",
@@ -7850,7 +7870,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686737"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Seguranca",
@@ -7864,7 +7884,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686738"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Testes",
@@ -7878,7 +7898,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686739"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Observabilidade",
@@ -7892,7 +7912,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686740"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Observabilidade",
@@ -7939,7 +7959,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
-                            Titulo = "Permissões granulares criadas"
+                            Titulo = "PermissÃµes granulares criadas"
                         },
                         new
                         {
@@ -7978,7 +7998,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 6,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
-                            Titulo = "/api/me com permissões"
+                            Titulo = "/api/me com permissÃµes"
                         },
                         new
                         {
@@ -8004,7 +8024,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
-                            Titulo = "Matriz de permissões no frontend"
+                            Titulo = "Matriz de permissÃµes no frontend"
                         },
                         new
                         {
@@ -8017,20 +8037,20 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 9,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
-                            Titulo = "Controle visual por permissão"
+                            Titulo = "Controle visual por permissÃ£o"
                         },
                         new
                         {
                             Id = new Guid("67676767-6767-6767-6767-676767676710"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 10,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777703"),
-                            Titulo = "Homologação com usuários reais"
+                            Titulo = "HomologaÃ§Ã£o com usuÃ¡rios reais"
                         },
                         new
                         {
@@ -8039,12 +8059,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Decisão arquitetural documentada: Azure autentica, SGX autoriza."
+                            Titulo = "DecisÃ£o arquitetural documentada: Azure autentica, SGX autoriza."
                         },
                         new
                         {
@@ -8053,7 +8073,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 2,
@@ -8067,12 +8087,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Validação JWT/API revisada."
+                            Titulo = "ValidaÃ§Ã£o JWT/API revisada."
                         },
                         new
                         {
@@ -8081,7 +8101,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 4,
@@ -8095,7 +8115,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 5,
@@ -8109,7 +8129,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 6,
@@ -8123,7 +8143,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 7,
@@ -8137,12 +8157,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Emulação de perfis em Development preservada."
+                            Titulo = "EmulaÃ§Ã£o de perfis em Development preservada."
                         },
                         new
                         {
@@ -8151,12 +8171,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 4,
                             Obrigatorio = true,
                             Ordem = 9,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Documentação técnica consolidada."
+                            Titulo = "DocumentaÃ§Ã£o tÃ©cnica consolidada."
                         },
                         new
                         {
@@ -8165,12 +8185,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 10,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Authority, Issuer, Audience, expiração e assinatura validados."
+                            Titulo = "Authority, Issuer, Audience, expiraÃ§Ã£o e assinatura validados."
                         },
                         new
                         {
@@ -8179,7 +8199,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 11,
@@ -8193,12 +8213,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 12,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Domínios permitidos configuráveis."
+                            Titulo = "DomÃ­nios permitidos configurÃ¡veis."
                         },
                         new
                         {
@@ -8207,12 +8227,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 13,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Criação automática de usuário interno configurável."
+                            Titulo = "CriaÃ§Ã£o automÃ¡tica de usuÃ¡rio interno configurÃ¡vel."
                         },
                         new
                         {
@@ -8221,12 +8241,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 14,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Perfil padrão de usuário Microsoft configurável."
+                            Titulo = "Perfil padrÃ£o de usuÃ¡rio Microsoft configurÃ¡vel."
                         },
                         new
                         {
@@ -8235,7 +8255,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 15,
@@ -8249,12 +8269,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 16,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Bloqueio por domínio não permitido."
+                            Titulo = "Bloqueio por domÃ­nio nÃ£o permitido."
                         },
                         new
                         {
@@ -8263,12 +8283,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 17,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Bloqueio de usuário interno inativo."
+                            Titulo = "Bloqueio de usuÃ¡rio interno inativo."
                         },
                         new
                         {
@@ -8277,12 +8297,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 18,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Roles/groups do Azure não concedem Administrador automaticamente."
+                            Titulo = "Roles/groups do Azure nÃ£o concedem Administrador automaticamente."
                         },
                         new
                         {
@@ -8291,7 +8311,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist técnico concluído",
+                            Descricao = "Checklist tÃ©cnico concluÃ­do",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 19,
@@ -8302,10 +8322,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696720"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 20,
@@ -8316,24 +8336,24 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696721"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 21,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Validar login com usuários corporativos reais."
+                            Titulo = "Validar login com usuÃ¡rios corporativos reais."
                         },
                         new
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696722"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 22,
@@ -8344,10 +8364,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696723"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 23,
@@ -8358,10 +8378,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696724"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 24,
@@ -8372,10 +8392,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696725"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 25,
@@ -8386,29 +8406,29 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696726"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 26,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Revisar configuração com equipe responsável pelo Azure."
+                            Titulo = "Revisar configuraÃ§Ã£o com equipe responsÃ¡vel pelo Azure."
                         },
                         new
                         {
                             Id = new Guid("69696969-6969-6969-6969-696969696727"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist pendente de homologação/governança",
+                            Descricao = "Checklist pendente de homologaÃ§Ã£o/governanÃ§a",
                             Grupo = 4,
                             Obrigatorio = true,
                             Ordem = 27,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Titulo = "Registrar evidências formais de homologação."
+                            Titulo = "Registrar evidÃªncias formais de homologaÃ§Ã£o."
                         },
                         new
                         {
@@ -8422,7 +8442,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Entidade de política de SLA criada."
+                            Titulo = "Entidade de polÃ­tica de SLA criada."
                         },
                         new
                         {
@@ -8464,7 +8484,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 4,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Seed inicial de SLA padrão criado."
+                            Titulo = "Seed inicial de SLA padrÃ£o criado."
                         },
                         new
                         {
@@ -8520,7 +8540,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Permissões administrativas de SLA criadas."
+                            Titulo = "PermissÃµes administrativas de SLA criadas."
                         },
                         new
                         {
@@ -8534,7 +8554,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 9,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Tela administrativa básica criada."
+                            Titulo = "Tela administrativa bÃ¡sica criada."
                         },
                         new
                         {
@@ -8548,7 +8568,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 10,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Validações de duplicidade e campos obrigatórios criadas."
+                            Titulo = "ValidaÃ§Ãµes de duplicidade e campos obrigatÃ³rios criadas."
                         },
                         new
                         {
@@ -8590,7 +8610,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 13,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Documentação técnica inicial criada."
+                            Titulo = "DocumentaÃ§Ã£o tÃ©cnica inicial criada."
                         },
                         new
                         {
@@ -8632,7 +8652,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 16,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Service de cálculo de SLA criado."
+                            Titulo = "Service de cÃ¡lculo de SLA criado."
                         },
                         new
                         {
@@ -8646,7 +8666,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 17,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Política aplicável identificada por prioridade/categoria/departamento."
+                            Titulo = "PolÃ­tica aplicÃ¡vel identificada por prioridade/categoria/departamento."
                         },
                         new
                         {
@@ -8660,7 +8680,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 18,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "SLA aplicado na criação do chamado."
+                            Titulo = "SLA aplicado na criaÃ§Ã£o do chamado."
                         },
                         new
                         {
@@ -8688,7 +8708,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 20,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Prazo de resolução calculado."
+                            Titulo = "Prazo de resoluÃ§Ã£o calculado."
                         },
                         new
                         {
@@ -8716,7 +8736,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 22,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Resolução registrada."
+                            Titulo = "ResoluÃ§Ã£o registrada."
                         },
                         new
                         {
@@ -8744,7 +8764,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 24,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Situação atual do SLA calculada."
+                            Titulo = "SituaÃ§Ã£o atual do SLA calculada."
                         },
                         new
                         {
@@ -8828,7 +8848,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 30,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Documentação atualizada."
+                            Titulo = "DocumentaÃ§Ã£o atualizada."
                         },
                         new
                         {
@@ -8842,7 +8862,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 31,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Configuração de alerta de SLA criada."
+                            Titulo = "ConfiguraÃ§Ã£o de alerta de SLA criada."
                         },
                         new
                         {
@@ -8856,7 +8876,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 32,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Tela administrativa de configuração de alerta criada."
+                            Titulo = "Tela administrativa de configuraÃ§Ã£o de alerta criada."
                         },
                         new
                         {
@@ -8870,7 +8890,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 33,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Endpoints de configuração de alerta criados."
+                            Titulo = "Endpoints de configuraÃ§Ã£o de alerta criados."
                         },
                         new
                         {
@@ -8884,7 +8904,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 34,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Job de verificação de SLA criado."
+                            Titulo = "Job de verificaÃ§Ã£o de SLA criado."
                         },
                         new
                         {
@@ -8898,7 +8918,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 35,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Periodicidade configurável por appsettings criada."
+                            Titulo = "Periodicidade configurÃ¡vel por appsettings criada."
                         },
                         new
                         {
@@ -8912,7 +8932,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 36,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Controle contra notificações/eventos duplicados criado."
+                            Titulo = "Controle contra notificaÃ§Ãµes/eventos duplicados criado."
                         },
                         new
                         {
@@ -8926,7 +8946,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 37,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Histórico de eventos de SLA criado."
+                            Titulo = "HistÃ³rico de eventos de SLA criado."
                         },
                         new
                         {
@@ -8940,7 +8960,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 38,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resolução, pausa e retomada."
+                            Titulo = "Eventos integrados ao ciclo de SLA aplicado, primeira resposta, resoluÃ§Ã£o, pausa e retomada."
                         },
                         new
                         {
@@ -8982,7 +9002,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 41,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Indicador de SLA próximo do vencimento criado."
+                            Titulo = "Indicador de SLA prÃ³ximo do vencimento criado."
                         },
                         new
                         {
@@ -9010,7 +9030,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 43,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Métrica de tempo médio de primeira resposta criada."
+                            Titulo = "MÃ©trica de tempo mÃ©dio de primeira resposta criada."
                         },
                         new
                         {
@@ -9024,7 +9044,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 44,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Métrica de tempo médio de resolução criada."
+                            Titulo = "MÃ©trica de tempo mÃ©dio de resoluÃ§Ã£o criada."
                         },
                         new
                         {
@@ -9080,7 +9100,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 48,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Histórico de SLA exibido no detalhe administrativo do chamado."
+                            Titulo = "HistÃ³rico de SLA exibido no detalhe administrativo do chamado."
                         },
                         new
                         {
@@ -9094,7 +9114,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 49,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Estrutura preparada para exportação futura."
+                            Titulo = "Estrutura preparada para exportaÃ§Ã£o futura."
                         },
                         new
                         {
@@ -9108,7 +9128,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 50,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Documentação atualizada."
+                            Titulo = "DocumentaÃ§Ã£o atualizada."
                         },
                         new
                         {
@@ -9178,7 +9198,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 55,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Migrations de calendário criadas."
+                            Titulo = "Migrations de calendÃ¡rio criadas."
                         },
                         new
                         {
@@ -9192,7 +9212,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 56,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Seed do calendário padrão criado."
+                            Titulo = "Seed do calendÃ¡rio padrÃ£o criado."
                         },
                         new
                         {
@@ -9206,7 +9226,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 57,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Relacionamento entre Política SLA e Calendário criado."
+                            Titulo = "Relacionamento entre PolÃ­tica SLA e CalendÃ¡rio criado."
                         },
                         new
                         {
@@ -9220,7 +9240,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 58,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Service administrativo de calendário criado."
+                            Titulo = "Service administrativo de calendÃ¡rio criado."
                         },
                         new
                         {
@@ -9234,7 +9254,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 59,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Service de cálculo de tempo útil criado."
+                            Titulo = "Service de cÃ¡lculo de tempo Ãºtil criado."
                         },
                         new
                         {
@@ -9248,7 +9268,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 60,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Cálculo de prazo de primeira resposta usando horário comercial implementado."
+                            Titulo = "CÃ¡lculo de prazo de primeira resposta usando horÃ¡rio comercial implementado."
                         },
                         new
                         {
@@ -9262,7 +9282,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 61,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Cálculo de prazo de resolução usando horário comercial implementado."
+                            Titulo = "CÃ¡lculo de prazo de resoluÃ§Ã£o usando horÃ¡rio comercial implementado."
                         },
                         new
                         {
@@ -9276,7 +9296,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 62,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Cálculo de minutos úteis de primeira resposta implementado."
+                            Titulo = "CÃ¡lculo de minutos Ãºteis de primeira resposta implementado."
                         },
                         new
                         {
@@ -9290,7 +9310,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 63,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Cálculo de minutos úteis de resolução implementado."
+                            Titulo = "CÃ¡lculo de minutos Ãºteis de resoluÃ§Ã£o implementado."
                         },
                         new
                         {
@@ -9304,7 +9324,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 64,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Endpoints administrativos de calendário criados."
+                            Titulo = "Endpoints administrativos de calendÃ¡rio criados."
                         },
                         new
                         {
@@ -9318,7 +9338,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 65,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Tela Admin > SLA > Calendários criada."
+                            Titulo = "Tela Admin > SLA > CalendÃ¡rios criada."
                         },
                         new
                         {
@@ -9332,7 +9352,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 66,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Tela de política SLA atualizada com seleção de calendário."
+                            Titulo = "Tela de polÃ­tica SLA atualizada com seleÃ§Ã£o de calendÃ¡rio."
                         },
                         new
                         {
@@ -9346,7 +9366,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 67,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Detalhe do chamado mostra tipo de cálculo e calendário usado."
+                            Titulo = "Detalhe do chamado mostra tipo de cÃ¡lculo e calendÃ¡rio usado."
                         },
                         new
                         {
@@ -9374,7 +9394,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 69,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777705"),
-                            Titulo = "Documentação atualizada."
+                            Titulo = "DocumentaÃ§Ã£o atualizada."
                         },
                         new
                         {
@@ -9402,7 +9422,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Enum de ação de auditoria criado."
+                            Titulo = "Enum de aÃ§Ã£o de auditoria criado."
                         },
                         new
                         {
@@ -9416,7 +9436,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Enum de nível de auditoria criado."
+                            Titulo = "Enum de nÃ­vel de auditoria criado."
                         },
                         new
                         {
@@ -9444,7 +9464,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 5,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Índices de consulta criados."
+                            Titulo = "Ãndices de consulta criados."
                         },
                         new
                         {
@@ -9486,7 +9506,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Captura de usuário atual integrada."
+                            Titulo = "Captura de usuÃ¡rio atual integrada."
                         },
                         new
                         {
@@ -9528,7 +9548,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 11,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Registro de logout avaliado e documentado como não aplicável enquanto não houver fluxo backend controlado."
+                            Titulo = "Registro de logout avaliado e documentado como nÃ£o aplicÃ¡vel enquanto nÃ£o houver fluxo backend controlado."
                         },
                         new
                         {
@@ -9542,7 +9562,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 12,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Registro de criação/edição/inativação de usuário integrado."
+                            Titulo = "Registro de criaÃ§Ã£o/ediÃ§Ã£o/inativaÃ§Ã£o de usuÃ¡rio integrado."
                         },
                         new
                         {
@@ -9556,7 +9576,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 13,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Registro de perfis/permissões integrado."
+                            Titulo = "Registro de perfis/permissÃµes integrado."
                         },
                         new
                         {
@@ -9598,7 +9618,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 16,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Documentação atualizada em Gestão ITSM."
+                            Titulo = "DocumentaÃ§Ã£o atualizada em GestÃ£o ITSM."
                         },
                         new
                         {
@@ -9626,7 +9646,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 18,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Mascaramento de dados sensíveis implementado."
+                            Titulo = "Mascaramento de dados sensÃ­veis implementado."
                         },
                         new
                         {
@@ -9654,7 +9674,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 20,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de alteração de status implementada."
+                            Titulo = "Auditoria de alteraÃ§Ã£o de status implementada."
                         },
                         new
                         {
@@ -9668,7 +9688,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 21,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de alteração de prioridade implementada."
+                            Titulo = "Auditoria de alteraÃ§Ã£o de prioridade implementada."
                         },
                         new
                         {
@@ -9682,7 +9702,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 22,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de alteração de categoria implementada."
+                            Titulo = "Auditoria de alteraÃ§Ã£o de categoria implementada."
                         },
                         new
                         {
@@ -9696,7 +9716,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 23,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de atribuição de responsável implementada."
+                            Titulo = "Auditoria de atribuiÃ§Ã£o de responsÃ¡vel implementada."
                         },
                         new
                         {
@@ -9724,7 +9744,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 25,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de comentários administrativos implementada."
+                            Titulo = "Auditoria de comentÃ¡rios administrativos implementada."
                         },
                         new
                         {
@@ -9738,7 +9758,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 26,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de encerramento/resolução implementada."
+                            Titulo = "Auditoria de encerramento/resoluÃ§Ã£o implementada."
                         },
                         new
                         {
@@ -9780,7 +9800,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 29,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de usuários revisada e complementada."
+                            Titulo = "Auditoria de usuÃ¡rios revisada e complementada."
                         },
                         new
                         {
@@ -9808,7 +9828,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 31,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de permissões revisada e complementada."
+                            Titulo = "Auditoria de permissÃµes revisada e complementada."
                         },
                         new
                         {
@@ -9822,7 +9842,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 32,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de políticas de SLA implementada."
+                            Titulo = "Auditoria de polÃ­ticas de SLA implementada."
                         },
                         new
                         {
@@ -9850,7 +9870,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 34,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de calendários de SLA implementada."
+                            Titulo = "Auditoria de calendÃ¡rios de SLA implementada."
                         },
                         new
                         {
@@ -9864,7 +9884,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 35,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de horários de calendário implementada."
+                            Titulo = "Auditoria de horÃ¡rios de calendÃ¡rio implementada."
                         },
                         new
                         {
@@ -9878,7 +9898,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 36,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de exceções de calendário implementada."
+                            Titulo = "Auditoria de exceÃ§Ãµes de calendÃ¡rio implementada."
                         },
                         new
                         {
@@ -9906,7 +9926,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 38,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de autenticação corporativa implementada."
+                            Titulo = "Auditoria de autenticaÃ§Ã£o corporativa implementada."
                         },
                         new
                         {
@@ -9934,7 +9954,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 40,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Auditoria de documentação ITSM preparada conforme estrutura atual estática."
+                            Titulo = "Auditoria de documentaÃ§Ã£o ITSM preparada conforme estrutura atual estÃ¡tica."
                         },
                         new
                         {
@@ -9948,7 +9968,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 41,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Testes automatizados de auditoria dos módulos críticos criados."
+                            Titulo = "Testes automatizados de auditoria dos mÃ³dulos crÃ­ticos criados."
                         },
                         new
                         {
@@ -9962,7 +9982,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 42,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Documentação atualizada em Gestão ITSM."
+                            Titulo = "DocumentaÃ§Ã£o atualizada em GestÃ£o ITSM."
                         },
                         new
                         {
@@ -9976,7 +9996,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 43,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Validação no banco confirmando eventos reais em eventos_auditoria preparada/executada."
+                            Titulo = "ValidaÃ§Ã£o no banco confirmando eventos reais em eventos_auditoria preparada/executada."
                         },
                         new
                         {
@@ -10032,7 +10052,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 47,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Paginação de eventos criada."
+                            Titulo = "PaginaÃ§Ã£o de eventos criada."
                         },
                         new
                         {
@@ -10074,7 +10094,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 50,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Permissões de auditoria criadas ou integradas."
+                            Titulo = "PermissÃµes de auditoria criadas ou integradas."
                         },
                         new
                         {
@@ -10088,7 +10108,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 51,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Menu Governança > Auditoria criado."
+                            Titulo = "Menu GovernanÃ§a > Auditoria criado."
                         },
                         new
                         {
@@ -10144,7 +10164,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 55,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Visualização de dados antes/depois criada."
+                            Titulo = "VisualizaÃ§Ã£o de dados antes/depois criada."
                         },
                         new
                         {
@@ -10158,7 +10178,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 56,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Indicadores básicos de auditoria criados."
+                            Titulo = "Indicadores bÃ¡sicos de auditoria criados."
                         },
                         new
                         {
@@ -10200,7 +10220,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 59,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Link entre Auditoria e Gestão ITSM criado."
+                            Titulo = "Link entre Auditoria e GestÃ£o ITSM criado."
                         },
                         new
                         {
@@ -10214,7 +10234,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 60,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Documentação em Gestão ITSM atualizada."
+                            Titulo = "DocumentaÃ§Ã£o em GestÃ£o ITSM atualizada."
                         },
                         new
                         {
@@ -10256,7 +10276,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 63,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Titulo = "Validação com eventos reais em eventos_auditoria executada."
+                            Titulo = "ValidaÃ§Ã£o com eventos reais em eventos_auditoria executada."
                         },
                         new
                         {
@@ -10858,7 +10878,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777708"),
-                            Titulo = "Criar documentação ITSM."
+                            Titulo = "Criar documentaÃ§Ã£o ITSM."
                         },
                         new
                         {
@@ -10872,7 +10892,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777708"),
-                            Titulo = "Criar checklist de homologação."
+                            Titulo = "Criar checklist de homologaÃ§Ã£o."
                         },
                         new
                         {
@@ -10965,7 +10985,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 1,
@@ -10979,7 +10999,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 2,
@@ -10993,12 +11013,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Definir visão para administrador e atendente."
+                            Titulo = "Definir visÃ£o para administrador e atendente."
                         },
                         new
                         {
@@ -11007,7 +11027,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 4,
@@ -11021,7 +11041,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 5,
@@ -11035,7 +11055,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 6,
@@ -11049,7 +11069,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 7,
@@ -11063,7 +11083,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 8,
@@ -11077,7 +11097,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 9,
@@ -11091,7 +11111,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 10,
@@ -11105,7 +11125,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 11,
@@ -11119,12 +11139,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 12,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Validar regras de permissão por perfil."
+                            Titulo = "Validar regras de permissÃ£o por perfil."
                         },
                         new
                         {
@@ -11133,7 +11153,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 13,
@@ -11147,7 +11167,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 14,
@@ -11161,7 +11181,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 15,
@@ -11175,7 +11195,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 16,
@@ -11189,7 +11209,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 17,
@@ -11203,7 +11223,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 18,
@@ -11217,7 +11237,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 19,
@@ -11231,7 +11251,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 20,
@@ -11245,7 +11265,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 21,
@@ -11259,12 +11279,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 22,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Exibir resumo da integração de e-mail."
+                            Titulo = "Exibir resumo da integraÃ§Ã£o de e-mail."
                         },
                         new
                         {
@@ -11273,12 +11293,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 23,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Refinar layout visual para apresentação gerencial."
+                            Titulo = "Refinar layout visual para apresentaÃ§Ã£o gerencial."
                         },
                         new
                         {
@@ -11287,7 +11307,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 24,
@@ -11301,7 +11321,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 25,
@@ -11315,7 +11335,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 26,
@@ -11329,7 +11349,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 27,
@@ -11343,12 +11363,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 28,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Testar bloqueio por ausência de permissão granular, se a policy for aplicada."
+                            Titulo = "Testar bloqueio por ausÃªncia de permissÃ£o granular, se a policy for aplicada."
                         },
                         new
                         {
@@ -11357,12 +11377,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 29,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Criar teste frontend/e2e, se aplicável."
+                            Titulo = "Criar teste frontend/e2e, se aplicÃ¡vel."
                         },
                         new
                         {
@@ -11371,7 +11391,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 4,
                             Obrigatorio = true,
                             Ordem = 30,
@@ -11385,12 +11405,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 4,
                             Obrigatorio = true,
                             Ordem = 31,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Criar documentação funcional específica do Dashboard / Gestão."
+                            Titulo = "Criar documentaÃ§Ã£o funcional especÃ­fica do Dashboard / GestÃ£o."
                         },
                         new
                         {
@@ -11399,12 +11419,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 4,
                             Obrigatorio = true,
                             Ordem = 32,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Registrar evidências de homologação."
+                            Titulo = "Registrar evidÃªncias de homologaÃ§Ã£o."
                         },
                         new
                         {
@@ -11413,7 +11433,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 33,
@@ -11427,7 +11447,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 34,
@@ -11441,7 +11461,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 35,
@@ -11455,7 +11475,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 5,
                             Obrigatorio = true,
                             Ordem = 36,
@@ -11469,12 +11489,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 37,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Cards principais com abertos, atendimento, aguardando solicitante, SLA vencido, próximos do vencimento e resolvidos no período implementados."
+                            Titulo = "Cards principais com abertos, atendimento, aguardando solicitante, SLA vencido, prÃ³ximos do vencimento e resolvidos no perÃ­odo implementados."
                         },
                         new
                         {
@@ -11483,12 +11503,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 38,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Navegação para fila de chamados, gestão de chamados e integração de e-mail implementada."
+                            Titulo = "NavegaÃ§Ã£o para fila de chamados, gestÃ£o de chamados e integraÃ§Ã£o de e-mail implementada."
                         },
                         new
                         {
@@ -11497,12 +11517,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 39,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Filtros por período, departamento, categoria e responsável implementados."
+                            Titulo = "Filtros por perÃ­odo, departamento, categoria e responsÃ¡vel implementados."
                         },
                         new
                         {
@@ -11511,12 +11531,12 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Checklist de Dashboard / Gestão",
+                            Descricao = "Checklist de Dashboard / GestÃ£o",
                             Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 40,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777709"),
-                            Titulo = "Dados consolidados coerentes com os registros persistidos em cenário funcional base."
+                            Titulo = "Dados consolidados coerentes com os registros persistidos em cenÃ¡rio funcional base."
                         },
                         new
                         {
@@ -13732,59 +13752,451 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000133"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000801"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
+                            Descricao = "Sprint 5 Regras de fechamento",
                             Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Planejar escopo e criterios de aceite"
+                            Titulo = "Planejar escopo e criterios de aceite da Sprint 5"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000134"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000802"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
-                            Grupo = 2,
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Mapear fluxo atual de encerramento e reabertura"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000135"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000803"),
                             Ativo = true,
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
-                            Grupo = 3,
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Validar compatibilidade com Fundacao ITSM do chamado"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000136"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000804"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Validar compatibilidade com Sprint 4 Motor de Aprovacoes ITSM"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000805"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Documentar modelo de ciclo de vida Resolvido/Fechado/Reaberto"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000806"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Separar status Resolvido e Fechado no fluxo de negocio"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000807"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra para exigir solucao tecnica ao resolver chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000808"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra para exigir motivo ao cancelar chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000809"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de aceite do solicitante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000810"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de rejeicao da solucao pelo solicitante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000811"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de retorno ao atendimento apos rejeicao da solucao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000812"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar politica de fechamento automatico apos prazo de aceite"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000813"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar configuracao administrativa do prazo de auto-fechamento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000814"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            Descricao = "Sprint 5 Regras de fechamento, aceite e reabertura",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Criar regra de reabertura controlada por prazo/politica"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000815"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Registrar auditoria de resolucao, aceite, rejeicao, fechamento e reabertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000816"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Preservar bloqueio por aprovacao pendente antes de fechamento definitivo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000817"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Ajustar endpoints de resolucao, fechamento, aceite e reabertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000818"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Exibir dados de solucao, aceite e fechamento no detalhe do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000819"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Permitir aceite/rejeicao pelo solicitante na interface"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000820"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Exibir historico de fechamento e reabertura na interface administrativa"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000821"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar resolucao com solucao obrigatoria"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000822"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar cancelamento com motivo obrigatorio"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000823"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar aceite e fechamento definitivo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000824"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar rejeicao da solucao e retorno ao atendimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000825"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar fechamento automatico por prazo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000826"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar reabertura controlada e auditavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000827"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar regressao de encerramento/reabertura existente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000828"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Testar integracao com aprovacao pendente bloqueante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000829"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Documentar impacto no fluxo atual de chamados"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000830"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
                             Grupo = 5,
                             Obrigatorio = true,
-                            Ordem = 4,
+                            Ordem = 30,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Preparar roteiro de homologacao da Sprint 5"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000831"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Registrar homologacao e aceite tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000832"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 5 Regras de fechamento",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777724"),
+                            Titulo = "Atualizar roadmap final da Sprint 5"
                         },
                         new
                         {
@@ -15123,18 +15535,18 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Categoria = "Portal",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "Solicitante autenticado consegue abrir chamado pelo portal com título, descrição, categoria e prioridade, anexar arquivo permitido, visualizar o detalhe do chamado, acompanhar o status no portal e o chamado aparece na fila administrativa para atendimento.",
+                            CriterioAceite = "Solicitante autenticado consegue abrir chamado pelo portal com tÃ­tulo, descriÃ§Ã£o, categoria e prioridade, anexar arquivo permitido, visualizar o detalhe do chamado, acompanhar o status no portal e o chamado aparece na fila administrativa para atendimento.",
                             Decisao = 1,
                             EvidenciaImplementacao = "GET /api/portal/contexto; POST /api/portal/chamados; tela /portal/chamados/novo; listagem /portal/chamados; detalhe /portal/chamados/:id; fila /admin/chamados; testes backend; build frontend.",
                             Impacto = 1,
                             Objetivo = "Permitir que o solicitante autenticado registre chamados diretamente pelo portal, informando titulo, descricao, categoria, prioridade e anexos opcionais, acompanhando depois o andamento, historico e status do atendimento.",
                             Observacao = "Implementado funcionalmente; nao homologado em usuario real nesta iteracao.",
                             Ordem = 1,
-                            PendenciasHomologacao = "Validar com usuário real o fluxo completo de abrir chamado, anexar arquivo, acompanhar no portal e visualizar na fila administrativa.",
-                            PendenciasTecnicas = "Testes E2E frontend do fluxo de abertura, validação real de anexos em homologação e script lint frontend.",
+                            PendenciasHomologacao = "Validar com usuÃ¡rio real o fluxo completo de abrir chamado, anexar arquivo, acompanhar no portal e visualizar na fila administrativa.",
+                            PendenciasTecnicas = "Testes E2E frontend do fluxo de abertura, validaÃ§Ã£o real de anexos em homologaÃ§Ã£o e script lint frontend.",
                             PercentualImplementacao = 72,
                             Prioridade = 1,
-                            ProximaAcao = "Executar homologação manual do fluxo completo com usuário real.",
+                            ProximaAcao = "Executar homologaÃ§Ã£o manual do fluxo completo com usuÃ¡rio real.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666615"),
                             SituacaoAtual = "Fluxo implementado no portal com abertura, anexos opcionais, listagem e detalhe",
                             Status = 1,
@@ -15200,26 +15612,26 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777704"),
-                            Area = "Autenticação corporativa",
-                            AtencaoTecnica = "Manter a explicação clara: Microsoft Entra ID/Azure AD autentica; SGX autoriza. Não usar roles ou groups do Azure para conceder acesso administrativo automaticamente. Perfis e permissões continuam internos ao SGX. Validar MFA, Conditional Access, tenant real, redirect URI, API scope e ambiente publicado antes de considerar produção.",
+                            Area = "AutenticaÃ§Ã£o corporativa",
+                            AtencaoTecnica = "Manter a explicaÃ§Ã£o clara: Microsoft Entra ID/Azure AD autentica; SGX autoriza. NÃ£o usar roles ou groups do Azure para conceder acesso administrativo automaticamente. Perfis e permissÃµes continuam internos ao SGX. Validar MFA, Conditional Access, tenant real, redirect URI, API scope e ambiente publicado antes de considerar produÃ§Ã£o.",
                             Ativo = false,
-                            Categoria = "Segurança",
+                            Categoria = "SeguranÃ§a",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "O usuário corporativo autentica pelo Microsoft Entra ID/Azure AD no tenant configurado. A API valida token, issuer, audience, tenant, expiração e assinatura. O SGX identifica ou cria o usuário interno conforme configuração permitida, bloqueia usuários inativos ou fora do tenant/domínio permitido, retorna perfis e permissões efetivas em GET /api/me e aplica autorização interna nas rotas e ações. Usuários Solicitante, Atendente e Administrador devem acessar apenas o que seus perfis/permissões internos permitem.",
+                            CriterioAceite = "O usuÃ¡rio corporativo autentica pelo Microsoft Entra ID/Azure AD no tenant configurado. A API valida token, issuer, audience, tenant, expiraÃ§Ã£o e assinatura. O SGX identifica ou cria o usuÃ¡rio interno conforme configuraÃ§Ã£o permitida, bloqueia usuÃ¡rios inativos ou fora do tenant/domÃ­nio permitido, retorna perfis e permissÃµes efetivas em GET /api/me e aplica autorizaÃ§Ã£o interna nas rotas e aÃ§Ãµes. UsuÃ¡rios Solicitante, Atendente e Administrador devem acessar apenas o que seus perfis/permissÃµes internos permitem.",
                             Decisao = 1,
                             EvidenciaImplementacao = "docs/AUTENTICACAO-CORPORATIVA.md; docs/CONFIGURACAO-AZURE-AD.md; docs/HOMOLOGACAO-CHECKLIST.md; docs/ROADMAP.md; docs/ROADMAP-ITSM.md; src/SGX.SistemaChamado.Api/Services/UsuarioAtualService.cs; src/SGX.SistemaChamado.Api/Extensions/ServiceCollectionExtensions.cs; src/SGX.SistemaChamado.Api/Options/AuthOptions.cs; src/SGX.SistemaChamado.Api/Options/AzureAdOptions.cs; src/SGX.SistemaChamado.Api/Options/AzureAdOptionsValidator.cs; src/SGX.SistemaChamado.Web/src/views/LoginView.vue; src/SGX.SistemaChamado.Web/src/services/authService.ts; src/SGX.SistemaChamado.Web/src/stores/authStore.ts; tests/SGX.SistemaChamado.Tests/UsuarioAtualServiceTests.cs; tests/SGX.SistemaChamado.Tests/ApiHttpIntegrationTests.cs; tests/SGX.SistemaChamado.Tests/AzureAdOptionsValidatorTests.cs",
                             Impacto = 1,
-                            Objetivo = "Permitir que usuários acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorização interna no SGX por usuários, perfis e permissões. O Azure autentica a identidade; o SGX controla o que cada usuário pode acessar e executar dentro do sistema.",
+                            Objetivo = "Permitir que usuÃ¡rios acessem o SGX Sistema de Chamados usando identidade corporativa Microsoft Entra ID/Azure AD, mantendo a autorizaÃ§Ã£o interna no SGX por usuÃ¡rios, perfis e permissÃµes. O Azure autentica a identidade; o SGX controla o que cada usuÃ¡rio pode acessar e executar dentro do sistema.",
                             Observacao = "Status legado mantido para compatibilidade; o status real deve considerar StatusImplementacao, StatusTecnico e checklist ativo.",
                             Ordem = 4,
-                            PendenciasHomologacao = "- Executar homologação ponta a ponta com usuário Administrador real.\n- Executar homologação ponta a ponta com usuário Atendente real.\n- Executar homologação ponta a ponta com usuário Solicitante real.\n- Validar comportamento com usuário interno inativo.\n- Validar bloqueio de domínio/tenant não permitido.\n- Validar mensagens de erro de login.\n- Validar redirecionamento por perfil/permissão após login.\n- Registrar evidências com prints, data, ambiente e usuário de teste.",
-                            PendenciasTecnicas = "- Homologar com tenant institucional real do Microsoft Entra ID.\n- Validar login com usuários corporativos reais.\n- Validar MFA.\n- Validar Conditional Access.\n- Validar logout corporativo.\n- Validar ambiente publicado/VPS.\n- Revisar configuração com a equipe responsável pelo Azure.\n- Registrar evidências formais de homologação.\n- Avaliar persistência opcional de identificadores corporativos oid/tid, se necessário.\n- Definir governança de ciclo de vida do usuário interno: bloqueio, reativação e auditoria.",
+                            PendenciasHomologacao = "- Executar homologaÃ§Ã£o ponta a ponta com usuÃ¡rio Administrador real.\n- Executar homologaÃ§Ã£o ponta a ponta com usuÃ¡rio Atendente real.\n- Executar homologaÃ§Ã£o ponta a ponta com usuÃ¡rio Solicitante real.\n- Validar comportamento com usuÃ¡rio interno inativo.\n- Validar bloqueio de domÃ­nio/tenant nÃ£o permitido.\n- Validar mensagens de erro de login.\n- Validar redirecionamento por perfil/permissÃ£o apÃ³s login.\n- Registrar evidÃªncias com prints, data, ambiente e usuÃ¡rio de teste.",
+                            PendenciasTecnicas = "- Homologar com tenant institucional real do Microsoft Entra ID.\n- Validar login com usuÃ¡rios corporativos reais.\n- Validar MFA.\n- Validar Conditional Access.\n- Validar logout corporativo.\n- Validar ambiente publicado/VPS.\n- Revisar configuraÃ§Ã£o com a equipe responsÃ¡vel pelo Azure.\n- Registrar evidÃªncias formais de homologaÃ§Ã£o.\n- Avaliar persistÃªncia opcional de identificadores corporativos oid/tid, se necessÃ¡rio.\n- Definir governanÃ§a de ciclo de vida do usuÃ¡rio interno: bloqueio, reativaÃ§Ã£o e auditoria.",
                             PercentualImplementacao = 70,
                             Prioridade = 1,
-                            ProximaAcao = "Executar homologação com tenant institucional real do Microsoft Entra ID, validar MFA/Conditional Access, revisar configuração com a equipe Azure, testar usuários reais por perfil e anexar evidências formais antes de promoção para produção.",
+                            ProximaAcao = "Executar homologaÃ§Ã£o com tenant institucional real do Microsoft Entra ID, validar MFA/Conditional Access, revisar configuraÃ§Ã£o com a equipe Azure, testar usuÃ¡rios reais por perfil e anexar evidÃªncias formais antes de promoÃ§Ã£o para produÃ§Ã£o.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666601"),
-                            SituacaoAtual = "Fluxo de autenticação corporativa com Microsoft Entra ID/Azure AD implementado funcionalmente, com suporte a validação de token JWT, modo Single Tenant, controle de domínio permitido, integração com GET /api/me, criação/identificação de usuário interno e autorização por perfis/permissões do SGX. Ainda depende de homologação com tenant institucional real.",
+                            SituacaoAtual = "Fluxo de autenticaÃ§Ã£o corporativa com Microsoft Entra ID/Azure AD implementado funcionalmente, com suporte a validaÃ§Ã£o de token JWT, modo Single Tenant, controle de domÃ­nio permitido, integraÃ§Ã£o com GET /api/me, criaÃ§Ã£o/identificaÃ§Ã£o de usuÃ¡rio interno e autorizaÃ§Ã£o por perfis/permissÃµes do SGX. Ainda depende de homologaÃ§Ã£o com tenant institucional real.",
                             Status = 1,
                             StatusImplementacao = 3,
                             StatusTecnico = 3
@@ -15228,25 +15640,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777705"),
                             Area = "SLA",
-                            AtencaoTecnica = "O SLA não deve ser apenas um campo manual no chamado. Deve existir uma regra centralizada e auditável para cálculo de prazo. O sistema deve considerar prioridade, categoria, departamento responsável, horário útil, feriados, pausas/suspensões, reabertura de chamado e mudança de status. Evitar cálculo duplicado no frontend. A regra principal deve ficar no backend, com persistência dos marcos calculados no chamado para rastreabilidade.",
+                            AtencaoTecnica = "O SLA nÃ£o deve ser apenas um campo manual no chamado. Deve existir uma regra centralizada e auditÃ¡vel para cÃ¡lculo de prazo. O sistema deve considerar prioridade, categoria, departamento responsÃ¡vel, horÃ¡rio Ãºtil, feriados, pausas/suspensÃµes, reabertura de chamado e mudanÃ§a de status. Evitar cÃ¡lculo duplicado no frontend. A regra principal deve ficar no backend, com persistÃªncia dos marcos calculados no chamado para rastreabilidade.",
                             Ativo = false,
                             Categoria = "SLA",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "O sistema deve permitir cadastrar políticas de SLA e aplicá-las automaticamente aos chamados conforme as regras configuradas. Ao abrir ou atualizar um chamado, o backend deve calcular e persistir os prazos de primeira resposta, atendimento e/ou resolução, considerando prioridade, categoria, departamento, horário útil e regras de pausa/reabertura quando aplicável. O detalhe do chamado deve exibir o status do SLA de forma clara: dentro do prazo, próximo do vencimento, vencido ou suspenso. Administradores e gestores devem conseguir filtrar e acompanhar chamados por situação de SLA. O cálculo deve ser testável, centralizado no backend e validado por testes automatizados.",
+                            CriterioAceite = "O sistema deve permitir cadastrar polÃ­ticas de SLA e aplicÃ¡-las automaticamente aos chamados conforme as regras configuradas. Ao abrir ou atualizar um chamado, o backend deve calcular e persistir os prazos de primeira resposta, atendimento e/ou resoluÃ§Ã£o, considerando prioridade, categoria, departamento, horÃ¡rio Ãºtil e regras de pausa/reabertura quando aplicÃ¡vel. O detalhe do chamado deve exibir o status do SLA de forma clara: dentro do prazo, prÃ³ximo do vencimento, vencido ou suspenso. Administradores e gestores devem conseguir filtrar e acompanhar chamados por situaÃ§Ã£o de SLA. O cÃ¡lculo deve ser testÃ¡vel, centralizado no backend e validado por testes automatizados.",
                             Decisao = 4,
                             EvidenciaImplementacao = "- docs/SLA.md\n- src/SGX.SistemaChamado.Domain/Entities/PoliticaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/MetaSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/ChamadoSla.cs\n- src/SGX.SistemaChamado.Domain/Entities/CalendarioCorporativo.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaService.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaCalculator.cs\n- src/SGX.SistemaChamado.Application/Services/Sla/SlaBusinessTimeCalculator.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaPoliciesController.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminSlaCalendarsController.cs\n- tests/SGX.SistemaChamado.Tests/SlaServiceTests.cs",
                             Impacto = 1,
-                            Objetivo = "Permitir que o SGX Sistema de Chamados controle acordos de nível de serviço para chamados, definindo prazos de primeira resposta, atendimento e resolução conforme prioridade, categoria, departamento, tipo de solicitação e regras institucionais. O SLA deve apoiar gestão operacional, rastreabilidade, cobrança interna, indicadores e melhoria contínua do atendimento.",
+                            Objetivo = "Permitir que o SGX Sistema de Chamados controle acordos de nÃ­vel de serviÃ§o para chamados, definindo prazos de primeira resposta, atendimento e resoluÃ§Ã£o conforme prioridade, categoria, departamento, tipo de solicitaÃ§Ã£o e regras institucionais. O SLA deve apoiar gestÃ£o operacional, rastreabilidade, cobranÃ§a interna, indicadores e melhoria contÃ­nua do atendimento.",
                             Observacao = "Status legado mantido para compatibilidade; o status real deve considerar StatusImplementacao, StatusTecnico e checklist ativo.",
                             Ordem = 5,
-                            PendenciasHomologacao = "- Homologar cadastro de política de SLA.\n- Homologar abertura de chamado com cálculo automático de SLA.\n- Homologar SLA por prioridade.\n- Homologar SLA por categoria.\n- Homologar SLA por departamento responsável.\n- Homologar cálculo de vencimento com horário útil.\n- Homologar comportamento em chamado pausado ou aguardando solicitante.\n- Homologar comportamento em chamado reaberto.\n- Homologar exibição do SLA para atendente.\n- Homologar exibição do SLA para administrador/gestor.\n- Homologar filtros de chamados atrasados.\n- Homologar indicadores gerenciais.\n- Registrar evidências formais com prints, data, ambiente e usuário de teste.",
-                            PendenciasTecnicas = "- Validar cálculo de horário comercial em cenário real com volume institucional.\n- Evoluir calendário por departamento/time quando a governança estiver definida.\n- Evoluir importação automática de feriados nacionais/municipais.\n- Evoluir regras de reabertura para reaproveitamento de prazo remanescente.\n- Refinar política de proximidade do vencimento por canal/time.\n- Implementar alertas/notificações operacionais por SLA, se aplicável.\n- Consolidar trilha de auditoria e relatórios gerenciais de cumprimento.",
+                            PendenciasHomologacao = "- Homologar cadastro de polÃ­tica de SLA.\n- Homologar abertura de chamado com cÃ¡lculo automÃ¡tico de SLA.\n- Homologar SLA por prioridade.\n- Homologar SLA por categoria.\n- Homologar SLA por departamento responsÃ¡vel.\n- Homologar cÃ¡lculo de vencimento com horÃ¡rio Ãºtil.\n- Homologar comportamento em chamado pausado ou aguardando solicitante.\n- Homologar comportamento em chamado reaberto.\n- Homologar exibiÃ§Ã£o do SLA para atendente.\n- Homologar exibiÃ§Ã£o do SLA para administrador/gestor.\n- Homologar filtros de chamados atrasados.\n- Homologar indicadores gerenciais.\n- Registrar evidÃªncias formais com prints, data, ambiente e usuÃ¡rio de teste.",
+                            PendenciasTecnicas = "- Validar cÃ¡lculo de horÃ¡rio comercial em cenÃ¡rio real com volume institucional.\n- Evoluir calendÃ¡rio por departamento/time quando a governanÃ§a estiver definida.\n- Evoluir importaÃ§Ã£o automÃ¡tica de feriados nacionais/municipais.\n- Evoluir regras de reabertura para reaproveitamento de prazo remanescente.\n- Refinar polÃ­tica de proximidade do vencimento por canal/time.\n- Implementar alertas/notificaÃ§Ãµes operacionais por SLA, se aplicÃ¡vel.\n- Consolidar trilha de auditoria e relatÃ³rios gerenciais de cumprimento.",
                             PercentualImplementacao = 100,
                             Prioridade = 1,
-                            ProximaAcao = "Executar homologação funcional de ponta a ponta com usuários reais e validar regras de SLA em ambiente publicado, incluindo casos de pausa, reabertura e governança operacional.",
+                            ProximaAcao = "Executar homologaÃ§Ã£o funcional de ponta a ponta com usuÃ¡rios reais e validar regras de SLA em ambiente publicado, incluindo casos de pausa, reabertura e governanÃ§a operacional.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666603"),
-                            SituacaoAtual = "Sprints 1, 2, 3 e 4 implementadas e validadas funcionalmente, com políticas/metas, SLA aplicado aos chamados, alertas, eventos, monitoramento, painel gerencial e calendário corporativo para horário comercial.",
+                            SituacaoAtual = "Sprints 1, 2, 3 e 4 implementadas e validadas funcionalmente, com polÃ­ticas/metas, SLA aplicado aos chamados, alertas, eventos, monitoramento, painel gerencial e calendÃ¡rio corporativo para horÃ¡rio comercial.",
                             Status = 4,
                             StatusImplementacao = 3,
                             StatusTecnico = 3
@@ -15254,26 +15666,26 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777706"),
-                            Area = "Histórico/Auditoria",
-                            AtencaoTecnica = "Auditoria não é log técnico. ILogger continua para diagnóstico técnico; EventoAuditoria é governança/rastreabilidade. Não registrar senha, token JWT, refresh token, access token, client secret ou connection string. Dados sensíveis devem ser mascarados pelo AuditoriaDiffHelper.",
+                            Area = "HistÃ³rico/Auditoria",
+                            AtencaoTecnica = "Auditoria nÃ£o Ã© log tÃ©cnico. ILogger continua para diagnÃ³stico tÃ©cnico; EventoAuditoria Ã© governanÃ§a/rastreabilidade. NÃ£o registrar senha, token JWT, refresh token, access token, client secret ou connection string. Dados sensÃ­veis devem ser mascarados pelo AuditoriaDiffHelper.",
                             Ativo = false,
-                            Categoria = "Governança",
+                            Categoria = "GovernanÃ§a",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "O item Histórico/Auditoria deve exibir checklist ativo completo das Sprints 1, 2 e 3 com cálculo automático de percentual por checklist, status da implementação Implementado funcionalmente e status técnico Completo com pendências evolutivas, sem uso de percentual legado/manual.",
+                            CriterioAceite = "O item HistÃ³rico/Auditoria deve exibir checklist ativo completo das Sprints 1, 2 e 3 com cÃ¡lculo automÃ¡tico de percentual por checklist, status da implementaÃ§Ã£o Implementado funcionalmente e status tÃ©cnico Completo com pendÃªncias evolutivas, sem uso de percentual legado/manual.",
                             Decisao = 4,
                             EvidenciaImplementacao = "- src/SGX.SistemaChamado.Domain/Entities/EventoAuditoria.cs\n- src/SGX.SistemaChamado.Domain/Enums/TipoAcaoAuditoria.cs\n- src/SGX.SistemaChamado.Domain/Enums/NivelAuditoria.cs\n- src/SGX.SistemaChamado.Application/Interfaces/Auditoria/IAuditoriaService.cs\n- src/SGX.SistemaChamado.Application/Interfaces/Auditoria/IAuditoriaContextProvider.cs\n- src/SGX.SistemaChamado.Infrastructure/Services/AuditoriaService.cs\n- src/SGX.SistemaChamado.Api/Services/AuditoriaContextProvider.cs\n- src/SGX.SistemaChamado.Infrastructure/Persistence/Configurations/EventoAuditoriaConfiguration.cs\n- src/SGX.SistemaChamado.Infrastructure/Persistence/Migrations/20260514215515_AddEventosAuditoriaGovernancaSprint1.cs\n- src/SGX.SistemaChamado.Application/Helpers/AuditoriaDiffHelper.cs\n- src/SGX.SistemaChamado.Api/Controllers/AdminAuditoriaController.cs\n- src/SGX.SistemaChamado.Web/src/views/AuditoriaAdminView.vue\n- src/SGX.SistemaChamado.Web/src/services/auditoriaService.ts\n- src/SGX.SistemaChamado.Web/src/types/auditoria.ts\n- src/SGX.SistemaChamado.Web/src/content/gestaoItsmDocs.ts\n- docs/ROADMAP.md\n- docs/ROADMAP-ITSM.md\n- README.md\n- tests/SGX.SistemaChamado.Tests/AuditoriaServiceTests.cs\n- tests/SGX.SistemaChamado.Tests/AuditoriaDiffHelperTests.cs\n- tests/SGX.SistemaChamado.Tests/AuditoriaModulosCriticosTests.cs",
                             Impacto = 1,
-                            Objetivo = "Criar trilha de auditoria para registrar ações relevantes executadas no SGX Sistema de Chamados, permitindo rastreabilidade, governança, análise de alterações, auditoria operacional e apoio à homologação.",
+                            Objetivo = "Criar trilha de auditoria para registrar aÃ§Ãµes relevantes executadas no SGX Sistema de Chamados, permitindo rastreabilidade, governanÃ§a, anÃ¡lise de alteraÃ§Ãµes, auditoria operacional e apoio Ã  homologaÃ§Ã£o.",
                             Observacao = "Status legado mantido para compatibilidade; o status real deve considerar StatusImplementacao, StatusTecnico e checklist ativo.",
                             Ordem = 6,
-                            PendenciasHomologacao = "- Executar homologação funcional com eventos reais em eventos_auditoria cobrindo Chamados, Usuários, SLA, Autenticação e Roadmap ITSM.\n- Validar filtros e consulta administrativa em Admin > Governança > Auditoria com evidências formais.",
-                            PendenciasTecnicas = "- Exportação Excel/PDF.\n- Retenção configurável de auditoria.\n- Assinatura/hash da trilha de auditoria.\n- Alertas para eventos críticos.\n- Painel avançado de segurança.\n- Integração SIEM/Log Analytics.\n- Política de anonimização/LGPD para eventos antigos.\n- Fluxo backend controlado de logout, se vier a existir.\n- Auditoria de edição de documentação ITSM, caso a documentação deixe de ser estática.",
+                            PendenciasHomologacao = "- Executar homologaÃ§Ã£o funcional com eventos reais em eventos_auditoria cobrindo Chamados, UsuÃ¡rios, SLA, AutenticaÃ§Ã£o e Roadmap ITSM.\n- Validar filtros e consulta administrativa em Admin > GovernanÃ§a > Auditoria com evidÃªncias formais.",
+                            PendenciasTecnicas = "- ExportaÃ§Ã£o Excel/PDF.\n- RetenÃ§Ã£o configurÃ¡vel de auditoria.\n- Assinatura/hash da trilha de auditoria.\n- Alertas para eventos crÃ­ticos.\n- Painel avanÃ§ado de seguranÃ§a.\n- IntegraÃ§Ã£o SIEM/Log Analytics.\n- PolÃ­tica de anonimizaÃ§Ã£o/LGPD para eventos antigos.\n- Fluxo backend controlado de logout, se vier a existir.\n- Auditoria de ediÃ§Ã£o de documentaÃ§Ã£o ITSM, caso a documentaÃ§Ã£o deixe de ser estÃ¡tica.",
                             PercentualImplementacao = 100,
                             Prioridade = 1,
-                            ProximaAcao = "Executar homologação funcional com eventos reais em eventos_auditoria, incluindo Chamados, Usuários, SLA, Autenticação e Roadmap ITSM. Validar filtros e consulta administrativa em Admin > Governança > Auditoria.",
+                            ProximaAcao = "Executar homologaÃ§Ã£o funcional com eventos reais em eventos_auditoria, incluindo Chamados, UsuÃ¡rios, SLA, AutenticaÃ§Ã£o e Roadmap ITSM. Validar filtros e consulta administrativa em Admin > GovernanÃ§a > Auditoria.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666613"),
-                            SituacaoAtual = "Base técnica de auditoria criada, eventos de auditoria aplicados aos módulos críticos e tela administrativa de consulta implementada em Admin > Governança > Auditoria, com filtros, detalhe, indicadores e documentação em Gestão ITSM.",
+                            SituacaoAtual = "Base tÃ©cnica de auditoria criada, eventos de auditoria aplicados aos mÃ³dulos crÃ­ticos e tela administrativa de consulta implementada em Admin > GovernanÃ§a > Auditoria, com filtros, detalhe, indicadores e documentaÃ§Ã£o em GestÃ£o ITSM.",
                             Status = 3,
                             StatusImplementacao = 3,
                             StatusTecnico = 3
@@ -15335,25 +15747,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777709"),
                             Area = "Dashboard",
-                            AtencaoTecnica = "Validar se os indicadores respeitam corretamente as permissões internas do usuário autenticado. Confirmar se administradores visualizam a operação completa e se atendentes visualizam apenas o escopo permitido, caso essa regra seja exigida. Verificar performance das consultas em bases maiores, principalmente filtros por período, produtividade por atendente e agrupamentos por status, prioridade e categoria. Garantir que chamados inativos, registros históricos e dados de SLA sejam tratados corretamente para não distorcer os indicadores.",
+                            AtencaoTecnica = "Validar se os indicadores respeitam corretamente as permissÃµes internas do usuÃ¡rio autenticado. Confirmar se administradores visualizam a operaÃ§Ã£o completa e se atendentes visualizam apenas o escopo permitido, caso essa regra seja exigida. Verificar performance das consultas em bases maiores, principalmente filtros por perÃ­odo, produtividade por atendente e agrupamentos por status, prioridade e categoria. Garantir que chamados inativos, registros histÃ³ricos e dados de SLA sejam tratados corretamente para nÃ£o distorcer os indicadores.",
                             Ativo = false,
-                            Categoria = "Gestão",
+                            Categoria = "GestÃ£o",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "O usuário autorizado deve conseguir acessar o Dashboard Administrativo e visualizar indicadores consolidados da operação. Os filtros devem alterar os dados apresentados. Os cards principais devem exibir chamados abertos, em atendimento, aguardando solicitante, SLA vencido, próximos do vencimento e resolvidos no período. A tela deve permitir navegação para fila de chamados, gestão de chamados e integração de e-mail. Os dados exibidos devem ser coerentes com os registros persistidos no sistema.",
+                            CriterioAceite = "O usuÃ¡rio autorizado deve conseguir acessar o Dashboard Administrativo e visualizar indicadores consolidados da operaÃ§Ã£o. Os filtros devem alterar os dados apresentados. Os cards principais devem exibir chamados abertos, em atendimento, aguardando solicitante, SLA vencido, prÃ³ximos do vencimento e resolvidos no perÃ­odo. A tela deve permitir navegaÃ§Ã£o para fila de chamados, gestÃ£o de chamados e integraÃ§Ã£o de e-mail. Os dados exibidos devem ser coerentes com os registros persistidos no sistema.",
                             Decisao = 4,
                             EvidenciaImplementacao = "- src/SGX.SistemaChamado.Api/Controllers/AdminDashboardController.cs\n- src/SGX.SistemaChamado.Application/UseCases/Admin/AdminIndicadoresUseCases.cs\n- src/SGX.SistemaChamado.Application/DTOs/Admin/AdminDashboardDtos.cs\n- src/SGX.SistemaChamado.Web/src/services/dashboardAdminService.ts\n- src/SGX.SistemaChamado.Web/src/types/dashboard.ts\n- src/SGX.SistemaChamado.Web/src/views/AdminDashboardView.vue\n- tests/SGX.SistemaChamado.Tests/DashboardAdminUseCaseTests.cs\n- tests/SGX.SistemaChamado.Tests/IndicadoresUseCaseTests.cs",
                             Impacto = 1,
-                            Objetivo = "Disponibilizar uma visão gerencial da operação de chamados, permitindo que administradores e atendentes acompanhem em tempo real os principais indicadores do service desk, incluindo volume de chamados abertos, em atendimento, aguardando solicitante, resolvidos no período, chamados sem responsável, riscos de SLA, distribuição por status, prioridade, categoria, produtividade por atendente e situação da integração de e-mail.",
-                            Observacao = "Checklist ativo consolidado em 34/40 itens (85%), com pendências concentradas em policy granular, performance, testes HTTP/frontend e homologação.",
+                            Objetivo = "Disponibilizar uma visÃ£o gerencial da operaÃ§Ã£o de chamados, permitindo que administradores e atendentes acompanhem em tempo real os principais indicadores do service desk, incluindo volume de chamados abertos, em atendimento, aguardando solicitante, resolvidos no perÃ­odo, chamados sem responsÃ¡vel, riscos de SLA, distribuiÃ§Ã£o por status, prioridade, categoria, produtividade por atendente e situaÃ§Ã£o da integraÃ§Ã£o de e-mail.",
+                            Observacao = "Checklist ativo consolidado em 34/40 itens (85%), com pendÃªncias concentradas em policy granular, performance, testes HTTP/frontend e homologaÃ§Ã£o.",
                             Ordem = 9,
-                            PendenciasHomologacao = "- Validar com Administrador.\n- Validar com Atendente.\n- Conferir números do dashboard contra consultas reais no banco.\n- Validar filtros por período, departamento, categoria e responsável.\n- Confirmar se os indicadores atendem à necessidade de gestão da operação.\n- Registrar evidências formais de homologação.",
-                            PendenciasTecnicas = "- Aplicar ou validar permissão granular Dashboard.Visualizar no backend, além da proteção por perfil.\n- Validar performance com volume maior de chamados.\n- Criar ou consolidar testes automatizados específicos do dashboard em nível HTTP.\n- Criar testes frontend/e2e para dashboardAdminService e AdminDashboardView, se o projeto já tiver estrutura para isso.\n- Avaliar cache ou otimização das consultas agregadas, caso necessário.\n- Revisar regras de permissão dos indicadores por perfil.",
+                            PendenciasHomologacao = "- Validar com Administrador.\n- Validar com Atendente.\n- Conferir nÃºmeros do dashboard contra consultas reais no banco.\n- Validar filtros por perÃ­odo, departamento, categoria e responsÃ¡vel.\n- Confirmar se os indicadores atendem Ã  necessidade de gestÃ£o da operaÃ§Ã£o.\n- Registrar evidÃªncias formais de homologaÃ§Ã£o.",
+                            PendenciasTecnicas = "- Aplicar ou validar permissÃ£o granular Dashboard.Visualizar no backend, alÃ©m da proteÃ§Ã£o por perfil.\n- Validar performance com volume maior de chamados.\n- Criar ou consolidar testes automatizados especÃ­ficos do dashboard em nÃ­vel HTTP.\n- Criar testes frontend/e2e para dashboardAdminService e AdminDashboardView, se o projeto jÃ¡ tiver estrutura para isso.\n- Avaliar cache ou otimizaÃ§Ã£o das consultas agregadas, caso necessÃ¡rio.\n- Revisar regras de permissÃ£o dos indicadores por perfil.",
                             PercentualImplementacao = 85,
                             Prioridade = 2,
-                            ProximaAcao = "Executar validação técnica e homologação funcional do dashboard com dados reais ou massa simulada mais próxima da operação institucional.",
+                            ProximaAcao = "Executar validaÃ§Ã£o tÃ©cnica e homologaÃ§Ã£o funcional do dashboard com dados reais ou massa simulada mais prÃ³xima da operaÃ§Ã£o institucional.",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666612"),
-                            SituacaoAtual = "Dashboard administrativo implementado funcionalmente no backend e frontend. A API disponibiliza indicadores consolidados, filtros por período e contexto administrativo. A interface apresenta cards gerenciais, gráficos/listagens por status, prioridade e categoria, indicadores de SLA, produtividade por atendente, fila de chamados e resumo da integração de e-mail. Pendente validação com usuários reais, refinamento visual final, testes frontend/e2e e homologação institucional.",
+                            SituacaoAtual = "Dashboard administrativo implementado funcionalmente no backend e frontend. A API disponibiliza indicadores consolidados, filtros por perÃ­odo e contexto administrativo. A interface apresenta cards gerenciais, grÃ¡ficos/listagens por status, prioridade e categoria, indicadores de SLA, produtividade por atendente, fila de chamados e resumo da integraÃ§Ã£o de e-mail. Pendente validaÃ§Ã£o com usuÃ¡rios reais, refinamento visual final, testes frontend/e2e e homologaÃ§Ã£o institucional.",
                             Status = 2,
                             StatusImplementacao = 3,
                             StatusTecnico = 3
@@ -15754,25 +16166,25 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777724"),
                             Area = "Sprint 5 - Regras de fechamento, aceite e reabertura",
-                            AtencaoTecnica = "Separar resolvido de fechado e exigir dados obrigatorios de solucao/cancelamento.",
+                            AtencaoTecnica = "Separar conceitualmente e funcionalmente os estados Resolvido e Fechado. NÃ£o tratar resoluÃ§Ã£o como encerramento definitivo. Exigir dados obrigatÃ³rios de soluÃ§Ã£o para resoluÃ§Ã£o e motivo obrigatÃ³rio para cancelamento. Preservar compatibilidade com o fluxo legado, com SLA, com atendimento, com histÃ³rico, com permissÃµes administrativas e com o motor de aprovaÃ§Ãµes da Sprint 4. Nenhuma regra de fechamento deve ignorar aprovaÃ§Ã£o pendente bloqueante.",
                             Ativo = true,
                             Categoria = "ITIL/ITSM",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "Fluxo contempla resolucao, aceite/rejeicao, fechamento automatico e reabertura auditavel.",
+                            CriterioAceite = "Fluxo contempla resoluÃ§Ã£o, aceite/rejeiÃ§Ã£o pelo solicitante, fechamento automÃ¡tico por prazo, cancelamento com motivo obrigatÃ³rio, reabertura auditÃ¡vel e compatibilidade com SLA, histÃ³rico, permissÃµes e aprovaÃ§Ãµes pendentes bloqueantes.",
                             Decisao = 1,
-                            EvidenciaImplementacao = "Base de encerramento/reabertura existente reaproveitada.",
+                            EvidenciaImplementacao = "Base de encerramento/reabertura existente reaproveitada. Fluxos atuais de EncerrarChamadoUseCase e ReabrirChamadoUseCase devem ser preservados como base evolutiva.",
                             Impacto = 1,
-                            Objetivo = "Criar governanca de encerramento com aceite, fechamento automatico e reabertura controlada.",
+                            Objetivo = "Criar governanÃ§a de encerramento com aceite, fechamento automÃ¡tico e reabertura controlada.",
                             Ordem = 105,
-                            PendenciasHomologacao = "Validar regras com solicitantes e atendentes reais.",
-                            PendenciasTecnicas = "Aceite, prazo de auto-fechamento, motivo de cancelamento e campo solucao obrigatorio.",
-                            PercentualImplementacao = 50,
+                            PendenciasHomologacao = "Validar regras com solicitantes, atendentes e administradores reais, incluindo resoluÃ§Ã£o, aceite, rejeiÃ§Ã£o, fechamento automÃ¡tico, cancelamento e reabertura controlada.",
+                            PendenciasTecnicas = "Aceite do solicitante, rejeiÃ§Ã£o da soluÃ§Ã£o, prazo de auto-fechamento, motivo de cancelamento, polÃ­tica formal de reabertura, auditoria do ciclo resolvido/fechado/reaberto e integraÃ§Ã£o segura com bloqueios de aprovaÃ§Ã£o pendente.",
+                            PercentualImplementacao = 41,
                             Prioridade = 1,
-                            ProximaAcao = "Evoluir estados e regras de negocio de ciclo de vida.",
+                            ProximaAcao = "Criar regra de reabertura controlada por prazo/politica.",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
-                            SituacaoAtual = "Encerrar e reabrir existem, mas faltam aceite do solicitante e politicas formais.",
+                            SituacaoAtual = "Encerrar e reabrir chamados jÃ¡ existem no sistema, mas o fluxo ainda nÃ£o possui governanÃ§a completa de aceite do solicitante, prazo formal de auto-fechamento, rejeiÃ§Ã£o de soluÃ§Ã£o, campos obrigatÃ³rios de soluÃ§Ã£o/cancelamento e polÃ­ticas auditÃ¡veis de reabertura.",
                             Status = 3,
                             StatusImplementacao = 2,
                             StatusTecnico = 1
@@ -15931,7 +16343,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PendenciasTecnicas = "Entidade Problema, RCA, erro conhecido, workaround e vinculacao de incidentes.",
                             PercentualImplementacao = 25,
                             Prioridade = 2,
-                            ProximaAcao = "Definir modelo de Problema e integrações com incidente/mudanca.",
+                            ProximaAcao = "Definir modelo de Problema e integraÃ§Ãµes com incidente/mudanca.",
                             Responsavel = "Time ITSM",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Nao existe registro dedicado de problema com erro conhecido e RCA.",
@@ -17126,6 +17538,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Chamado", b =>
                 {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AceitoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AceitoPorUsuarioId");
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.CatalogoServico", "CatalogoServico")
                         .WithMany("Chamados")
                         .HasForeignKey("CatalogoServicoId")
@@ -17179,6 +17595,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "SolucaoRejeitadaPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("SolucaoRejeitadaPorUsuarioId");
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.StatusChamado", "Status")
                         .WithMany("Chamados")
                         .HasForeignKey("StatusId")
@@ -17194,6 +17614,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .WithMany("Chamados")
                         .HasForeignKey("TipoSolicitacaoId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AceitoPorUsuario");
 
                     b.Navigation("CatalogoServico");
 
@@ -17214,6 +17636,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Responsavel");
 
                     b.Navigation("Solicitante");
+
+                    b.Navigation("SolucaoRejeitadaPorUsuario");
 
                     b.Navigation("Status");
 

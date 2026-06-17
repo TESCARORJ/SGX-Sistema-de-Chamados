@@ -1,4 +1,4 @@
-﻿using SGX.SistemaChamado.Domain.Abstractions;
+using SGX.SistemaChamado.Domain.Abstractions;
 using SGX.SistemaChamado.Domain.Enums;
 
 namespace SGX.SistemaChamado.Domain.Entities;
@@ -27,7 +27,13 @@ public sealed class Chamado : AuditableEntity
     public UrgenciaChamadoEnum UrgenciaChamado { get; private set; } = UrgenciaChamadoEnum.Baixa;
     public DateTime AbertoEm { get; private set; }
     public DateTime? EncerradoEm { get; private set; }
-
+    public DateTime? ResolvidoEm { get; private set; }
+    public Guid? AceitoPorUsuarioId { get; private set; }
+    public string? ObservacaoAceite { get; private set; }
+    public DateTime? SolucaoRejeitadaEm { get; private set; }
+    public Guid? SolucaoRejeitadaPorUsuarioId { get; private set; }
+    public string? MotivoRejeicaoSolucao { get; private set; }
+    public DateTime? AceitoEm { get; private set; }
     public Usuario Solicitante { get; private set; } = default!;
     public Usuario? Responsavel { get; private set; }
     public GrupoTecnico? GrupoTecnico { get; private set; }
@@ -362,6 +368,45 @@ public sealed class Chamado : AuditableEntity
 
         StatusId = statusReabertoId;
         EncerradoEm = null;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void Resolver(Guid statusResolvidoId, string? solucaoTecnica, string atualizadoPor)
+    {
+        StatusId = statusResolvidoId;
+        ResolvidoEm = DateTime.UtcNow;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void Cancelar(Guid statusCanceladoId, string motivo, string atualizadoPor)
+    {
+        StatusId = statusCanceladoId;
+        EncerradoEm = DateTime.UtcNow;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void AceitarSolucao(Guid statusFechadoId, Guid usuarioId, string? observacao, string atualizadoPor)
+    {
+        StatusId = statusFechadoId;
+        AceitoPorUsuarioId = usuarioId;
+        ObservacaoAceite = observacao;
+        AceitoEm = DateTime.UtcNow;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void FecharAutomaticamentePorPrazoAceite(Guid statusFechadoId, StatusChamadoEnum statusAnterior, DateTime dataReferencia, TimeSpan prazoAceite, string atualizadoPor)
+    {
+        StatusId = statusFechadoId;
+        EncerradoEm = DateTime.UtcNow;
+        AtualizarAuditoria(atualizadoPor);
+    }
+
+    public void RejeitarSolucao(Guid statusRejeitadoId, Guid usuarioId, string motivo, string atualizadoPor)
+    {
+        StatusId = statusRejeitadoId;
+        SolucaoRejeitadaEm = DateTime.UtcNow;
+        SolucaoRejeitadaPorUsuarioId = usuarioId;
+        MotivoRejeicaoSolucao = motivo;
         AtualizarAuditoria(atualizadoPor);
     }
 }
