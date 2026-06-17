@@ -18,7 +18,10 @@ public enum TipoAcaoMovimentacaoChamado
     ExecutarServicoSensivel = 12,
     AplicarMudanca = 13,
     LiberarAcesso = 14,
-    Cancelar = 15
+    Cancelar = 15,
+    AceitarSolucao = 16,
+    RejeitarSolucao = 17,
+    FecharAutomaticamentePorPrazoAceite = 18
 }
 
 public sealed class ValidarBloqueioMovimentacaoAprovacaoPendenteRequest

@@ -19,5 +19,6 @@ public enum AcaoChamadoEnum
     RegistrarSolucaoContorno = 15,
     CorrelacionarEvento = 16,
     TratarEvento = 17,
-    ConcluirTarefa = 18
+    ConcluirTarefa = 18,
+    Resolver = 19
 }
