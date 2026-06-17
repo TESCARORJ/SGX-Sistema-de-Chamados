@@ -100,6 +100,8 @@ public sealed class ReabrirChamadoUseCase(
 
         if (auditoriaService is not null)
         {
+            var statusAtualNome = atualizado.Status.Nome;
+
             await auditoriaService.RegistrarEdicaoAsync(
                 "Chamados",
                 "Chamado",
@@ -112,7 +114,7 @@ public sealed class ReabrirChamadoUseCase(
                 }),
                 dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new
                 {
-                    Status = atualizado.Status,
+                    Status = statusAtualNome,
                     EncerradoEm = atualizado.EncerradoEm,
                     TamanhoMensagem = request.Mensagem?.Length ?? 0
                 }),
@@ -125,7 +127,7 @@ public sealed class ReabrirChamadoUseCase(
                     nome: atualizado.Titulo,
                     operacao: "Reabertura",
                     resultado: "Sucesso",
-                    observacao: $"Status atual: {atualizado.Status}"),
+                    observacao: $"Status atual: {statusAtualNome}"),
                 cancellationToken: cancellationToken);
         }
 

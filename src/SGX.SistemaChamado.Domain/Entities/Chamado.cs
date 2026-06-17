@@ -387,17 +387,19 @@ public sealed class Chamado : AuditableEntity
 
     public void AceitarSolucao(Guid statusFechadoId, Guid usuarioId, string? observacao, string atualizadoPor)
     {
+        var dataAceite = DateTime.UtcNow;
         StatusId = statusFechadoId;
         AceitoPorUsuarioId = usuarioId;
         ObservacaoAceite = observacao;
-        AceitoEm = DateTime.UtcNow;
+        AceitoEm = dataAceite;
+        EncerradoEm = dataAceite;
         AtualizarAuditoria(atualizadoPor);
     }
 
     public void FecharAutomaticamentePorPrazoAceite(Guid statusFechadoId, StatusChamadoEnum statusAnterior, DateTime dataReferencia, TimeSpan prazoAceite, string atualizadoPor)
     {
         StatusId = statusFechadoId;
-        EncerradoEm = DateTime.UtcNow;
+        EncerradoEm = dataReferencia;
         AtualizarAuditoria(atualizadoPor);
     }
 

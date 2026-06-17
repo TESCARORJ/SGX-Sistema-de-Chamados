@@ -95,6 +95,9 @@ public sealed class ValidarBloqueioMovimentacaoAprovacaoPendenteUseCase(
             case TipoAcaoMovimentacaoChamado.Resolver:
             case TipoAcaoMovimentacaoChamado.Encerrar:
             case TipoAcaoMovimentacaoChamado.Reabrir:
+            case TipoAcaoMovimentacaoChamado.AceitarSolucao:
+            case TipoAcaoMovimentacaoChamado.RejeitarSolucao:
+            case TipoAcaoMovimentacaoChamado.FecharAutomaticamentePorPrazoAceite:
             case TipoAcaoMovimentacaoChamado.ExecutarServicoSensivel:
             case TipoAcaoMovimentacaoChamado.AplicarMudanca:
             case TipoAcaoMovimentacaoChamado.LiberarAcesso:

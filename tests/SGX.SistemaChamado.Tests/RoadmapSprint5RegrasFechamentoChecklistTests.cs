@@ -15,10 +15,10 @@ public sealed class RoadmapSprint5RegrasFechamentoChecklistTests
 
         var item = context.RoadmapItsmItens.Single(x => x.Id == SeedData.RoadmapItsmItem24Id);
         Assert.Equal("Sprint 5 - Regras de fechamento, aceite e reabertura", item.Area);
-        Assert.Equal(StatusImplementacaoRoadmapItsm.EmDesenvolvimento, item.StatusImplementacao);
-        Assert.Equal(StatusTecnicoRoadmapItsm.Parcial, item.StatusTecnico);
-        Assert.Equal(94, item.PercentualImplementacao);
-        Assert.Equal("Registrar homologacao e aceite tecnico", item.ProximaAcao);
+        Assert.Equal(StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente, item.StatusImplementacao);
+        Assert.Equal(StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas, item.StatusTecnico);
+        Assert.Equal(100, item.PercentualImplementacao);
+        Assert.Equal("Executar homologacao formal da Sprint 5 e iniciar a analise da Sprint 6 - Notificacoes ITSM, sem antecipar implementacao funcional.", item.ProximaAcao);
 
         var checklistAtivo = context.RoadmapChecklistItens
             .Where(x => x.RoadmapItemId == SeedData.RoadmapItsmItem24Id && x.Ativo)
@@ -28,7 +28,7 @@ public sealed class RoadmapSprint5RegrasFechamentoChecklistTests
         Assert.Equal(32, checklistAtivo.Length);
 
         var totalConcluidos = checklistAtivo.Count(x => x.Concluido);
-        Assert.Equal(30, totalConcluidos);
+        Assert.Equal(32, totalConcluidos);
         Assert.True(checklistAtivo.Single(x => x.Ordem == 12).Concluido);
         Assert.True(checklistAtivo.Single(x => x.Ordem == 13).Concluido);
         Assert.True(checklistAtivo.Single(x => x.Ordem == 14).Concluido);
@@ -55,14 +55,14 @@ public sealed class RoadmapSprint5RegrasFechamentoChecklistTests
             PortalUseCasesTestFactory.Repo<RoadmapItsmItem>(context),
             CriarUsuarioAdmin());
 
-        var expectedPercent = 94; // 30 / 32 = 94%
+        var expectedPercent = 100; // 32 / 32 = 100%
         var detalhe = await useCase.ExecutarAsync(SeedData.RoadmapItsmItem24Id);
 
         Assert.Equal(32, detalhe.QuantidadeChecklistAtivo);
-        Assert.Equal(30, detalhe.QuantidadeChecklistConcluido);
+        Assert.Equal(32, detalhe.QuantidadeChecklistConcluido);
         Assert.Equal(expectedPercent, detalhe.PercentualImplementacao);
         Assert.True(detalhe.PercentualCalculadoPorChecklist);
-        Assert.Equal("Registrar homologacao e aceite tecnico", detalhe.ProximaAcao);
+        Assert.Equal("Executar homologacao formal da Sprint 5 e iniciar a analise da Sprint 6 - Notificacoes ITSM, sem antecipar implementacao funcional.", detalhe.ProximaAcao);
     }
 
     private static IUsuarioContextoAplicacaoService CriarUsuarioAdmin()

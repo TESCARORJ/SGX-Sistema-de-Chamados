@@ -49,6 +49,11 @@ public sealed class RejeitarSolucaoChamadoUseCase(
             throw new UnauthorizedAccessException("Apenas o solicitante pode rejeitar a solucao deste chamado.");
         }
 
+        if (chamado.Status.Codigo != StatusChamadoEnum.Resolvido)
+        {
+            throw new InvalidOperationException("O chamado precisa estar resolvido para ter a solucao rejeitada.");
+        }
+
         if (validarBloqueioMovimentacaoUseCase != null)
         {
             var validacao = await validarBloqueioMovimentacaoUseCase.ExecutarAsync(

@@ -45,7 +45,7 @@ Nova ordem estrategica do ciclo ITSM:
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
 3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
-5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
+5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
 7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
@@ -67,6 +67,7 @@ Nova ordem estrategica do ciclo ITSM:
 
 - Cadastros Administrativos (Sprints 1 a 6) implementado funcionalmente, com integracao aos chamados, seed inicial consolidado e documentacao de fechamento
 - Historico/Auditoria (Governanca) implementado funcionalmente - Sprints 1, 2 e 3 consolidadas com checklist 63/63
+- Sprint 5 - Regras de fechamento, aceite e reabertura encerrada tecnicamente com 32/32 itens concluidos; homologacao formal permanece pendente e sera executada posteriormente
 - API real de notificacoes
 - Relatorios exportaveis
 - Testes automatizados frontend/e2e

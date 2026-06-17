@@ -17,7 +17,7 @@ Sprints consolidadas:
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
 3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
-5. Sprint 5 - Regras de fechamento, aceite e reabertura (50% - Em desenvolvimento)
+5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (25% - Planejado)
 7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
@@ -37,6 +37,7 @@ Sprints consolidadas:
 
 Observacao:
 - os percentuais seguem a referencia operacional: nao iniciado (0%), parcial (30% a 60%), evolucao planejada (0% a 20%), homologacao preparada (80% a 95%).
+- Sprint 5 foi encerrada tecnicamente com checklist 32/32; a homologacao formal permanece registrada como etapa posterior.
 
 ### Quadro resumido da ordem atual
 
@@ -46,7 +47,7 @@ Observacao:
 | Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 62% |
-| Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
 | Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
