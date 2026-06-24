@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.DTOs.Chamados;
+using SGX.SistemaChamado.Application.DTOs.Notificacoes;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Chamados;
+using SGX.SistemaChamado.Application.Interfaces.Notificacoes;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Application.UseCases.Chamados;
@@ -26,7 +29,9 @@ public sealed class AlterarStatusChamadoUseCase(
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null,
-    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IAlterarStatusChamadoUseCase
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null,
+    IProcessarEventoCandidatoNotificacaoUseCase? processarEventoCandidatoNotificacaoUseCase = null,
+    ILogger<AlterarStatusChamadoUseCase>? logger = null) : IAlterarStatusChamadoUseCase
 {
     private const string MensagemBloqueioDependenciaAtiva =
         "Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.";
@@ -83,6 +88,8 @@ public sealed class AlterarStatusChamadoUseCase(
         await historicoRepository.AddAsync(historico, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await TentarIntegrarNotificacaoAsync(chamado, novoStatus, usuario, historico, cancellationToken);
+
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
 
@@ -113,6 +120,64 @@ public sealed class AlterarStatusChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task TentarIntegrarNotificacaoAsync(
+        Chamado chamado,
+        StatusChamado novoStatus,
+        UsuarioContextoAplicacao usuarioAtual,
+        HistoricoChamado historico,
+        CancellationToken cancellationToken)
+    {
+        if (processarEventoCandidatoNotificacaoUseCase is null || !DeveNotificarStatus(novoStatus.Codigo))
+        {
+            return;
+        }
+
+        try
+        {
+            await processarEventoCandidatoNotificacaoUseCase.ExecutarAsync(
+                new ProcessarEventoCandidatoNotificacaoRequest(
+                    $"status-alterado:{historico.Id}",
+                    new EventoCandidatoNotificacao(
+                        TipoEventoNotificacao.EventoChamado,
+                        chamado.Id,
+                        usuarioAtual.Id,
+                        historico.CriadoEm,
+                        $"chamado:{chamado.Id}",
+                        $"status-alterado:{historico.Id}",
+                        new Dictionary<string, string>
+                        {
+                            ["evento"] = "status-alterado"
+                        }),
+                    new Dictionary<string, string>
+                    {
+                        ["chamado.codigo"] = chamado.Codigo,
+                        ["chamado.titulo"] = chamado.Titulo,
+                        ["chamado.status"] = novoStatus.Nome,
+                        ["evento.nome"] = "Status alterado",
+                        ["evento.descricao"] = historico.Descricao,
+                        ["evento.ocorrido_em"] = historico.CriadoEm.ToString("O"),
+                        ["status.nome"] = novoStatus.Nome,
+                        ["status.codigo"] = novoStatus.Codigo.ToString()
+                    },
+                    [TipoParticipacaoDestinatarioNotificacao.Solicitante],
+                    [CanalNotificacao.Sistema, CanalNotificacao.Email]),
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(
+                ex,
+                "Falha ao integrar notificacao de status. ChamadoId={ChamadoId} HistoricoId={HistoricoId} Status={Status}",
+                chamado.Id,
+                historico.Id,
+                novoStatus.Codigo);
+        }
     }
 
     private async Task GarantirAlteracaoFinalSemDependenciaAtivaAsync(
@@ -172,4 +237,9 @@ public sealed class AlterarStatusChamadoUseCase(
                or StatusChamadoEnum.Encerrado
                or StatusChamadoEnum.Cancelado
                or StatusChamadoEnum.Concluida;
+
+    private static bool DeveNotificarStatus(StatusChamadoEnum status)
+        => status is StatusChamadoEnum.EmAtendimento
+            or StatusChamadoEnum.AguardandoSolicitante
+            or StatusChamadoEnum.Resolvido;
 }

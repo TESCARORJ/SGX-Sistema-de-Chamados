@@ -49,6 +49,9 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<TipoAtivoInventario> TiposAtivoInventario => Set<TipoAtivoInventario>();
     public DbSet<InventarioAtivo> InventarioAtivos => Set<InventarioAtivo>();
     public DbSet<HistoricoInventarioAtivo> HistoricosInventarioAtivo => Set<HistoricoInventarioAtivo>();
+    public DbSet<Notificacao> Notificacoes => Set<Notificacao>();
+    public DbSet<TemplateNotificacao> TemplatesNotificacao => Set<TemplateNotificacao>();
+    public DbSet<PreferenciaNotificacaoUsuario> PreferenciasNotificacaoUsuario => Set<PreferenciaNotificacaoUsuario>();
     public DbSet<RoadmapItsmItem> RoadmapItsmItens => Set<RoadmapItsmItem>();
     public DbSet<RoadmapCategoria> RoadmapCategorias => Set<RoadmapCategoria>();
     public DbSet<RoadmapChecklistItem> RoadmapChecklistItens => Set<RoadmapChecklistItem>();

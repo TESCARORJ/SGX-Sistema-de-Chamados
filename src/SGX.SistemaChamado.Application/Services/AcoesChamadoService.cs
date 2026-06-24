@@ -45,6 +45,9 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
         var podeAlterarStatus = !chamadoEmStatusFinal
             && statusAtualPermitidoPelaNatureza
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosAlterarStatus);
+        var podeResolver = !chamadoEmStatusFinal
+            && statusAtualPermitidoPelaNatureza
+            && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosAlterarStatus);
         var podeEncerrar = !chamadoEmStatusFinal
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosEncerrar);
         var podeReabrir = chamadoReabrivel
@@ -60,6 +63,7 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
         var podeAtribuir = !chamadoEmStatusFinal
             && AdminUseCaseHelpers.EhAdministrador(usuario)
             && PodeExecutarComPermissaoOuPerfil(usuario, PermissaoChamadosAtribuir);
+        var podeCancelar = !chamadoEmStatusFinal;
 
         if (podeAssumir)
         {
@@ -69,6 +73,11 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
         if (podeAtribuir)
         {
             acoes.Add(AcaoChamadoEnum.Atribuir);
+        }
+
+        if (podeCancelar)
+        {
+            acoes.Add(AcaoChamadoEnum.Cancelar);
         }
 
         if (podeComentar)
@@ -84,6 +93,11 @@ public sealed class AcoesChamadoService(IFluxoStatusChamadoService fluxoStatusCh
         if (podeAlterarStatus)
         {
             acoes.Add(AcaoChamadoEnum.AlterarStatus);
+        }
+
+        if (podeResolver)
+        {
+            acoes.Add(AcaoChamadoEnum.Resolver);
         }
 
         if (podeEncerrar)

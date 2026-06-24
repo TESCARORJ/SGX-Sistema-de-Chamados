@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SGX.SistemaChamado.Api.Authorization;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Chamados;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
+using SGX.SistemaChamado.Application.Interfaces.Chamados;
 
 namespace SGX.SistemaChamado.Api.Controllers;
 
@@ -23,8 +25,10 @@ public sealed class AdminChamadosController(
     IAlterarPrioridadeChamadoUseCase alterarPrioridadeChamadoUseCase,
     IAlterarCategoriaChamadoUseCase alterarCategoriaChamadoUseCase,
     IComentarChamadoAdminUseCase comentarChamadoAdminUseCase,
+    IResolverChamadoUseCase resolverChamadoUseCase,
     IEncerrarChamadoUseCase encerrarChamadoUseCase,
     IReabrirChamadoUseCase reabrirChamadoUseCase,
+    IFecharChamadosAutomaticamentePorPrazoAceiteUseCase fecharChamadosAutomaticamentePorPrazoAceiteUseCase,
     IVincularInventarioAtivoChamadoUseCase vincularInventarioAtivoChamadoUseCase,
     IRemoverInventarioAtivoChamadoUseCase removerInventarioAtivoChamadoUseCase,
     IListarArtigosConhecimentoDoChamadoUseCase listarArtigosConhecimentoDoChamadoUseCase,
@@ -40,6 +44,7 @@ public sealed class AdminChamadosController(
     IValidator<AlterarPrioridadeChamadoRequest> alterarPrioridadeValidator,
     IValidator<AlterarCategoriaChamadoRequest> alterarCategoriaValidator,
     IValidator<ComentarioAdminChamadoRequest> comentarioValidator,
+    IValidator<ResolverChamadoRequest> resolverValidator,
     IValidator<EncerrarChamadoRequest> encerrarValidator,
     IValidator<ReabrirChamadoRequest> reabrirValidator) : ControllerBase
 {
@@ -337,6 +342,34 @@ public sealed class AdminChamadosController(
         }
     }
 
+    [HttpPost("chamados/{id:guid}/resolver")]
+    public async Task<IActionResult> Resolver(Guid id, [FromBody] ResolverChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var validation = await resolverValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        }
+
+        try
+        {
+            var response = await resolverChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
     [HttpPost("chamados/{id:guid}/encerrar")]
     [Authorize(Policy = PermissionPolicies.ChamadosEncerrar)]
     public async Task<IActionResult> Encerrar(Guid id, [FromBody] EncerrarChamadoRequest request, CancellationToken cancellationToken)
@@ -389,6 +422,31 @@ public sealed class AdminChamadosController(
             return NotFound(new { mensagem = ex.Message });
         }
         catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/fechamento-automatico/prazo-aceite/executar")]
+    [Authorize(Policy = Policies.Administrador)]
+    public async Task<IActionResult> ExecutarFechamentoAutomaticoPrazoAceite(
+        [FromBody] FecharChamadosAutomaticamentePorPrazoAceiteRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await fecharChamadosAutomaticamentePorPrazoAceiteUseCase.ExecutarAsync(request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+        catch (ArgumentException ex)
         {
             return BadRequest(new { mensagem = ex.Message });
         }

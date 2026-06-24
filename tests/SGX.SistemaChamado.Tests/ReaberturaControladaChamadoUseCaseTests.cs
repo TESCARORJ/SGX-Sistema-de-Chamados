@@ -33,6 +33,7 @@ public sealed class ReaberturaControladaChamadoUseCaseTests
     public async Task Bloqueia_Reabertura_De_Chamado_Encerrado_Fora_Do_Prazo()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
+        DefinirParametro(context, "48");
         var chamado = await SeedEncerradoAsync(context, "RCP-002", DateTime.UtcNow.AddHours(-200));
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
@@ -64,7 +65,18 @@ public sealed class ReaberturaControladaChamadoUseCaseTests
     public async Task Usa_Prazo_Padrao_Quando_Parametro_Nao_Esta_Ativo()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
-        var parametro = context.ParametrosSistema.Single(x => x.Id == SeedData.ParametroPrazoReaberturaChamadoId);
+        var parametro = context.ParametrosSistema.SingleOrDefault(x => x.Id == SeedData.ParametroPrazoReaberturaChamadoId);
+        if (parametro is null)
+        {
+            parametro = new ParametroSistema(
+                "chamados.reabertura.prazo_maximo_horas",
+                "48",
+                "Prazo maximo em horas para reabertura de chamado encerrado",
+                false,
+                "teste");
+            DefinirPropriedade(parametro, "Id", SeedData.ParametroPrazoReaberturaChamadoId);
+            context.ParametrosSistema.Add(parametro);
+        }
         parametro.Desativar("teste");
         await context.SaveChangesAsync();
 
@@ -98,6 +110,7 @@ public sealed class ReaberturaControladaChamadoUseCaseTests
     public async Task Registra_Historico_E_Auditoria_Da_Reabertura_Controlada()
     {
         using var context = AdminUseCasesTestFactory.CriarContexto();
+        DefinirParametro(context, "48");
         var auditoria = new FakeAuditoriaService();
         var chamado = await SeedEncerradoAsync(context, "RCP-006", DateTime.UtcNow.AddHours(-12));
 
@@ -128,7 +141,9 @@ public sealed class ReaberturaControladaChamadoUseCaseTests
             SlaTestFactory.CriarService(context),
             new FakeUsuarioContextoAplicacaoService(admin),
             PortalUseCasesTestFactory.Uow(context),
-            auditoria ?? new FakeAuditoriaService());
+            auditoria ?? new FakeAuditoriaService(),
+            validarBloqueioMovimentacaoUseCase: null,
+            parametroRepository: PortalUseCasesTestFactory.Repo<ParametroSistema>(context));
     }
 
     private static async Task<Chamado> SeedEncerradoAsync(
@@ -154,9 +169,23 @@ public sealed class ReaberturaControladaChamadoUseCaseTests
         SGX.SistemaChamado.Infrastructure.Persistence.SGXSistemaChamadoDbContext context,
         string valor)
     {
-        var parametro = context.ParametrosSistema.Single(x => x.Id == SeedData.ParametroPrazoReaberturaChamadoId);
-        parametro.Ativar("teste");
-        parametro.AtualizarValor(valor, "teste");
+        var parametro = context.ParametrosSistema.SingleOrDefault(x => x.Id == SeedData.ParametroPrazoReaberturaChamadoId);
+        if (parametro is null)
+        {
+            parametro = new ParametroSistema(
+                "chamados.reabertura.prazo_maximo_horas",
+                valor,
+                "Prazo maximo em horas para reabertura de chamado encerrado",
+                false,
+                "teste");
+            DefinirPropriedade(parametro, "Id", SeedData.ParametroPrazoReaberturaChamadoId);
+            context.ParametrosSistema.Add(parametro);
+        }
+        else
+        {
+            parametro.Ativar("teste");
+            parametro.AtualizarValor(valor, "teste");
+        }
         context.SaveChanges();
     }
 

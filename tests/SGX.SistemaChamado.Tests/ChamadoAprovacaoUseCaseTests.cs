@@ -244,7 +244,7 @@ public sealed class ChamadoAprovacaoUseCaseTests
             escopoRegra: EscopoRegraAprovacao.AtendimentoChamado,
             tipoRegra: TipoRegraAprovacao.NaturezaItsm,
             exigeAprovacao: true,
-            bloqueante: true,
+            bloqueante: false,
             tipoResolucaoAprovador: TipoResolucaoAprovadorRegraAprovacao.AprovadorPadrao,
             criadoPorUsuarioId: dados.Admin.Id,
             criadoPor: "teste",

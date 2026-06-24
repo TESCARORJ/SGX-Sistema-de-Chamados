@@ -3659,6 +3659,173 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Notificacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("AgendadaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("agendada_em");
+
+                    b.Property<string>("Assunto")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("assunto");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<int>("Canal")
+                        .HasColumnType("integer")
+                        .HasColumnName("canal");
+
+                    b.Property<DateTime?>("CanceladaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelada_em");
+
+                    b.Property<Guid?>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<string>("ChaveCorrelacao")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("chave_correlacao");
+
+                    b.Property<string>("ChaveIdempotencia")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("chave_idempotencia");
+
+                    b.Property<string>("Conteudo")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("conteudo");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid?>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<string>("DestinatarioEndereco")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("destinatario_endereco");
+
+                    b.Property<Guid?>("DestinatarioUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("destinatario_usuario_id");
+
+                    b.Property<DateTime?>("EnviadaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("enviada_em");
+
+                    b.Property<DateTime?>("FalhouEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("falhou_em");
+
+                    b.Property<DateTime?>("LidaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lida_em");
+
+                    b.Property<string>("MotivoCancelamento")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("motivo_cancelamento");
+
+                    b.Property<DateTime?>("ProcessadaEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processada_em");
+
+                    b.Property<int>("QuantidadeTentativas")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantidade_tentativas");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TipoEvento")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_evento");
+
+                    b.Property<string>("UltimoErro")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("ultimo_erro");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgendadaEm")
+                        .HasDatabaseName("ix_notificacoes_agendada_em");
+
+                    b.HasIndex("AtualizadoPorUsuarioId");
+
+                    b.HasIndex("Canal")
+                        .HasDatabaseName("ix_notificacoes_canal");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_notificacoes_chamado_id");
+
+                    b.HasIndex("ChaveIdempotencia")
+                        .IsUnique()
+                        .HasDatabaseName("ux_notificacoes_chave_idempotencia");
+
+                    b.HasIndex("CriadoEm")
+                        .HasDatabaseName("ix_notificacoes_criado_em");
+
+                    b.HasIndex("CriadoPorUsuarioId");
+
+                    b.HasIndex("DestinatarioUsuarioId")
+                        .HasDatabaseName("ix_notificacoes_destinatario_usuario_id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_notificacoes_status");
+
+                    b.HasIndex("Status", "AgendadaEm")
+                        .HasDatabaseName("ix_notificacoes_status_agendada_em");
+
+                    b.HasIndex("DestinatarioUsuarioId", "Canal", "Status", "CriadoEm")
+                        .HasDatabaseName("ix_notificacoes_destinatario_canal_status_criado_em");
+
+                    b.ToTable("notificacoes", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_notificacoes_destinatario", "destinatario_usuario_id IS NOT NULL OR destinatario_endereco IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_notificacoes_lida_em_maior_ou_igual_enviada_em", "lida_em IS NULL OR enviada_em IS NULL OR lida_em >= enviada_em");
+
+                            t.HasCheckConstraint("ck_notificacoes_quantidade_tentativas_nao_negativa", "quantidade_tentativas >= 0");
+                        });
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ParametroSistema", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3717,6 +3884,30 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_parametros_sistema_chave");
 
                     b.ToTable("parametros_sistema", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e0000000-0000-0000-0000-000000000001"),
+                            Ativo = true,
+                            Chave = "chamados.fechamento_automatico.prazo_aceite_horas",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Prazo em horas para fechamento automatico por falta de aceite",
+                            Sensivel = false,
+                            Valor = "48"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0000000-0000-0000-0000-000000000002"),
+                            Ativo = true,
+                            Chave = "chamados.reabertura.prazo_maximo_horas",
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Prazo maximo em horas para reabertura de chamado encerrado",
+                            Sensivel = false,
+                            Valor = "48"
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", b =>
@@ -6545,6 +6736,81 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PausarQuandoAguardandoSolicitante = true,
                             UsarHorarioComercial = false
                         });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PreferenciaNotificacaoUsuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<int>("Canal")
+                        .HasColumnType("integer")
+                        .HasColumnName("canal");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<bool>("Habilitada")
+                        .HasColumnType("boolean")
+                        .HasColumnName("habilitada");
+
+                    b.Property<int>("TipoEvento")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_evento");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_preferencias_notificacao_usuario_atualizado_por_usuario_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_preferencias_notificacao_usuario_criado_por_usuario_id");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("ix_preferencias_notificacao_usuario_usuario_id");
+
+                    b.HasIndex("TipoEvento", "Canal")
+                        .HasDatabaseName("ix_preferencias_notificacao_usuario_tipo_evento_canal");
+
+                    b.HasIndex("UsuarioId", "TipoEvento", "Canal")
+                        .IsUnique()
+                        .HasDatabaseName("ux_preferencias_notificacao_usuario_chave");
+
+                    b.ToTable("preferencias_notificacao_usuario", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", b =>
@@ -14246,6 +14512,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000137"),
                             Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
@@ -14260,43 +14528,241 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000138"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 6 Notificacoes ITSM",
-                            Grupo = 2,
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Diagnosticar estruturas existentes de notificacoes e eventos"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000139"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 6 Notificacoes ITSM",
-                            Grupo = 3,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Modelar entidade Notificacao e contrato de eventos"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000140"),
                             Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Criar configuracao EF e migration estrutural de notificacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000901"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Testar dominio e estrutura persistente de notificacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000902"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Criar servico de geracao idempotente de notificacoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000903"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar resolucao de destinatarios por participacao e perfil"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000904"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Modelar templates e materializacao de conteudo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000905"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar preferencias de notificacao por usuario e evento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000906"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar processamento e controle de tentativas de entrega"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000907"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar entrega pelo canal Sistema"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000908"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 12,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar entrega pelo canal E-mail"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000909"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Criar API de consulta, leitura e marcacao como nao lida"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000910"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 14,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Implementar central de notificacoes no frontend"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000911"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 6 Notificacoes ITSM",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
+                            Titulo = "Integrar notificacoes aos eventos ITSM priorizados e executar testes de regressao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000912"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 6 Notificacoes ITSM",
                             Grupo = 5,
                             Obrigatorio = true,
-                            Ordem = 4,
+                            Ordem = 16,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777725"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Documentar, homologar e registrar aceite da Sprint 6"
                         },
                         new
                         {
@@ -16239,28 +16705,28 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777725"),
                             Area = "Sprint 6 - Notificacoes ITSM",
-                            AtencaoTecnica = "Definir modelo de notificacao sem acoplamento excessivo com canais externos.",
+                            AtencaoTecnica = "Preservar a separacao entre fato de negocio, resolucao de destinatarios, materializacao de conteudo, geracao idempotente, processamento e entrega, mantendo fora do escopo aprovacao/SLA sem ponto estavel de notificacao nesta etapa.",
                             Ativo = true,
                             Categoria = "ITIL/ITSM",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             CriterioAceite = "Usuarios recebem notificacoes persistentes conforme eventos e regras configuradas.",
                             Decisao = 1,
-                            EvidenciaImplementacao = "Escopo sprint definido.",
+                            EvidenciaImplementacao = "Eventos priorizados integrados ao pipeline de notificacoes via orquestrador interno, com pontos estaveis em abertura, atribuicao/assuncao, status relevante e encerramento; idempotencia por evento/destinatario/canal; testes unitarios, integracao e regressao; compatibilidade com frontend, processamento e canais Sistema/Email; sem SignalR, sem fila externa, sem outbox improvisada e sem alterar Worker.Email.",
                             Impacto = 2,
                             Objetivo = "Criar notificacoes persistentes e configuraveis por evento, perfil e participacao.",
                             Ordem = 106,
-                            PendenciasHomologacao = "Validar recebimento por perfil, observador, aprovador e grupo tecnico.",
-                            PendenciasTecnicas = "Tabela de notificacoes, API leitura/nao lida, preferencias e regras por evento.",
-                            PercentualImplementacao = 25,
+                            PendenciasHomologacao = "Validar recebimento real por solicitante e responsavel, confirmar templates ativos no ambiente, revisar eventos adiados e registrar aceite institucional da Sprint 6.",
+                            PendenciasTecnicas = "Executar homologacao funcional/manual da Sprint 6 com templates ativos no ambiente, cenarios reais por perfil e evidencias formais, sem antecipar item 16 nem ampliar escopo para todos os eventos, aprovacao completa ou SLA.",
+                            PercentualImplementacao = 94,
                             Prioridade = 2,
-                            ProximaAcao = "Modelar entidade Notificacao e pipeline de eventos.",
+                            ProximaAcao = "Documentar, homologar e registrar aceite da Sprint 6",
                             Responsavel = "Time Produto",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
-                            SituacaoAtual = "Notificacoes ainda nao estao consolidadas como modulo persistente por evento ITSM.",
+                            SituacaoAtual = "Notificacoes internas persistidas, inbox autenticada e central frontend concluida; eventos ITSM priorizados agora integram o pipeline de geracao idempotente sem entrega sincrona nem impacto indevido em abertura, atribuicao, status, encerramento ou fluxos legados.",
                             Status = 4,
-                            StatusImplementacao = 1,
-                            StatusTecnico = 0
+                            StatusImplementacao = 2,
+                            StatusTecnico = 6
                         },
                         new
                         {
@@ -16990,6 +17456,117 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ux_subcategorias_chamado_categoria_nome");
 
                     b.ToTable("subcategorias_chamado", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TemplateNotificacao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AssuntoTemplate")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("assunto_template");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid?>("AtualizadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("atualizado_por_usuario_id");
+
+                    b.Property<int>("Canal")
+                        .HasColumnType("integer")
+                        .HasColumnName("canal");
+
+                    b.Property<string>("ConteudoTemplate")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("conteudo_template");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("CriadoPorUsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("criado_por_usuario_id");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.Property<int>("TipoEvento")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo_evento");
+
+                    b.Property<string>("VariaveisPermitidasPersistidas")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("variaveis_permitidas");
+
+                    b.Property<int>("Versao")
+                        .HasColumnType("integer")
+                        .HasColumnName("versao");
+
+                    b.Property<DateTime?>("VigenteAte")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vigente_ate");
+
+                    b.Property<DateTime?>("VigenteDe")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vigente_de");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AtualizadoPorUsuarioId")
+                        .HasDatabaseName("ix_templates_notificacao_atualizado_por_usuario_id");
+
+                    b.HasIndex("CriadoPorUsuarioId")
+                        .HasDatabaseName("ix_templates_notificacao_criado_por_usuario_id");
+
+                    b.HasIndex("Nome", "Versao")
+                        .IsUnique()
+                        .HasDatabaseName("ux_templates_notificacao_nome_versao");
+
+                    b.HasIndex("VigenteDe", "VigenteAte")
+                        .HasDatabaseName("ix_templates_notificacao_vigencia");
+
+                    b.HasIndex("TipoEvento", "Canal", "Ativo")
+                        .HasDatabaseName("ix_templates_notificacao_tipo_evento_canal_ativo");
+
+                    b.ToTable("templates_notificacao", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_templates_notificacao_versao_positiva", "versao > 0");
+
+                            t.HasCheckConstraint("ck_templates_notificacao_vigencia", "vigente_ate IS NULL OR vigente_de IS NULL OR vigente_ate >= vigente_de");
+                        });
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TipoAtivoInventario", b =>
@@ -18348,6 +18925,37 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Prioridade");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.Notificacao", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany()
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "DestinatarioUsuario")
+                        .WithMany()
+                        .HasForeignKey("DestinatarioUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("DestinatarioUsuario");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcessoPermissao", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", "PerfilAcesso")
@@ -18389,6 +18997,32 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Departamento");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PreferenciaNotificacaoUsuario", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CriadoPorUsuario");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RoadmapChecklistItem", b =>
@@ -18468,6 +19102,24 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("CategoriaChamado");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TemplateNotificacao", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "AtualizadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("AtualizadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", "CriadoPorUsuario")
+                        .WithMany()
+                        .HasForeignKey("CriadoPorUsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AtualizadoPorUsuario");
+
+                    b.Navigation("CriadoPorUsuario");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.TokenRecuperacaoSenha", b =>

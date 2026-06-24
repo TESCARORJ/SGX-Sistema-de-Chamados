@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Notificacoes;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Chamados;
+using SGX.SistemaChamado.Application.Interfaces.Notificacoes;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Application.DTOs.Chamados;
@@ -21,7 +24,9 @@ public sealed class AssumirChamadoUseCase(
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null,
-    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IAssumirChamadoUseCase
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null,
+    IProcessarEventoCandidatoNotificacaoUseCase? processarEventoCandidatoNotificacaoUseCase = null,
+    ILogger<AssumirChamadoUseCase>? logger = null) : IAssumirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, CancellationToken cancellationToken = default)
     {
@@ -40,6 +45,7 @@ public sealed class AssumirChamadoUseCase(
             .Include(x => x.Responsavel)
             .Include(x => x.Aprovacoes)
             .Include(x => x.ChamadoSla)
+            .Include(x => x.Status)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var responsavelAnterior = chamado.Responsavel?.Nome;
@@ -64,6 +70,8 @@ public sealed class AssumirChamadoUseCase(
 
         await historicoRepository.AddAsync(historico, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await TentarIntegrarNotificacaoAsync(chamado, usuario, historico, cancellationToken);
 
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
@@ -95,6 +103,62 @@ public sealed class AssumirChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task TentarIntegrarNotificacaoAsync(
+        Chamado chamado,
+        UsuarioContextoAplicacao usuarioAtual,
+        HistoricoChamado historico,
+        CancellationToken cancellationToken)
+    {
+        if (processarEventoCandidatoNotificacaoUseCase is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await processarEventoCandidatoNotificacaoUseCase.ExecutarAsync(
+                new ProcessarEventoCandidatoNotificacaoRequest(
+                    $"chamado-assumido:{historico.Id}",
+                    new EventoCandidatoNotificacao(
+                        TipoEventoNotificacao.EventoChamado,
+                        chamado.Id,
+                        usuarioAtual.Id,
+                        historico.CriadoEm,
+                        $"chamado:{chamado.Id}",
+                        $"chamado-assumido:{historico.Id}",
+                        new Dictionary<string, string>
+                        {
+                            ["evento"] = "chamado-assumido"
+                        }),
+                    new Dictionary<string, string>
+                    {
+                        ["chamado.codigo"] = chamado.Codigo,
+                        ["chamado.titulo"] = chamado.Titulo,
+                        ["chamado.status"] = chamado.Status.Nome,
+                        ["evento.nome"] = "Chamado assumido",
+                        ["evento.descricao"] = historico.Descricao,
+                        ["evento.ocorrido_em"] = historico.CriadoEm.ToString("O"),
+                        ["responsavel.nome"] = usuarioAtual.Nome
+                    },
+                    [TipoParticipacaoDestinatarioNotificacao.ResponsavelAtual],
+                    [CanalNotificacao.Sistema, CanalNotificacao.Email],
+                    ExcluirUsuarioOriginador: true),
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(
+                ex,
+                "Falha ao integrar notificacao de assuncao. ChamadoId={ChamadoId} HistoricoId={HistoricoId}",
+                chamado.Id,
+                historico.Id);
+        }
     }
 
     private async Task GarantirMovimentacaoPermitidaAsync(Chamado chamado, CancellationToken cancellationToken)

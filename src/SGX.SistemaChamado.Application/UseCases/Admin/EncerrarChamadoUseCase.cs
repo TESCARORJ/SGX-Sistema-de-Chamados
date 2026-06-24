@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.DTOs.Admin;
 using SGX.SistemaChamado.Application.DTOs.Chamados;
+using SGX.SistemaChamado.Application.DTOs.Notificacoes;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Interfaces.Chamados;
+using SGX.SistemaChamado.Application.Interfaces.Notificacoes;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Application.UseCases.Chamados;
@@ -27,7 +30,9 @@ public sealed class EncerrarChamadoUseCase(
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null,
-    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IEncerrarChamadoUseCase
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null,
+    IProcessarEventoCandidatoNotificacaoUseCase? processarEventoCandidatoNotificacaoUseCase = null,
+    ILogger<EncerrarChamadoUseCase>? logger = null) : IEncerrarChamadoUseCase
 {
     private const string MensagemBloqueioDependenciaAtiva =
         "Este chamado possui dependencia ativa e nao pode ser fechado enquanto estiver bloqueado por outro chamado.";
@@ -93,6 +98,8 @@ public sealed class EncerrarChamadoUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await TentarIntegrarNotificacaoAsync(chamado, request, usuario, historico, cancellationToken);
+
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
 
@@ -129,6 +136,62 @@ public sealed class EncerrarChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task TentarIntegrarNotificacaoAsync(
+        Chamado chamado,
+        EncerrarChamadoRequest request,
+        UsuarioContextoAplicacao usuarioAtual,
+        HistoricoChamado historico,
+        CancellationToken cancellationToken)
+    {
+        if (processarEventoCandidatoNotificacaoUseCase is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await processarEventoCandidatoNotificacaoUseCase.ExecutarAsync(
+                new ProcessarEventoCandidatoNotificacaoRequest(
+                    $"chamado-encerrado:{historico.Id}",
+                    new EventoCandidatoNotificacao(
+                        TipoEventoNotificacao.EventoChamado,
+                        chamado.Id,
+                        usuarioAtual.Id,
+                        historico.CriadoEm,
+                        $"chamado:{chamado.Id}",
+                        $"chamado-encerrado:{historico.Id}",
+                        new Dictionary<string, string>
+                        {
+                            ["evento"] = "chamado-encerrado"
+                        }),
+                    new Dictionary<string, string>
+                    {
+                        ["chamado.codigo"] = chamado.Codigo,
+                        ["chamado.titulo"] = chamado.Titulo,
+                        ["chamado.status"] = "Encerrado",
+                        ["evento.nome"] = "Chamado encerrado",
+                        ["evento.descricao"] = historico.Descricao,
+                        ["evento.ocorrido_em"] = historico.CriadoEm.ToString("O"),
+                        ["solucao.resumo"] = request.Solucao
+                    },
+                    [TipoParticipacaoDestinatarioNotificacao.Solicitante],
+                    [CanalNotificacao.Sistema, CanalNotificacao.Email]),
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(
+                ex,
+                "Falha ao integrar notificacao de encerramento. ChamadoId={ChamadoId} HistoricoId={HistoricoId}",
+                chamado.Id,
+                historico.Id);
+        }
     }
 
     private async Task GarantirChamadoSemDependenciaAtivaAsync(Guid chamadoId, CancellationToken cancellationToken)

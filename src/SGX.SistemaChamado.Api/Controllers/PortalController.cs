@@ -14,11 +14,15 @@ public sealed class PortalController(
     IListarMeusChamadosUseCase listarMeusChamadosUseCase,
     IDetalharMeuChamadoUseCase detalharMeuChamadoUseCase,
     IObterStatusAprovacaoChamadoPortalUseCase obterStatusAprovacaoChamadoPortalUseCase,
+    IAceitarSolucaoChamadoUseCase aceitarSolucaoChamadoUseCase,
     IAbrirChamadoUseCase abrirChamadoUseCase,
     IComentarChamadoUseCase comentarChamadoUseCase,
+    IRejeitarSolucaoChamadoUseCase rejeitarSolucaoChamadoUseCase,
     IAnexarArquivoChamadoUseCase anexarArquivoChamadoUseCase,
     IValidator<CriarChamadoRequest> criarChamadoValidator,
-    IValidator<ComentarioChamadoRequest> comentarioValidator) : ControllerBase
+    IValidator<ComentarioChamadoRequest> comentarioValidator,
+    IValidator<AceitarSolucaoChamadoRequest> aceitarSolucaoValidator,
+    IValidator<RejeitarSolucaoChamadoRequest> rejeitarSolucaoValidator) : ControllerBase
 {
     [HttpGet("contexto")]
     public async Task<IActionResult> ObterContexto(CancellationToken cancellationToken)
@@ -132,6 +136,62 @@ public sealed class PortalController(
         try
         {
             var response = await comentarChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{id:guid}/aceitar-solucao")]
+    public async Task<IActionResult> AceitarSolucao(Guid id, [FromBody] AceitarSolucaoChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var validation = await aceitarSolucaoValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        }
+
+        try
+        {
+            var response = await aceitarSolucaoChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { mensagem = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { mensagem = ex.Message });
+        }
+    }
+
+    [HttpPost("chamados/{id:guid}/rejeitar-solucao")]
+    public async Task<IActionResult> RejeitarSolucao(Guid id, [FromBody] RejeitarSolucaoChamadoRequest request, CancellationToken cancellationToken)
+    {
+        var validation = await rejeitarSolucaoValidator.ValidateAsync(request, cancellationToken);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors.Select(e => new { campo = e.PropertyName, mensagem = e.ErrorMessage }));
+        }
+
+        try
+        {
+            var response = await rejeitarSolucaoChamadoUseCase.ExecutarAsync(id, request, cancellationToken);
             return Ok(response);
         }
         catch (UnauthorizedAccessException)

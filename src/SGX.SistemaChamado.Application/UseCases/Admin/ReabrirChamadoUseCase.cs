@@ -25,7 +25,8 @@ public sealed class ReabrirChamadoUseCase(
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null,
-    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null) : IReabrirChamadoUseCase
+    IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase? validarBloqueioMovimentacaoUseCase = null,
+    IRepository<ParametroSistema>? parametroRepository = null) : IReabrirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, ReabrirChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -60,6 +61,33 @@ public sealed class ReabrirChamadoUseCase(
             throw new InvalidOperationException("Somente chamados em status final podem ser reabertos.");
         }
 
+        var msgReabertura = "Chamado reaberto.";
+        var msgHistorico = "Chamado reaberto";
+
+        if (parametroRepository is not null && chamado.EncerradoEm.HasValue)
+        {
+            var parametro = await parametroRepository.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Chave == ConfiguracaoReaberturaChamadoConstantes.ChaveParametroPrazoMaximoHoras, cancellationToken);
+
+            if (parametro is { Ativo: true })
+            {
+                if (!double.TryParse(parametro.Valor, out var horasPrazo))
+                {
+                    throw new InvalidOperationException("A configuracao administrativa do prazo maximo de reabertura esta invalida.");
+                }
+
+                var horasPassadas = (DateTime.UtcNow - chamado.EncerradoEm.Value).TotalHours;
+                if (horasPassadas > horasPrazo)
+                {
+                    throw new InvalidOperationException($"O prazo maximo de reabertura de {horasPrazo} horas foi excedido.");
+                }
+
+                msgReabertura = "Chamado reaberto por politica de prazo.";
+                msgHistorico = msgReabertura;
+            }
+        }
+
         var statusDestinoCodigo = ObterStatusDestinoReabertura(chamado.NaturezaChamado, fluxoStatusChamadoService);
 
         var statusDestino = await statusRepository.Query()
@@ -88,7 +116,7 @@ public sealed class ReabrirChamadoUseCase(
         var historico = new HistoricoChamado(
             chamado.Id,
             TipoHistoricoChamado.Reaberto,
-            AdminUseCaseHelpers.ObterDescricaoHistorico(TipoHistoricoChamado.Reaberto, "Chamado reaberto"),
+            AdminUseCaseHelpers.ObterDescricaoHistorico(TipoHistoricoChamado.Reaberto, msgHistorico),
             usuario.Id,
             usuario.Login);
 
@@ -102,23 +130,25 @@ public sealed class ReabrirChamadoUseCase(
         {
             var statusAtualNome = atualizado.Status.Nome;
 
-            await auditoriaService.RegistrarEdicaoAsync(
-                "Chamados",
-                "Chamado",
-                chamadoId.ToString(),
-                "Chamado reaberto.",
-                dadosAntes: AuditoriaDiffHelper.SerializarSeguro(new
+            await auditoriaService.RegistrarAsync(new RegistrarEventoAuditoriaRequest
+            {
+                Modulo = "Chamados",
+                Entidade = "Chamado",
+                EntidadeId = chamadoId.ToString(),
+                Acao = TipoAcaoAuditoria.ReabrirChamado,
+                Descricao = msgReabertura,
+                DadosAntes = AuditoriaDiffHelper.SerializarSeguro(new
                 {
                     Status = statusAnterior,
                     EncerradoEm = encerradoAnterior
                 }),
-                dadosDepois: AuditoriaDiffHelper.SerializarSeguro(new
+                DadosDepois = AuditoriaDiffHelper.SerializarSeguro(new
                 {
                     Status = statusAtualNome,
                     EncerradoEm = atualizado.EncerradoEm,
-                    TamanhoMensagem = request.Mensagem?.Length ?? 0
+                    Mensagem = request.Mensagem
                 }),
-                metadados: AuditoriaDiffHelper.CriarMetadadosPadrao(
+                Metadados = AuditoriaDiffHelper.CriarMetadadosPadrao(
                     origem: "api",
                     modulo: "Chamados",
                     entidade: "Chamado",
@@ -127,8 +157,8 @@ public sealed class ReabrirChamadoUseCase(
                     nome: atualizado.Titulo,
                     operacao: "Reabertura",
                     resultado: "Sucesso",
-                    observacao: $"Status atual: {statusAtualNome}"),
-                cancellationToken: cancellationToken);
+                    observacao: $"Status atual: {statusAtualNome}")
+            }, cancellationToken);
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);

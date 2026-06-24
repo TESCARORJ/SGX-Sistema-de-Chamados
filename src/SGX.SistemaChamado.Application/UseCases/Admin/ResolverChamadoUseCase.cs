@@ -41,6 +41,16 @@ public sealed class ResolverChamadoUseCase(
             throw new ArgumentException("Id do chamado invalido.", nameof(chamadoId));
         }
 
+        if (request is null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Solucao))
+        {
+            throw new ArgumentException("Solucao tecnica obrigatoria para resolucao.", nameof(request.Solucao));
+        }
+
         var usuario = await usuarioContextoAplicacaoService.ObterAsync(cancellationToken);
         if (!AdminUseCaseHelpers.PodeOperarAdmin(usuario))
         {

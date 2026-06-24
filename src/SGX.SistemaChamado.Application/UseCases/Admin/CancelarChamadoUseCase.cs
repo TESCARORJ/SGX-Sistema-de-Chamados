@@ -42,6 +42,11 @@ public sealed class CancelarChamadoUseCase(
             throw new UnauthorizedAccessException("Acesso administrativo negado.");
         }
 
+        if (string.IsNullOrWhiteSpace(request.Motivo))
+        {
+            throw new ArgumentException("Motivo obrigatório");
+        }
+
         var chamado = await chamadoRepository.Query()
             .Include(x => x.Aprovacoes)
             .Include(x => x.ChamadoSla)

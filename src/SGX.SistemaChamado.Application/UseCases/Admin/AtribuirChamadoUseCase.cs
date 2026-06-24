@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.DTOs.Admin;
+using SGX.SistemaChamado.Application.DTOs.Notificacoes;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Admin;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Notificacoes;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
 using SGX.SistemaChamado.Domain.Entities;
@@ -19,7 +22,9 @@ public sealed class AtribuirChamadoUseCase(
     ISlaService slaService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
-    IAuditoriaService? auditoriaService = null) : IAtribuirChamadoUseCase
+    IAuditoriaService? auditoriaService = null,
+    IProcessarEventoCandidatoNotificacaoUseCase? processarEventoCandidatoNotificacaoUseCase = null,
+    ILogger<AtribuirChamadoUseCase>? logger = null) : IAtribuirChamadoUseCase
 {
     public async Task<ChamadoAdminDetalheResponse> ExecutarAsync(Guid chamadoId, AtribuirChamadoRequest request, CancellationToken cancellationToken = default)
     {
@@ -44,6 +49,7 @@ public sealed class AtribuirChamadoUseCase(
             .Include(x => x.GrupoTecnico)
             .Include(x => x.FilaAtendimento)
             .Include(x => x.ChamadoSla)
+            .Include(x => x.Status)
             .FirstOrDefaultAsync(x => x.Id == chamadoId && x.Ativo, cancellationToken)
             ?? throw new KeyNotFoundException("Chamado nao encontrado.");
         var responsavelAnterior = chamado.Responsavel?.Nome;
@@ -115,6 +121,8 @@ public sealed class AtribuirChamadoUseCase(
         await historicoRepository.AddAsync(historico, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await TentarIntegrarNotificacaoAsync(chamado, responsavel, usuario, historico, cancellationToken);
+
         var atualizado = await AdminChamadoLoader.QueryDetalhe(chamadoRepository.Query().AsNoTracking())
             .FirstAsync(x => x.Id == chamadoId, cancellationToken);
 
@@ -145,5 +153,62 @@ public sealed class AtribuirChamadoUseCase(
         }
 
         return AdminUseCaseHelpers.MapDetalhe(atualizado);
+    }
+
+    private async Task TentarIntegrarNotificacaoAsync(
+        Chamado chamado,
+        Usuario responsavel,
+        UsuarioContextoAplicacao usuarioAtual,
+        HistoricoChamado historico,
+        CancellationToken cancellationToken)
+    {
+        if (processarEventoCandidatoNotificacaoUseCase is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await processarEventoCandidatoNotificacaoUseCase.ExecutarAsync(
+                new ProcessarEventoCandidatoNotificacaoRequest(
+                    $"responsavel-alterado:{historico.Id}",
+                    new EventoCandidatoNotificacao(
+                        TipoEventoNotificacao.EventoChamado,
+                        chamado.Id,
+                        usuarioAtual.Id,
+                        historico.CriadoEm,
+                        $"chamado:{chamado.Id}",
+                        $"responsavel-alterado:{historico.Id}",
+                        new Dictionary<string, string>
+                        {
+                            ["evento"] = "responsavel-alterado"
+                        }),
+                    new Dictionary<string, string>
+                    {
+                        ["chamado.codigo"] = chamado.Codigo,
+                        ["chamado.titulo"] = chamado.Titulo,
+                        ["chamado.status"] = chamado.Status.Nome,
+                        ["evento.nome"] = "Responsavel alterado",
+                        ["evento.descricao"] = historico.Descricao,
+                        ["evento.ocorrido_em"] = historico.CriadoEm.ToString("O"),
+                        ["responsavel.nome"] = responsavel.Nome
+                    },
+                    [TipoParticipacaoDestinatarioNotificacao.ResponsavelAtual],
+                    [CanalNotificacao.Sistema, CanalNotificacao.Email],
+                    ExcluirUsuarioOriginador: true),
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(
+                ex,
+                "Falha ao integrar notificacao de atribuicao. ChamadoId={ChamadoId} HistoricoId={HistoricoId}",
+                chamado.Id,
+                historico.Id);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SGX.SistemaChamado.Domain.Entities;
+using SGX.SistemaChamado.Infrastructure.Persistence.Seed;
 
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Configurations;
 
@@ -23,5 +24,6 @@ public sealed class ParametroSistemaConfiguration : IEntityTypeConfiguration<Par
         builder.Property(x => x.Ativo).HasColumnName("ativo").IsRequired();
 
         builder.HasIndex(x => x.Chave).IsUnique().HasDatabaseName("ux_parametros_sistema_chave");
+        builder.HasData(SeedData.ParametrosSistema);
     }
 }

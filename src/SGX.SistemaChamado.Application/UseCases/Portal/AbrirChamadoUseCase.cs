@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SGX.SistemaChamado.Application.DTOs.Chamados;
+using SGX.SistemaChamado.Application.DTOs.Notificacoes;
 using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Helpers;
 using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.Interfaces.Auditoria;
+using SGX.SistemaChamado.Application.Interfaces.Notificacoes;
 using SGX.SistemaChamado.Application.Interfaces.Persistence;
 using SGX.SistemaChamado.Application.Interfaces.Portal;
 using SGX.SistemaChamado.Application.Interfaces.Sla;
@@ -32,7 +35,9 @@ public sealed class AbrirChamadoUseCase(
     ICamposObrigatoriosChamadoService camposObrigatoriosChamadoService,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
-    IAuditoriaService? auditoriaService = null) : IAbrirChamadoUseCase
+    IAuditoriaService? auditoriaService = null,
+    IProcessarEventoCandidatoNotificacaoUseCase? processarEventoCandidatoNotificacaoUseCase = null,
+    ILogger<AbrirChamadoUseCase>? logger = null) : IAbrirChamadoUseCase
 {
     private const string DescricaoHistoricoCriacaoPortal = "Chamado criado pelo portal";
     private const string DescricaoHistoricoCriacaoCatalogo = "Chamado aberto a partir do servico do catalogo";
@@ -279,6 +284,8 @@ public sealed class AbrirChamadoUseCase(
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
+        await TentarIntegrarNotificacaoAsync(chamado, usuarioAtual, historicoCriado, cancellationToken);
+
         var chamadoCriado = await chamadoRepository.Query()
             .Include(x => x.Status)
             .Include(x => x.Prioridade)
@@ -378,6 +385,61 @@ public sealed class AbrirChamadoUseCase(
         }
 
         return PortalUseCaseHelpers.MapDetalhe(chamadoCriado, usuarioAtual);
+    }
+
+    private async Task TentarIntegrarNotificacaoAsync(
+        Chamado chamado,
+        UsuarioContextoAplicacao usuarioAtual,
+        HistoricoChamado historicoCriado,
+        CancellationToken cancellationToken)
+    {
+        if (processarEventoCandidatoNotificacaoUseCase is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await processarEventoCandidatoNotificacaoUseCase.ExecutarAsync(
+                new ProcessarEventoCandidatoNotificacaoRequest(
+                    $"chamado-aberto:{chamado.Id}",
+                    new EventoCandidatoNotificacao(
+                        TipoEventoNotificacao.EventoChamado,
+                        chamado.Id,
+                        usuarioAtual.Id,
+                        historicoCriado.CriadoEm,
+                        $"chamado:{chamado.Id}",
+                        $"chamado-aberto:{chamado.Id}",
+                        new Dictionary<string, string>
+                        {
+                            ["evento"] = "chamado-aberto"
+                        }),
+                    new Dictionary<string, string>
+                    {
+                        ["chamado.codigo"] = chamado.Codigo,
+                        ["chamado.titulo"] = chamado.Titulo,
+                        ["chamado.status"] = "Aberto",
+                        ["evento.nome"] = "Chamado aberto",
+                        ["evento.descricao"] = historicoCriado.Descricao,
+                        ["evento.ocorrido_em"] = historicoCriado.CriadoEm.ToString("O"),
+                        ["solicitante.nome"] = usuarioAtual.Nome
+                    },
+                    [TipoParticipacaoDestinatarioNotificacao.Solicitante],
+                    [CanalNotificacao.Sistema, CanalNotificacao.Email]),
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(
+                ex,
+                "Falha ao integrar notificacao de abertura. ChamadoId={ChamadoId} HistoricoId={HistoricoId}",
+                chamado.Id,
+                historicoCriado.Id);
+        }
     }
 
     private async Task<CatalogoServico?> ResolverServicoCatalogoAsync(

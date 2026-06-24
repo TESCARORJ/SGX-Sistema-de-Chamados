@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore, obterRotaInicialParaPerfil } from '../stores/authStore'
-import NotificationsMenu from '../components/ui/NotificationsMenu.vue'
+import NotificacoesBadge from '../components/notificacoes/NotificacoesBadge.vue'
 import { permissoes } from '../constants/permissoes'
 import type { PerfilEmulado } from '../types/auth'
 
@@ -697,9 +697,6 @@ const menuAgrupado = computed<GrupoMenu[]>(() =>
     })
     .filter((grupo) => grupo.items.length > 0)
 )
-const podeVisualizarNotificacoes = computed(() =>
-  fallbackAdminSemPermissoes.value || authStore.possuiPermissao(permissoes.notificacoesVisualizar)
-)
 const statusUsuario = computed(() => (authStore.autenticado ? 'Online' : 'Offline'))
 const tituloPagina = computed(() => {
   if (route.path === '/admin') return 'Dashboard'
@@ -957,7 +954,7 @@ watch(
           </template>
         </q-input>
 
-        <NotificationsMenu v-if="podeVisualizarNotificacoes" />
+        <NotificacoesBadge compact />
 
         <q-chip square class="q-ml-sm user-chip">
           <q-avatar color="primary" text-color="white">{{ iniciaisUsuario }}</q-avatar>

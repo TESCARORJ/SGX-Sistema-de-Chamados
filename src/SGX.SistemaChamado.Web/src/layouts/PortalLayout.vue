@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
+import NotificacoesBadge from '../components/notificacoes/NotificacoesBadge.vue'
 
 type PortalMenuItem = {
   label: string
@@ -22,6 +23,7 @@ const retornoEmulacaoCarregando = ref(false)
 const menuNavegacao: PortalMenuItem[] = [
   { label: 'Meus chamados', icon: 'receipt_long', to: '/portal/chamados' },
   { label: 'Abrir chamado', icon: 'add_circle', to: '/portal/chamados/novo', destaque: true },
+  { label: 'Notificações', icon: 'notifications', to: '/portal/notificacoes' },
   { label: 'Base de conhecimento', icon: 'menu_book', to: '/portal/base-conhecimento' },
   { label: 'Minha conta', icon: 'person', to: '/alterar-senha' },
 ]
@@ -118,6 +120,8 @@ async function voltarParaAdministrador(): Promise<void> {
         <q-space />
 
         <div class="portal-toolbar__actions gt-sm">
+          <NotificacoesBadge compact class="q-mr-sm" />
+
           <q-btn
             v-for="item in atalhoHeader"
             :key="item.to"

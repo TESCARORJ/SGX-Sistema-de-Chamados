@@ -22,7 +22,7 @@ const CatalogoServicoDetalhePage = () => import('../views/CatalogoServicoDetalhe
 
 const AdminDashboardView = () => import('../views/AdminDashboardView.vue')
 const AdminChamadosView = () => import('../views/AdminChamadosView.vue')
-const AdminNotificacoesView = () => import('../views/AdminNotificacoesView.vue')
+const MinhasNotificacoesView = () => import('../views/notificacoes/MinhasNotificacoesView.vue')
 const AdminDetalheChamadoView = () => import('../views/AdminDetalheChamadoView.vue')
 const AdminConfiguracoesRegrasAprovacaoListPage = () => import('../views/AdminConfiguracoesRegrasAprovacaoListPage.vue')
 const AdminConfiguracoesRegrasAprovacaoFormPage = () => import('../views/AdminConfiguracoesRegrasAprovacaoFormPage.vue')
@@ -191,6 +191,11 @@ const routes: RouteRecordRaw[] = [
         name: 'portal-catalogo-servicos-detalhe',
         component: CatalogoServicoDetalhePage,
       },
+      {
+        path: 'notificacoes',
+        name: 'portal-notificacoes',
+        component: MinhasNotificacoesView,
+      },
     ],
   },
   {
@@ -222,11 +227,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'notificacoes',
         name: 'admin-notificacoes',
-        component: AdminNotificacoesView,
-        meta: {
-          requiresAuth: true,
-          requiredAnyPermissions: ['Notificacoes.Visualizar'],
-        },
+        component: MinhasNotificacoesView,
       },
       {
         path: 'chamados/:id',
