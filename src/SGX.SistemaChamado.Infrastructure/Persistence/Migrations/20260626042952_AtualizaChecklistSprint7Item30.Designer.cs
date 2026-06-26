@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626042952_AtualizaChecklistSprint7Item30")]
+    partial class AtualizaChecklistSprint7Item30
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -8018,7 +8021,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("68686868-6868-6868-6868-686868686730"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Grupo solicitado: Homologacao",
@@ -11898,7 +11903,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010001"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000109"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11914,7 +11919,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010002"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000110"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11922,7 +11927,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
-                            Grupo = 2,
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 2,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777718"),
@@ -11930,7 +11935,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010003"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000111"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11938,7 +11943,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
-                            Grupo = 2,
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 3,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777718"),
@@ -11946,7 +11951,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010004"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000112"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11954,7 +11959,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
-                            Grupo = 2,
+                            Grupo = 1,
                             Obrigatorio = true,
                             Ordem = 4,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777718"),
@@ -11962,7 +11967,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010005"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000913"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11978,7 +11983,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010006"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000914"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -11994,7 +11999,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010007"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000915"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12010,10 +12015,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010008"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000916"),
                             Ativo = true,
-                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            AtualizadoPor = "seed.sistema",
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
@@ -12026,7 +12029,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010009"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000917"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12042,7 +12045,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010010"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000918"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12056,7 +12059,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010011"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000919"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12072,7 +12075,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010012"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000920"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12088,7 +12091,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010013"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000921"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12102,7 +12105,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010014"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000922"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12116,7 +12119,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010015"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000923"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12132,7 +12135,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010016"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000924"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12148,7 +12151,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010017"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000925"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12164,7 +12167,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010018"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000926"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12180,7 +12183,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010019"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000927"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12196,7 +12199,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010020"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000928"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12212,7 +12215,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010021"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000929"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12228,7 +12231,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010022"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000930"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12244,7 +12247,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010023"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000931"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12252,7 +12255,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
-                            Grupo = 9,
+                            Grupo = 7,
                             Obrigatorio = true,
                             Ordem = 23,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777718"),
@@ -12260,7 +12263,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010024"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000932"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12276,7 +12279,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010025"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000933"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12292,7 +12295,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010026"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000934"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12308,7 +12311,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010027"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000935"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12324,7 +12327,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010028"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000936"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12340,7 +12343,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010029"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000937"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12356,7 +12359,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010030"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000938"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12372,7 +12375,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010031"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000939"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12388,7 +12391,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010032"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000940"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12404,7 +12407,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010033"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000941"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12412,7 +12415,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
-                            Grupo = 2,
+                            Grupo = 9,
                             Obrigatorio = true,
                             Ordem = 33,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777718"),
@@ -12420,7 +12423,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010034"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000942"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12434,7 +12437,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010035"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000943"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12450,7 +12453,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010036"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000944"),
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
@@ -12466,11 +12469,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010037"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000945"),
                             Ativo = true,
-                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            AtualizadoPor = "seed.sistema",
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
@@ -12482,11 +12483,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010038"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000946"),
                             Ativo = true,
-                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            AtualizadoPor = "seed.sistema",
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
@@ -12498,7 +12497,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000010039"),
+                            Id = new Guid("78787878-7878-7878-7878-000000000947"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -16292,7 +16291,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000210"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 2 Relacionamentos, dependencias e orquestracao ITSM",
@@ -17029,7 +17030,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 109,
                             PendenciasHomologacao = "Homologar ciclo abrir, triar, atender, resolver, reabrir e fechar.",
                             PendenciasTecnicas = "Servico afetado, CI afetado, causa provavel, solucao de contorno e regra de reabertura.",
-                            PercentualImplementacao = 87,
+                            PercentualImplementacao = 51,
                             Prioridade = 1,
                             ProximaAcao = "Implementar estados de incidente e campos especificos no chamado.",
                             Responsavel = "Time Atendimento",
@@ -17071,25 +17072,27 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777718"),
                             Area = "Sprint 7 - Gerenciamento de Requisicoes",
-                            AtencaoTecnica = "Orquestrar formulario por servico, aprovacao e atendimento sem duplicar regras.",
+                            AtencaoTecnica = "Reutilizar Chamado, Catalogo, SLA, Grupos Tecnicos e Aprovacao sem duplicar enums, status ou regras; backend deve permanecer fonte de verdade para classificacao, aprovacao, grupo responsavel e SLA do servico.",
                             Ativo = true,
                             Categoria = "ITIL/ITSM",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "Requisicao nasce do Catalogo e aplica formulario, aprovacao, SLA e grupo responsavel.",
+                            CriterioAceite = "Portal possui endpoints consistentes, controllers nao possuem regra de negocio, frontend utiliza os endpoints corretos.",
+                            DataConclusaoTecnica = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Decisao = 1,
-                            EvidenciaImplementacao = "Capacidades base existentes de catalogo e aprovacao aproveitadas.",
+                            EvidenciaImplementacao = "PortalCatalogoServicosController reutilizando logica do Application com 4 endpoints consistentes: GET listar, GET detalhe, GET preparar e POST requisicoes. Frontend (NovoChamadoView) utilizando portalService e os endpoints corretos sem enviar regras restritas. 100% testes aprovados.",
                             Impacto = 1,
                             Objetivo = "Formalizar fluxo de Requisicao de Servico com abertura preferencial via Catalogo.",
+                            Observacao = "Cenario A confirmado: Todos os endpoints ja existiam. Foi adicionado apenas o teste de requisicao invalida para fechar a cobertura. Regras estao nos Use Cases.",
                             Ordem = 107,
-                            PendenciasHomologacao = "Validar abertura guiada por catalogo com regras diferentes por servico.",
-                            PendenciasTecnicas = "Fluxo de aprovacao por servico, status proprios, servicos relacionados e conclusao com aceite.",
+                            PendenciasHomologacao = "Validar abertura guiada de requisicao por catalogo em cenarios com e sem aprovacao, comportamento do endpoint guiado no portal, ownership dos endpoints e responsividade no portal.",
+                            PendenciasTecnicas = "Introduzir formulario por servico com persistencia das respostas e concluir a integracao guiada sem romper incidentes e fluxos legados.",
                             PercentualImplementacao = 87,
                             Prioridade = 1,
-                            ProximaAcao = "Criar ou revisar migrations estruturais, se necessarias",
+                            ProximaAcao = "Testar regressao de aprovacao legada e motor novo",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
-                            SituacaoAtual = "Catalogo e aprovacao existem, porem sem fluxo separado de requisicao.",
+                            SituacaoAtual = "Abertura por catalogo ja existe no chamado comum, com consulta do servico, associacao CatalogoServicoId, aplicacao backend de classificacao e aprovacao automatica opcional por servico. Agora existem contrato e validator dedicados para a abertura guiada por catalogo com semantica explicita de requisicao, ainda reutilizando o fluxo atual de Chamado. Permanecem pendentes use case dedicado, formulario dinamico e regras avancadas por servico.",
                             Status = 3,
                             StatusImplementacao = 2,
                             StatusTecnico = 1
@@ -17111,7 +17114,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 108,
                             PendenciasHomologacao = "Homologar abertura guiada com servicos reais e validacao de aprovacoes.",
                             PendenciasTecnicas = "Campos obrigatorios dinamicos, sugestoes automaticas e visibilidade por perfil refinada.",
-                            PercentualImplementacao = 87,
+                            PercentualImplementacao = 51,
                             Prioridade = 1,
                             ProximaAcao = "Evoluir entidade de catalogo e contrato de abertura guiada.",
                             Responsavel = "Time Catalogo",
