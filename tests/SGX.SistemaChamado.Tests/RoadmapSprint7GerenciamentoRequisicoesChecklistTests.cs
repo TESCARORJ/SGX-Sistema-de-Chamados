@@ -17,9 +17,9 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.Equal("Sprint 7 - Gerenciamento de Requisicoes", item.Area);
         Assert.Equal(StatusImplementacaoRoadmapItsm.EmDesenvolvimento, item.StatusImplementacao);
         Assert.Equal(StatusTecnicoRoadmapItsm.Parcial, item.StatusTecnico);
-        Assert.Equal(87, item.PercentualImplementacao);
+        Assert.Equal(90, item.PercentualImplementacao);
         Assert.Equal(
-            "Criar ou revisar migrations estruturais, se necessarias",
+            "Criar migration de dados ou checklist, se aplicavel",
             RemoverAcentos(item.ProximaAcao));
 
         var checklistAtivo = context.RoadmapChecklistItens
@@ -30,8 +30,8 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.Equal(39, checklistAtivo.Length);
         Assert.All(checklistAtivo, x => Assert.True(x.Ativo));
         Assert.All(checklistAtivo, x => Assert.True(x.Obrigatorio));
-        Assert.Equal(34, checklistAtivo.Count(x => x.Concluido));
-        Assert.Equal(5, checklistAtivo.Count(x => !x.Concluido));
+        Assert.Equal(35, checklistAtivo.Count(x => x.Concluido));
+        Assert.Equal(4, checklistAtivo.Count(x => !x.Concluido));
         Assert.Equal(Enumerable.Range(1, 39), checklistAtivo.Select(x => x.Ordem));
 
         Assert.Equal(
@@ -85,7 +85,7 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.DoesNotContain(checklistAtivo, x => x.Titulo == "Registrar homologacao e aceite");
 
         Assert.Equal(
-            new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38 },
+            new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38 },
             checklistAtivo.Where(x => x.Concluido).Select(x => x.Ordem).ToArray());
 
         var useCase = new ObterRoadmapItsmItemUseCase(
@@ -95,15 +95,15 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         var detalhe = await useCase.ExecutarAsync(SeedData.RoadmapItsmItem18Id);
 
         Assert.Equal(39, detalhe.QuantidadeChecklistAtivo);
-        Assert.Equal(34, detalhe.QuantidadeChecklistConcluido);
-        Assert.Equal(87, detalhe.PercentualImplementacao);
+        Assert.Equal(35, detalhe.QuantidadeChecklistConcluido);
+        Assert.Equal(90, detalhe.PercentualImplementacao);
         Assert.True(detalhe.PercentualCalculadoPorChecklist);
         Assert.Equal(
-            "Criar ou revisar migrations estruturais, se necessarias",
+            "Criar migration de dados ou checklist, se aplicavel",
             RemoverAcentos(detalhe.ProximaAcao));
 
-        var percentualEsperado = (int)Math.Round((34 * 100.0) / 39, MidpointRounding.AwayFromZero);
-        Assert.Equal(87, percentualEsperado);
+        var percentualEsperado = (int)Math.Round((35 * 100.0) / 39, MidpointRounding.AwayFromZero);
+        Assert.Equal(90, percentualEsperado);
         Assert.Equal(percentualEsperado, detalhe.PercentualImplementacao);
     }
 

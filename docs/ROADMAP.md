@@ -1,4 +1,4 @@
-﻿
+
 ;k.lpkçlooçklç´-pppç´~pplçoopopo# Roadmap SGX Sistema de Chamados
 
 ## Visao geral
@@ -47,7 +47,7 @@ Nova ordem estrategica do ciclo ITSM:
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
-7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
+7. Sprint 7 - Gerenciamento de Requisicoes (87% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
 9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
@@ -1303,7 +1303,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Integrado ao fluxo de chamados
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual sugerido apos conclusao: 85%
+Percentual sugerido apos conclusao: 87%
 
 Objetivo:
 Integrar artigos da Base de Conhecimento ao fluxo administrativo de chamados para vinculo, consulta e remocao de vinculos sem perda historica.
@@ -1519,7 +1519,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Integrado a abertura de chamados
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual: 85%
+Percentual: 87%
 
 Objetivo:
 Integrar o Catalogo de Servicos ao fluxo real de abertura de chamados no portal, com validacao obrigatoria no backend e aplicacao oficial de classificacao operacional.
@@ -1734,7 +1734,7 @@ Area: Inventario/Ativos
 Categoria: Infraestrutura
 Status da implementacao: Frontend administrativo implementado
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual: 85%
+Percentual: 87%
 Objetivo:
 Concluir a experiencia administrativa do modulo Inventario/Ativos no frontend, cobrindo listagem, cadastro, edicao, detalhe, inativacao, reativacao, movimentacao e consulta de chamados relacionados.
 Entregas consolidadas:
@@ -1857,3 +1857,4 @@ Pendencias planejadas:
 - testes E2E completos;
 - exportacoes avancadas e dashboards configuraveis;
 - cache de indicadores, materialized views e otimizacoes para alto volume.
+

@@ -19,7 +19,7 @@ Sprints consolidadas:
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
-7. Sprint 7 - Gerenciamento de Requisicoes (50% - Em desenvolvimento)
+7. Sprint 7 - Gerenciamento de Requisicoes (87% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
 9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
@@ -49,7 +49,7 @@ Observacao:
 | Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 62% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Em desenvolvimento | Bloqueado | 94% |
-| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 87% |
 | Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
 | Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
 | Sprint 10 - Gerenciamento de Mudancas | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
@@ -1947,7 +1947,7 @@ Status tecnico:
 - Completo com pend�ncias evolutivas
 
 Percentual:
-- 85%
+- 87%
 
 Pendencias tecnicas:
 - Aplicar ou validar permiss�o granular `Dashboard.Visualizar` no backend, al�m da prote��o por perfil.
@@ -2138,7 +2138,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Integrado ao fluxo de chamados
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual sugerido apos conclusao: 85%
+Percentual sugerido apos conclusao: 87%
 
 Objetivo:
 Integrar a Base de Conhecimento ao atendimento administrativo de chamados, permitindo vincular artigos publicados ao chamado e consultar/remover vinculos com trilha de historico e auditoria.
@@ -2361,7 +2361,7 @@ Categoria: Conhecimento
 
 Status da implementacao: Integrado a abertura de chamados
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual: 85%
+Percentual: 87%
 
 Objetivo:
 Conectar o Catalogo de Servicos ao fluxo de abertura de chamados do portal com validacao central no backend e aplicacao oficial dos dados do servico.
@@ -2569,7 +2569,7 @@ Area: Inventario/Ativos
 Categoria: Infraestrutura
 Status da implementacao: Frontend administrativo implementado
 Status tecnico: Sprint 5 concluida apos validacao
-Percentual: 85%
+Percentual: 87%
 Objetivo:
 Concluir a experiencia administrativa do modulo Inventario/Ativos no frontend, cobrindo listagem, cadastro, edicao, detalhe, inativacao, reativacao, movimentacao e consulta de chamados relacionados.
 Entregas consolidadas:
@@ -2773,3 +2773,4 @@ Pendencias evolutivas:
 - filtros especializados por `TipoEventoAutenticacao` e `ResultadoEventoAutenticacao` na UI administrativa;
 - dashboard executivo dedicado para autenticacao e metodos de login;
 - homologacao institucional com politicas de retencao de auditoria por cliente.
+
