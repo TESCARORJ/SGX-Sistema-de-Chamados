@@ -49,11 +49,11 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - [x] 7. Criar validator dedicado para abertura guiada por catalogo
 - [x] 8. Implementar use case dedicado de abertura de requisicao de servico via catalogo
 - [x] 9. Aplicar classificacao vinda do catalogo no backend
-10. Aplicar grupo responsavel configurado no catalogo
+- [ ] 10. Aplicar grupo responsavel configurado no catalogo
 - [x] 11. Aplicar SLA configurado ou fallback existente
 - [x] 12. Persistir vinculo entre chamado e servico do catalogo
-13. Implementar ou reutilizar formulario por servico
-14. Validar e persistir respostas do formulario
+- [ ] 13. Implementar ou reutilizar formulario por servico
+- [ ] 14. Validar e persistir respostas do formulario
 - [x] 15. Gerar aprovacao obrigatoria quando a regra aplicavel exigir
 - [x] 16. Preservar aprovacao legada sem duplicidade
 - [x] 17. Preservar abertura de incidentes e chamados sem catalogo

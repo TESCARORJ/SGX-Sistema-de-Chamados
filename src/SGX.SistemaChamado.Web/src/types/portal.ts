@@ -214,6 +214,8 @@ export interface ChamadoDetalhePortal {
   tipoSolicitacaoId: string | null
   localUnidadeId: string | null
   departamentoId: string | null
+  catalogoServicoId?: string | null
+  catalogoServicoNome?: string | null
   solicitante: string
   responsavel: string | null
   abertoEm: string

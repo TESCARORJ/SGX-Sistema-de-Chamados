@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FormComentario from '../components/portal/FormComentario.vue'
@@ -311,6 +311,16 @@ onMounted(carregar)
 
       <AppSectionCard titulo="Resumo do chamado" subtitulo="Informações principais da solicitação.">
         <q-list separator class="resumo-list">
+          <q-item v-if="detalhe.catalogoServicoNome">
+            <q-item-section>
+              <q-item-label caption>Serviço solicitado (Catálogo)</q-item-label>
+              <q-item-label class="text-primary text-weight-medium">
+                <q-icon name="miscellaneous_services" size="xs" class="q-mr-xs" />
+                {{ detalhe.catalogoServicoNome }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+
           <q-item>
             <q-item-section>
               <q-item-label caption>Código</q-item-label>

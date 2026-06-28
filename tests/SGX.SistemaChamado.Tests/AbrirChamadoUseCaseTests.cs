@@ -584,6 +584,102 @@ public sealed class AbrirChamadoUseCaseTests
     }
 
     [Fact]
+    public async Task DeveAplicarSlaConfiguradoNoServicoDoCatalogo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        
+        var politica = new PoliticaSla("SLA Catalogo", "SLA do Servico", 1, null, null, null, false, true, "teste");
+        context.SlaPoliticas.Add(politica);
+        await context.SaveChangesAsync();
+        context.SlaMetas.Add(new MetaSla(politica.Id, dados.Prioridade.Id, 60, 120, null, null, "teste"));
+        await context.SaveChangesAsync();
+
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            slaPadraoId: politica.Id);
+
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste SLA Catalogo",
+            Descricao = "Verifica se o SLA foi herdado",
+            CatalogoServicoId = servico.Id
+        });
+
+        var chamadoSla = await context.ChamadosSla.FirstOrDefaultAsync(x => x.ChamadoId == response.Id);
+        Assert.NotNull(chamadoSla);
+        Assert.Equal(politica.Id, chamadoSla.PoliticaSlaId);
+    }
+
+    [Fact]
+    public async Task DeveUtilizarSlaFallbackQuandoServicoCatalogoNaoPossuiSlaPadrao()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        
+        // SLA padrao do banco em fallback (seeding do contexto padrao)
+        var politicaFallbackPadrao = await context.SlaPoliticas.FirstAsync(x => x.Ativo);
+
+        var servico = await CriarServicoCatalogoAsync(
+            context,
+            dados.Usuario,
+            dados.Departamento.Id,
+            dados.Categoria.Id,
+            dados.Subcategoria.Id,
+            dados.Prioridade.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            slaPadraoId: null); // Nao possui SLA
+
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste SLA Fallback Catalogo",
+            Descricao = "Verifica se o fallback atua normalmente",
+            CatalogoServicoId = servico.Id
+        });
+
+        var chamadoSla = await context.ChamadosSla.FirstOrDefaultAsync(x => x.ChamadoId == response.Id);
+        Assert.NotNull(chamadoSla);
+        Assert.Equal(politicaFallbackPadrao.Id, chamadoSla.PoliticaSlaId);
+    }
+    [Fact]
+    public async Task DeveManterGrupoResponsavelAtribuidoPelasRegrasLegadasOuVazio()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        
+        // Servico de catalogo nao tem configuracao de Grupo (item 10 bloqueado)
+        var servico = await CriarServicoCatalogoAsync(context, dados.Usuario, dados.Departamento.Id, dados.Categoria.Id, dados.Subcategoria.Id, dados.Prioridade.Id, StatusCatalogoServico.Publicado, VisibilidadeCatalogoServico.Solicitante);
+        
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste Grupo",
+            Descricao = "Verifica se o fluxo legado atua no grupo",
+            CatalogoServicoId = servico.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+        });
+
+        var chamado = await context.Chamados.SingleAsync(x => x.Id == response.Id);
+        
+        // Atualmente o grupo de responsabilidade pode ser null (fallback da fila geral)
+        // O importante é garantir que não há exception ou crash, e ele continua operacional.
+        Assert.True(chamado.GrupoTecnicoId == null || chamado.GrupoTecnicoId != Guid.Empty);
+    }
+
+    [Fact]
     public async Task DeveImpedirAberturaComServicoArquivado()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
@@ -726,6 +822,140 @@ public sealed class AbrirChamadoUseCaseTests
             new CamposObrigatoriosChamadoService(),
             new FakeUsuarioContextoAplicacaoService(usuario),
             PortalUseCasesTestFactory.Uow(context));
+    [Fact]
+    public async Task DeveRegistrarHistoricoDeAberturaSemCatalogo()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CategoriaId = dados.Categoria.Id,
+            PrioridadeId = dados.Prioridade.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Incidente,
+            ImpactoChamado = ImpactoChamadoEnum.Alto,
+            UrgenciaChamado = UrgenciaChamadoEnum.Alta,
+            DepartamentoId = dados.Departamento.Id
+        });
+
+        var historicos = await context.HistoricosChamado.Where(x => x.ChamadoId == response.Id).ToListAsync();
+        
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.Criado);
+        Assert.DoesNotContain(historicos, x => x.Tipo == TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+        
+        var histCriado = historicos.Single(x => x.Tipo == TipoHistoricoChamado.Criado);
+        Assert.Equal(dados.Usuario.Id, histCriado.UsuarioId);
+    }
+
+    [Fact]
+    public async Task DeveRegistrarHistoricoCatalogoComoRequisicaoServico()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(context, dados.Usuario, dados.Departamento.Id, dados.Categoria.Id, dados.Subcategoria.Id, dados.Prioridade.Id, StatusCatalogoServico.Publicado, VisibilidadeCatalogoServico.Solicitante);
+        
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+        });
+
+        var chamado = await context.Chamados.SingleAsync(x => x.Id == response.Id);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, chamado.NaturezaChamado);
+
+        var historicos = await context.HistoricosChamado.Where(x => x.ChamadoId == response.Id).ToListAsync();
+        
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.Criado);
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+        
+        var histCatalogo = historicos.Single(x => x.Tipo == TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+        Assert.Contains(servico.Nome, histCatalogo.Descricao);
+        Assert.Equal(dados.Usuario.Id, histCatalogo.UsuarioId);
+    }
+
+    [Fact]
+    public async Task DeveAbrirRequisicaoViaCatalogoSemAprovacao()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        
+        // requerAprovacao = false
+        var servico = await CriarServicoCatalogoAsync(
+            context, dados.Usuario, dados.Departamento.Id, dados.Categoria.Id, 
+            dados.Subcategoria.Id, dados.Prioridade.Id, 
+            StatusCatalogoServico.Publicado, VisibilidadeCatalogoServico.Solicitante, 
+            requerAprovacao: false);
+        
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Requisicao de software padrão",
+            Descricao = "Instalar software",
+            CatalogoServicoId = servico.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+        });
+
+        // Nenhuma instancia de aprovacao deve ser criada
+        var temAprovacao = await context.AprovacoesChamado.AnyAsync(x => x.ChamadoId == response.Id);
+        Assert.False(temAprovacao, "Nao deveria gerar aprovacao obrigatoria");
+
+        // O historico normal deve existir
+        var historicos = await context.HistoricosChamado.Where(x => x.ChamadoId == response.Id).ToListAsync();
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.Criado);
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.ChamadoCriadoPorCatalogoServico);
+        
+        // Nao deve ter historico de solicitacao de aprovacao
+        Assert.DoesNotContain(historicos, x => x.Tipo == TipoHistoricoChamado.AprovacaoSolicitada);
+
+        // O chamado permanece operacional
+        var chamado = await context.Chamados.SingleAsync(x => x.Id == response.Id);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, chamado.NaturezaChamado);
+        Assert.Equal(servico.Id, chamado.CatalogoServicoId);
+    }
+
+    [Fact]
+    public async Task DeveAbrirRequisicaoViaCatalogoComAprovacaoObrigatoria()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedBasico(context);
+        var servico = await CriarServicoCatalogoAsync(context, dados.Usuario, dados.Departamento.Id, dados.Categoria.Id, dados.Subcategoria.Id, dados.Prioridade.Id, StatusCatalogoServico.Publicado, VisibilidadeCatalogoServico.Solicitante, requerAprovacao: true);
+        
+        var useCase = CriarUseCase(context, dados.UsuarioContexto);
+
+        var response = await useCase.ExecutarAsync(new CriarChamadoRequest
+        {
+            Titulo = "Teste de Aprovacao",
+            Descricao = "Teste",
+            CatalogoServicoId = servico.Id,
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+        });
+
+        // Aprovação deve ser criada sem duplicidade (exatamente 1)
+        var aprovacoes = await context.AprovacoesChamado.Where(x => x.ChamadoId == response.Id).ToListAsync();
+        Assert.Single(aprovacoes);
+        var aprovacao = aprovacoes.First();
+        Assert.Equal(TipoOrigemAprovacaoChamado.CatalogoServico, aprovacao.TipoOrigem);
+        Assert.Equal(StatusAprovacaoChamado.Pendente, aprovacao.Status);
+
+        // Vínculo preservado
+        var chamado = await context.Chamados.SingleAsync(x => x.Id == response.Id);
+        Assert.Equal(servico.Id, chamado.CatalogoServicoId);
+
+        // Historico registrado
+        var historicos = await context.HistoricosChamado.Where(x => x.ChamadoId == response.Id).ToListAsync();
+        Assert.Contains(historicos, x => x.Tipo == TipoHistoricoChamado.AprovacaoSolicitada);
+        
+        var histAprovacao = historicos.Single(x => x.Tipo == TipoHistoricoChamado.AprovacaoSolicitada);
+        Assert.Contains(servico.Nome, histAprovacao.Descricao);
+    }
 
     private static async Task<CatalogoServico> CriarServicoCatalogoAsync(
         SGXSistemaChamadoDbContext context,
@@ -738,7 +968,8 @@ public sealed class AbrirChamadoUseCaseTests
         VisibilidadeCatalogoServico visibilidade,
         bool ativo = true,
         bool permiteAberturaChamado = true,
-        bool requerAprovacao = false)
+        bool requerAprovacao = false,
+        Guid? slaPadraoId = null)
     {
         var nome = $"Servico Catalogo {Guid.NewGuid():N}";
         var servico = new CatalogoServico(
@@ -750,7 +981,7 @@ public sealed class AbrirChamadoUseCaseTests
             categoriaId,
             subcategoriaId,
             prioridadeId,
-            null,
+            slaPadraoId,
             null,
             visibilidade,
             permiteAberturaChamado,

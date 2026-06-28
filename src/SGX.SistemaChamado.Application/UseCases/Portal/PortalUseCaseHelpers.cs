@@ -107,6 +107,8 @@ internal static class PortalUseCaseHelpers
             TipoSolicitacaoId = chamado.TipoSolicitacaoId,
             LocalUnidadeId = chamado.LocalUnidadeId,
             DepartamentoId = chamado.DepartamentoId,
+            CatalogoServicoId = chamado.CatalogoServicoId,
+            CatalogoServicoNome = chamado.CatalogoServico?.Nome,
             InventarioAtivoId = chamado.InventarioAtivoId,
             InventarioAtivoCodigo = chamado.InventarioAtivo?.Codigo,
             InventarioAtivoNome = chamado.InventarioAtivo?.Nome,

@@ -92,8 +92,7 @@ public static class DependencyInjection
         services.AddScoped<ISlaEventService, SlaEventService>();
         services.AddScoped<ISlaService, SlaService>();
         services.AddScoped<ISlaMonitoringService, SlaMonitoringService>();
-
-        services.AddScoped<IApiInfoUseCase, ApiInfoUseCase>();
+        services.AddScoped<IApiInfoUseCase, ApiInfoUseCase>();
         services.AddScoped<IListarAnexosChamadoUseCase, ListarAnexosChamadoUseCase>();
         services.AddScoped<IAdicionarAnexoChamadoUseCase, AdicionarAnexoChamadoUseCase>();
         services.AddScoped<IBaixarAnexoChamadoUseCase, BaixarAnexoChamadoUseCase>();
@@ -101,6 +100,7 @@ public static class DependencyInjection
         services.AddScoped<IAdicionarComentarioChamadoUseCase, AdicionarComentarioChamadoUseCase>();
         services.AddScoped<IListarLinhaTempoChamadoUseCase, ListarLinhaTempoChamadoUseCase>();
         services.AddScoped<IAbrirChamadoUseCase, AbrirChamadoUseCase>();
+        services.AddScoped<IAbrirRequisicaoServicoCatalogoUseCase, AbrirRequisicaoServicoCatalogoUseCase>();
         services.AddScoped<IGerarAprovacaoObrigatoriaChamadoUseCase, GerarAprovacaoObrigatoriaChamadoUseCase>();
         services.AddScoped<IValidarBloqueioMovimentacaoAprovacaoPendenteUseCase, ValidarBloqueioMovimentacaoAprovacaoPendenteUseCase>();
         services.AddScoped<IAprovarAprovacaoChamadoUseCase, AprovarAprovacaoChamadoUseCase>();

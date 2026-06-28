@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260626151605_AtualizarRoadmapSprint7Item35Checklist")]
+    partial class AtualizarRoadmapSprint7Item35Checklist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -12486,7 +12489,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ativo = true,
                             AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             AtualizadoPor = "seed.sistema",
-                            Concluido = false,
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 7 Gerenciamento de Requisicoes",
@@ -17084,9 +17087,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Ordem = 107,
                             PendenciasHomologacao = "Validar abertura guiada por catalogo com regras diferentes por servico.",
                             PendenciasTecnicas = "Fluxo de aprovacao por servico, status proprios, servicos relacionados e conclusao com aceite.",
-                            PercentualImplementacao = 87,
+                            PercentualImplementacao = 90,
                             Prioridade = 1,
-                            ProximaAcao = "Registrar homologacao visual responsiva",
+                            ProximaAcao = "Criar migration de dados ou checklist, se aplicavel",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Catalogo e aprovacao existem, porem sem fluxo separado de requisicao.",

@@ -72,6 +72,8 @@ public sealed class ChamadoDetalheResponse
     public Guid? TipoSolicitacaoId { get; init; }
     public Guid? LocalUnidadeId { get; init; }
     public Guid? DepartamentoId { get; init; }
+    public Guid? CatalogoServicoId { get; init; }
+    public string? CatalogoServicoNome { get; init; }
     public Guid? InventarioAtivoId { get; init; }
     public string? InventarioAtivoCodigo { get; init; }
     public string? InventarioAtivoNome { get; init; }

@@ -181,6 +181,68 @@ public sealed class PortalCatalogoServicosIntegrationTests : IClassFixture<ApiIn
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task AbrirRequisicaoServicoPorCatalogoUsaContratoDedicadoESemanticaDeRequisicao()
+    {
+        var prefixo = Guid.NewGuid().ToString("N");
+        var adminEmail = $"admin.portal.catalogo.int.{prefixo}@empresa.com";
+        var solicitanteEmail = $"sol.portal.catalogo.int.{prefixo}@empresa.com";
+
+        using var clientAdmin = _factory.CreateClient();
+        using var clientSolicitante = _factory.CreateClient();
+
+        AddDevHeaders(clientAdmin, adminEmail, "Admin Catalogo", "Administrador");
+        AddDevHeaders(clientSolicitante, solicitanteEmail, "Solicitante Catalogo", "Solicitante");
+
+        _ = await clientAdmin.GetAsync("/api/me");
+        _ = await clientSolicitante.GetAsync("/api/me");
+
+        var (servicoId, _) = await SeedServicoParaRequisicaoCatalogoAsync(prefixo, adminEmail);
+
+        var response = await clientSolicitante.PostAsJsonAsync("/api/portal/catalogo-servicos/requisicoes", new AbrirRequisicaoServicoCatalogoRequest
+        {
+            CatalogoServicoId = servicoId,
+            Titulo = "Solicitar acesso remoto",
+            Descricao = "Preciso de acesso remoto para trabalho externo."
+        });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var payload = await response.Content.ReadFromJsonAsync<ChamadoDetalheResponse>();
+        Assert.NotNull(payload);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, payload!.NaturezaChamado);
+
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+        var chamado = await dbContext.Chamados.FirstAsync(x => x.Id == payload.Id);
+        Assert.Equal(servicoId, chamado.CatalogoServicoId);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, chamado.NaturezaChamado);
+    }
+    [Fact]
+    public async Task AbrirRequisicaoServicoRetorna400QuandoRequisicaoForInvalida()
+    {
+        var prefixo = Guid.NewGuid().ToString("N");
+        var adminEmail = $"admin.portal.catalogo.int.{prefixo}@empresa.com";
+        var solicitanteEmail = $"sol.portal.catalogo.int.{prefixo}@empresa.com";
+
+        using var clientAdmin = _factory.CreateClient();
+        using var clientSolicitante = _factory.CreateClient();
+
+        AddDevHeaders(clientAdmin, adminEmail, "Admin Catalogo", "Administrador");
+        AddDevHeaders(clientSolicitante, solicitanteEmail, "Solicitante Catalogo", "Solicitante");
+
+        _ = await clientAdmin.GetAsync("/api/me");
+        _ = await clientSolicitante.GetAsync("/api/me");
+
+        var response = await clientSolicitante.PostAsJsonAsync("/api/portal/catalogo-servicos/requisicoes", new AbrirRequisicaoServicoCatalogoRequest
+        {
+            CatalogoServicoId = Guid.Empty, // Inválido
+            Titulo = "", // Inválido
+            Descricao = "" // Inválido
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task SeedServicosAsync(string prefixo, string emailAdmin, CancellationToken cancellationToken = default)
     {
         using var scope = _factory.Services.CreateScope();
@@ -250,6 +312,39 @@ public sealed class PortalCatalogoServicosIntegrationTests : IClassFixture<ApiIn
         dbContext.CatalogosServico.Add(inativo);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<(Guid ServicoId, string Slug)> SeedServicoParaRequisicaoCatalogoAsync(string prefixo, string emailAdmin, CancellationToken cancellationToken = default)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SGXSistemaChamadoDbContext>();
+
+        var admin = await dbContext.Usuarios.FirstAsync(x => x.Email == emailAdmin, cancellationToken);
+        var categoria = await ObterOuCriarCategoriaAsync(dbContext, prefixo, cancellationToken);
+        var departamentoId = categoria.DepartamentoId ?? throw new InvalidOperationException("Categoria sem departamento para teste de requisicao por catalogo.");
+
+        var servico = new CatalogoServico(
+            $"{prefixo}-requisicao",
+            $"{prefixo}-requisicao",
+            "descricao para requisicao",
+            "instrucao para requisicao",
+            departamentoId,
+            categoria.Id,
+            null,
+            null,
+            null,
+            null,
+            VisibilidadeCatalogoServico.Solicitante,
+            true,
+            false,
+            1,
+            admin.Id,
+            "integration-test");
+
+        servico.Publicar(admin.Id, "integration-test");
+        dbContext.CatalogosServico.Add(servico);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return (servico.Id, servico.Slug);
     }
 
     private async Task<string> SeedServicoRascunhoAsync(string prefixo, string emailAdmin, CancellationToken cancellationToken = default)

@@ -1,5 +1,6 @@
 import { httpClient } from './httpClient'
 import type {
+  AbrirRequisicaoServicoCatalogoRequest,
   ChamadoCriadoResponse,
   ChamadoDetalhePortal,
   ComentarChamadoPayload,
@@ -41,6 +42,9 @@ export const portalService = {
 
   criarChamado: (payload: CriarChamadoRequest) =>
     httpClient.post<ChamadoCriadoResponse>('/api/portal/chamados', payload),
+
+  abrirRequisicaoServicoCatalogo: (payload: AbrirRequisicaoServicoCatalogoRequest) =>
+    httpClient.post<ChamadoCriadoResponse>('/api/portal/catalogo-servicos/requisicoes', payload),
 
   comentarChamado: (id: string, payload: ComentarChamadoPayload) =>
     httpClient.post<ComentarioChamado>(`/api/portal/chamados/${id}/comentarios`, payload),

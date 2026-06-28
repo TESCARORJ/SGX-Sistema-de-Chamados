@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import type { QForm } from 'quasar'
 import { useQuasar } from 'quasar'
@@ -306,7 +306,7 @@ async function salvar(): Promise<void> {
     return
   }
 
-  if (form.naturezaChamado === null || form.impactoChamado === null || form.urgenciaChamado === null) {
+  if (!aberturaPorCatalogo.value && (form.naturezaChamado === null || form.impactoChamado === null || form.urgenciaChamado === null)) {
     erroSalvar.value = 'Selecione natureza, impacto e urgencia para abrir o chamado.'
     return
   }
@@ -314,22 +314,28 @@ async function salvar(): Promise<void> {
   salvando.value = true
 
   try {
-    const chamado = await portalService.criarChamado({
-      titulo: form.titulo.trim(),
-      descricao: form.descricao.trim(),
-      catalogoServicoId: form.catalogoServicoId ?? undefined,
-      catalogoServicoSlug: form.catalogoServicoSlug ?? undefined,
-      departamentoId:
-        exibirDepartamento.value && !aberturaPorCatalogo.value ? (form.departamentoId ?? undefined) : undefined,
-      categoriaId: form.categoriaId ?? undefined,
-      subcategoriaId: form.subcategoriaId ?? undefined,
-      prioridadeId: form.prioridadeId ?? undefined,
-      naturezaChamado: form.naturezaChamado,
-      impactoChamado: form.impactoChamado,
-      urgenciaChamado: form.urgenciaChamado,
-      tipoSolicitacaoId: form.tipoSolicitacaoId ?? undefined,
-      localUnidadeId: form.localUnidadeId ?? undefined,
-    })
+    const chamado = aberturaPorCatalogo.value && form.catalogoServicoId
+      ? await portalService.abrirRequisicaoServicoCatalogo({
+          catalogoServicoId: form.catalogoServicoId,
+          titulo: form.titulo.trim(),
+          descricao: form.descricao.trim() || undefined,
+        })
+      : await portalService.criarChamado({
+          titulo: form.titulo.trim(),
+          descricao: form.descricao.trim(),
+          catalogoServicoId: form.catalogoServicoId ?? undefined,
+          catalogoServicoSlug: form.catalogoServicoSlug ?? undefined,
+          departamentoId:
+            exibirDepartamento.value && !aberturaPorCatalogo.value ? (form.departamentoId ?? undefined) : undefined,
+          categoriaId: form.categoriaId ?? undefined,
+          subcategoriaId: form.subcategoriaId ?? undefined,
+          prioridadeId: form.prioridadeId ?? undefined,
+          naturezaChamado: form.naturezaChamado,
+          impactoChamado: form.impactoChamado,
+          urgenciaChamado: form.urgenciaChamado,
+          tipoSolicitacaoId: form.tipoSolicitacaoId ?? undefined,
+          localUnidadeId: form.localUnidadeId ?? undefined,
+        })
 
     let anexosComFalha = 0
 
@@ -424,7 +430,7 @@ onMounted(async () => {
             </div>
           </q-banner>
 
-          <div class="sgx-form-group">
+          <div v-if="!aberturaPorCatalogo" class="sgx-form-group">
             <div class="text-subtitle2 text-weight-semibold">Classificacao ITSM</div>
             <div class="text-caption sgx-muted">Selecione natureza, impacto e urgencia para direcionar o atendimento.</div>
 
@@ -482,7 +488,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <q-separator />
+          <q-separator v-if="!aberturaPorCatalogo" />
 
           <div class="sgx-form-group">
             <div class="text-subtitle2 text-weight-semibold">Dados do chamado</div>
@@ -509,9 +515,9 @@ onMounted(async () => {
             />
           </div>
 
-          <q-separator />
+          <q-separator v-if="!aberturaPorCatalogo" />
 
-          <div class="sgx-form-group">
+          <div v-if="!aberturaPorCatalogo" class="sgx-form-group">
             <div class="text-subtitle2 text-weight-semibold">Classificacao operacional</div>
             <div class="text-caption sgx-muted">Categoria, tipo e contexto organizacional ajudam no roteamento interno.</div>
 
