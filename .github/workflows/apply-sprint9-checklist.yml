@@ -16,7 +16,7 @@ jobs:
   apply-checklist:
     if: github.event.pull_request.head.ref == 'agent/sprint-9-checklist-incidentes'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout da branch da PR
@@ -38,16 +38,40 @@ jobs:
         run: dotnet restore SGX.SistemaChamado.sln
 
       - name: Build preliminar da API para gerar migration
+        id: build_preliminar
         shell: bash
         run: |
           set +e
-          timeout 360s dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj --no-restore /p:UseSharedCompilation=false -m:1 -v:minimal > build-preliminar.log 2>&1
+          timeout 900s dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj --no-restore /p:UseSharedCompilation=false -m:1 -v:minimal > build-preliminar.log 2>&1
           status=$?
-          cat build-preliminar.log
+          echo "$status" > build-preliminar.status
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          tail -n 80 build-preliminar.log || true
+          exit 0
+
+      - name: Publicar log do build preliminar
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprint9-build-preliminar
+          path: |
+            build-preliminar.log
+            build-preliminar.status
+          retention-days: 1
+
+      - name: Validar resultado do build preliminar
+        shell: bash
+        run: |
+          status=$(cat build-preliminar.status)
           if [ "$status" -eq 124 ]; then
-            echo "ERRO: build preliminar excedeu 360 segundos."
+            echo "Build preliminar excedeu 900 segundos."
+            exit 124
           fi
-          exit "$status"
+          if [ "$status" -ne 0 ]; then
+            echo "Build preliminar falhou com status $status."
+            exit "$status"
+          fi
+          echo "Build preliminar concluido com sucesso."
 
       - name: Instalar dotnet-ef
         run: dotnet tool install --global dotnet-ef --version 9.0.0
