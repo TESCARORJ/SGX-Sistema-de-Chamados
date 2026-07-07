@@ -20,7 +20,7 @@ Sprints consolidadas:
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
 7. Sprint 7 - Gerenciamento de Requisicoes (92% - Em desenvolvimento)
-8. Sprint 8 - Catalogo de Servicos 2.0 (50% - Implementado funcionalmente)
+8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
 9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
 11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
@@ -50,7 +50,96 @@ Observacao:
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Em desenvolvimento | Bloqueado | 94% |
 | Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 87% |
-| Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 50% |
+| Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Em desenvolvimento | Parcial | 96% |
+
+## Atualizacao 2026-07-07 - Sprint 8 Catalogo de Servicos 2.0 - Item 66
+
+- Percentual recalculado para `96%` com base em `73` itens concluidos e `3` pendentes.
+- O item `66` foi concluido consolidando a cobertura de seguranca do formulario dinamico e das respostas na abertura guiada.
+- A regressao cobre campos inexistentes, de outro servico, de outra versao, inativos, invisiveis, opcoes inexistentes, opcoes inativas e tentativa de manipulacao de metadados do chamado.
+- Tambem foi validado que payload invalido nao cria chamado, nao persiste respostas e nao expõe valores na auditoria tecnica.
+- Nenhuma funcionalidade nova fora desse escopo foi criada nesta etapa.
+- Os proximos itens pendentes reais registrados no checklist consolidado passam a ser `74`, `75` e `76`.
+
+## Atualizacao 2026-07-07 - Sprint 8 Catalogo de Servicos 2.0 - Documento de homologacao funcional
+
+- Foi criado o documento [docs/homologacao/sprint-8-homologacao-funcional.md](/c:/Pessoal/SGX/SGX%20Sistema%20de%20Chamados%20Completo/docs/homologacao/sprint-8-homologacao-funcional.md) para consolidar a homologacao funcional da Sprint 8 em formato formal.
+- O documento organiza identificacao, objetivo, cenarios obrigatorios, resultado geral, pendencias e campos de responsabilidade.
+- O artefato ainda aguarda preenchimento das evidencias reais e aprovacao dos responsaveis; por isso, o item `74` permanece pendente.
+- O progresso da Sprint 8 permanece em `96%`, sem alteracao de checklist nesta etapa.
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 65
+
+- Percentual recalculado para `95%` com base em `72` itens concluidos e `4` pendentes.
+- O item `65` foi concluido garantindo que o solicitante so consegue enviar respostas permitidas para o formulario aplicavel ao servico.
+- O backend agora valida se `SelecaoUnica` usa apenas `Valor` presente em opcao ativa do campo e se `SelecaoMultipla` usa apenas itens de `Valores` presentes em opcoes ativas do proprio campo.
+- Opcoes inexistentes ou inativas sao rejeitadas antes da persistencia, preservando a integridade da abertura guiada.
+- Nenhuma funcionalidade nova fora desse escopo foi criada nesta etapa.
+- O proximo item pendente real registrado no checklist consolidado passa a ser o item `66` (`Testar seguranca do formulario e respostas`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 64
+
+- Percentual recalculado para `93%` com base em `71` itens concluidos e `5` pendentes.
+- O item `64` foi concluido garantindo que o solicitante nao consegue manipular grupo tecnico, SLA, aprovacao ou classificacao operacional na abertura guiada.
+- O contrato publico dedicado de abertura guiada continua sem expor `NaturezaChamado`, `CategoriaId`, `SubcategoriaId`, `PrioridadeId`, `GrupoTecnicoId`, `SlaId` ou campos de aprovacao.
+- Os testes validam que o backend e o catalogo permanecem como fonte de verdade, mesmo quando campos sensiveis sao enviados indevidamente no JSON.
+- Nenhuma funcionalidade nova fora desse escopo foi criada nesta etapa.
+- O proximo item pendente real registrado no checklist consolidado passa a ser o item `65` (`Garantir que solicitante so envie respostas permitidas para o servico`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 55
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 63
+
+- Percentual recalculado para `92%` com base em `70` itens concluidos e `6` pendentes.
+- O item `63` foi concluido garantindo autorizacao para manutencao administrativa do formulario do servico.
+- A leitura administrativa de formulario permanece disponivel para `Administrador` e `Atendente`, sem alterar o fluxo operacional de consulta.
+- As operacoes de criacao, atualizacao, inativacao e reativacao de formulario, versao, campo e opcao agora exigem `Administrador` tambem na API e na camada de aplicacao.
+- Nenhuma funcionalidade nova fora desse escopo foi criada nesta etapa.
+- O proximo item pendente real registrado no checklist consolidado passa a ser o item `64` (`Garantir que solicitante nao manipule grupo, SLA, aprovacao ou classificacao`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 55
+
+- Percentual recalculado para `91%` com base em `69` itens concluidos e `7` pendentes.
+- O item `55` foi concluido garantindo a aplicacao de tipo, categoria, subcategoria e prioridade do catalogo durante a abertura guiada.
+- A abertura com `CatalogoServicoId` passa a forcar `NaturezaChamadoEnum.Requisicao` e a usar a prioridade padrao do servico quando ela estiver configurada.
+- Quando o catalogo nao define categoria, subcategoria ou prioridade, o fallback legado permanece ativo.
+- Nenhuma funcionalidade nova fora desse escopo foi criada nesta etapa.
+- O proximo item pendente real registrado no checklist consolidado passa a ser o item `63` (`Garantir autorizacao para manutencao administrativa do formulario`), porque os itens `56` a `62` ja estavam concluidos no seed anterior.
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 54
+
+- Percentual recalculado para `89%` com base em `68` itens concluidos e `8` pendentes.
+- O item `54` foi concluido exclusivamente com o reforco dos testes de exibicao das respostas do formulario na area administrativa de atendimento.
+- Os testes validam resposta simples, resposta multipla, rotulo, tipo do campo conforme o layout atual e preservacao da ordem recebida.
+- A tela continua usando apenas o endpoint existente de detalhe administrativo, sem endpoint novo para respostas do formulario.
+- Nenhuma funcionalidade nova foi criada nesta etapa.
+- O proximo item pendente da Sprint 8 passa a ser o item `55` (`Garantir aplicacao de tipo, categoria, subcategoria e prioridade do catalogo`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 53
+
+- Percentual recalculado para `88%` com base em `67` itens concluidos e `9` pendentes.
+- O item `53` foi concluido exclusivamente com o reforco dos testes de exibicao das respostas do formulario no portal do solicitante.
+- Os testes validam resposta simples, resposta multipla, rotulo, tipo do campo conforme o layout atual e preservacao da ordem recebida.
+- A tela continua usando apenas o endpoint existente de detalhe do chamado, sem endpoint novo para respostas do formulario.
+- Nenhuma funcionalidade nova foi criada nesta etapa.
+- O proximo item pendente da Sprint 8 passa a ser o item `54` (`Testar exibicao das respostas no atendimento administrativo`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 52
+
+- Percentual recalculado para `87%` com base em `66` itens concluidos e `10` pendentes.
+- O item `52` foi concluido exclusivamente com o reforco dos testes de persistencia das respostas do formulario na abertura guiada.
+- Os testes validam `Valor`, `ValoresJson`, vinculos com `ChamadoId`, `FormularioServicoVersaoId` e `CampoFormularioServicoId`.
+- O payload invalido continua sem persistir chamado nem respostas, e a auditoria tecnica do item `51` permanece sem expor valores das respostas.
+- Nenhuma funcionalidade nova foi criada nesta etapa.
+- O proximo item pendente da Sprint 8 passa a ser o item `53` (`Testar exibicao das respostas no portal`).
+
+## Atualizacao 2026-07-06 - Sprint 8 Catalogo de Servicos 2.0 - Item 51
+
+- Percentual recalculado para `86%` com base em `65` itens concluidos e `11` pendentes.
+- O item `51` foi concluido com a auditoria tecnica especifica das respostas persistidas na abertura guiada por catalogo.
+- A auditoria registra `ChamadoId`, `FormularioServicoVersaoId`, quantidade de respostas persistidas e origem `AberturaGuiadaCatalogo`, sem gravar valores das respostas.
+- O historico funcional resumido do item `50` permanece ativo e separado da trilha tecnica.
+- O proximo item pendente da Sprint 8 passa a ser o item `52` (`Testar persistencia das respostas do formulario`).
 | Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
 | Sprint 10 - Gerenciamento de Mudancas | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
 | Sprint 11 - Gerenciamento de Problemas | ITIL/ITSM | Planejado | Nao avaliado | 25% |
@@ -64,6 +153,78 @@ Observacao:
 | Sprint 19 - Pesquisa de satisfacao | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
 | Sprint 20 - Homologacao institucional ITSM | ITIL/ITSM | Em homologacao | Homologacao funcional preparada | 75% |
 | Sprint 21 - Produto, implantacao e operacao | ITIL/ITSM | Em desenvolvimento | Parcial | 25% |
+
+## Atualizacao 2026-07-03 - Sprint 8 Catalogo de Servicos 2.0 - Item 49
+
+- Percentual recalculado para `83%` com base em `63` itens concluidos e `13` pendentes.
+- O item `49` foi concluido com a exibicao das respostas persistidas do formulario na area administrativa de atendimento.
+- A tela administrativa agora mostra `Rotulo`, `Tipo`, `Valor` e `Valores`, preservando a ordem recebida do contrato ja existente.
+- Nenhum backend funcional novo foi criado nesta etapa e nao houve alteracao na persistencia das respostas.
+- Auditoria e historico especifico dessas respostas ainda nao existem.
+- O proximo item pendente da Sprint 8 passa a ser o item `50` (`Registrar historico da abertura com formulario preenchido`).
+
+## Atualizacao 2026-07-02 - Sprint 8 Catalogo de Servicos 2.0 - Item 44
+
+- Percentual recalculado para `76%` com base em `58` itens concluidos e `18` pendentes.
+- O item `44` foi concluido com a configuracao explicita do EF Core para `RespostaFormularioChamado`.
+- Os testes agora validam metadata da entidade, tabela, FKs, `DeleteBehavior.Restrict`, limites e indices.
+- A migration estrutural da tabela de respostas permanece reservada para o item `45`.
+- As respostas ainda nao sao persistidas na abertura guiada e ainda nao sao exibidas no chamado, no portal ou no atendimento.
+- O proximo item pendente da Sprint 8 passa a ser o item `45` (`Criar migration estrutural para respostas do formulario`).
+
+## Atualizacao 2026-07-02 - Sprint 8 Catalogo de Servicos 2.0 - Item 43
+
+- Percentual recalculado para `75%` com base em `57` itens concluidos e `19` pendentes.
+- O item `43` foi concluido com a modelagem estrutural da entidade de dominio para respostas do formulario no chamado.
+- EF Core e migration estrutural da tabela de respostas permanecem pendentes para os itens `44` e `45`.
+- As respostas ainda nao sao persistidas na abertura guiada e ainda nao sao exibidas no chamado, no portal ou no atendimento.
+- O proximo item pendente da Sprint 8 passa a ser o item `44` (`Configurar EF Core para respostas do formulario`).
+
+## Atualizacao 2026-07-02 - Sprint 8 Catalogo de Servicos 2.0
+
+- Percentual recalculado para `74%` com base em `56` itens concluidos e `20` pendentes.
+- O item `42` foi concluido com cobertura automatizada da abertura guiada sem formulario configurado, incluindo `GET` com `Formulario = null`, `POST` com sucesso sem respostas, rejeicao de respostas preenchidas e limpeza de respostas antigas no frontend.
+- As respostas do formulario continuam sem persistencia nesta etapa.
+- O proximo item pendente da Sprint 8 passa a ser o item `43` (`Modelar persistencia das respostas do formulario no chamado`).
+
+## Atualizacao 2026-06-27 - Sprint 8 Catalogo de Servicos 2.0
+
+- Checklist expandido de `4` para `76` itens rastreaveis.
+- Percentual recalculado para `72%` com base em `55` itens concluidos e `21` pendentes.
+- Item `23` concluido com a auditoria das migrations estruturais do formulario dinamico e comprovacao de separacao entre estrutura e checklist.
+- Item `24` concluido com os contratos administrativos de formulario, versao, campo e opcao, sem validacao administrativa ou API nesta etapa.
+- Item `25` concluido com validators administrativos contratuais, preservando a ausencia de endpoints, frontend e regras relacionais nesta etapa.
+- Item `26` concluido com use cases administrativos para formulario, versao, campo e opcao, preservando a ausencia de endpoints e frontend nesta etapa.
+- Item `27` concluido com endpoints administrativos para formulario, versao, campo e opcao, preservando a ausencia de frontend e de uso funcional do formulario na abertura guiada.
+- Item `28` concluido com o frontend administrativo do catalogo para configurar formulario, versoes, campos e opcoes no detalhe do servico.
+- Item `29` concluido com a consolidacao dos testes automatizados da configuracao administrativa de formulario por servico.
+- O portal do solicitante ja renderiza formulario dinamico, a abertura guiada agora envia respostas e a persistencia dessas respostas continua pendente.
+- O item `30` concluiu a exposicao dos metadados do formulario no endpoint de preparacao da abertura, mantendo a abertura sem respostas, sem validacao dinamica e sem persistencia.
+- O item `33` concluiu a validacao de obrigatoriedade dos campos ativos e visiveis no backend, sem validacao de tipo/formato, opcoes permitidas ou persistencia das respostas.
+- O item `34` concluiu a validacao de tipos e formatos das respostas no backend, sem persistencia, sem validacao completa de campo indevido e sem validar pertencimento das opcoes.
+- O item `35` concluiu a validacao de escopo dos campos respondidos, rejeitando ids inexistentes, de outra versao, de outro formulario/servico e campos inativos ou invisiveis.
+- Item `36` concluido com regressao dedicada para abertura guiada sem formulario e rejeicao de respostas preenchidas fora desse contexto.
+- Item `37` concluido com a renderizacao dinamica do formulario no portal.
+- Item `38` concluido com o envio das respostas do formulario no request de abertura guiada, ainda sem persistencia.
+- Item `39` concluido com a cobertura automatizada do fluxo valido de abertura guiada com formulario.
+- O item `41` foi concluido com cobertura automatizada da rejeicao de respostas invalidas na abertura guiada.
+- Os itens `61` e `62` tambem foram sincronizados no checklist por ja possuirem evidencia automatizada preexistente de regressao, sem funcionalidade nova nesta entrega.
+- O item `42` foi concluido com cobertura automatizada da abertura guiada sem formulario configurado, incluindo `GET` com `Formulario = null`, `POST` com sucesso sem respostas, rejeicao de respostas preenchidas e limpeza de respostas antigas no frontend.
+- As respostas do formulario continuam sem persistencia nesta etapa.
+- O proximo item pendente da Sprint 8 passa a ser o item `43` (`Modelar persistencia das respostas do formulario no chamado`).
+- As respostas do formulario continuam sem persistencia nesta etapa.
+- A abertura guiada agora aplica o grupo tecnico configurado no catalogo quando ativo e preserva o fallback legado quando nao houver configuracao.
+- Os itens `5-10` foram promovidos no checklist porque ja possuiam evidencia tecnica e testes no backend.
+- O item `11` foi concluido somente apos testes dedicados de consulta administrativa `GET` para listagem e detalhe.
+- O item `16` foi concluido com a modelagem estrutural da entidade `FormularioServico`, ainda sem campos, respostas ou renderizacao dinamica.
+- O item `17` foi concluido com a modelagem estrutural da entidade `CampoFormularioServico`, ainda sem tipos, opcoes, respostas ou validacao dinamica.
+- O item `18` foi concluido com a modelagem dos tipos permitidos para `CampoFormularioServico`, ainda sem opcoes, respostas ou validacao dinamica.
+- O item `19` foi concluido com a modelagem de obrigatoriedade, ordem, ajuda e visibilidade como metadados do campo, ainda sem validacao dinamica ou frontend.
+- O item `20` foi concluido com a modelagem estrutural de `OpcaoCampoFormularioServico`, ainda sem endpoint administrativo, renderizacao dinamica, versionamento ou respostas persistidas.
+- O item `21` foi concluido com a modelagem estrutural de `FormularioServicoVersao`, preservando `FormularioServico` como cabecalho e deslocando os campos para uma versao especifica, ainda sem publicacao funcional, clonagem ou respostas versionadas.
+- O item `22` foi concluido com a auditoria e consolidacao das configuracoes EF Core de formulario, versao, campos e opcoes, sem adicionar comportamento funcional novo fora da camada de persistencia.
+- Itens transferidos da Sprint 7 agora rastreados na Sprint 8: grupo responsavel do catalogo, formulario por servico e validacao/persistencia de respostas.
+- Documento tecnico de apoio: `docs/roadmap/sprint-8-catalogo-servicos-2.md`.
 
 ## Atualizacao 2026-05-27 - Consolidacao da Fundacao ITSM
 
@@ -2774,3 +2935,53 @@ Pendencias evolutivas:
 - dashboard executivo dedicado para autenticacao e metodos de login;
 - homologacao institucional com politicas de retencao de auditoria por cliente.
 
+## Atualizacao 2026-07-03 - Sprint 8 Catalogo de Servicos 2.0 - Item 48
+
+- Percentual recalculado para `82%` com base em `62` itens concluidos e `14` pendentes.
+- O item `48` foi concluido com a exibicao das respostas do formulario no portal do solicitante.
+- A tela de detalhe do chamado no portal agora mostra `Rotulo`, `Tipo`, `Valor` e `Valores`, preservando a ordem recebida do backend e compatibilidade quando nao ha respostas.
+- Nenhum backend funcional novo foi criado; a exibicao reutiliza o contrato de detalhe ja existente.
+- O atendimento administrativo ainda nao possui exibicao dedicada dessas respostas.
+- O proximo item pendente da Sprint 8 passa a ser o item `49` (`Exibir respostas do formulario na area administrativa de atendimento`).
+
+## Atualizacao 2026-07-03 - Sprint 8 Catalogo de Servicos 2.0 - Item 47
+
+- Percentual recalculado para `80%` com base em `61` itens concluidos e `15` pendentes.
+- O item `47` foi concluido com a exposicao das respostas do formulario no detalhe do chamado.
+- O contrato de detalhe agora inclui dados minimos do campo e o conteudo da resposta, com desserializacao de `ValoresJson` para `Valores`.
+- Chamados sem respostas continuam retornando colecao vazia, sem quebrar consumidores existentes.
+- O portal do solicitante e o atendimento administrativo ainda nao possuem exibicao dedicada dessas respostas.
+- O proximo item pendente da Sprint 8 passa a ser o item `48` (`Exibir respostas do formulario no portal do solicitante`).
+
+## Atualizacao 2026-07-02 - Sprint 8 Catalogo de Servicos 2.0 - Item 46
+
+- Percentual recalculado para `79%` com base em `60` itens concluidos e `16` pendentes.
+- O item `46` foi concluido com a persistencia real das respostas do formulario na abertura guiada.
+- Cada resposta valida agora e gravada em `respostas_formulario_chamado`, vinculada ao chamado, a versao aplicavel do formulario e ao campo respondido.
+- Respostas simples sao persistidas em `Valor` e respostas multiplas em `ValoresJson`.
+- As respostas ainda nao sao exibidas no chamado, no portal ou no atendimento.
+- O proximo item pendente da Sprint 8 passa a ser o item `47` (`Exibir respostas do formulario no detalhe do chamado`).
+
+## Atualizacao 2026-07-02 - Sprint 8 Catalogo de Servicos 2.0 - Item 45
+
+- Percentual recalculado para `78%` com base em `59` itens concluidos e `17` pendentes.
+- O item `45` foi concluido com a migration estrutural da tabela `respostas_formulario_chamado`.
+- Snapshot e metadata do EF Core ficaram consolidados, fechando o `pending model changes` da etapa anterior.
+- As respostas ainda nao sao persistidas na abertura guiada e ainda nao sao exibidas no chamado, no portal ou no atendimento.
+- O proximo item pendente da Sprint 8 passa a ser o item `46` (`Persistir respostas do formulario na abertura guiada`).
+## Atualizacao 2026-07-03 - Sprint 8 Catalogo de Servicos 2.0 - Item 49
+
+- Percentual recalculado para `83%` com base em `63` itens concluidos e `13` pendentes.
+- O item `49` foi concluido com a exibicao das respostas persistidas do formulario na area administrativa de atendimento.
+- A tela administrativa agora mostra `Rotulo`, `Tipo`, `Valor` e `Valores`, preservando a ordem recebida do contrato ja existente.
+- Nenhum backend funcional novo foi criado nesta etapa e nao houve alteracao na persistencia das respostas.
+- Auditoria e historico especifico dessas respostas ainda nao existem.
+- O proximo item pendente da Sprint 8 passa a ser o item `50` (`Registrar historico da abertura com formulario preenchido`).
+## Atualizacao 2026-07-03 - Sprint 8 Catalogo de Servicos 2.0 - Item 50
+
+- Percentual recalculado para `84%` com base em `64` itens concluidos e `12` pendentes.
+- O item `50` foi concluido com o registro do historico funcional e resumido da abertura guiada com formulario preenchido.
+- Quando houver respostas persistidas, a abertura agora grava `Chamado aberto com formulario do servico preenchido.` sem expor valores das respostas.
+- O historico padrao de criacao e o historico de criacao por catalogo permanecem preservados.
+- Auditoria tecnica especifica dessas respostas ainda nao existe.
+- O proximo item pendente da Sprint 8 passa a ser o item `51` (`Registrar auditoria tecnica das respostas persistidas`).

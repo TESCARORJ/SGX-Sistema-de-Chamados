@@ -34,6 +34,11 @@ public sealed class SGXSistemaChamadoDbContext(DbContextOptions<SGXSistemaChamad
     public DbSet<BaseConhecimentoArtigo> BaseConhecimentoArtigos => Set<BaseConhecimentoArtigo>();
     public DbSet<ChamadoArtigoConhecimento> ChamadosArtigosConhecimento => Set<ChamadoArtigoConhecimento>();
     public DbSet<CatalogoServico> CatalogosServico => Set<CatalogoServico>();
+    public DbSet<FormularioServico> FormulariosServico => Set<FormularioServico>();
+    public DbSet<FormularioServicoVersao> FormulariosServicoVersoes => Set<FormularioServicoVersao>();
+    public DbSet<CampoFormularioServico> CamposFormularioServico => Set<CampoFormularioServico>();
+    public DbSet<OpcaoCampoFormularioServico> OpcoesCamposFormularioServico => Set<OpcaoCampoFormularioServico>();
+    public DbSet<RespostaFormularioChamado> RespostasFormularioChamado => Set<RespostaFormularioChamado>();
     public DbSet<SlaConfiguracao> SlaConfiguracoes => Set<SlaConfiguracao>();
     public DbSet<SlaControle> SlaControles => Set<SlaControle>();
     public DbSet<ChamadoSla> ChamadosSla => Set<ChamadoSla>();

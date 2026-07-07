@@ -22,6 +22,7 @@ public sealed class CatalogoServicoConfiguration : IEntityTypeConfiguration<Cata
         builder.Property(x => x.PrioridadePadraoId).HasColumnName("prioridade_padrao_id");
         builder.Property(x => x.SlaPadraoId).HasColumnName("sla_padrao_id");
         builder.Property(x => x.ArtigoBaseConhecimentoId).HasColumnName("artigo_base_conhecimento_id");
+        builder.Property(x => x.GrupoTecnicoId).HasColumnName("grupo_tecnico_id");
         builder.Property(x => x.Status).HasColumnName("status").HasConversion<int>().IsRequired();
         builder.Property(x => x.Visibilidade).HasColumnName("visibilidade").HasConversion<int>().IsRequired();
         builder.Property(x => x.PermiteAberturaChamado).HasColumnName("permite_abertura_chamado").IsRequired();
@@ -41,6 +42,7 @@ public sealed class CatalogoServicoConfiguration : IEntityTypeConfiguration<Cata
 
         builder.HasIndex(x => x.Slug).IsUnique().HasDatabaseName("ux_catalogo_servicos_slug");
         builder.HasIndex(x => x.DepartamentoResponsavelId).HasDatabaseName("ix_catalogo_servicos_departamento_responsavel_id");
+        builder.HasIndex(x => x.GrupoTecnicoId).HasDatabaseName("ix_catalogo_servicos_grupo_tecnico_id");
         builder.HasIndex(x => x.Status).HasDatabaseName("ix_catalogo_servicos_status");
         builder.HasIndex(x => x.Ativo).HasDatabaseName("ix_catalogo_servicos_ativo");
         builder.HasIndex(x => new { x.Status, x.Ativo }).HasDatabaseName("ix_catalogo_servicos_status_ativo");
@@ -73,6 +75,11 @@ public sealed class CatalogoServicoConfiguration : IEntityTypeConfiguration<Cata
         builder.HasOne(x => x.ArtigoBaseConhecimento)
             .WithMany()
             .HasForeignKey(x => x.ArtigoBaseConhecimentoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.GrupoTecnico)
+            .WithMany()
+            .HasForeignKey(x => x.GrupoTecnicoId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne<Usuario>()

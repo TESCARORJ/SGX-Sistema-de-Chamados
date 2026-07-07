@@ -283,6 +283,91 @@ public sealed class PortalCatalogoServicosUseCasesTests
         Assert.Equal(servico.Id, response.CatalogoServicoId);
         Assert.Equal("Solicitar acesso VPN", response.Nome);
         Assert.True(response.PermiteAberturaChamado);
+        Assert.Null(response.Formulario);
+    }
+
+    [Fact]
+    public async Task PrepararAberturaRetornaMetadadosDoFormularioAtivoPublicadoQuandoDisponivel()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedUsuariosEContextoCatalogoAsync(context);
+        var prioridade = await context.PrioridadesChamado.FirstAsync(x => x.Ativo);
+        var servico = await CriarServicoAsync(
+            context,
+            dados.Admin,
+            "Solicitar notebook",
+            "Abertura guiada com formulario",
+            dados.DepartamentoTi.Id,
+            dados.CategoriaTi.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante,
+            prioridadePadraoId: prioridade.Id);
+
+        var formulario = await CriarFormularioServicoAsync(context, servico.Id, "Formulario de requisicao");
+        var versaoRascunho = await CriarVersaoFormularioAsync(context, formulario.Id, 1, publicada: false, publicadoEm: null);
+        await CriarCampoFormularioAsync(context, versaoRascunho.Id, "rascunho", "Campo rascunho", TipoCampoFormularioServico.TextoCurto, 1, ativo: true, visivel: true);
+
+        var versaoPublicada = await CriarVersaoFormularioAsync(context, formulario.Id, 2, publicada: true, publicadoEm: new DateTime(2026, 6, 30, 12, 0, 0, DateTimeKind.Utc));
+        var campoInativo = await CriarCampoFormularioAsync(context, versaoPublicada.Id, "inativo", "Campo inativo", TipoCampoFormularioServico.TextoCurto, 4, ativo: false, visivel: true);
+        var campoInvisivel = await CriarCampoFormularioAsync(context, versaoPublicada.Id, "oculto", "Campo oculto", TipoCampoFormularioServico.TextoCurto, 3, ativo: true, visivel: false);
+        var campoTexto = await CriarCampoFormularioAsync(context, versaoPublicada.Id, "justificativa", "Justificativa", TipoCampoFormularioServico.TextoLongo, 2, ativo: true, visivel: true, textoAjuda: "Explique a necessidade");
+        var campoSelecao = await CriarCampoFormularioAsync(context, versaoPublicada.Id, "tipoAcesso", "Tipo de acesso", TipoCampoFormularioServico.SelecaoUnica, 1, ativo: true, visivel: true);
+        await CriarOpcaoCampoFormularioAsync(context, campoSelecao.Id, "inativa", "Inativa", 3, ativo: false);
+        await CriarOpcaoCampoFormularioAsync(context, campoSelecao.Id, "vpn", "VPN", 2, ativo: true);
+        await CriarOpcaoCampoFormularioAsync(context, campoSelecao.Id, "email", "E-mail", 1, ativo: true);
+
+        var useCase = CriarUseCase(context, dados.Solicitante);
+        var response = await useCase.PrepararAberturaChamadoAsync(servico.Slug);
+
+        Assert.NotNull(response.Formulario);
+        Assert.Equal(formulario.Id, response.Formulario!.Id);
+        Assert.Equal("Formulario de requisicao", response.Formulario.Nome);
+        Assert.Equal(versaoPublicada.Id, response.Formulario.Versao.Id);
+        Assert.Equal(2, response.Formulario.Versao.Numero);
+        Assert.Equal(2, response.Formulario.Versao.Campos.Count);
+        Assert.DoesNotContain(response.Formulario.Versao.Campos, x => x.Id == campoInativo.Id);
+        Assert.DoesNotContain(response.Formulario.Versao.Campos, x => x.Id == campoInvisivel.Id);
+        Assert.Equal(new[] { campoSelecao.Id, campoTexto.Id }, response.Formulario.Versao.Campos.Select(x => x.Id).ToArray());
+
+        var campoSelecaoResponse = response.Formulario.Versao.Campos.First();
+        Assert.Equal(campoSelecao.Id, campoSelecaoResponse.Id);
+        Assert.Equal(new[] { "email", "vpn" }, campoSelecaoResponse.Opcoes.Select(x => x.Valor).ToArray());
+        Assert.DoesNotContain(campoSelecaoResponse.Opcoes, x => x.Valor == "inativa");
+
+        var campoTextoResponse = response.Formulario.Versao.Campos.Last();
+        Assert.Equal(campoTexto.Id, campoTextoResponse.Id);
+        Assert.Empty(campoTextoResponse.Opcoes);
+    }
+
+    [Fact]
+    public async Task PrepararAberturaUsaMaiorVersaoAtivaQuandoNaoHouverVersaoPublicada()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedUsuariosEContextoCatalogoAsync(context);
+        var servico = await CriarServicoAsync(
+            context,
+            dados.Admin,
+            "Servico com versoes ativas",
+            "Descricao",
+            dados.DepartamentoTi.Id,
+            dados.CategoriaTi.Id,
+            StatusCatalogoServico.Publicado,
+            VisibilidadeCatalogoServico.Solicitante);
+
+        var formulario = await CriarFormularioServicoAsync(context, servico.Id, "Formulario sem publicacao");
+        var versao1 = await CriarVersaoFormularioAsync(context, formulario.Id, 1, publicada: false, publicadoEm: null);
+        var versao3 = await CriarVersaoFormularioAsync(context, formulario.Id, 3, publicada: false, publicadoEm: null);
+        await CriarCampoFormularioAsync(context, versao1.Id, "campoV1", "Campo V1", TipoCampoFormularioServico.TextoCurto, 1, ativo: true, visivel: true);
+        await CriarCampoFormularioAsync(context, versao3.Id, "campoV3", "Campo V3", TipoCampoFormularioServico.TextoCurto, 1, ativo: true, visivel: true);
+
+        var useCase = CriarUseCase(context, dados.Solicitante);
+        var response = await useCase.PrepararAberturaChamadoAsync(servico.Slug);
+
+        Assert.NotNull(response.Formulario);
+        Assert.Equal(versao3.Id, response.Formulario!.Versao.Id);
+        Assert.Equal(3, response.Formulario.Versao.Numero);
+        Assert.Single(response.Formulario.Versao.Campos);
+        Assert.Equal("campoV3", response.Formulario.Versao.Campos.Single().Nome);
     }
 
     [Fact]
@@ -378,6 +463,7 @@ public sealed class PortalCatalogoServicosUseCasesTests
     private static CatalogoServicosPortalUseCases CriarUseCase(SGXSistemaChamadoDbContext context, Usuario usuario)
         => new(
             PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
+            PortalUseCasesTestFactory.Repo<FormularioServico>(context),
             new FakeUsuarioContextoAplicacaoService(Contexto(usuario)));
 
     private static UsuarioContextoAplicacao Contexto(Usuario usuario)
@@ -475,5 +561,92 @@ public sealed class PortalCatalogoServicosUseCasesTests
             .FirstAsync(x => x.Id == solicitante.Id);
 
         return (adminCompleto, atendenteCompleto, solicitanteCompleto, departamentoTi, departamentoRh, categoriaTi, categoriaRh);
+    }
+
+    private static async Task<FormularioServico> CriarFormularioServicoAsync(
+        SGXSistemaChamadoDbContext context,
+        Guid catalogoServicoId,
+        string nome,
+        bool ativo = true)
+    {
+        var formulario = new FormularioServico(catalogoServicoId, nome, "Descricao do formulario", "teste");
+        if (!ativo)
+        {
+            formulario.Inativar("teste");
+        }
+
+        context.FormulariosServico.Add(formulario);
+        await context.SaveChangesAsync();
+        return formulario;
+    }
+
+    private static async Task<FormularioServicoVersao> CriarVersaoFormularioAsync(
+        SGXSistemaChamadoDbContext context,
+        Guid formularioServicoId,
+        int numero,
+        bool publicada,
+        DateTime? publicadoEm,
+        bool ativo = true)
+    {
+        var versao = new FormularioServicoVersao(formularioServicoId, numero, publicada, publicadoEm, "teste");
+        if (!ativo)
+        {
+            versao.Inativar("teste");
+        }
+
+        context.FormulariosServicoVersoes.Add(versao);
+        await context.SaveChangesAsync();
+        return versao;
+    }
+
+    private static async Task<CampoFormularioServico> CriarCampoFormularioAsync(
+        SGXSistemaChamadoDbContext context,
+        Guid formularioServicoVersaoId,
+        string nome,
+        string rotulo,
+        TipoCampoFormularioServico tipo,
+        int ordem,
+        bool ativo,
+        bool visivel,
+        string? textoAjuda = null)
+    {
+        var campo = new CampoFormularioServico(
+            formularioServicoVersaoId,
+            nome,
+            rotulo,
+            tipo,
+            obrigatorio: true,
+            ordem,
+            textoAjuda,
+            visivel,
+            "teste");
+
+        if (!ativo)
+        {
+            campo.Inativar("teste");
+        }
+
+        context.CamposFormularioServico.Add(campo);
+        await context.SaveChangesAsync();
+        return campo;
+    }
+
+    private static async Task<OpcaoCampoFormularioServico> CriarOpcaoCampoFormularioAsync(
+        SGXSistemaChamadoDbContext context,
+        Guid campoFormularioServicoId,
+        string valor,
+        string rotulo,
+        int ordem,
+        bool ativo)
+    {
+        var opcao = new OpcaoCampoFormularioServico(campoFormularioServicoId, valor, rotulo, ordem, "teste");
+        if (!ativo)
+        {
+            opcao.Inativar("teste");
+        }
+
+        context.OpcoesCamposFormularioServico.Add(opcao);
+        await context.SaveChangesAsync();
+        return opcao;
     }
 }

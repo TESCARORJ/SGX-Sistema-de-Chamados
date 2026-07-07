@@ -105,6 +105,10 @@ public sealed class CriarCatalogoServicoRequestValidator : AbstractValidator<Cri
             .Must(x => !x.HasValue || x.Value != Guid.Empty)
             .WithMessage("ArtigoBaseConhecimentoId informado e invalido.");
 
+        RuleFor(x => x.GrupoTecnicoId)
+            .Must(x => !x.HasValue || x.Value != Guid.Empty)
+            .WithMessage("GrupoTecnicoId informado e invalido.");
+
         RuleFor(x => x.Visibilidade)
             .IsInEnum()
             .WithMessage("Visibilidade informada e invalida.");
@@ -159,6 +163,10 @@ public sealed class AtualizarCatalogoServicoRequestValidator : AbstractValidator
         RuleFor(x => x.ArtigoBaseConhecimentoId)
             .Must(x => !x.HasValue || x.Value != Guid.Empty)
             .WithMessage("ArtigoBaseConhecimentoId informado e invalido.");
+
+        RuleFor(x => x.GrupoTecnicoId)
+            .Must(x => !x.HasValue || x.Value != Guid.Empty)
+            .WithMessage("GrupoTecnicoId informado e invalido.");
 
         RuleFor(x => x.Visibilidade)
             .IsInEnum()

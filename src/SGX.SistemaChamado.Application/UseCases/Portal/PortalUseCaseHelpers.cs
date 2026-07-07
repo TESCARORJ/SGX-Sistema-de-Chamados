@@ -125,6 +125,19 @@ internal static class PortalUseCaseHelpers
             JustificativaAprovacao = aprovacao.JustificativaAprovacao,
             JustificativaReprovacao = aprovacao.JustificativaReprovacao,
             MensagemOrientativaAprovacao = aprovacao.MensagemOrientativa,
+            RespostasFormulario = chamado.RespostasFormulario
+                .Where(x => x.Ativo)
+                .OrderBy(x => x.CampoFormularioServico.Ordem)
+                .ThenBy(x => x.CriadoEm)
+                .Select(x => new RespostaFormularioDetalheResponse(
+                    x.CampoFormularioServicoId,
+                    x.CampoFormularioServico.Nome,
+                    x.CampoFormularioServico.Rotulo,
+                    x.CampoFormularioServico.Tipo,
+                    x.Valor,
+                    x.ObterValores(),
+                    x.CampoFormularioServico.Ordem))
+                .ToArray(),
             Comentarios = chamado.Comentarios
                 .Where(x => x.Ativo && !x.Interno)
                 .OrderBy(x => x.CriadoEm)
@@ -209,6 +222,7 @@ internal static class PortalUseCaseHelpers
             TipoHistoricoChamado.AprovacaoCriada => "Aprovacao vinculada criada",
             TipoHistoricoChamado.AprovacaoAprovada => "Aprovacao vinculada aprovada",
             TipoHistoricoChamado.AprovacaoReprovada => "Aprovacao vinculada reprovada",
+            TipoHistoricoChamado.FormularioServicoPreenchidoNaAbertura => "Formulario do servico preenchido na abertura",
             _ => tipo.ToString()
         };
 }

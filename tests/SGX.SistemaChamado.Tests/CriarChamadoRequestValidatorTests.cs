@@ -2,6 +2,7 @@ using SGX.SistemaChamado.Application.DTOs.Portal;
 using SGX.SistemaChamado.Application.Services;
 using SGX.SistemaChamado.Application.Validators;
 using SGX.SistemaChamado.Domain.Enums;
+using FluentValidation.TestHelper;
 
 namespace SGX.SistemaChamado.Tests;
 
@@ -110,6 +111,21 @@ public sealed class CriarChamadoRequestValidatorTests
 
         Assert.DoesNotContain(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.CategoriaId));
         Assert.DoesNotContain(resultado.Errors, x => x.PropertyName == nameof(CriarChamadoRequest.PrioridadeId));
+    }
+
+    [Fact]
+    public void ContratoPublicoLegadoNaoDeveExporGrupoSlaOuCamposDeAprovacao()
+    {
+        var propriedades = typeof(CriarChamadoRequest)
+            .GetProperties()
+            .Select(x => x.Name)
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.DoesNotContain("GrupoTecnicoId", propriedades);
+        Assert.DoesNotContain("SlaId", propriedades);
+        Assert.DoesNotContain("RequerAprovacao", propriedades);
+        Assert.DoesNotContain("AprovacaoPendente", propriedades);
+        Assert.DoesNotContain("AprovacaoChamadoId", propriedades);
     }
 
     [Fact]
@@ -240,5 +256,227 @@ public sealed class CriarChamadoRequestValidatorTests
         });
 
         Assert.Empty(resultado.Errors);
+    }
+
+    [Fact]
+    public void DeveAceitarAusenciaDeRespostasFormulario()
+    {
+        var resultado = _validator.Validate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario = null
+        });
+
+        Assert.Empty(resultado.Errors);
+    }
+
+    [Fact]
+    public void DeveAceitarListaVaziaDeRespostasFormulario()
+    {
+        var resultado = _validator.Validate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario = []
+        });
+
+        Assert.Empty(resultado.Errors);
+    }
+
+    [Fact]
+    public void DeveAceitarRespostaFormularioComValor()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valor = "vpn"
+                }
+            ]
+        });
+
+        resultado.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void DeveAceitarRespostaFormularioComValores()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valores = ["vpn", "email"]
+                }
+            ]
+        });
+
+        resultado.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostaFormularioSemCampoFormularioServicoId()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.Empty,
+                    Valor = "vpn"
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor("RespostasFormulario[0].CampoFormularioServicoId");
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostaFormularioSemValorESemValores()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid()
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor("RespostasFormulario[0]");
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostaFormularioComValorEValoresAoMesmoTempo()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valor = "vpn",
+                    Valores = ["email"]
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor("RespostasFormulario[0]");
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostaFormularioComValorAcimaDoLimite()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valor = new string('A', RespostaFormularioAberturaRequestValidator.TamanhoMaximoValor + 1)
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor("RespostasFormulario[0].Valor");
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostaFormularioComItemVazioEmValores()
+    {
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valores = ["vpn", ""]
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor("RespostasFormulario[0].Valores[1]");
+    }
+
+    [Fact]
+    public void DeveRejeitarRespostasDuplicadasParaOMesmoCampo()
+    {
+        var campoId = Guid.NewGuid();
+        var resultado = _validator.TestValidate(new CriarChamadoRequest
+        {
+            Titulo = "Titulo valido",
+            Descricao = "Descricao valida para requisicao",
+            CategoriaId = Guid.NewGuid(),
+            PrioridadeId = Guid.NewGuid(),
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = campoId,
+                    Valor = "vpn"
+                },
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = campoId,
+                    Valor = "email"
+                }
+            ]
+        });
+
+        resultado.ShouldHaveValidationErrorFor(x => x.RespostasFormulario);
     }
 }

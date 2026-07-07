@@ -72,6 +72,67 @@ describe('portalService', () => {
     expect(payloadEnviado.subcategoriaId).toBeUndefined()
     expect(payloadEnviado.prioridadeId).toBeUndefined()
     expect(payloadEnviado.departamentoId).toBeUndefined()
+    expect(payloadEnviado.grupoTecnicoId).toBeUndefined()
+    expect(payloadEnviado.slaId).toBeUndefined()
+    expect(payloadEnviado.requerAprovacao).toBeUndefined()
+    expect(payloadEnviado.aprovacaoPendente).toBeUndefined()
+    expect(payloadEnviado.aprovacaoChamadoId).toBeUndefined()
+  })
+
+  it('deve encaminhar respostas de formulario quando informadas na abertura guiada', async () => {
+    const { portalService } = await import('./portalService')
+    postMock.mockResolvedValueOnce({ id: 'chamado-1', codigo: 'CH-1' })
+
+    await portalService.abrirRequisicaoServicoCatalogo({
+      catalogoServicoId: 'srv-1',
+      titulo: 'Solicitar acessos',
+      descricao: 'Preciso de acessos adicionais',
+      respostasFormulario: [
+        {
+          campoFormularioServicoId: 'campo-1',
+          valor: 'vpn',
+        },
+        {
+          campoFormularioServicoId: 'campo-2',
+          valores: ['email', 'teams'],
+        },
+      ],
+    })
+
+    expect(postMock).toHaveBeenCalledWith('/api/portal/catalogo-servicos/requisicoes', {
+      catalogoServicoId: 'srv-1',
+      titulo: 'Solicitar acessos',
+      descricao: 'Preciso de acessos adicionais',
+      respostasFormulario: [
+        {
+          campoFormularioServicoId: 'campo-1',
+          valor: 'vpn',
+        },
+        {
+          campoFormularioServicoId: 'campo-2',
+          valores: ['email', 'teams'],
+        },
+      ],
+    })
+  })
+
+  it('deve propagar erro do backend na abertura guiada com resposta invalida', async () => {
+    const { portalService } = await import('./portalService')
+    const erro = new Error('HTTP 400: {"mensagem":"Resposta invalida."}')
+    postMock.mockRejectedValueOnce(erro)
+
+    await expect(
+      portalService.abrirRequisicaoServicoCatalogo({
+        catalogoServicoId: 'srv-1',
+        titulo: 'Solicitar acessos',
+        respostasFormulario: [
+          {
+            campoFormularioServicoId: 'campo-1',
+            valor: 'abc',
+          },
+        ],
+      })
+    ).rejects.toBe(erro)
   })
 
   it('deve manter payload legado de abertura sem grupo tecnico ou fila', async () => {

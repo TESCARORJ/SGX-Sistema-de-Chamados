@@ -443,6 +443,92 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CampoFormularioServico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("FormularioServicoVersaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("formulario_servico_versao_id");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("nome");
+
+                    b.Property<bool>("Obrigatorio")
+                        .HasColumnType("boolean")
+                        .HasColumnName("obrigatorio");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem");
+
+                    b.Property<string>("Rotulo")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("rotulo");
+
+                    b.Property<string>("TextoAjuda")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("texto_ajuda");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("integer")
+                        .HasColumnName("tipo");
+
+                    b.Property<bool>("Visivel")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visivel");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_campos_formulario_servico_ativo");
+
+                    b.HasIndex("FormularioServicoVersaoId")
+                        .HasDatabaseName("ix_campo_form_serv_versao");
+
+                    b.HasIndex("FormularioServicoVersaoId", "Nome")
+                        .IsUnique()
+                        .HasDatabaseName("ux_campo_form_serv_nome");
+
+                    b.HasIndex("FormularioServicoVersaoId", "Ordem")
+                        .IsUnique()
+                        .HasDatabaseName("ux_campo_form_serv_ordem");
+
+                    b.ToTable("campos_formulario_servico", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CatalogoServico", b =>
                 {
                     b.Property<Guid>("Id")
@@ -505,6 +591,10 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)")
                         .HasColumnName("descricao");
+
+                    b.Property<Guid?>("GrupoTecnicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("grupo_tecnico_id");
 
                     b.Property<string>("InstrucoesSolicitante")
                         .HasMaxLength(8000)
@@ -580,6 +670,9 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("DepartamentoResponsavelId")
                         .HasDatabaseName("ix_catalogo_servicos_departamento_responsavel_id");
+
+                    b.HasIndex("GrupoTecnicoId")
+                        .HasDatabaseName("ix_catalogo_servicos_grupo_tecnico_id");
 
                     b.HasIndex("PrioridadePadraoId");
 
@@ -2513,6 +2606,127 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CatalogoServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("catalogo_servico_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<string>("Descricao")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_formularios_servico_ativo");
+
+                    b.HasIndex("CatalogoServicoId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_formularios_servico_catalogo_servico_id");
+
+                    b.ToTable("formularios_servico", (string)null);
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServicoVersao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("FormularioServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("formulario_servico_id");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("integer")
+                        .HasColumnName("numero");
+
+                    b.Property<bool>("Publicada")
+                        .HasColumnType("boolean")
+                        .HasColumnName("publicada");
+
+                    b.Property<DateTime?>("PublicadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("publicado_em");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_form_serv_versao_ativo");
+
+                    b.HasIndex("FormularioServicoId")
+                        .HasDatabaseName("ix_form_serv_versao_form");
+
+                    b.HasIndex("Publicada")
+                        .HasDatabaseName("ix_form_serv_versao_pub");
+
+                    b.HasIndex("FormularioServicoId", "Numero")
+                        .IsUnique()
+                        .HasDatabaseName("ux_form_serv_versao_num");
+
+                    b.ToTable("formularios_servico_versoes", (string)null);
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3824,6 +4038,75 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("ck_notificacoes_quantidade_tentativas_nao_negativa", "quantidade_tentativas >= 0");
                         });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.OpcaoCampoFormularioServico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CampoFormularioServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campo_formulario_servico_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<int>("Ordem")
+                        .HasColumnType("integer")
+                        .HasColumnName("ordem");
+
+                    b.Property<string>("Rotulo")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("rotulo");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("valor");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Ativo")
+                        .HasDatabaseName("ix_opcao_form_serv_ativo");
+
+                    b.HasIndex("CampoFormularioServicoId")
+                        .HasDatabaseName("ix_opcao_form_serv_campo");
+
+                    b.HasIndex("CampoFormularioServicoId", "Ordem")
+                        .IsUnique()
+                        .HasDatabaseName("ux_opcao_form_serv_ordem");
+
+                    b.HasIndex("CampoFormularioServicoId", "Valor")
+                        .IsUnique()
+                        .HasDatabaseName("ux_opcao_form_serv_valor");
+
+                    b.ToTable("opcoes_campos_formulario_servico", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.ParametroSistema", b =>
@@ -6939,6 +7222,79 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             PrazoPrimeiraRespostaHoras = 1,
                             PrazoResolucaoHoras = 4
                         });
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RespostaFormularioChamado", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<DateTime?>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("atualizado_em");
+
+                    b.Property<string>("AtualizadoPor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("atualizado_por");
+
+                    b.Property<Guid>("CampoFormularioServicoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("campo_formulario_servico_id");
+
+                    b.Property<Guid>("ChamadoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chamado_id");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("criado_em");
+
+                    b.Property<string>("CriadoPor")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("criado_por");
+
+                    b.Property<Guid>("FormularioServicoVersaoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("formulario_servico_versao_id");
+
+                    b.Property<string>("Valor")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("valor");
+
+                    b.Property<string>("ValoresJson")
+                        .HasMaxLength(16000)
+                        .HasColumnType("character varying(16000)")
+                        .HasColumnName("valores_json");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampoFormularioServicoId")
+                        .HasDatabaseName("ix_resp_form_campo");
+
+                    b.HasIndex("ChamadoId")
+                        .HasDatabaseName("ix_resp_form_chamado");
+
+                    b.HasIndex("FormularioServicoVersaoId")
+                        .HasDatabaseName("ix_resp_form_versao");
+
+                    b.HasIndex("ChamadoId", "CampoFormularioServicoId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_resp_form_chamado_cmp");
+
+                    b.HasIndex("ChamadoId", "FormularioServicoVersaoId")
+                        .HasDatabaseName("ix_resp_form_chamado_ver");
+
+                    b.ToTable("respostas_formulario_chamado", (string)null);
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RoadmapCategoria", b =>
@@ -12512,7 +12868,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000113"),
+                            Id = new Guid("78787878-7878-7878-7878-000000001001"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12522,11 +12878,165 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 1,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
-                            Titulo = "Planejar escopo e criterios de aceite"
+                            Titulo = "Diagnosticar estado atual do Catalogo 2.0 e pendencias transferidas da Sprint 7"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000114"),
+                            Id = new Guid("78787878-7878-7878-7878-000000001002"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 2,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Confirmar escopo estrutural do Catalogo 2.0"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001003"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 1,
+                            Obrigatorio = true,
+                            Ordem = 3,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Definir criterios de aceite para motor de abertura guiada por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001004"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 4,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Documentar decisao de transferencia dos itens 10, 13 e 14 da Sprint 7"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001005"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 5,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar vinculo opcional entre Catalogo de Servico e Grupo Tecnico responsavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001006"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 6,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Configurar EF Core para vinculo entre catalogo e grupo tecnico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001007"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 7,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar migration estrutural para grupo tecnico no catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001008"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 8,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar contratos administrativos do catalogo para grupo tecnico responsavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001009"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 9,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar validators administrativos do catalogo para grupo tecnico responsavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001010"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 10,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar use cases administrativos do catalogo para grupo tecnico responsavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001011"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 11,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Expor grupo tecnico responsavel na consulta administrativa do catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001012"),
                             Ativo = true,
                             Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12534,27 +13044,965 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Descricao = "Sprint 8 Catalogo de Servicos 2.0",
                             Grupo = 2,
                             Obrigatorio = true,
-                            Ordem = 2,
+                            Ordem = 12,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
-                            Titulo = "Implementar entregas centrais da sprint"
+                            Titulo = "Aplicar grupo tecnico responsavel na abertura guiada por catalogo"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000115"),
+                            Id = new Guid("78787878-7878-7878-7878-000000001013"),
                             Ativo = true,
-                            Concluido = false,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 13,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Preservar fallback de grupo quando servico nao possuir grupo configurado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001014"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 8 Catalogo de Servicos 2.0",
                             Grupo = 3,
                             Obrigatorio = true,
-                            Ordem = 3,
+                            Ordem = 14,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
-                            Titulo = "Executar testes funcionais e tecnicos"
+                            Titulo = "Testar aplicacao de grupo tecnico configurado no catalogo"
                         },
                         new
                         {
-                            Id = new Guid("78787878-7878-7878-7878-000000000116"),
+                            Id = new Guid("78787878-7878-7878-7878-000000001015"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 15,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar fallback de grupo sem configuracao no catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001016"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 16,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar entidade de formulario por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001017"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 17,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar campos do formulario por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001018"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 18,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar tipos de campo permitidos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001019"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 19,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar obrigatoriedade, ordem, ajuda e visibilidade dos campos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001020"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 20,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar opcoes de campos enumerados, se aplicavel"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001021"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 21,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar versionamento de formulario por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001022"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 22,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Configurar EF Core para formulario e campos"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001023"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 23,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar migration estrutural para formulario dinamico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001024"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 24,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar contratos administrativos para manutencao de formulario do servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001025"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 25,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar validators administrativos para formulario do servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001026"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 26,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar use cases administrativos para configurar formulario do servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001027"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 27,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar endpoints administrativos para formulario do servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001028"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 28,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar frontend administrativo do catalogo para configurar formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001029"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 29,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar configuracao administrativa de formulario por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001030"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 30,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Expor campos do formulario no endpoint de preparacao da abertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001031"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 31,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar contrato de abertura guiada para receber respostas do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001032"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 32,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar validator de respostas do formulario na abertura guiada"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001033"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 33,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Validar obrigatoriedade dos campos no backend"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001034"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 34,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Validar tipos e formatos das respostas no backend"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001035"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 35,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Impedir respostas de campos inexistentes ou de outro servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001036"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 36,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Preservar abertura guiada sem formulario configurado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001037"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 37,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar frontend do portal para renderizar formulario dinamico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001038"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 38,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Ajustar frontend do portal para enviar respostas do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001039"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 39,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar abertura guiada com formulario valido"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001040"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 40,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar abertura guiada com campos obrigatorios ausentes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001041"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 41,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar abertura guiada com respostas invalidas"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001042"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 42,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar abertura guiada sem formulario configurado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001043"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 43,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Modelar persistencia das respostas do formulario no chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001044"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 44,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Configurar EF Core para respostas do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001045"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 45,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar migration estrutural para respostas do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001046"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 46,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Persistir respostas do formulario na abertura guiada"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001047"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 47,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Exibir respostas do formulario no detalhe do chamado"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001048"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 48,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Exibir respostas do formulario no portal do solicitante"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001049"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 49,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Exibir respostas do formulario na area administrativa de atendimento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001050"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 50,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Registrar historico da abertura com formulario preenchido"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001051"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 51,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Registrar auditoria tecnica das respostas persistidas"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001052"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 52,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar persistencia das respostas do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001053"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 53,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar exibicao das respostas no portal"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001054"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 54,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar exibicao das respostas no atendimento administrativo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001055"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 55,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir aplicacao de tipo, categoria, subcategoria e prioridade do catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001056"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 56,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir aplicacao de SLA padrao do catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001057"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 57,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir aplicacao de aprovacao por servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001058"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 58,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir compatibilidade com abertura legada sem catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001059"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 59,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir compatibilidade com incidentes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001060"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 60,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir compatibilidade com aprovacao legada e motor novo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001061"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 61,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar regressao de abertura guiada com SLA, grupo e aprovacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001062"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 62,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar regressao de abertura legada e incidente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001063"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 63,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir autorizacao para manutencao administrativa do formulario"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001064"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 64,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir que solicitante nao manipule grupo, SLA, aprovacao ou classificacao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001065"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 65,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Garantir que solicitante so envie respostas permitidas para o servico"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001066"),
+                            Ativo = true,
+                            AtualizadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            AtualizadoPor = "seed.sistema",
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 66,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Testar seguranca do formulario e respostas"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001067"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 67,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Atualizar documentacao tecnica da Sprint 8"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001068"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 4,
+                            Obrigatorio = true,
+                            Ordem = 68,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Atualizar docs/ROADMAP.md e docs/ROADMAP-ITSM.md"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001069"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 69,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Atualizar SeedData e testes de checklist da Sprint 8"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001070"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 2,
+                            Obrigatorio = true,
+                            Ordem = 70,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Criar migration de checklist da Sprint 8"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001071"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 71,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Executar build backend e testes direcionados"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001072"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 72,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Executar build frontend e validacao TypeScript"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001073"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 73,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Verificar EF pending model changes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001074"),
                             Ativo = true,
                             Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -12562,9 +14010,37 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Descricao = "Sprint 8 Catalogo de Servicos 2.0",
                             Grupo = 5,
                             Obrigatorio = true,
-                            Ordem = 4,
+                            Ordem = 74,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
-                            Titulo = "Registrar homologacao e aceite"
+                            Titulo = "Registrar homologacao funcional"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001075"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 75,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Registrar homologacao visual responsiva"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000001076"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 8 Catalogo de Servicos 2.0",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 76,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777719"),
+                            Titulo = "Registrar aceite formal somente com evidencia"
                         },
                         new
                         {
@@ -17098,28 +18574,29 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         {
                             Id = new Guid("77777777-7777-7777-7777-777777777719"),
                             Area = "Sprint 8 - Catalogo de Servicos 2.0",
-                            AtencaoTecnica = "Adicionar tipo padrao, SLA padrao, grupo tecnico e formulario dinamico por servico.",
+                            AtencaoTecnica = "Concentrar as pendencias transferidas da Sprint 7 (grupo responsavel do catalogo, formulario dinamico por servico e respostas persistidas) sem quebrar abertura legada, incidentes ou aprovacao atual.",
                             Ativo = true,
                             Categoria = "ITIL/ITSM",
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
-                            CriterioAceite = "Selecionar servico deve sugerir/preencher tipo, categoria, SLA, prioridade, grupo e aprovacao.",
+                            CriterioAceite = "O catalogo 2.0 deve permitir abertura guiada por servico com grupo tecnico opcional, formulario dinamico versionado, validacao backend das respostas, persistencia rastreavel no chamado e compatibilidade com fluxos legados, incidentes e aprovacao atual.",
                             Decisao = 1,
-                            EvidenciaImplementacao = "Catalogo atual reaproveitado como base da evolucao 2.0.",
+                            EvidenciaImplementacao = "CatalogoServico atual com departamento/categoria/subcategoria/prioridade/SLA/aprovacao; GET /api/portal/catalogo-servicos/{slug}/preparar-chamado; POST /api/portal/catalogo-servicos/requisicoes; NovoChamadoView estatico; testes cobrindo SLA, aprovacao e compatibilidade da abertura atual.",
                             Impacto = 1,
                             Objetivo = "Transformar catalogo em motor de abertura guiada com regras operacionais por servico.",
+                            Observacao = "Itens 10, 13 e 14 da Sprint 7 foram absorvidos pela Sprint 8 como pendencias estruturais rastreadas.",
                             Ordem = 108,
-                            PendenciasHomologacao = "Homologar abertura guiada com servicos reais e validacao de aprovacoes.",
-                            PendenciasTecnicas = "Campos obrigatorios dinamicos, sugestoes automaticas e visibilidade por perfil refinada.",
-                            PercentualImplementacao = 90,
+                            PendenciasHomologacao = "Nao iniciar homologacao funcional/visual nem aceite formal antes de concluir grupo tecnico no catalogo, formulario dinamico, persistencia de respostas e testes de regressao da abertura guiada.",
+                            PendenciasTecnicas = "Modelar GrupoTecnico opcional no CatalogoServico; criar formulario dinamico versionado por servico; validar e persistir respostas; expor endpoints administrativos e de abertura guiada; renderizar e enviar respostas no frontend; fechar rastreabilidade, seguranca e regressao.",
+                            PercentualImplementacao = 96,
                             Prioridade = 1,
-                            ProximaAcao = "Evoluir entidade de catalogo e contrato de abertura guiada.",
+                            ProximaAcao = "Registrar homologacao funcional.",
                             Responsavel = "Time Catalogo",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
-                            SituacaoAtual = "Modulo de catalogo esta implementado funcionalmente, com evolucoes ITIL pendentes.",
+                            SituacaoAtual = "A base do catalogo e da abertura guiada existe, com consulta no portal, abertura por servico e aplicacao backend de categoria, subcategoria, prioridade, SLA e aprovacao. Ainda nao existe grupo tecnico por servico, formulario dinamico, versionamento de campos ou persistencia estruturada das respostas.",
                             Status = 3,
-                            StatusImplementacao = 3,
-                            StatusTecnico = 3
+                            StatusImplementacao = 2,
+                            StatusTecnico = 1
                         },
                         new
                         {
@@ -18640,6 +20117,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Categoria");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CampoFormularioServico", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.FormularioServicoVersao", "FormularioServicoVersao")
+                        .WithMany("Campos")
+                        .HasForeignKey("FormularioServicoVersaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FormularioServicoVersao");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CatalogoServico", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Usuario", null)
@@ -18674,6 +20162,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", "GrupoTecnico")
+                        .WithMany()
+                        .HasForeignKey("GrupoTecnicoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.PrioridadeChamado", "PrioridadePadrao")
                         .WithMany()
                         .HasForeignKey("PrioridadePadraoId")
@@ -18699,6 +20192,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("DepartamentoResponsavel");
+
+                    b.Navigation("GrupoTecnico");
 
                     b.Navigation("PrioridadePadrao");
 
@@ -19193,6 +20688,28 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("GrupoTecnico");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServico", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CatalogoServico", "CatalogoServico")
+                        .WithOne("FormularioServico")
+                        .HasForeignKey("SGX.SistemaChamado.Domain.Entities.FormularioServico", "CatalogoServicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CatalogoServico");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServicoVersao", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.FormularioServico", "FormularioServico")
+                        .WithMany("Versoes")
+                        .HasForeignKey("FormularioServicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FormularioServico");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.HistoricoChamado", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
@@ -19514,6 +21031,17 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("DestinatarioUsuario");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.OpcaoCampoFormularioServico", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CampoFormularioServico", "CampoFormularioServico")
+                        .WithMany("Opcoes")
+                        .HasForeignKey("CampoFormularioServicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CampoFormularioServico");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.PerfilAcessoPermissao", b =>
                 {
                     b.HasOne("SGX.SistemaChamado.Domain.Entities.PerfilAcesso", "PerfilAcesso")
@@ -19581,6 +21109,33 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("CriadoPorUsuario");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RespostaFormularioChamado", b =>
+                {
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.CampoFormularioServico", "CampoFormularioServico")
+                        .WithMany()
+                        .HasForeignKey("CampoFormularioServicoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.Chamado", "Chamado")
+                        .WithMany("RespostasFormulario")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SGX.SistemaChamado.Domain.Entities.FormularioServicoVersao", "FormularioServicoVersao")
+                        .WithMany()
+                        .HasForeignKey("FormularioServicoVersaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CampoFormularioServico");
+
+                    b.Navigation("Chamado");
+
+                    b.Navigation("FormularioServicoVersao");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.RoadmapChecklistItem", b =>
@@ -19732,9 +21287,16 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                     b.Navigation("HorariosAtendimento");
                 });
 
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CampoFormularioServico", b =>
+                {
+                    b.Navigation("Opcoes");
+                });
+
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CatalogoServico", b =>
                 {
                     b.Navigation("Chamados");
+
+                    b.Navigation("FormularioServico");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.CategoriaChamado", b =>
@@ -19768,6 +21330,8 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 
                     b.Navigation("RelacionamentosOrigem");
 
+                    b.Navigation("RespostasFormulario");
+
                     b.Navigation("SlaControle");
 
                     b.Navigation("Tarefas");
@@ -19797,6 +21361,16 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FilaAtendimento", b =>
                 {
                     b.Navigation("Chamados");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServico", b =>
+                {
+                    b.Navigation("Versoes");
+                });
+
+            modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.FormularioServicoVersao", b =>
+                {
+                    b.Navigation("Campos");
                 });
 
             modelBuilder.Entity("SGX.SistemaChamado.Domain.Entities.GrupoTecnico", b =>

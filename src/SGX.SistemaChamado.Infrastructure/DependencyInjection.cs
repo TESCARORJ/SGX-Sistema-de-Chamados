@@ -236,6 +236,7 @@ public static class DependencyInjection
         services.AddScoped<IArquivarArtigoBaseConhecimentoUseCase, ArquivarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IReativarArtigoBaseConhecimentoUseCase, ReativarArtigoBaseConhecimentoUseCase>();
         services.AddScoped<IAdminCatalogoServicosUseCases, CatalogoServicosAdminUseCases>();
+        services.AddScoped<IAdminFormularioServicosUseCases, FormularioServicoAdminUseCases>();
         services.AddScoped<IAdminConfiguracaoRegraAprovacaoUseCases, ConfiguracaoRegraAprovacaoAdminUseCases>();
         services.AddScoped<IAdminInstanciaAprovacaoChamadoUseCases, InstanciaAprovacaoChamadoAdminUseCases>();
         services.AddScoped<IAdminInventarioAtivosUseCases, InventarioAtivosAdminUseCases>();

@@ -1,6 +1,7 @@
 import type { AnexoChamado } from './anexo'
 import type { StatusAprovacaoChamado } from './aprovacaoChamados'
 import type { ComentarioChamado } from './comentario'
+import type { TipoCampoFormularioServico } from './formularioServicos'
 
 export type SituacaoSlaChamado =
   | 'NaoAplicavel'
@@ -193,6 +194,16 @@ export interface SlaResumo {
   calendarioCorporativoNome: string | null
 }
 
+export interface RespostaFormularioDetalhePortal {
+  campoFormularioServicoId: string
+  nome: string
+  rotulo: string
+  tipo: TipoCampoFormularioServico
+  valor: string | null
+  valores: string[]
+  ordem: number
+}
+
 export interface ChamadoDetalhePortal {
   id: string
   codigo: string
@@ -233,6 +244,7 @@ export interface ChamadoDetalhePortal {
   justificativaAprovacao: string | null
   justificativaReprovacao: string | null
   mensagemOrientativaAprovacao: string
+  respostasFormulario: RespostaFormularioDetalhePortal[]
 }
 
 export interface PortalStatusAprovacaoChamado {
@@ -245,6 +257,12 @@ export interface PortalStatusAprovacaoChamado {
   decididaEm: string | null
   justificativaDecisao: string | null
   mensagemOrientativa: string
+}
+
+export interface RespostaFormularioAberturaRequest {
+  campoFormularioServicoId: string
+  valor?: string | null
+  valores?: string[] | null
 }
 
 export interface CriarChamadoRequest {
@@ -261,6 +279,14 @@ export interface CriarChamadoRequest {
   urgenciaChamado: UrgenciaChamado
   tipoSolicitacaoId?: string
   localUnidadeId?: string
+  respostasFormulario?: RespostaFormularioAberturaRequest[]
+}
+
+export interface AbrirRequisicaoServicoCatalogoRequest {
+  catalogoServicoId: string
+  titulo: string
+  descricao?: string | null
+  respostasFormulario?: RespostaFormularioAberturaRequest[]
 }
 
 export type ChamadoCriadoResponse = ChamadoDetalhePortal

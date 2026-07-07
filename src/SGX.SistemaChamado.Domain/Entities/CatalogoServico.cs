@@ -15,6 +15,7 @@ public sealed class CatalogoServico : AuditableEntity
     public Guid? PrioridadePadraoId { get; private set; }
     public Guid? SlaPadraoId { get; private set; }
     public Guid? ArtigoBaseConhecimentoId { get; private set; }
+    public Guid? GrupoTecnicoId { get; private set; }
     public StatusCatalogoServico Status { get; private set; } = StatusCatalogoServico.Rascunho;
     public VisibilidadeCatalogoServico Visibilidade { get; private set; } = VisibilidadeCatalogoServico.Interno;
     public bool PermiteAberturaChamado { get; private set; } = true;
@@ -33,6 +34,8 @@ public sealed class CatalogoServico : AuditableEntity
     public PrioridadeChamado? PrioridadePadrao { get; private set; }
     public PoliticaSla? SlaPadrao { get; private set; }
     public BaseConhecimentoArtigo? ArtigoBaseConhecimento { get; private set; }
+    public GrupoTecnico? GrupoTecnico { get; private set; }
+    public FormularioServico? FormularioServico { get; private set; }
     public ICollection<Chamado> Chamados { get; private set; } = [];
 
     private CatalogoServico()
@@ -55,7 +58,8 @@ public sealed class CatalogoServico : AuditableEntity
         bool requerAprovacao,
         int ordem,
         Guid criadoPorUsuarioId,
-        string criadoPor)
+        string criadoPor,
+        Guid? grupoTecnicoId = null)
     {
         DefinirNome(nome);
         DefinirSlug(slug);
@@ -67,6 +71,7 @@ public sealed class CatalogoServico : AuditableEntity
         DefinirPrioridadePadrao(prioridadePadraoId);
         DefinirSlaPadrao(slaPadraoId);
         DefinirArtigoBaseConhecimento(artigoBaseConhecimentoId);
+        DefinirGrupoTecnico(grupoTecnicoId);
         DefinirVisibilidade(visibilidade);
         DefinirPermiteAberturaChamado(permiteAberturaChamado);
         DefinirRequerAprovacao(requerAprovacao);
@@ -165,6 +170,16 @@ public sealed class CatalogoServico : AuditableEntity
         ArtigoBaseConhecimentoId = artigoBaseConhecimentoId;
     }
 
+    public void DefinirGrupoTecnico(Guid? grupoTecnicoId)
+    {
+        if (grupoTecnicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O grupo tecnico informado e invalido.", nameof(grupoTecnicoId));
+        }
+
+        GrupoTecnicoId = grupoTecnicoId;
+    }
+
     public void DefinirVisibilidade(VisibilidadeCatalogoServico visibilidade)
     {
         if (!Enum.IsDefined(visibilidade))
@@ -221,7 +236,8 @@ public sealed class CatalogoServico : AuditableEntity
         bool requerAprovacao,
         int ordem,
         Guid atualizadoPorUsuarioId,
-        string atualizadoPor)
+        string atualizadoPor,
+        Guid? grupoTecnicoId = null)
     {
         DefinirNome(nome);
         DefinirSlug(slug);
@@ -233,6 +249,7 @@ public sealed class CatalogoServico : AuditableEntity
         DefinirPrioridadePadrao(prioridadePadraoId);
         DefinirSlaPadrao(slaPadraoId);
         DefinirArtigoBaseConhecimento(artigoBaseConhecimentoId);
+        DefinirGrupoTecnico(grupoTecnicoId);
         DefinirVisibilidade(visibilidade);
         DefinirPermiteAberturaChamado(permiteAberturaChamado);
         DefinirRequerAprovacao(requerAprovacao);

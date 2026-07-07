@@ -207,4 +207,41 @@ export interface PortalPrepararChamadoCatalogoServico {
   slaPadraoNome: string | null
   requerAprovacao: boolean
   permiteAberturaChamado: boolean
+  formulario: PortalFormularioPreparacao | null
+}
+
+export interface PortalFormularioPreparacao {
+  id: string
+  nome: string
+  descricao: string | null
+  versao: PortalFormularioPreparacaoVersao
+}
+
+export interface PortalFormularioPreparacaoVersao {
+  id: string
+  numero: number
+  publicada: boolean
+  publicadoEm: string | null
+  campos: PortalFormularioPreparacaoCampo[]
+}
+
+export interface PortalFormularioPreparacaoCampo {
+  id: string
+  nome: string
+  rotulo: string
+  tipo: number
+  obrigatorio: boolean
+  ordem: number
+  textoAjuda: string | null
+  ativo?: boolean
+  visivel?: boolean
+  opcoes: PortalFormularioPreparacaoOpcao[]
+}
+
+export interface PortalFormularioPreparacaoOpcao {
+  id: string
+  valor: string
+  rotulo: string
+  ordem: number
+  ativo?: boolean
 }

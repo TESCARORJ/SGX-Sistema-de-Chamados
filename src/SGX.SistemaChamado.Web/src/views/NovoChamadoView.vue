@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import type { QForm } from 'quasar'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
 import UploadAnexo from '../components/portal/UploadAnexo.vue'
+import FormularioDinamicoCatalogoSection from '../components/portal/FormularioDinamicoCatalogoSection.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
 import LoadingState from '../components/ui/LoadingState.vue'
 import PageHeader from '../components/ui/PageHeader.vue'
 import { catalogoServicosPortalService } from '../services/catalogoServicosPortalService'
 import { portalService } from '../services/portalService'
-import type { PortalPrepararChamadoCatalogoServico } from '../types/catalogoServicos'
+import type {
+  PortalFormularioPreparacaoCampo,
+  PortalPrepararChamadoCatalogoServico,
+} from '../types/catalogoServicos'
 import {
   ImpactoChamado,
   NaturezaChamado,
+  type RespostaFormularioAberturaRequest,
   UrgenciaChamado,
   type CategoriaPortal,
   type DepartamentoPortal,
@@ -22,6 +27,7 @@ import {
   type SubcategoriaPortal,
   type TipoSolicitacaoPortal,
 } from '../types/portal'
+import { TipoCampoFormularioServico } from '../types/formularioServicos'
 
 const EXTENSOES_PADRAO = ['.pdf', '.png', '.jpg', '.jpeg', '.txt', '.doc', '.docx', '.xls', '.xlsx']
 
@@ -59,6 +65,7 @@ const anexosPendentes = ref<File[]>([])
 const extensoesPermitidas = ref<string[]>(EXTENSOES_PADRAO)
 const tamanhoMaximoAnexoBytes = ref<number | null>(null)
 const servicoSelecionado = ref<PortalPrepararChamadoCatalogoServico | null>(null)
+const respostasFormulario = reactive<Record<string, boolean | string | string[] | null>>({})
 
 type OrientacaoNaturezaConfig = {
   descricao: string
@@ -219,6 +226,7 @@ async function carregarContexto(): Promise<void> {
 }
 
 function aplicarServicoSelecionadoNoFormulario(servico: PortalPrepararChamadoCatalogoServico): void {
+  limparRespostasFormulario()
   servicoSelecionado.value = servico
   form.catalogoServicoId = servico.catalogoServicoId
   form.catalogoServicoSlug = servico.slug
@@ -233,6 +241,7 @@ async function carregarServicoSelecionado(): Promise<void> {
   const idQuery = String(route.query.catalogoServicoId ?? '').trim()
 
   if (!slugQuery && !idQuery) {
+    limparRespostasFormulario()
     servicoSelecionado.value = null
     form.catalogoServicoId = null
     form.catalogoServicoSlug = null
@@ -255,6 +264,7 @@ async function carregarServicoSelecionado(): Promise<void> {
 
     aplicarServicoSelecionadoNoFormulario(servico)
   } catch {
+    limparRespostasFormulario()
     servicoSelecionado.value = null
     form.catalogoServicoId = null
     form.catalogoServicoSlug = null
@@ -294,6 +304,85 @@ function removerAnexo(index: number): void {
   anexosPendentes.value = anexosPendentes.value.filter((_, idx) => idx !== index)
 }
 
+function limparRespostasFormulario(): void {
+  for (const chave of Object.keys(respostasFormulario)) {
+    delete respostasFormulario[chave]
+  }
+}
+
+function obterCamposFormularioAplicaveis(): PortalFormularioPreparacaoCampo[] {
+  const campos = servicoSelecionado.value?.formulario?.versao.campos ?? []
+  return campos
+    .filter((campo) => campo.ativo !== false && campo.visivel !== false)
+    .sort((a, b) => a.ordem - b.ordem || a.rotulo.localeCompare(b.rotulo))
+}
+
+function obterRespostaTexto(campoId: string): string | null {
+  const valor = respostasFormulario[campoId]
+  if (typeof valor !== 'string') {
+    return null
+  }
+
+  const texto = valor.trim()
+  return texto ? texto : null
+}
+
+function obterRespostaLista(campoId: string): string[] {
+  const valor = respostasFormulario[campoId]
+  if (!Array.isArray(valor)) {
+    return []
+  }
+
+  return valor.map((item) => item.trim()).filter((item) => item.length > 0)
+}
+
+function serializarRespostasFormulario(): RespostaFormularioAberturaRequest[] | undefined {
+  const formulario = servicoSelecionado.value?.formulario
+  if (!formulario) {
+    return undefined
+  }
+
+  const respostasSerializadas = obterCamposFormularioAplicaveis()
+    .map((campo): RespostaFormularioAberturaRequest | null => {
+      if (campo.tipo === TipoCampoFormularioServico.SelecaoMultipla) {
+        const valores = obterRespostaLista(campo.id)
+        if (!valores.length) {
+          return null
+        }
+
+        return {
+          campoFormularioServicoId: campo.id,
+          valores,
+        }
+      }
+
+      if (campo.tipo === TipoCampoFormularioServico.Booleano) {
+        const valor = respostasFormulario[campo.id]
+        if (typeof valor !== 'boolean') {
+          return null
+        }
+
+        return {
+          campoFormularioServicoId: campo.id,
+          valor: valor ? 'true' : 'false',
+        }
+      }
+
+      const valor = obterRespostaTexto(campo.id)
+      if (!valor) {
+        return null
+      }
+
+      return {
+        campoFormularioServicoId: campo.id,
+        valor,
+      }
+    })
+    .filter((item): item is RespostaFormularioAberturaRequest => item !== null)
+
+  return respostasSerializadas.length ? respostasSerializadas : undefined
+}
+
 async function salvar(): Promise<void> {
   if (salvando.value) {
     return
@@ -319,6 +408,7 @@ async function salvar(): Promise<void> {
           catalogoServicoId: form.catalogoServicoId,
           titulo: form.titulo.trim(),
           descricao: form.descricao.trim() || undefined,
+          respostasFormulario: serializarRespostasFormulario(),
         })
       : await portalService.criarChamado({
           titulo: form.titulo.trim(),
@@ -375,6 +465,13 @@ onMounted(async () => {
   await carregarContexto()
   await carregarServicoSelecionado()
 })
+
+watch(
+  () => [route.query.catalogoServicoSlug, route.query.catalogoServicoId],
+  async () => {
+    await carregarServicoSelecionado()
+  }
+)
 </script>
 
 <template>
@@ -512,6 +609,20 @@ onMounted(async () => {
               counter
               label="Descricao *"
               :rules="[(v) => !!String(v ?? '').trim() || 'Descricao obrigatoria']"
+            />
+          </div>
+
+          <q-separator v-if="servicoSelecionado?.formulario" />
+
+          <div v-if="servicoSelecionado?.formulario" class="sgx-form-group">
+            <div class="text-subtitle2 text-weight-semibold">Formulario do servico</div>
+            <div class="text-caption sgx-muted">
+              Campos adicionais exibidos conforme a configuracao administrativa do servico selecionado.
+            </div>
+
+            <FormularioDinamicoCatalogoSection
+              v-model="respostasFormulario"
+              :formulario="servicoSelecionado.formulario"
             />
           </div>
 

@@ -34,6 +34,7 @@ public sealed class DetalharMeuChamadoUseCase(
             .Include(x => x.Solicitante)
             .Include(x => x.Responsavel)
             .Include(x => x.CatalogoServico)
+            .Include(x => x.RespostasFormulario).ThenInclude(x => x.CampoFormularioServico)
             .Include(x => x.Comentarios).ThenInclude(x => x.Usuario)
             .Include(x => x.Anexos).ThenInclude(x => x.Usuario)
             .Include(x => x.Historicos).ThenInclude(x => x.Usuario)

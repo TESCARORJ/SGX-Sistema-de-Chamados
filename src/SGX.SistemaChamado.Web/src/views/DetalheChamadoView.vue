@@ -13,6 +13,7 @@ import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
 import { StatusAprovacaoChamado } from '../types/aprovacaoChamados'
+import { TipoCampoFormularioServico } from '../types/formularioServicos'
 import { chamadosService } from '../services/chamadosService'
 import { portalService } from '../services/portalService'
 import { useAuthStore } from '../stores/authStore'
@@ -57,6 +58,7 @@ const linhaTempoVisivel = computed(() => {
 const totalComentariosVisiveis = computed(() => comentariosVisiveis.value.length)
 const totalAnexos = computed(() => anexos.value.length)
 const totalEventosLinhaTempo = computed(() => linhaTempoVisivel.value.length)
+const possuiRespostasFormulario = computed(() => (detalhe.value?.respostasFormulario?.length ?? 0) > 0)
 
 function formatarData(data: string | null): string {
   if (!data) {
@@ -72,6 +74,27 @@ function formatarTamanho(tamanhoBytes: number): string {
   }
 
   return `${(tamanhoBytes / 1024).toFixed(1)} KB`
+}
+
+function formatarTipoCampoFormulario(tipo: TipoCampoFormularioServico): string {
+  switch (tipo) {
+    case TipoCampoFormularioServico.TextoCurto:
+      return 'Texto curto'
+    case TipoCampoFormularioServico.TextoLongo:
+      return 'Texto longo'
+    case TipoCampoFormularioServico.Numero:
+      return 'Numero'
+    case TipoCampoFormularioServico.Data:
+      return 'Data'
+    case TipoCampoFormularioServico.Booleano:
+      return 'Booleano'
+    case TipoCampoFormularioServico.SelecaoUnica:
+      return 'Selecao unica'
+    case TipoCampoFormularioServico.SelecaoMultipla:
+      return 'Selecao multipla'
+    default:
+      return 'Nao informado'
+  }
 }
 
 function extrairMensagemErro(error: unknown, fallback: string): string {
@@ -448,6 +471,46 @@ onMounted(carregar)
             <q-item-section>
               <q-item-label caption>Justificativa da aprovacao</q-item-label>
               <q-item-label class="text-body2">{{ detalhe.justificativaAprovacao }}</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </AppSectionCard>
+
+      <AppSectionCard
+        v-if="possuiRespostasFormulario"
+        titulo="Respostas do formulario"
+        subtitulo="Informacoes enviadas na abertura guiada deste chamado."
+      >
+        <q-list separator>
+          <q-item v-for="resposta in detalhe.respostasFormulario" :key="resposta.campoFormularioServicoId">
+            <q-item-section>
+              <div class="row items-start justify-between q-col-gutter-md">
+                <div class="col">
+                  <q-item-label class="text-weight-medium">{{ resposta.rotulo }}</q-item-label>
+                  <q-item-label caption>{{ resposta.nome }}</q-item-label>
+                </div>
+
+                <div class="col-auto">
+                  <q-chip dense square color="grey-3" text-color="grey-9" icon="fact_check">
+                    {{ formatarTipoCampoFormulario(resposta.tipo) }}
+                  </q-chip>
+                </div>
+              </div>
+
+              <q-item-label v-if="resposta.valor" class="text-body2 q-mt-sm">{{ resposta.valor }}</q-item-label>
+
+              <div v-else-if="resposta.valores.length" class="row q-gutter-sm q-mt-sm">
+                <q-chip
+                  v-for="valor in resposta.valores"
+                  :key="`${resposta.campoFormularioServicoId}-${valor}`"
+                  dense
+                  square
+                  color="primary"
+                  text-color="white"
+                >
+                  {{ valor }}
+                </q-chip>
+              </div>
             </q-item-section>
           </q-item>
         </q-list>

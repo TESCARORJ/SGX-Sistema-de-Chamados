@@ -135,6 +135,15 @@ public sealed record AnexoAdminResponse(
     Guid UsuarioId,
     string Usuario);
 
+public sealed record RespostaFormularioDetalheAdminResponse(
+    Guid CampoFormularioServicoId,
+    string Nome,
+    string Rotulo,
+    TipoCampoFormularioServico Tipo,
+    string? Valor,
+    IReadOnlyCollection<string> Valores,
+    int Ordem);
+
 public sealed record SlaAdminResponse(
     string? PoliticaSlaNome,
     string Prioridade,
@@ -198,6 +207,7 @@ public sealed class ChamadoAdminDetalheResponse
     public Guid? AprovacaoChamadoId { get; init; }
     public IReadOnlyCollection<int> StatusPermitidosCodigos { get; init; } = [];
     public IReadOnlyCollection<string> AcoesDisponiveisCodigos { get; init; } = [];
+    public IReadOnlyCollection<RespostaFormularioDetalheAdminResponse> RespostasFormulario { get; init; } = [];
     public IReadOnlyCollection<ComentarioAdminResponse> Comentarios { get; init; } = [];
     public IReadOnlyCollection<AnexoAdminResponse> Anexos { get; init; } = [];
     public IReadOnlyCollection<HistoricoAdminResponse> Historico { get; init; } = [];

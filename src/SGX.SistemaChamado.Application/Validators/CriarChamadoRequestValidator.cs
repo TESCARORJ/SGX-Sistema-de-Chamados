@@ -10,6 +10,8 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
 {
     public CriarChamadoRequestValidator(ICamposObrigatoriosChamadoService camposObrigatoriosChamadoService)
     {
+        var respostaFormularioValidator = new RespostaFormularioAberturaRequestValidator();
+
         RuleFor(x => x.Titulo)
             .MaximumLength(180).WithMessage("Titulo deve ter no maximo 180 caracteres.");
 
@@ -68,6 +70,15 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
             .Must(valor => !valor.HasValue || valor.Value != Guid.Empty)
             .WithMessage("InventarioAtivoId invalido.");
 
+        RuleForEach(x => x.RespostasFormulario)
+            .SetValidator(respostaFormularioValidator)
+            .When(x => x.RespostasFormulario is not null);
+
+        RuleFor(x => x.RespostasFormulario)
+            .Must(respostas => !PossuiCamposDuplicados(respostas))
+            .When(x => x.RespostasFormulario is not null)
+            .WithMessage("RespostasFormulario nao pode conter CampoFormularioServicoId duplicado.");
+
         RuleFor(x => x).Custom((request, context) =>
         {
             var input = new CamposObrigatoriosChamadoInput
@@ -91,4 +102,10 @@ public sealed class CriarChamadoRequestValidator : AbstractValidator<CriarChamad
             }
         });
     }
+
+    private static bool PossuiCamposDuplicados(IEnumerable<RespostaFormularioAberturaRequest>? respostas)
+        => respostas?
+            .GroupBy(x => x.CampoFormularioServicoId)
+            .Any(x => x.Key != Guid.Empty && x.Count() > 1)
+            == true;
 }

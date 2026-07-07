@@ -22,6 +22,7 @@ public sealed class CatalogoServicosAdminUseCasesTests
             Descricao = "Solicitacao de acesso remoto seguro.",
             InstrucoesSolicitante = "Informe seu equipamento.",
             DepartamentoResponsavelId = seed.DepartamentoTi.Id,
+            GrupoTecnicoId = seed.GrupoTecnicoTi.Id,
             CategoriaId = seed.CategoriaTi.Id,
             SubcategoriaId = seed.SubcategoriaTi.Id,
             PrioridadePadraoId = seed.PrioridadeMedia.Id,
@@ -37,6 +38,26 @@ public sealed class CatalogoServicosAdminUseCasesTests
         Assert.True(response.Ativo);
         Assert.True(response.PermiteAberturaChamado);
         Assert.Equal(seed.Admin.Id, response.CriadoPorUsuarioId);
+        Assert.Equal(seed.GrupoTecnicoTi.Id, response.GrupoTecnicoId);
+        Assert.Equal(seed.GrupoTecnicoTi.Nome, response.NomeGrupoTecnico);
+    }
+
+    [Fact]
+    public async Task CriarServicoAceitaGrupoTecnicoOpcionalNulo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var seed = await SeedAsync(context);
+        var useCase = CriarUseCase(context, seed.Admin);
+
+        var response = await useCase.CriarAsync(new CriarCatalogoServicoRequest
+        {
+            Nome = "Servico sem grupo",
+            Descricao = "Descricao valida.",
+            DepartamentoResponsavelId = seed.DepartamentoTi.Id
+        });
+
+        Assert.Null(response.GrupoTecnicoId);
+        Assert.Null(response.NomeGrupoTecnico);
     }
 
     [Fact]
@@ -97,6 +118,42 @@ public sealed class CatalogoServicosAdminUseCasesTests
             Descricao = "Descricao valida.",
             DepartamentoResponsavelId = Guid.NewGuid()
         }));
+    }
+
+    [Fact]
+    public async Task ImpedeCriacaoComGrupoTecnicoInexistente()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var seed = await SeedAsync(context);
+        var useCase = CriarUseCase(context, seed.Admin);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.CriarAsync(new CriarCatalogoServicoRequest
+        {
+            Nome = "Servico com grupo inexistente",
+            Descricao = "Descricao valida.",
+            DepartamentoResponsavelId = seed.DepartamentoTi.Id,
+            GrupoTecnicoId = Guid.NewGuid()
+        }));
+
+        Assert.Equal("Grupo tecnico informado nao encontrado ou inativo.", ex.Message);
+    }
+
+    [Fact]
+    public async Task ImpedeCriacaoComGrupoTecnicoInativo()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var seed = await SeedAsync(context);
+        var useCase = CriarUseCase(context, seed.Admin);
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.CriarAsync(new CriarCatalogoServicoRequest
+        {
+            Nome = "Servico com grupo inativo",
+            Descricao = "Descricao valida.",
+            DepartamentoResponsavelId = seed.DepartamentoTi.Id,
+            GrupoTecnicoId = seed.GrupoTecnicoInativo.Id
+        }));
+
+        Assert.Equal("Grupo tecnico informado nao encontrado ou inativo.", ex.Message);
     }
 
     [Fact]
@@ -197,6 +254,7 @@ public sealed class CatalogoServicosAdminUseCasesTests
             Descricao = "Versao atualizada.",
             InstrucoesSolicitante = "Anexe documentos.",
             DepartamentoResponsavelId = seed.DepartamentoRh.Id,
+            GrupoTecnicoId = seed.GrupoTecnicoRh.Id,
             CategoriaId = seed.CategoriaRh.Id,
             PermiteAberturaChamado = true,
             RequerAprovacao = true,
@@ -209,6 +267,42 @@ public sealed class CatalogoServicosAdminUseCasesTests
         Assert.Equal("onboarding-corporativo", atualizado.Slug);
         Assert.Equal(StatusCatalogoServico.Rascunho, atualizado.Status);
         Assert.True(atualizado.RequerAprovacao);
+        Assert.Equal(seed.GrupoTecnicoRh.Id, atualizado.GrupoTecnicoId);
+        Assert.Equal(seed.GrupoTecnicoRh.Nome, atualizado.NomeGrupoTecnico);
+    }
+
+    [Fact]
+    public async Task EditarServicoPermiteRemoverGrupoTecnico()
+    {
+        using var context = AdminUseCasesTestFactory.CriarContexto();
+        var seed = await SeedAsync(context);
+        var useCase = CriarUseCase(context, seed.Admin);
+
+        var criado = await useCase.CriarAsync(new CriarCatalogoServicoRequest
+        {
+            Nome = "Servico com grupo inicial",
+            Descricao = "Primeira versao.",
+            DepartamentoResponsavelId = seed.DepartamentoRh.Id,
+            GrupoTecnicoId = seed.GrupoTecnicoRh.Id,
+            CategoriaId = seed.CategoriaRh.Id
+        });
+
+        var atualizado = await useCase.AtualizarAsync(criado.Id, new AtualizarCatalogoServicoRequest
+        {
+            Nome = "Servico com grupo removido",
+            Descricao = "Versao atualizada.",
+            DepartamentoResponsavelId = seed.DepartamentoRh.Id,
+            GrupoTecnicoId = null,
+            CategoriaId = seed.CategoriaRh.Id,
+            PermiteAberturaChamado = true,
+            RequerAprovacao = false,
+            Ordem = 2,
+            Visibilidade = VisibilidadeCatalogoServico.Interno,
+            Ativo = true
+        });
+
+        Assert.Null(atualizado.GrupoTecnicoId);
+        Assert.Null(atualizado.NomeGrupoTecnico);
     }
 
     [Fact]
@@ -536,6 +630,7 @@ public sealed class CatalogoServicosAdminUseCasesTests
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
             PortalUseCasesTestFactory.Repo<PoliticaSla>(context),
             PortalUseCasesTestFactory.Repo<BaseConhecimentoArtigo>(context),
+            PortalUseCasesTestFactory.Repo<GrupoTecnico>(context),
             new FakeUsuarioContextoAplicacaoService(AdminUseCasesTestFactory.Contexto(admin, "Administrador")),
             PortalUseCasesTestFactory.Uow(context),
             auditoria);
@@ -551,6 +646,13 @@ public sealed class CatalogoServicosAdminUseCasesTests
         var departamentoTi = new Departamento("Tecnologia", "TI", null, "teste");
         var departamentoRh = new Departamento("Recursos Humanos", "RH", null, "teste");
         context.Departamentos.AddRange(departamentoTi, departamentoRh);
+        await context.SaveChangesAsync();
+
+        var grupoTecnicoTi = new GrupoTecnico("Service Desk TI", null, "teste");
+        var grupoTecnicoRh = new GrupoTecnico("Operacoes RH", null, "teste");
+        var grupoTecnicoInativo = new GrupoTecnico("Legado Inativo", null, "teste");
+        grupoTecnicoInativo.Inativar("teste");
+        context.GruposTecnicos.AddRange(grupoTecnicoTi, grupoTecnicoRh, grupoTecnicoInativo);
         await context.SaveChangesAsync();
 
         var categoriaTi = new CategoriaChamado("Suporte TI", null, departamentoTi.Id, "teste");
@@ -597,6 +699,9 @@ public sealed class CatalogoServicosAdminUseCasesTests
             admin,
             departamentoTi,
             departamentoRh,
+            grupoTecnicoTi,
+            grupoTecnicoRh,
+            grupoTecnicoInativo,
             categoriaTi,
             categoriaRh,
             subcategoriaTi,
@@ -609,6 +714,9 @@ public sealed class CatalogoServicosAdminUseCasesTests
         Usuario Admin,
         Departamento DepartamentoTi,
         Departamento DepartamentoRh,
+        GrupoTecnico GrupoTecnicoTi,
+        GrupoTecnico GrupoTecnicoRh,
+        GrupoTecnico GrupoTecnicoInativo,
         CategoriaChamado CategoriaTi,
         CategoriaChamado CategoriaRh,
         SubcategoriaChamado SubcategoriaTi,

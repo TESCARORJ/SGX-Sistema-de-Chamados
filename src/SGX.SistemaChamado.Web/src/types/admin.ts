@@ -1,6 +1,7 @@
 import type { AnexoChamado } from './anexo'
 import type { StatusAprovacaoChamado } from './aprovacaoChamados'
 import type { ComentarioChamado } from './comentario'
+import type { TipoCampoFormularioServico } from './formularioServicos'
 import type { ImpactoChamado, NaturezaChamado, UrgenciaChamado } from './portal'
 
 export type SituacaoSlaChamado =
@@ -314,6 +315,16 @@ export interface SlaAdmin {
   calendarioCorporativoNome: string | null
 }
 
+export interface RespostaFormularioDetalheAdmin {
+  campoFormularioServicoId: string
+  nome: string
+  rotulo: string
+  tipo: TipoCampoFormularioServico
+  valor: string | null
+  valores: string[]
+  ordem: number
+}
+
 export interface ChamadoAdminDetalhe {
   id: string
   codigo: string
@@ -358,6 +369,7 @@ export interface ChamadoAdminDetalhe {
   historico: HistoricoAdmin[]
   historicoSla: EventoSlaAdmin[]
   sla: SlaAdmin | null
+  respostasFormulario: RespostaFormularioDetalheAdmin[]
 }
 
 export interface ChamadoRelacionamentoAdmin {

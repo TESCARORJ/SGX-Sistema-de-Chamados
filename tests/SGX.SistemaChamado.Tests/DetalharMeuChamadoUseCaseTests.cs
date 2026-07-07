@@ -113,6 +113,62 @@ public sealed class DetalharMeuChamadoUseCaseTests
     }
 
     [Fact]
+    public async Task DeveRetornarRespostasPersistidasDoFormularioOrdenadasNoDetalhePortal()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+        var respostas = await CriarRespostasFormularioAsync(context, dados.ChamadoSolicitante.Id, dados.SolicitanteContexto.Id, dados.SolicitanteContexto.Login);
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.Equal("Aberto", response.Status);
+        Assert.False(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+        Assert.Equal(2, response.RespostasFormulario.Count);
+
+        var primeira = response.RespostasFormulario.First();
+        var segunda = response.RespostasFormulario.Last();
+
+        Assert.Equal(respostas.CampoMultiplo.Id, primeira.CampoFormularioServicoId);
+        Assert.Equal("selecaoMultipla", primeira.Nome);
+        Assert.Equal("Selecao multipla", primeira.Rotulo);
+        Assert.Equal(TipoCampoFormularioServico.SelecaoMultipla, primeira.Tipo);
+        Assert.Null(primeira.Valor);
+        Assert.Equal(["vpn", "teams"], primeira.Valores);
+        Assert.Equal(1, primeira.Ordem);
+
+        Assert.Equal(respostas.CampoTexto.Id, segunda.CampoFormularioServicoId);
+        Assert.Equal("textoCurto", segunda.Nome);
+        Assert.Equal("Texto curto", segunda.Rotulo);
+        Assert.Equal(TipoCampoFormularioServico.TextoCurto, segunda.Tipo);
+        Assert.Equal("Acesso VPN", segunda.Valor);
+        Assert.Empty(segunda.Valores);
+        Assert.Equal(2, segunda.Ordem);
+    }
+
+    [Fact]
+    public async Task ChamadoSemRespostasDeveManterCompatibilidadeNoDetalhePortal()
+    {
+        using var context = PortalUseCasesTestFactory.CriarContexto();
+        var dados = await SeedChamados(context);
+
+        var useCase = new DetalharMeuChamadoUseCase(
+            PortalUseCasesTestFactory.Repo<Chamado>(context),
+            new FakeUsuarioContextoAplicacaoService(dados.SolicitanteContexto));
+
+        var response = await useCase.ExecutarAsync(dados.ChamadoSolicitante.Id);
+
+        Assert.Empty(response.RespostasFormulario);
+        Assert.Equal("Aberto", response.Status);
+        Assert.False(response.RequerAprovacao);
+        Assert.False(response.AprovacaoPendente);
+    }
+
+    [Fact]
     public async Task DetalhePortalDeveIndicarAprovacaoPendente()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
@@ -269,5 +325,61 @@ public sealed class DetalharMeuChamadoUseCaseTests
             chamadoOutro,
             new UsuarioContextoAplicacao(solicitante.Id, solicitante.Nome, solicitante.Email, solicitante.Login, ["Solicitante"]),
             new UsuarioContextoAplicacao(Guid.NewGuid(), "Admin", "admin@empresa.com", "admin", ["Administrador"]));
+    }
+
+    private static async Task<(CampoFormularioServico CampoMultiplo, CampoFormularioServico CampoTexto)> CriarRespostasFormularioAsync(
+        SGXSistemaChamadoDbContext context,
+        Guid chamadoId,
+        Guid criadorId,
+        string criadorLogin)
+    {
+        var departamento = new Departamento("Departamento Formulario", "DF", null, "teste");
+        var categoria = new CategoriaChamado("Categoria Formulario", null, departamento.Id, "teste");
+        var prioridade = context.PrioridadesChamado.First(x => x.Ativo);
+
+        context.Departamentos.Add(departamento);
+        context.CategoriasChamado.Add(categoria);
+        await context.SaveChangesAsync();
+
+        var servico = new CatalogoServico(
+            $"Servico-form-{Guid.NewGuid():N}",
+            $"servico-form-{Guid.NewGuid():N}",
+            "descricao",
+            "instrucao",
+            departamento.Id,
+            categoria.Id,
+            null,
+            prioridade.Id,
+            null,
+            null,
+            VisibilidadeCatalogoServico.Solicitante,
+            true,
+            false,
+            1,
+            criadorId,
+            criadorLogin);
+        servico.Publicar(criadorId, criadorLogin);
+        context.CatalogosServico.Add(servico);
+        await context.SaveChangesAsync();
+
+        var formulario = new FormularioServico(servico.Id, "Formulario detalhe", "Formulario detalhe", criadorLogin);
+        context.FormulariosServico.Add(formulario);
+        await context.SaveChangesAsync();
+
+        var versao = new FormularioServicoVersao(formulario.Id, 2, true, new DateTime(2026, 7, 3, 12, 0, 0, DateTimeKind.Utc), criadorLogin);
+        context.FormulariosServicoVersoes.Add(versao);
+        await context.SaveChangesAsync();
+
+        var campoTexto = new CampoFormularioServico(versao.Id, "textoCurto", "Texto curto", TipoCampoFormularioServico.TextoCurto, true, 2, null, true, criadorLogin);
+        var campoMultiplo = new CampoFormularioServico(versao.Id, "selecaoMultipla", "Selecao multipla", TipoCampoFormularioServico.SelecaoMultipla, true, 1, null, true, criadorLogin);
+        context.CamposFormularioServico.AddRange(campoTexto, campoMultiplo);
+        await context.SaveChangesAsync();
+
+        context.RespostasFormularioChamado.AddRange(
+            new RespostaFormularioChamado(chamadoId, versao.Id, campoTexto.Id, "Acesso VPN", null, criadorLogin),
+            new RespostaFormularioChamado(chamadoId, versao.Id, campoMultiplo.Id, null, ["vpn", "teams"], criadorLogin));
+        await context.SaveChangesAsync();
+
+        return (campoMultiplo, campoTexto);
     }
 }

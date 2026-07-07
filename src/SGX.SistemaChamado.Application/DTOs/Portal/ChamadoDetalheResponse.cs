@@ -27,6 +27,15 @@ public sealed record HistoricoChamadoResponse(
     Guid? UsuarioId,
     string? Usuario);
 
+public sealed record RespostaFormularioDetalheResponse(
+    Guid CampoFormularioServicoId,
+    string Nome,
+    string Rotulo,
+    TipoCampoFormularioServico Tipo,
+    string? Valor,
+    IReadOnlyCollection<string> Valores,
+    int Ordem);
+
 public sealed record SlaResumoResponse(
     string? PoliticaSlaNome,
     string Prioridade,
@@ -90,6 +99,7 @@ public sealed class ChamadoDetalheResponse
     public string? JustificativaAprovacao { get; init; }
     public string? JustificativaReprovacao { get; init; }
     public string MensagemOrientativaAprovacao { get; init; } = string.Empty;
+    public IReadOnlyCollection<RespostaFormularioDetalheResponse> RespostasFormulario { get; init; } = [];
     public IReadOnlyCollection<ComentarioChamadoResponse> Comentarios { get; init; } = [];
     public IReadOnlyCollection<AnexoChamadoResponse> Anexos { get; init; } = [];
     public IReadOnlyCollection<HistoricoChamadoResponse> Historico { get; init; } = [];

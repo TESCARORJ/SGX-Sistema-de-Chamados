@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRoute, useRouter } from 'vue-router'
+import CatalogoServicoFormularioSection from '../components/admin/CatalogoServicoFormularioSection.vue'
 import FormCadastro from '../components/admin/cadastros/FormCadastro.vue'
 import AppSectionCard from '../components/ui/AppSectionCard.vue'
 import ErrorState from '../components/ui/ErrorState.vue'
@@ -569,6 +570,22 @@ onMounted(async () => {
                   <q-input v-model="form.slug" outlined dense readonly label="Slug" />
                 </div>
               </div>
+            </AppSectionCard>
+
+            <CatalogoServicoFormularioSection
+              v-if="!isNovo && servicoAtual"
+              :catalogo-servico-id="servicoAtual.id"
+              :somente-leitura="somenteLeitura"
+            />
+
+            <AppSectionCard
+              v-else-if="isNovo"
+              titulo="Formulario do servico"
+              subtitulo="A configuracao administrativa do formulario fica disponivel depois que o servico e salvo pela primeira vez."
+            >
+              <q-banner rounded class="bg-blue-1 text-primary">
+                Salve o servico antes de configurar o formulario administrativo.
+              </q-banner>
             </AppSectionCard>
           </div>
         </FormCadastro>

@@ -22,6 +22,7 @@ import PageHeader from '../components/ui/PageHeader.vue'
 import PrioridadeBadge from '../components/ui/PrioridadeBadge.vue'
 import SlaBadge from '../components/ui/SlaBadge.vue'
 import StatusBadge from '../components/ui/StatusBadge.vue'
+import { TipoCampoFormularioServico } from '../types/formularioServicos'
 import { chamadoBaseConhecimentoService } from '../services/chamadoBaseConhecimentoService'
 import { chamadoInventarioAtivoService } from '../services/chamadoInventarioAtivoService'
 import { inventarioAtivosAdminService } from '../services/inventarioAtivosAdminService'
@@ -332,6 +333,7 @@ const totalEventosHistorico = computed(() => detalhe.value?.historico.length ?? 
 const totalAnexos = computed(() => detalhe.value?.anexos.length ?? 0)
 const totalEventosSla = computed(() => detalhe.value?.historicoSla.length ?? 0)
 const slaEmRisco = computed(() => detalhe.value?.sla?.situacao === 'ProximoDoVencimento' || detalhe.value?.sla?.estaVencido)
+const possuiRespostasFormulario = computed(() => (detalhe.value?.respostasFormulario?.length ?? 0) > 0)
 
 function formatarData(value: string | null): string {
   if (!value) return '-'
@@ -365,6 +367,27 @@ function labelUrgenciaChamado(value: number): string {
     case 2: return 'Media'
     case 3: return 'Alta'
     default: return `#${value}`
+  }
+}
+
+function formatarTipoCampoFormulario(tipo: TipoCampoFormularioServico): string {
+  switch (tipo) {
+    case TipoCampoFormularioServico.TextoCurto:
+      return 'Texto curto'
+    case TipoCampoFormularioServico.TextoLongo:
+      return 'Texto longo'
+    case TipoCampoFormularioServico.Numero:
+      return 'Numero'
+    case TipoCampoFormularioServico.Data:
+      return 'Data'
+    case TipoCampoFormularioServico.Booleano:
+      return 'Booleano'
+    case TipoCampoFormularioServico.SelecaoUnica:
+      return 'Selecao unica'
+    case TipoCampoFormularioServico.SelecaoMultipla:
+      return 'Selecao multipla'
+    default:
+      return 'Nao informado'
   }
 }
 
@@ -1816,6 +1839,46 @@ onMounted(carregar)
           @encerrar="showEncerrar = true"
           @reabrir="showReabrir = true"
         />
+      </AppSectionCard>
+
+      <AppSectionCard
+        v-if="possuiRespostasFormulario"
+        titulo="Respostas do formulario"
+        subtitulo="Informacoes preenchidas na abertura guiada e disponiveis para o atendimento administrativo."
+      >
+        <q-list separator>
+          <q-item v-for="resposta in detalhe.respostasFormulario" :key="resposta.campoFormularioServicoId">
+            <q-item-section>
+              <div class="row items-start justify-between q-col-gutter-md">
+                <div class="col">
+                  <q-item-label class="text-weight-medium">{{ resposta.rotulo }}</q-item-label>
+                  <q-item-label caption>{{ resposta.nome }}</q-item-label>
+                </div>
+
+                <div class="col-auto">
+                  <q-chip dense square color="grey-3" text-color="grey-9" icon="fact_check">
+                    {{ formatarTipoCampoFormulario(resposta.tipo) }}
+                  </q-chip>
+                </div>
+              </div>
+
+              <q-item-label v-if="resposta.valor" class="text-body2 q-mt-sm">{{ resposta.valor }}</q-item-label>
+
+              <div v-else-if="resposta.valores.length" class="row q-gutter-sm q-mt-sm">
+                <q-chip
+                  v-for="valor in resposta.valores"
+                  :key="`${resposta.campoFormularioServicoId}-${valor}`"
+                  dense
+                  square
+                  color="primary"
+                  text-color="white"
+                >
+                  {{ valor }}
+                </q-chip>
+              </div>
+            </q-item-section>
+          </q-item>
+        </q-list>
       </AppSectionCard>
 
       <ChamadoRelacionamentosSection

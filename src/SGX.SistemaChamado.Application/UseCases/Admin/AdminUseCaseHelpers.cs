@@ -233,6 +233,19 @@ internal static class AdminUseCaseHelpers
             AprovacaoChamadoId = aprovacao.AprovacaoChamadoId,
             StatusPermitidosCodigos = statusPermitidosCodigos ?? [],
             AcoesDisponiveisCodigos = acoesDisponiveis?.Select(x => x.ToString()).ToArray() ?? [],
+            RespostasFormulario = chamado.RespostasFormulario
+                .Where(x => x.Ativo)
+                .OrderBy(x => x.CampoFormularioServico.Ordem)
+                .ThenBy(x => x.CriadoEm)
+                .Select(x => new RespostaFormularioDetalheAdminResponse(
+                    x.CampoFormularioServicoId,
+                    x.CampoFormularioServico.Nome,
+                    x.CampoFormularioServico.Rotulo,
+                    x.CampoFormularioServico.Tipo,
+                    x.Valor,
+                    x.ObterValores(),
+                    x.CampoFormularioServico.Ordem))
+                .ToArray(),
             Comentarios = chamado.Comentarios
                 .Where(x => x.Ativo)
                 .OrderBy(x => x.CriadoEm)

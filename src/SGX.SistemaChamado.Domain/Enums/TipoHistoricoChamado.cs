@@ -45,5 +45,6 @@ public enum TipoHistoricoChamado
     FechamentoAutomatico = 41,
     Cancelado = 42,
     SolucaoAceita = 43,
-    SolucaoRejeitada = 44
+    SolucaoRejeitada = 44,
+    FormularioServicoPreenchidoNaAbertura = 45
 }

@@ -29,6 +29,8 @@ public sealed record CatalogoServicoListagemDto(
     string Descricao,
     Guid DepartamentoResponsavelId,
     string? DepartamentoResponsavelNome,
+    Guid? GrupoTecnicoId,
+    string? NomeGrupoTecnico,
     Guid? CategoriaId,
     string? CategoriaNome,
     Guid? SubcategoriaId,
@@ -58,6 +60,8 @@ public sealed record CatalogoServicoDetalheDto(
     string? InstrucoesSolicitante,
     Guid DepartamentoResponsavelId,
     string? DepartamentoResponsavelNome,
+    Guid? GrupoTecnicoId,
+    string? NomeGrupoTecnico,
     Guid? CategoriaId,
     string? CategoriaNome,
     Guid? SubcategoriaId,
@@ -97,6 +101,7 @@ public sealed class CriarCatalogoServicoRequest
     public Guid? SlaPadraoId { get; init; }
     public Guid? PoliticaSlaId { get; init; }
     public Guid? ArtigoBaseConhecimentoId { get; init; }
+    public Guid? GrupoTecnicoId { get; init; }
     public VisibilidadeCatalogoServico Visibilidade { get; init; } = VisibilidadeCatalogoServico.Interno;
     public bool? PermiteAberturaChamado { get; init; }
     public bool RequerAprovacao { get; init; }
@@ -115,6 +120,7 @@ public sealed class AtualizarCatalogoServicoRequest
     public Guid? SlaPadraoId { get; init; }
     public Guid? PoliticaSlaId { get; init; }
     public Guid? ArtigoBaseConhecimentoId { get; init; }
+    public Guid? GrupoTecnicoId { get; init; }
     public VisibilidadeCatalogoServico Visibilidade { get; init; } = VisibilidadeCatalogoServico.Interno;
     public bool PermiteAberturaChamado { get; init; } = true;
     public bool RequerAprovacao { get; init; }

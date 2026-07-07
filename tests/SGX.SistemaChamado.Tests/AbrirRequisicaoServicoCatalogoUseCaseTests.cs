@@ -50,6 +50,29 @@ public class AbrirRequisicaoServicoCatalogoUseCaseTests
     }
 
     [Fact]
+    public async Task ExecutarAsync_NaoDevePropagarCamposSensiveisForaDoContratoGuiado()
+    {
+        var fakeAbrirChamadoUseCase = new FakeAbrirChamadoUseCase();
+        var sut = new AbrirRequisicaoServicoCatalogoUseCase(fakeAbrirChamadoUseCase);
+
+        await sut.ExecutarAsync(new AbrirRequisicaoServicoCatalogoRequest
+        {
+            CatalogoServicoId = Guid.NewGuid(),
+            Titulo = "Requisicao guiada"
+        });
+
+        var reqCap = fakeAbrirChamadoUseCase.RequestCapturado;
+        Assert.NotNull(reqCap);
+        Assert.Equal(NaturezaChamadoEnum.Requisicao, reqCap!.NaturezaChamado);
+        Assert.Null(reqCap.CategoriaId);
+        Assert.Null(reqCap.SubcategoriaId);
+        Assert.Null(reqCap.PrioridadeId);
+        Assert.Null(reqCap.DepartamentoId);
+        Assert.Null(reqCap.TipoSolicitacaoId);
+        Assert.Null(reqCap.LocalUnidadeId);
+    }
+
+    [Fact]
     public async Task ExecutarAsync_DescricaoNula_DeveMapearParaStringVazia()
     {
         var fakeAbrirChamadoUseCase = new FakeAbrirChamadoUseCase();
@@ -67,6 +90,62 @@ public class AbrirRequisicaoServicoCatalogoUseCaseTests
         var reqCap = fakeAbrirChamadoUseCase.RequestCapturado;
         Assert.NotNull(reqCap);
         Assert.Equal(string.Empty, reqCap!.Descricao);
+    }
+
+    [Fact]
+    public async Task ExecutarAsync_DeveMapearRespostasFormularioComValorUnico()
+    {
+        var fakeAbrirChamadoUseCase = new FakeAbrirChamadoUseCase();
+        var sut = new AbrirRequisicaoServicoCatalogoUseCase(fakeAbrirChamadoUseCase);
+        var campoId = Guid.NewGuid();
+
+        await sut.ExecutarAsync(new AbrirRequisicaoServicoCatalogoRequest
+        {
+            CatalogoServicoId = Guid.NewGuid(),
+            Titulo = "Requisicao com resposta",
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = campoId,
+                    Valor = "VPN"
+                }
+            ]
+        });
+
+        var reqCap = fakeAbrirChamadoUseCase.RequestCapturado;
+        Assert.NotNull(reqCap);
+        var resposta = Assert.Single(reqCap!.RespostasFormulario!);
+        Assert.Equal(campoId, resposta.CampoFormularioServicoId);
+        Assert.Equal("VPN", resposta.Valor);
+        Assert.Null(resposta.Valores);
+    }
+
+    [Fact]
+    public async Task ExecutarAsync_DeveMapearRespostasFormularioComValoresMultiplos()
+    {
+        var fakeAbrirChamadoUseCase = new FakeAbrirChamadoUseCase();
+        var sut = new AbrirRequisicaoServicoCatalogoUseCase(fakeAbrirChamadoUseCase);
+
+        await sut.ExecutarAsync(new AbrirRequisicaoServicoCatalogoRequest
+        {
+            CatalogoServicoId = Guid.NewGuid(),
+            Titulo = "Requisicao com multiplas selecoes",
+            RespostasFormulario =
+            [
+                new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = Guid.NewGuid(),
+                    Valores = ["vpn", "email"]
+                }
+            ]
+        });
+
+        var reqCap = fakeAbrirChamadoUseCase.RequestCapturado;
+        Assert.NotNull(reqCap);
+        var resposta = Assert.Single(reqCap!.RespostasFormulario!);
+        Assert.Equal(new[] { "vpn", "email" }, resposta.Valores);
+        Assert.Null(resposta.Valor);
     }
 
     [Fact]

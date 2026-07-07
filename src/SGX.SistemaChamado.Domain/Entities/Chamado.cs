@@ -57,6 +57,9 @@ public sealed class Chamado : AuditableEntity
     public ICollection<AprovacaoChamado> Aprovacoes { get; private set; } = [];
     public ICollection<InstanciaAprovacaoChamado> InstanciasAprovacao { get; private set; } = [];
     public ICollection<EventoSla> EventosSla { get; private set; } = [];
+
+    public ICollection<RespostaFormularioChamado> RespostasFormulario { get; private set; } = [];
+
     public SlaControle? SlaControle { get; private set; }
     public ChamadoSla? ChamadoSla { get; private set; }
 
@@ -82,7 +85,8 @@ public sealed class Chamado : AuditableEntity
         Guid? inventarioAtivoId = null,
         NaturezaChamadoEnum naturezaChamado = NaturezaChamadoEnum.Requisicao,
         ImpactoChamadoEnum impactoChamado = ImpactoChamadoEnum.Baixo,
-        UrgenciaChamadoEnum urgenciaChamado = UrgenciaChamadoEnum.Baixa)
+        UrgenciaChamadoEnum urgenciaChamado = UrgenciaChamadoEnum.Baixa,
+        Guid? grupoTecnicoId = null)
     {
         DefinirCodigo(codigo);
         DefinirTitulo(titulo);
@@ -111,6 +115,11 @@ public sealed class Chamado : AuditableEntity
         if (catalogoServicoId == Guid.Empty)
         {
             throw new ArgumentException("O servico de catalogo informado e invalido.", nameof(catalogoServicoId));
+        }
+
+        if (grupoTecnicoId == Guid.Empty)
+        {
+            throw new ArgumentException("O grupo tecnico informado e invalido.", nameof(grupoTecnicoId));
         }
 
         if (!Enum.IsDefined(naturezaChamado))
@@ -142,6 +151,7 @@ public sealed class Chamado : AuditableEntity
         LocalUnidadeId = localUnidadeId;
         CatalogoServicoId = catalogoServicoId;
         InventarioAtivoId = inventarioAtivoId;
+        GrupoTecnicoId = grupoTecnicoId;
         AbertoEm = DateTime.UtcNow;
         DefinirCriacao(criadoPor);
     }

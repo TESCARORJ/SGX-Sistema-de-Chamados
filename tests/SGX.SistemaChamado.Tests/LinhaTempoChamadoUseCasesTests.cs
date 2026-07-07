@@ -346,6 +346,7 @@ public sealed class LinhaTempoChamadoUseCasesTests
         Assert.Equal(37, (int)TipoHistoricoChamado.FilaAtendimentoTransferida);
         Assert.Equal(38, (int)TipoHistoricoChamado.ResponsavelRemovidoPorTransferenciaGrupo);
         Assert.Equal(39, (int)TipoHistoricoChamado.ChamadoAssumidoDaFila);
+        Assert.Equal(45, (int)TipoHistoricoChamado.FormularioServicoPreenchidoNaAbertura);
     }
 
     private static ListarLinhaTempoChamadoUseCase CriarListarUseCase(SGXSistemaChamadoDbContext context, UsuarioContextoAplicacao usuario)

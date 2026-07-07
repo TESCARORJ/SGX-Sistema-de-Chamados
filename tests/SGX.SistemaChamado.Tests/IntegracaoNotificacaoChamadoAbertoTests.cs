@@ -73,6 +73,7 @@ public sealed class IntegracaoNotificacaoChamadoAbertoTests
     {
         return new AbrirChamadoUseCase(
             PortalUseCasesTestFactory.Repo<Chamado>(context),
+            PortalUseCasesTestFactory.Repo<RespostaFormularioChamado>(context),
             PortalUseCasesTestFactory.Repo<CategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<SubcategoriaChamado>(context),
             PortalUseCasesTestFactory.Repo<PrioridadeChamado>(context),
@@ -80,6 +81,8 @@ public sealed class IntegracaoNotificacaoChamadoAbertoTests
             PortalUseCasesTestFactory.Repo<LocalUnidade>(context),
             PortalUseCasesTestFactory.Repo<Departamento>(context),
             PortalUseCasesTestFactory.Repo<CatalogoServico>(context),
+            PortalUseCasesTestFactory.Repo<FormularioServico>(context),
+            PortalUseCasesTestFactory.Repo<GrupoTecnico>(context),
             PortalUseCasesTestFactory.Repo<InventarioAtivo>(context),
             PortalUseCasesTestFactory.Repo<StatusChamado>(context),
             PortalUseCasesTestFactory.Repo<HistoricoChamado>(context),

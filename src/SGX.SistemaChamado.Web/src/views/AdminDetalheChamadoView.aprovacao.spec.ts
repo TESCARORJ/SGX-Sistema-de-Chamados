@@ -6,7 +6,8 @@ describe('AdminDetalheChamadoView - aprovacao', () => {
     const caminho = new URL('./AdminDetalheChamadoView.vue', import.meta.url)
     const fonte = readFileSync(caminho, 'utf-8')
 
-    expect(fonte).toContain('titulo="Aprovacao"')
+    expect(fonte).toContain('titulo="Aprovacao legada"')
+    expect(fonte).toContain('titulo="Aprovacao do motor ITSM"')
     expect(fonte).toContain('Requer aprovacao')
     expect(fonte).toContain('Aprovacao pendente')
     expect(fonte).toContain('Status da aprovacao')

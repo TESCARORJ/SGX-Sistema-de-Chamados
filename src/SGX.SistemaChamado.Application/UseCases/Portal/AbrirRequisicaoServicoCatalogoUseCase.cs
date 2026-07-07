@@ -18,7 +18,15 @@ public sealed class AbrirRequisicaoServicoCatalogoUseCase(
             CatalogoServicoId = request.CatalogoServicoId,
             Titulo = request.Titulo,
             Descricao = request.Descricao ?? string.Empty,
-            NaturezaChamado = NaturezaChamadoEnum.Requisicao
+            NaturezaChamado = NaturezaChamadoEnum.Requisicao,
+            RespostasFormulario = request.RespostasFormulario?
+                .Select(x => new RespostaFormularioAberturaRequest
+                {
+                    CampoFormularioServicoId = x.CampoFormularioServicoId,
+                    Valor = x.Valor,
+                    Valores = x.Valores is null ? null : [.. x.Valores]
+                })
+                .ToList()
         };
 
         return await abrirChamadoUseCase.ExecutarAsync(criarChamadoRequest, cancellationToken);

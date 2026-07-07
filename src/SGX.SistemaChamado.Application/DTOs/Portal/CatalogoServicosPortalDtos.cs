@@ -77,6 +77,44 @@ public sealed class PortalPrepararChamadoCatalogoServicoDto
     public string? SlaPadraoNome { get; init; }
     public bool RequerAprovacao { get; init; }
     public bool PermiteAberturaChamado { get; init; }
+    public PortalFormularioPreparacaoDto? Formulario { get; init; }
+}
+
+public sealed class PortalFormularioPreparacaoDto
+{
+    public Guid Id { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public string? Descricao { get; init; }
+    public PortalFormularioPreparacaoVersaoDto Versao { get; init; } = new();
+}
+
+public sealed class PortalFormularioPreparacaoVersaoDto
+{
+    public Guid Id { get; init; }
+    public int Numero { get; init; }
+    public bool Publicada { get; init; }
+    public DateTime? PublicadoEm { get; init; }
+    public IReadOnlyCollection<PortalFormularioPreparacaoCampoDto> Campos { get; init; } = [];
+}
+
+public sealed class PortalFormularioPreparacaoCampoDto
+{
+    public Guid Id { get; init; }
+    public string Nome { get; init; } = string.Empty;
+    public string Rotulo { get; init; } = string.Empty;
+    public TipoCampoFormularioServico Tipo { get; init; }
+    public bool Obrigatorio { get; init; }
+    public int Ordem { get; init; }
+    public string? TextoAjuda { get; init; }
+    public IReadOnlyCollection<PortalFormularioPreparacaoOpcaoDto> Opcoes { get; init; } = [];
+}
+
+public sealed class PortalFormularioPreparacaoOpcaoDto
+{
+    public Guid Id { get; init; }
+    public string Valor { get; init; } = string.Empty;
+    public string Rotulo { get; init; } = string.Empty;
+    public int Ordem { get; init; }
 }
 
 public sealed class PortalListaCatalogoServicosResponse

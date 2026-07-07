@@ -10,6 +10,7 @@ namespace SGX.SistemaChamado.Application.UseCases.Portal;
 
 public sealed class CatalogoServicosPortalUseCases(
     IRepository<CatalogoServico> catalogoServicoRepository,
+    IRepository<FormularioServico> formularioServicoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService) : IPortalCatalogoServicosUseCases
 {
     public async Task<PortalListaCatalogoServicosResponse> ListarAsync(
@@ -106,7 +107,9 @@ public sealed class CatalogoServicosPortalUseCases(
             throw new InvalidOperationException("Este servico esta disponivel apenas para consulta.");
         }
 
-        return PortalCatalogoServicoMapeamentos.MapPrepararChamado(servico);
+        var (formulario, versaoSelecionada) = await ObterFormularioPreparacaoAsync(servico.Id, cancellationToken);
+
+        return PortalCatalogoServicoMapeamentos.MapPrepararChamado(servico, formulario, versaoSelecionada);
     }
 
     private async Task<CatalogoServico> ObterServicoPublicadoAtivoPorSlugAsync(string slug, CancellationToken cancellationToken)
@@ -130,6 +133,43 @@ public sealed class CatalogoServicosPortalUseCases(
                 cancellationToken);
 
         return servico ?? throw new KeyNotFoundException("Servico do catalogo nao encontrado.");
+    }
+
+    private async Task<(FormularioServico? Formulario, FormularioServicoVersao? VersaoSelecionada)> ObterFormularioPreparacaoAsync(
+        Guid catalogoServicoId,
+        CancellationToken cancellationToken)
+    {
+        var formulario = await formularioServicoRepository.Query()
+            .AsNoTracking()
+            .Include(x => x.Versoes)
+                .ThenInclude(x => x.Campos)
+                    .ThenInclude(x => x.Opcoes)
+            .FirstOrDefaultAsync(x => x.CatalogoServicoId == catalogoServicoId && x.Ativo, cancellationToken);
+
+        if (formulario is null)
+        {
+            return (null, null);
+        }
+
+        var versoesAtivas = formulario.Versoes
+            .Where(x => x.Ativo)
+            .ToArray();
+
+        if (versoesAtivas.Length == 0)
+        {
+            return (formulario, null);
+        }
+
+        var versaoSelecionada = versoesAtivas
+            .Where(x => x.Publicada)
+            .OrderByDescending(x => x.PublicadoEm ?? DateTime.MinValue)
+            .ThenByDescending(x => x.Numero)
+            .FirstOrDefault()
+            ?? versoesAtivas
+                .OrderByDescending(x => x.Numero)
+                .First();
+
+        return (formulario, versaoSelecionada);
     }
 }
 
@@ -227,7 +267,10 @@ internal static class PortalCatalogoServicoMapeamentos
             PublicadoEm = servico.PublicadoEm
         };
 
-    public static PortalPrepararChamadoCatalogoServicoDto MapPrepararChamado(CatalogoServico servico)
+    public static PortalPrepararChamadoCatalogoServicoDto MapPrepararChamado(
+        CatalogoServico servico,
+        FormularioServico? formulario,
+        FormularioServicoVersao? versaoSelecionada)
         => new()
         {
             CatalogoServicoId = servico.Id,
@@ -246,6 +289,69 @@ internal static class PortalCatalogoServicoMapeamentos
             SlaPadraoId = servico.SlaPadraoId,
             SlaPadraoNome = servico.SlaPadrao?.Nome,
             RequerAprovacao = servico.RequerAprovacao,
-            PermiteAberturaChamado = servico.PermiteAberturaChamado
+            PermiteAberturaChamado = servico.PermiteAberturaChamado,
+            Formulario = MapFormularioPreparacao(formulario, versaoSelecionada)
         };
+
+    private static PortalFormularioPreparacaoDto? MapFormularioPreparacao(
+        FormularioServico? formulario,
+        FormularioServicoVersao? versaoSelecionada)
+    {
+        if (formulario is null || versaoSelecionada is null)
+        {
+            return null;
+        }
+
+        return new PortalFormularioPreparacaoDto
+        {
+            Id = formulario.Id,
+            Nome = formulario.Nome,
+            Descricao = formulario.Descricao,
+            Versao = new PortalFormularioPreparacaoVersaoDto
+            {
+                Id = versaoSelecionada.Id,
+                Numero = versaoSelecionada.Numero,
+                Publicada = versaoSelecionada.Publicada,
+                PublicadoEm = versaoSelecionada.PublicadoEm,
+                Campos = versaoSelecionada.Campos
+                    .Where(x => x.Ativo && x.Visivel)
+                    .OrderBy(x => x.Ordem)
+                    .ThenBy(x => x.Nome)
+                    .Select(MapCampoPreparacao)
+                    .ToArray()
+            }
+        };
+    }
+
+    private static PortalFormularioPreparacaoCampoDto MapCampoPreparacao(CampoFormularioServico campo)
+        => new()
+        {
+            Id = campo.Id,
+            Nome = campo.Nome,
+            Rotulo = campo.Rotulo,
+            Tipo = campo.Tipo,
+            Obrigatorio = campo.Obrigatorio,
+            Ordem = campo.Ordem,
+            TextoAjuda = campo.TextoAjuda,
+            Opcoes = CampoAceitaOpcoes(campo)
+                ? campo.Opcoes
+                    .Where(x => x.Ativo)
+                    .OrderBy(x => x.Ordem)
+                    .ThenBy(x => x.Valor)
+                    .Select(MapOpcaoPreparacao)
+                    .ToArray()
+                : []
+        };
+
+    private static PortalFormularioPreparacaoOpcaoDto MapOpcaoPreparacao(OpcaoCampoFormularioServico opcao)
+        => new()
+        {
+            Id = opcao.Id,
+            Valor = opcao.Valor,
+            Rotulo = opcao.Rotulo,
+            Ordem = opcao.Ordem
+        };
+
+    private static bool CampoAceitaOpcoes(CampoFormularioServico campo)
+        => campo.Tipo is TipoCampoFormularioServico.SelecaoUnica or TipoCampoFormularioServico.SelecaoMultipla;
 }

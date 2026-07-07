@@ -21,6 +21,7 @@ public sealed class CatalogoServicosAdminUseCases(
     IRepository<PrioridadeChamado> prioridadeRepository,
     IRepository<PoliticaSla> politicaSlaRepository,
     IRepository<BaseConhecimentoArtigo> baseConhecimentoRepository,
+    IRepository<GrupoTecnico> grupoTecnicoRepository,
     IUsuarioContextoAplicacaoService usuarioContextoAplicacaoService,
     IUnitOfWork unitOfWork,
     IAuditoriaService? auditoriaService = null) : IAdminCatalogoServicosUseCases
@@ -39,6 +40,7 @@ public sealed class CatalogoServicosAdminUseCases(
             .Include(x => x.Subcategoria)
             .Include(x => x.PrioridadePadrao)
             .Include(x => x.SlaPadrao)
+            .Include(x => x.GrupoTecnico)
             .AsQueryable();
 
         var slaPadraoId = CatalogoServicoValidacoes.ResolverSlaPadraoId(request.SlaPadraoId, request.PoliticaSlaId);
@@ -164,12 +166,14 @@ public sealed class CatalogoServicosAdminUseCases(
             prioridadeRepository,
             politicaSlaRepository,
             baseConhecimentoRepository,
+            grupoTecnicoRepository,
             request.DepartamentoResponsavelId,
             request.CategoriaId,
             request.SubcategoriaId,
             request.PrioridadePadraoId,
             slaPadraoId,
             request.ArtigoBaseConhecimentoId,
+            request.GrupoTecnicoId,
             cancellationToken);
 
         var slug = await CatalogoServicoSlugHelper.GerarSlugUnicoAsync(
@@ -194,7 +198,8 @@ public sealed class CatalogoServicosAdminUseCases(
             request.RequerAprovacao,
             request.Ordem,
             usuarioAtual.Id,
-            usuarioAtual.Login);
+            usuarioAtual.Login,
+            request.GrupoTecnicoId);
 
         await catalogoServicoRepository.AddAsync(servico, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -248,12 +253,14 @@ public sealed class CatalogoServicosAdminUseCases(
             prioridadeRepository,
             politicaSlaRepository,
             baseConhecimentoRepository,
+            grupoTecnicoRepository,
             request.DepartamentoResponsavelId,
             request.CategoriaId,
             request.SubcategoriaId,
             request.PrioridadePadraoId,
             slaPadraoId,
             request.ArtigoBaseConhecimentoId,
+            request.GrupoTecnicoId,
             cancellationToken);
 
         var slug = string.Equals(servico.Nome, request.Nome, StringComparison.Ordinal)
@@ -278,7 +285,8 @@ public sealed class CatalogoServicosAdminUseCases(
             request.RequerAprovacao,
             request.Ordem,
             usuarioAtual.Id,
-            usuarioAtual.Login);
+            usuarioAtual.Login,
+            request.GrupoTecnicoId);
 
         if (!request.Ativo && servico.Ativo)
         {
@@ -448,6 +456,7 @@ public sealed class CatalogoServicosAdminUseCases(
             .Include(x => x.Subcategoria)
             .Include(x => x.PrioridadePadrao)
             .Include(x => x.SlaPadrao)
+            .Include(x => x.GrupoTecnico)
             .Include(x => x.ArtigoBaseConhecimento)
             .Where(x => x.Id == id);
 
@@ -497,12 +506,14 @@ internal static class CatalogoServicoValidacoes
         IRepository<PrioridadeChamado> prioridadeRepository,
         IRepository<PoliticaSla> politicaSlaRepository,
         IRepository<BaseConhecimentoArtigo> baseConhecimentoRepository,
+        IRepository<GrupoTecnico> grupoTecnicoRepository,
         Guid departamentoResponsavelId,
         Guid? categoriaId,
         Guid? subcategoriaId,
         Guid? prioridadePadraoId,
         Guid? slaPadraoId,
         Guid? artigoBaseConhecimentoId,
+        Guid? grupoTecnicoId,
         CancellationToken cancellationToken)
     {
         var departamentoValido = await departamentoRepository.Query()
@@ -568,6 +579,16 @@ internal static class CatalogoServicoValidacoes
                 throw new InvalidOperationException("Artigo da base de conhecimento informado nao encontrado ou inativo.");
             }
         }
+
+        if (grupoTecnicoId.HasValue)
+        {
+            var grupoValido = await grupoTecnicoRepository.Query()
+                .AnyAsync(x => x.Id == grupoTecnicoId.Value && x.Ativo, cancellationToken);
+            if (!grupoValido)
+            {
+                throw new InvalidOperationException("Grupo tecnico informado nao encontrado ou inativo.");
+            }
+        }
     }
 }
 
@@ -581,6 +602,8 @@ internal static class CatalogoServicoMapeamentos
             servico.Descricao ?? string.Empty,
             servico.DepartamentoResponsavelId,
             servico.DepartamentoResponsavel?.Nome,
+            servico.GrupoTecnicoId,
+            servico.GrupoTecnico?.Nome,
             servico.CategoriaId,
             servico.Categoria?.Nome,
             servico.SubcategoriaId,
@@ -611,6 +634,8 @@ internal static class CatalogoServicoMapeamentos
             servico.InstrucoesSolicitante,
             servico.DepartamentoResponsavelId,
             servico.DepartamentoResponsavel?.Nome,
+            servico.GrupoTecnicoId,
+            servico.GrupoTecnico?.Nome,
             servico.CategoriaId,
             servico.Categoria?.Nome,
             servico.SubcategoriaId,
@@ -651,6 +676,7 @@ internal static class CatalogoServicoMapeamentos
             servico.PrioridadePadraoId,
             servico.SlaPadraoId,
             servico.ArtigoBaseConhecimentoId,
+            servico.GrupoTecnicoId,
             servico.Status,
             servico.Visibilidade,
             servico.PermiteAberturaChamado,
