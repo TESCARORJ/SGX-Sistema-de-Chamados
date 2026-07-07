@@ -1,0 +1,111 @@
+name: Apply Sprint 9 checklist
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-checklist:
+    if: github.event.pull_request.head.ref == 'agent/sprint-9-checklist-incidentes'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout da branch da PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configurar .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Aplicar checklist e documentacao
+        run: python .github/scripts/apply_sprint9_checklist.py
+
+      - name: Restaurar dependencias
+        run: dotnet restore SGX.SistemaChamado.sln
+
+      - name: Build preliminar para gerar migration
+        run: dotnet build SGX.SistemaChamado.sln /p:UseSharedCompilation=false
+
+      - name: Instalar dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 9.0.0
+
+      - name: Gerar migration somente de checklist e dados
+        run: >-
+          dotnet ef migrations add AtualizarChecklistSprint9GerenciamentoIncidentes
+          -p src/SGX.SistemaChamado.Infrastructure
+          -s src/SGX.SistemaChamado.Api
+          --no-build
+
+      - name: Validar que a migration nao possui alteracao estrutural
+        shell: python
+        run: |
+          from pathlib import Path
+
+          migration_dir = Path('src/SGX.SistemaChamado.Infrastructure/Persistence/Migrations')
+          candidates = sorted(
+              path for path in migration_dir.glob('*_AtualizarChecklistSprint9GerenciamentoIncidentes.cs')
+              if not path.name.endswith('.Designer.cs')
+          )
+          if len(candidates) != 1:
+              raise SystemExit(f'Esperada uma migration da Sprint 9; encontradas {len(candidates)}.')
+
+          content = candidates[0].read_text(encoding='utf-8-sig')
+          if 'UpdateData(' not in content:
+              raise SystemExit('A migration nao contem UpdateData.')
+
+          forbidden = (
+              'CreateTable(', 'DropTable(', 'AddColumn<', 'DropColumn(', 'AlterColumn<',
+              'CreateIndex(', 'DropIndex(', 'AddForeignKey(', 'DropForeignKey(',
+              'RenameColumn(', 'RenameTable('
+          )
+          found = [token for token in forbidden if token in content]
+          if found:
+              raise SystemExit(f'Migration estrutural detectada: {found}')
+
+          print(f'Migration de dados validada: {candidates[0]}')
+
+      - name: Testes direcionados RoadmapSprint9
+        run: dotnet test tests/SGX.SistemaChamado.Tests /p:UseSharedCompilation=false -m:1 --filter "FullyQualifiedName~RoadmapSprint9"
+
+      - name: Suite completa sem rebuild
+        run: dotnet test SGX.SistemaChamado.sln /p:UseSharedCompilation=false -m:1 --no-build
+
+      - name: Build backend obrigatorio
+        run: dotnet build SGX.SistemaChamado.sln /p:UseSharedCompilation=false
+
+      - name: Verificar EF pending model changes
+        run: >-
+          dotnet ef migrations has-pending-model-changes
+          -p src/SGX.SistemaChamado.Infrastructure
+          -s src/SGX.SistemaChamado.Api
+          --no-build
+
+      - name: Remover arquivos temporarios da automacao
+        run: |
+          rm .github/scripts/apply_sprint9_checklist.py
+          rm .github/workflows/apply-sprint9-checklist.yml
+
+      - name: Commitar alteracoes validadas
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/SGX.SistemaChamado.Infrastructure/Persistence/Seed/SeedData.cs \
+            src/SGX.SistemaChamado.Infrastructure/Persistence/Migrations \
+            tests/SGX.SistemaChamado.Tests/RoadmapSprint9GerenciamentoIncidentesChecklistTests.cs \
+            docs/ROADMAP.md \
+            docs/ROADMAP-ITSM.md \
+            docs/roadmap/sprint-9-gerenciamento-incidentes.md \
+            .github/scripts/apply_sprint9_checklist.py \
+            .github/workflows/apply-sprint9-checklist.yml
+          git commit -m "docs: detalhar checklist da Sprint 9"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
