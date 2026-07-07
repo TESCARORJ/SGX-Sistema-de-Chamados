@@ -38,7 +38,16 @@ jobs:
         run: dotnet restore SGX.SistemaChamado.sln
 
       - name: Build preliminar da API para gerar migration
-        run: dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj /p:UseSharedCompilation=false -m:1
+        shell: bash
+        run: |
+          set +e
+          timeout 360s dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj --no-restore /p:UseSharedCompilation=false -m:1 -v:minimal > build-preliminar.log 2>&1
+          status=$?
+          cat build-preliminar.log
+          if [ "$status" -eq 124 ]; then
+            echo "ERRO: build preliminar excedeu 360 segundos."
+          fi
+          exit "$status"
 
       - name: Instalar dotnet-ef
         run: dotnet tool install --global dotnet-ef --version 9.0.0
