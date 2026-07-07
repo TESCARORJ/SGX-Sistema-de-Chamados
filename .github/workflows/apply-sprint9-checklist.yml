@@ -8,10 +8,15 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: sprint9-checklist-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   apply-checklist:
     if: github.event.pull_request.head.ref == 'agent/sprint-9-checklist-incidentes'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout da branch da PR
@@ -32,8 +37,8 @@ jobs:
       - name: Restaurar dependencias
         run: dotnet restore SGX.SistemaChamado.sln
 
-      - name: Build preliminar para gerar migration
-        run: dotnet build SGX.SistemaChamado.sln /p:UseSharedCompilation=false
+      - name: Build preliminar da API para gerar migration
+        run: dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj /p:UseSharedCompilation=false -m:1
 
       - name: Instalar dotnet-ef
         run: dotnet tool install --global dotnet-ef --version 9.0.0
@@ -93,6 +98,7 @@ jobs:
         run: |
           rm .github/scripts/apply_sprint9_checklist.py
           rm .github/workflows/apply-sprint9-checklist.yml
+          rm .github/sprint9-trigger.txt
 
       - name: Commitar alteracoes validadas
         run: |
@@ -106,6 +112,7 @@ jobs:
             docs/ROADMAP-ITSM.md \
             docs/roadmap/sprint-9-gerenciamento-incidentes.md \
             .github/scripts/apply_sprint9_checklist.py \
-            .github/workflows/apply-sprint9-checklist.yml
+            .github/workflows/apply-sprint9-checklist.yml \
+            .github/sprint9-trigger.txt
           git commit -m "docs: detalhar checklist da Sprint 9"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
