@@ -1,0 +1,71 @@
+name: Diagnose Sprint 9 migration
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sprint9-migration-diagnostic-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    if: github.event.pull_request.head.ref == 'agent/sprint-9-checklist-incidentes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Aplicar alteracoes da Sprint 9
+        run: |
+          python .github/scripts/apply_sprint9_checklist.py
+          python .github/scripts/optimize_sprint9_seed.py
+
+      - name: Restaurar dependencias
+        run: dotnet restore SGX.SistemaChamado.sln
+
+      - name: Build preparatorio
+        run: dotnet build src/SGX.SistemaChamado.Api/SGX.SistemaChamado.Api.csproj --no-restore -m:1 -v:minimal /p:RunAnalyzers=false /p:RunAnalyzersDuringBuild=false
+
+      - name: Instalar dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 9.0.0
+
+      - name: Tentar gerar migration
+        shell: bash
+        run: |
+          set +e
+          dotnet ef migrations add AtualizarChecklistSprint9GerenciamentoIncidentes \
+            -p src/SGX.SistemaChamado.Infrastructure \
+            -s src/SGX.SistemaChamado.Api \
+            --no-build > migration-sprint9.log 2>&1
+          status=$?
+          echo "$status" > migration-sprint9.status
+          cat migration-sprint9.log
+          exit 0
+
+      - name: Publicar diagnostico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sprint9-migration-diagnostic
+          path: |
+            migration-sprint9.log
+            migration-sprint9.status
+          retention-days: 1
+
+      - name: Validar diagnostico
+        shell: bash
+        run: |
+          status=$(cat migration-sprint9.status)
+          exit "$status"
