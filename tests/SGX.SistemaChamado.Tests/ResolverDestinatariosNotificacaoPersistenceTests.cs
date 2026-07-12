@@ -174,6 +174,8 @@ public sealed class ResolverDestinatariosNotificacaoPersistenceTests : IClassFix
         await context.AprovacoesChamado.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
         await context.MembrosGruposTecnicos.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
         await context.UsuariosPerfisAcesso.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
+        await context.PerfisAcessoPermissoes.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
+        await context.PerfisAcesso.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
         await context.Chamados.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
         await context.GruposTecnicos.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();
         await context.CategoriasChamado.Where(x => x.CriadoPor == CriadoPorTeste).ExecuteDeleteAsync();

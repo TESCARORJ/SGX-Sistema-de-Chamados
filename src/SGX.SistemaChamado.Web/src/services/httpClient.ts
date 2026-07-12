@@ -1,4 +1,6 @@
-﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5168'
+﻿const DEFAULT_HTTP_TIMEOUT_MS = 30_000
+const API_BASE_URL = normalizarBaseUrl(import.meta.env.VITE_API_BASE_URL)
+const HTTP_TIMEOUT_MS = normalizarTimeout(import.meta.env.VITE_HTTP_TIMEOUT_MS)
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
@@ -28,7 +30,95 @@ function redirectTo(path: '/login' | '/acesso-negado'): void {
   window.location.assign(path)
 }
 
-async function request<T>(path: string, method: HttpMethod, body?: unknown): Promise<T> {
+function normalizarBaseUrl(value: string | undefined): string {
+  const baseUrl = (value ?? '').trim()
+  if (!baseUrl) {
+    return ''
+  }
+
+  return baseUrl.replace(/\/+$/, '')
+}
+
+function normalizarTimeout(value: string | number | undefined): number {
+  const timeout = Number(value ?? DEFAULT_HTTP_TIMEOUT_MS)
+  if (!Number.isFinite(timeout) || timeout <= 0) {
+    return DEFAULT_HTTP_TIMEOUT_MS
+  }
+
+  return Math.trunc(timeout)
+}
+
+function buildRequestUrl(path: string): string {
+  return `${API_BASE_URL}${path}`
+}
+
+function formatarMensagemTimeout(timeoutMs: number): string {
+  return `A API demorou mais de ${Math.trunc(timeoutMs / 1000)} segundos para responder.`
+}
+
+function criarSignalComTimeout(
+  timeoutMs: number,
+  signalExterno?: AbortSignal
+): { signal: AbortSignal; limpar: () => void; expirou: () => boolean } {
+  const controller = new AbortController()
+  let timeoutExpirado = false
+
+  const timeoutHandle = setTimeout(() => {
+    timeoutExpirado = true
+    controller.abort()
+  }, timeoutMs)
+
+  const abortarPorSinalExterno = () => {
+    controller.abort(signalExterno?.reason)
+  }
+
+  if (signalExterno) {
+    if (signalExterno.aborted) {
+      abortarPorSinalExterno()
+    } else {
+      signalExterno.addEventListener('abort', abortarPorSinalExterno, { once: true })
+    }
+  }
+
+  return {
+    signal: controller.signal,
+    limpar: () => {
+      clearTimeout(timeoutHandle)
+      signalExterno?.removeEventListener('abort', abortarPorSinalExterno)
+    },
+    expirou: () => timeoutExpirado,
+  }
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = HTTP_TIMEOUT_MS
+): Promise<Response> {
+  const { signal, limpar, expirou } = criarSignalComTimeout(timeoutMs, init.signal)
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal,
+    })
+  } catch (error) {
+    if (expirou()) {
+      throw new HttpRequestError(408, formatarMensagemTimeout(timeoutMs))
+    }
+
+    throw error
+  } finally {
+    limpar()
+  }
+}
+
+async function request<T>(
+  path: string,
+  method: HttpMethod,
+  body?: unknown,
+  timeoutMs = HTTP_TIMEOUT_MS
+): Promise<T> {
   const headers: HeadersInit = {}
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
 
@@ -44,11 +134,11 @@ async function request<T>(path: string, method: HttpMethod, body?: unknown): Pro
     Object.assign(headers, devHeaders)
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(buildRequestUrl(path), {
     method,
     headers,
     body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
-  })
+  }, timeoutMs)
 
   if (response.status === 401) {
     if (!authRedirectSuppressed) {
@@ -99,7 +189,11 @@ function extrairNomeArquivo(contentDisposition: string | null): string | null {
   return asciiMatch?.[1] ? asciiMatch[1].replace(/["']/g, '') : null
 }
 
-async function requestFile(path: string, method: HttpMethod): Promise<{ blob: Blob; nomeArquivo: string | null; contentType: string | null }> {
+async function requestFile(
+  path: string,
+  method: HttpMethod,
+  timeoutMs = HTTP_TIMEOUT_MS
+): Promise<{ blob: Blob; nomeArquivo: string | null; contentType: string | null }> {
   const headers: HeadersInit = {}
 
   if (bearerToken) {
@@ -110,10 +204,10 @@ async function requestFile(path: string, method: HttpMethod): Promise<{ blob: Bl
     Object.assign(headers, devHeaders)
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(buildRequestUrl(path), {
     method,
     headers,
-  })
+  }, timeoutMs)
 
   if (response.status === 401) {
     if (!authRedirectSuppressed) {
@@ -170,4 +264,3 @@ export const httpClient = {
   delete: <T>(path: string) => request<T>(path, 'DELETE'),
   getFile: (path: string) => requestFile(path, 'GET'),
 }
-

@@ -2,10 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "API - SGX.SistemaChamado.Api",
+      "name": "API - Debug Local (sem build)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "dotnet: build solution",
       "program": "${workspaceFolder}/src/SGX.SistemaChamado.Api/bin/Debug/net9.0/SGX.SistemaChamado.Api.dll",
       "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Api",
       "stopAtEntry": false,
@@ -17,50 +16,67 @@
       }
     },
     {
-      "name": "Web - SGX.SistemaChamado.Web",
-      "type": "node-terminal",
+      "name": "API - Debug Local (com build seguro)",
+      "type": "coreclr",
       "request": "launch",
-      "command": "npm.cmd run dev",
-      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Web",
+      "preLaunchTask": "dotnet: build api",
+      "program": "${workspaceFolder}/src/SGX.SistemaChamado.Api/bin/Debug/net9.0/SGX.SistemaChamado.Api.dll",
+      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Api",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
       "env": {
-        "VITE_API_BASE_URL": "http://localhost:5168",
-        "VITE_AUTH_MODO_LOCAL": "true"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Authentication__ModoLocalHabilitado": "true",
+        "ASPNETCORE_URLS": "http://localhost:5168"
       }
     },
     {
-      "name": "Worker - SGX.SistemaChamado.Worker.Email",
+      "name": "Worker Email - Debug Local (sem build)",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "dotnet: build solution",
       "program": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email/bin/Debug/net9.0/SGX.SistemaChamado.Worker.Email.dll",
       "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email",
       "stopAtEntry": false,
       "console": "integratedTerminal",
       "env": {
-        "DOTNET_ENVIRONMENT": "Development",
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "Authentication__ModoLocalHabilitado": "true",
-        "EmailWorker__IntervaloSegundos": "30",
-        "EmailWorker__MaxMensagensPorCiclo": "10",
-        "EmailWorker__ImapHost": "",
-        "EmailWorker__Senha": ""
+        "DOTNET_ENVIRONMENT": "Development"
       }
+    },
+    {
+      "name": "Worker Email - Debug Local (com build seguro)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build worker",
+      "program": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email/bin/Debug/net9.0/SGX.SistemaChamado.Worker.Email.dll",
+      "cwd": "${workspaceFolder}/src/SGX.SistemaChamado.Worker.Email",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "env": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    },
+    {
+      "name": "Web - Run Local",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "./scripts/start-web.sh",
+      "cwd": "${workspaceFolder}"
     }
   ],
   "compounds": [
     {
-      "name": "API + Worker",
+      "name": "API + Web - Local",
       "configurations": [
-        "API - SGX.SistemaChamado.Api",
-        "Worker - SGX.SistemaChamado.Worker.Email"
+        "API - Debug Local (sem build)",
+        "Web - Run Local"
       ]
     },
     {
-      "name": "API + Web",
+      "name": "API + Worker - Local",
       "configurations": [
-        "API - SGX.SistemaChamado.Api",
-        "Web - SGX.SistemaChamado.Web"
+        "API - Debug Local (sem build)",
+        "Worker Email - Debug Local (sem build)"
       ]
     }
   ]
-} 
+}

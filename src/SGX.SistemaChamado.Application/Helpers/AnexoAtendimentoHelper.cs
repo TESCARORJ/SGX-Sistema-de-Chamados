@@ -25,7 +25,7 @@ public static class AnexoAtendimentoHelper
             throw new InvalidOperationException("Nome do arquivo obrigatorio.");
         }
 
-        var nomeOriginalSeguro = Path.GetFileName(nomeArquivo).Trim();
+        var nomeOriginalSeguro = Path.GetFileName(nomeArquivo.Replace('\\', '/')).Trim();
         if (string.IsNullOrWhiteSpace(nomeOriginalSeguro))
         {
             throw new InvalidOperationException("Nome de arquivo invalido.");

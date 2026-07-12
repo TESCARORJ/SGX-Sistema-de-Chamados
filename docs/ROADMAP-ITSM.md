@@ -21,7 +21,7 @@ Sprints consolidadas:
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
 7. Sprint 7 - Gerenciamento de Requisicoes (92% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
-9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
+9. Sprint 9 - Gerenciamento de Incidentes (36% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
 11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
 12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
@@ -38,6 +38,14 @@ Sprints consolidadas:
 Observacao:
 - os percentuais seguem a referencia operacional: nao iniciado (0%), parcial (30% a 60%), evolucao planejada (0% a 20%), homologacao preparada (80% a 95%).
 - Sprint 5 foi encerrada tecnicamente com checklist 32/32; a homologacao formal permanece registrada como etapa posterior.
+- Sprint 9 foi sincronizada com checklist tecnico de 50 itens; 18 estao concluidos e 32 permanecem pendentes para a evolucao funcional incremental.
+
+## Atualizacao 2026-07-10 - Sprint 9 Gerenciamento de Incidentes - Checklist tecnico consolidado
+
+- Percentual recalculado para `36%` com base em `18` itens concluidos e `32` pendentes.
+- O checklist generico anterior foi substituido por itens tecnicos, rastreaveis e aderentes ao roadmap ITIL/ITSM.
+- A entrega continua sem funcionalidade de incidente, sem alteracao no fluxo legado e sem impacto na Sprint 8.
+- A documentacao tecnica, a seed, a migration e o teste de checklist foram sincronizados para refletir o novo estado.
 
 ### Quadro resumido da ordem atual
 
@@ -140,7 +148,7 @@ Observacao:
 - A auditoria registra `ChamadoId`, `FormularioServicoVersaoId`, quantidade de respostas persistidas e origem `AberturaGuiadaCatalogo`, sem gravar valores das respostas.
 - O historico funcional resumido do item `50` permanece ativo e separado da trilha tecnica.
 - O proximo item pendente da Sprint 8 passa a ser o item `52` (`Testar persistencia das respostas do formulario`).
-| Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
+| Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 36% |
 | Sprint 10 - Gerenciamento de Mudancas | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
 | Sprint 11 - Gerenciamento de Problemas | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 12 - CMDB e Itens de Configuracao | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |

@@ -204,6 +204,7 @@ Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarn
 - `docs/ROADMAP-ITSM.md`
 - `docs/EXECUCAO-LOCAL.md`
 - `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
+- `docs/EXECUCAO-LOCAL-LINUX-MINT.md`
 - `docs/ARQUITETURA.md`
 - `docs/HOMOLOGACAO-CHECKLIST.md`
 - `docs/SLA.md`

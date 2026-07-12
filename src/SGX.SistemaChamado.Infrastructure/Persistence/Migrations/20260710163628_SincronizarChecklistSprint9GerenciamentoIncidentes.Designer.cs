@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGX.SistemaChamado.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using SGX.SistemaChamado.Infrastructure.Persistence;
 namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SGXSistemaChamadoDbContext))]
-    partial class SGXSistemaChamadoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260710163628_SincronizarChecklistSprint9GerenciamentoIncidentes")]
+    partial class SincronizarChecklistSprint9GerenciamentoIncidentes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -12264,7 +12267,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 5,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar limites atuais do fluxo de incidente"
+                            Titulo = "Registrar limitacoes atuais do fluxo de incidente"
                         },
                         new
                         {
@@ -12274,11 +12277,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 1,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 6,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar dependencias e riscos da Sprint 9, incluindo CMDB, SLA e autorizacao"
+                            Titulo = "Verificar se ja existe natureza/tipo Incidente"
                         },
                         new
                         {
@@ -12292,13 +12295,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 7,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Confirmar existencia da natureza Incidente no modelo ITSM"
+                            Titulo = "Registrar pendencia para abertura de incidente sem quebrar abertura legada"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000008"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
@@ -12306,13 +12309,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 8,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Validar matriz de status permitidos para Incidente"
+                            Titulo = "Definir campos especificos de incidente"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000009"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
@@ -12320,7 +12323,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 9,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Exigir impacto e urgencia na criacao de incidentes"
+                            Titulo = "Registrar servico afetado"
                         },
                         new
                         {
@@ -12334,13 +12337,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 10,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar classificacao de incidente por e-mail"
+                            Titulo = "Registrar CI afetado como preparatorio se nao houver CMDB"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000011"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
@@ -12348,13 +12351,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 11,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar compatibilidade de Incidente nos filtros do dashboard administrativo"
+                            Titulo = "Registrar causa provavel"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000012"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
@@ -12362,13 +12365,13 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 12,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar compatibilidade de Incidente nos relatorios administrativos"
+                            Titulo = "Registrar diagnostico inicial"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000013"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
@@ -12376,35 +12379,35 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 13,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar compatibilidade de Incidente nas acoes disponiveis do chamado"
+                            Titulo = "Registrar solucao de contorno/workaround"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000014"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 3,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 14,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar compatibilidade de Incidente na abertura legada do chamado"
+                            Titulo = "Registrar resolucao do incidente"
                         },
                         new
                         {
                             Id = new Guid("78787878-7878-7878-7878-000000000015"),
                             Ativo = true,
-                            Concluido = true,
+                            Concluido = false,
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 9,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 15,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Sincronizar SeedData, teste, migration e documentacao da Sprint 9"
+                            Titulo = "Registrar regra de reabertura"
                         },
                         new
                         {
@@ -12792,11 +12795,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 7,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 43,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar autorizacao por acao operacional de incidente"
+                            Titulo = "Registrar pendencia para fechamento"
                         },
                         new
                         {
@@ -12806,11 +12809,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 7,
+                            Grupo = 2,
                             Obrigatorio = true,
                             Ordem = 44,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar protecao de payload e integridade de metadados"
+                            Titulo = "Registrar pendencia para validacao visual responsiva"
                         },
                         new
                         {
@@ -12824,7 +12827,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 45,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar testes de abertura e triagem de incidente"
+                            Titulo = "Registrar teste de abertura de incidente"
                         },
                         new
                         {
@@ -12838,7 +12841,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 46,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar testes de atendimento e diagnostico de incidente"
+                            Titulo = "Registrar teste de triagem"
                         },
                         new
                         {
@@ -12852,7 +12855,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 47,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar testes de workaround e resolucao de incidente"
+                            Titulo = "Registrar teste de atendimento"
                         },
                         new
                         {
@@ -12866,7 +12869,7 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             Obrigatorio = true,
                             Ordem = 48,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar testes de reabertura e fechamento de incidente"
+                            Titulo = "Registrar teste de workaround"
                         },
                         new
                         {
@@ -12876,11 +12879,11 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 9,
+                            Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 49,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
-                            Titulo = "Registrar documentacao tecnica e rastreabilidade da Sprint 9"
+                            Titulo = "Registrar teste de resolucao"
                         },
                         new
                         {
@@ -12890,9 +12893,149 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CriadoPor = "seed.sistema",
                             Descricao = "Sprint 9 Gerenciamento de Incidentes",
-                            Grupo = 5,
+                            Grupo = 3,
                             Obrigatorio = true,
                             Ordem = 50,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de reabertura"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000051"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 51,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de fechamento"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000052"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 52,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de compatibilidade com abertura legada"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000053"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 53,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de compatibilidade com requisicao"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000054"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 54,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de compatibilidade com catalogo"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000055"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 3,
+                            Obrigatorio = true,
+                            Ordem = 55,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar teste de SLA/permissoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000056"),
+                            Ativo = true,
+                            Concluido = false,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 7,
+                            Obrigatorio = true,
+                            Ordem = 56,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar papeis/permissoes para abrir, atender, resolver, reabrir e fechar incidente"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000057"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 57,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Registrar impacto em SLA, status, aprovacao legada, catalogo, permissoes e auditoria"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000058"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 58,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Atualizar SeedData e teste de checklist"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000059"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 9,
+                            Obrigatorio = true,
+                            Ordem = 59,
+                            RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
+                            Titulo = "Criar migration de dados do checklist"
+                        },
+                        new
+                        {
+                            Id = new Guid("78787878-7878-7878-7878-000000000060"),
+                            Ativo = true,
+                            Concluido = true,
+                            CriadoEm = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CriadoPor = "seed.sistema",
+                            Descricao = "Sprint 9 Gerenciamento de Incidentes",
+                            Grupo = 5,
+                            Obrigatorio = true,
+                            Ordem = 60,
                             RoadmapItemId = new Guid("77777777-7777-7777-7777-777777777717"),
                             Titulo = "Registrar homologacao funcional, visual e aceite formal"
                         },
@@ -19143,16 +19286,16 @@ namespace SGX.SistemaChamado.Infrastructure.Persistence.Migrations
                             CriadoPor = "seed.sistema",
                             CriterioAceite = "O checklist tecnico da Sprint 9 deve refletir o estado real da trilha ITSM, com o que ja existe evidenciado em codigo, teste, documentacao e migration, sem implementar o fluxo de incidente nesta entrega.",
                             Decisao = 1,
-                            EvidenciaImplementacao = "Checklist tecnico consolidado em 50 itens, com 18 concluidos e 32 pendentes, com evidencias em dominio, servicos, UI, seed, teste, migration e documentacao.",
+                            EvidenciaImplementacao = "Checklist tecnico sincronizado em seed, teste, migration e documentacao do roadmap.",
                             Impacto = 1,
                             Objetivo = "Formalizar o backlog tecnico de Incidente com rastreabilidade, compatibilidade ITSM e preparo incremental do fluxo funcional.",
-                            Observacao = "Checklist tecnico consolidado em 50 itens, com 18 concluidos e 32 pendentes.",
+                            Observacao = "Checklist tecnico consolidado em 60 itens.",
                             Ordem = 109,
                             PendenciasHomologacao = "Homologacao funcional, visual, de permissao e aceite formal permanecem pendentes ate a implementacao do fluxo de incidente.",
-                            PendenciasTecnicas = "Modelagem de incidente, contratos, DTOs, validators, use cases, endpoints, telas, seguranca, homologacao e CI afetado sem CMDB.",
-                            PercentualImplementacao = 36,
+                            PendenciasTecnicas = "Campos especificos, servico afetado, causa provavel, diagnostico, workaround, resolucao, contratos, endpoints, telas, testes e autorizacao por acao operacional.",
+                            PercentualImplementacao = 25,
                             Prioridade = 1,
-                            ProximaAcao = "Implementar os itens pendentes de modelagem, backend, API, frontend, testes, seguranca, governanca e homologacao do fluxo de incidente.",
+                            ProximaAcao = "Implementar os itens pendentes de modelagem, backend, API, frontend, testes e seguranca do fluxo de incidente.",
                             Responsavel = "Time Atendimento",
                             RoadmapCategoriaId = new Guid("66666666-6666-6666-6666-666666666616"),
                             SituacaoAtual = "Chamados operacionais existem, mas o fluxo de incidente ainda depende de campos, contratos e homologacao funcional.",

@@ -690,7 +690,7 @@ public sealed class EmailMessageProcessor(
             return null;
         }
 
-        var nomeBase = Path.GetFileName(nomeArquivo.Trim());
+        var nomeBase = Path.GetFileName(nomeArquivo.Trim().Replace('\\', '/'));
         if (string.IsNullOrWhiteSpace(nomeBase))
         {
             return null;

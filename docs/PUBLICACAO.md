@@ -1,17 +1,30 @@
-﻿# Publicacao
+# Publicacao Linux
 
-## variáveis de produção
+Guia da publicacao Linux do SGX Sistema de Chamados com frontend em Nginx, API em container ASP.NET, PostgreSQL e Worker de e-mail.
 
-Configurar via cofre/secrets manager/variáveis de ambiente:
+## Visao geral
+
+- O frontend publicado acessa a API por rota relativa `/api`.
+- O Nginx faz proxy reverso de `/api/*` para `http://api:8080`.
+- A API e os containers publicados devem rodar em `Production`.
+- `LocalDevelopment` fica bloqueado fora de `Development`.
+- `LocalSgx` permanece disponivel como contingencia administrativa.
+
+## Variaveis de ambiente
+
+Defina via secrets, arquivo de ambiente do servidor ou orquestrador:
+
+- Use `.env.example` apenas como modelo seguro.
+- Nao versione `.env` com credenciais reais.
+- No compose atual, API e Worker ja sobem fixos em `Production`, independente de `ASPNETCORE_ENVIRONMENT` ou `DOTNET_ENVIRONMENT` definidos no `.env` do host.
 
 - `ConnectionStrings__DefaultConnection`
-- `AzureAd__Instance`
-- `AzureAd__TenantId`
-- `AzureAd__ClientId`
-- `AzureAd__Audience`
-- `AzureAd__Issuer`
-- `Authentication__ProvedorPrincipal`
+- `ASPNETCORE_ENVIRONMENT=Production`
+- `DOTNET_ENVIRONMENT=Production`
+- `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true`
 - `Authentication__LoginLocalHabilitado`
+- `Authentication__ModoLocalHabilitado=false`
+- `Authentication__ProvedorPrincipal`
 - `Authentication__JwtLocalIssuer`
 - `Authentication__JwtLocalAudience`
 - `Authentication__JwtLocalChaveAssinatura`
@@ -28,83 +41,168 @@ Configurar via cofre/secrets manager/variáveis de ambiente:
 - `SGX_ADMIN_INICIAL_EMAIL`
 - `SGX_ADMIN_INICIAL_SENHA`
 - `SGX_ADMIN_INICIAL_NOME`
-- `Cors__AllowedOrigins__0` (e demais)
+- `AUTH_LOGIN_LOCAL_HABILITADO=true` quando a contingencia `LocalSgx` precisar permanecer ativa
+- `AUTH_JWT_LOCAL_ISSUER`
+- `AUTH_JWT_LOCAL_AUDIENCE`
+- `AUTH_JWT_LOCAL_CHAVE_ASSINATURA`
+- `Cors__AllowedOrigins__0` e demais, caso a API seja acessada diretamente sem o proxy do Nginx
 - `EmailWorker__ImapHost`
 - `EmailWorker__ImapPorta`
 - `EmailWorker__Usuario`
 - `EmailWorker__Senha`
-- `EmailWorker__Pasta`
-- demais `EmailWorker__*` conforme necessidade
+- demais `EmailWorker__*` conforme a integracao de e-mail
 
-## Docker
+## Frontend e proxy `/api`
 
-Arquivos:
+- O build do frontend nao deve embutir `localhost` para a API.
+- Em producao, o acesso deve ser relativo e passar pelo proxy do Nginx.
+- O timeout do cliente HTTP pode ser ajustado por `VITE_HTTP_TIMEOUT_MS`, com padrao de 30 segundos.
+- Exemplo de acesso externo:
+  - `https://<host-ou-dominio>/login`
+- Exemplo de acesso direto ao container exposto:
+  - `http://<host>:8081/login`
 
-- `src/SGX.SistemaChamado.Api/Dockerfile`
-- `src/SGX.SistemaChamado.Worker.Email/Dockerfile`
-- `src/SGX.SistemaChamado.Web/Dockerfile`
-- `docker-compose.yml` (referencia local/dev)
+### Nginx
 
-## Publicacao da API
+- Mantem a SPA com `try_files`.
+- Encaminha `/api/*` para `http://api:8080`.
+- Repassa os headers:
+  - `Host`
+  - `X-Real-IP`
+  - `X-Forwarded-For`
+  - `X-Forwarded-Proto`
+- Quando existir proxy TLS de borda, o Nginx interno deve preservar o `X-Forwarded-Proto` recebido em vez de regravar sempre como `http`.
+- Usa timeout controlado no proxy.
 
-- publicar imagem da API
-- configurar `ASPNETCORE_ENVIRONMENT=Production`
-- habilitar HTTPS, HSTS e CORS com origem explicita
+## Login e autenticacao
 
-## Publicacao do Worker
+### `LocalSgx`
 
-- publicar imagem dedicada do Worker
-- configurar conexao de banco
-- configurar IMAP por segredo externo
-- monitorar logs de processamento por `CorrelationId` quando aplicavel
+- Continua habilitado como contingencia administrativa.
+- Usa o fluxo local SGX com JWT local.
+- Pode existir em producao/homologacao quando configurado.
+- Exige `Authentication__LoginLocalHabilitado=true` e uma chave JWT propria no servidor.
 
-## Publicacao do Frontend
+### `LocalDevelopment`
 
-- build da SPA com `VITE_API_BASE_URL` do ambiente alvo
-- servir por nginx/reverse proxy
+- Existe somente em `Development`.
+- Depende de `Authentication__ModoLocalHabilitado=true`.
+- Nao deve funcionar em `Production`.
 
-## Logs e observabilidade
+## Docker Compose
 
-- API com logs estruturados
-- `X-Correlation-Id` em request/response
-- health endpoints:
-  - `/health`
-  - `/health/live`
-  - `/health/ready`
+Os containers publicados devem incluir:
 
-## Backup e rollback
+- `restart: unless-stopped`
+- rotacao de logs com `json-file`
+- API com `ASPNETCORE_ENVIRONMENT=Production`
+- API com `Authentication__ModoLocalHabilitado=false`
+- Worker com `DOTNET_ENVIRONMENT=Production`
+- `Authentication__LoginLocalHabilitado` preservado para manter `LocalSgx` configuravel
+- healthchecks para API e frontend
+- `depends_on` somente com condicao segura quando o Compose suportar
 
-- manter rotina de backup do PostgreSQL
-- validar restore periodicamente
-- versionar releases para rollback de imagem/aplicacao
+### Healthchecks
 
-## Seguranca
+- Finalidade:
+  - confirmar que a API responde no endpoint de liveness sem depender de verificacoes de negocio;
+  - confirmar que o Nginx do frontend esta servindo a SPA localmente, mesmo se a API estiver temporariamente indisponivel.
+- API:
+  - consulta interna em `http://localhost:8080/health/live`
+- Frontend:
+  - consulta interna em `http://127.0.0.1/`
+- Estados:
+  - `starting`: container ainda dentro da janela inicial de aquecimento;
+  - `healthy`: ultimo healthcheck retornou sucesso;
+  - `unhealthy`: o container falhou no numero configurado de tentativas consecutivas.
+- Comandos de consulta:
+  - `docker inspect sgx-api --format '{{json .State.Health}}'`
+  - `docker inspect sgx-frontend --format '{{json .State.Health}}'`
+- Comandos de diagnostico:
+  - `docker compose ps`
+  - `docker logs --tail 200 sgx-api`
+  - `docker logs --tail 200 sgx-frontend`
+  - `curl -fsS http://localhost:8080/health/live`
+  - `curl -fsS http://localhost:8081/`
+  - `curl -I http://localhost:8080/health/live`
+  - `curl -I http://localhost:8081/api/health/live`
+  - `curl -I -H 'X-Forwarded-Proto: https' http://localhost:8080/health/live`
+  - `docker exec sgx-api bash -c 'echo ok'`
+  - `docker exec sgx-api bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'`
 
-- não versionar segredos reais
-- não logar senha IMAP/token
-- não logar `SGX_ADMIN_INICIAL_SENHA`
-- restringir Swagger fora de Development (`Swagger__EnableInNonDevelopment`)
-- revisar politicas de autorização em `/api/admin/*`
+## HTTPS e borda
 
-### Bootstrap do primeiro Administrador
+- A API continua com `UseHttpsRedirection()` fora de `Development`.
+- A API processa `X-Forwarded-For` e `X-Forwarded-Proto` antes de `UseHttpsRedirection()`, autenticacao e autorizacao.
+- O ambiente publicado precisa encaminhar `X-Forwarded-Proto` corretamente a partir do proxy de borda.
+- Se o TLS terminar no Nginx externo, balanceador ou proxy da infraestrutura, ele deve ser o ponto que conhece o esquema original da requisicao.
+- O trafego entre containers continua em HTTP interno no Docker; o esquema HTTPS efetivo chega na API por `X-Forwarded-Proto=https`.
+- Sem `X-Forwarded-Proto=https`, acessos HTTP diretos continuam sujeitos ao comportamento normal de `UseHttpsRedirection()`.
+- O processamento de forwarded headers fica restrito a redes privadas e loopback esperadas para compose e proxies internos, com um salto maximo.
+- Nao remova HSTS ou redirecionamento HTTPS sem necessidade.
 
-- Usar variáveis `SGX_ADMIN_INICIAL_*` apenas na implantação inicial.
-- Garantir senha forte e exclusiva.
-- Remover/rotacionar variáveis após a criação do primeiro Administrador.
-- Não usar `Admin@123456` em produção.
+## Resolucao da API no Nginx
 
-### Recuperação de senha local SGX
+- O frontend usa `resolver 127.0.0.11 valid=30s;`, apontando para o DNS interno do Docker.
+- O `proxy_pass` usa variavel para permitir re-resolucao do hostname `api` apos recriacao do container.
+- O prefixo `/api` e os codigos HTTP da API permanecem inalterados.
+- Uploads, downloads e corpos de requisicao continuam passando pelo proxy.
 
-- `POST /api/auth/local/recuperar-senha/solicitar` retorna sempre mensagem genérica.
-- `POST /api/auth/local/recuperar-senha/redefinir` exige token válido, não expirado e de uso único.
-- Token de recuperação é armazenado apenas como hash (`token_hash`).
-- Não registrar token ou senha em logs de produção.
-- Pendência evolutiva: envio transacional real de e-mail deve ser homologado no ambiente publicado.
+## Publicacao
 
-## Status de vulnerabilidade MailKit
+### Build e subida
 
-- warning `NU1902 / GHSA-9j88-vvj5-vhgr` foi mitigado nesta sprint com atualizacao para `MailKit 4.16.0`.
+```bash
+cp .env.example .env
+# ajustar os valores reais no servidor antes da subida
+docker compose config
+docker compose up -d --build
+docker compose ps
+```
 
+### Verificacoes basicas
 
+```bash
+docker compose logs -f api
+docker compose logs -f frontend
+docker compose logs -f worker-email
+curl -fsS http://localhost:8080/health/live
+curl -fsS http://localhost:8081/
+```
 
+### Validacoes do proxy
 
+```bash
+docker exec sgx-frontend wget -q --spider http://127.0.0.1/
+docker exec sgx-frontend sh -c 'grep -R "localhost:8080" -n /usr/share/nginx/html || true'
+docker exec sgx-api bash -lc 'printf "GET /health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" | nc 127.0.0.1 8080'
+```
+
+## Banco e bootstrap
+
+- O PostgreSQL deve estar acessivel pelo host configurado em `ConnectionStrings__DefaultConnection`.
+- Migrations e seeds nao devem ser alterados nesta etapa.
+- O bootstrap do primeiro administrador usa `SGX_ADMIN_INICIAL_*`.
+- Remova ou rotacione esses segredos apos a primeira subida.
+
+## Comandos de verificacao
+
+```bash
+docker compose config
+docker compose ps
+docker stats --no-stream
+docker logs --tail 200 sgx-api
+docker logs --tail 200 sgx-frontend
+docker logs --tail 200 sgx-worker-email
+```
+
+## Resultado esperado
+
+- frontend publicado sem `localhost` embutido para a API;
+- `/api/*` funcionando pelo Nginx;
+- API e Worker em `Production`;
+- `LocalDevelopment` desabilitado em producao;
+- `LocalSgx` preservado;
+- healthchecks ativos;
+- logs com rotacao;
+- restart automatico dos containers.

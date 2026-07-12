@@ -442,6 +442,8 @@ VALUES
 
 public sealed class NotificacaoPersistenceDatabaseFixture : IAsyncLifetime
 {
+    private const string DatabaseName = "sgx_notificacoes_tests";
+
     private string _connectionString = string.Empty;
 
     public string ConnectionString => _connectionString;
@@ -461,7 +463,7 @@ public sealed class NotificacaoPersistenceDatabaseFixture : IAsyncLifetime
 
         var builder = new NpgsqlConnectionStringBuilder(baseConnectionString)
         {
-            Database = $"sgx_notificacao_tests_{Guid.NewGuid():N}"
+            Database = DatabaseName
         };
 
         _connectionString = builder.ConnectionString;
@@ -470,11 +472,7 @@ public sealed class NotificacaoPersistenceDatabaseFixture : IAsyncLifetime
         await context.Database.MigrateAsync();
     }
 
-    public async Task DisposeAsync()
-    {
-        await using var context = CreateContext();
-        await context.Database.EnsureDeletedAsync();
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
 
     public SGXSistemaChamadoDbContext CreateContext()
     {
@@ -563,4 +561,5 @@ public sealed class NotificacaoPersistenceDatabaseFixture : IAsyncLifetime
 
         throw new InvalidOperationException("Nao foi possivel localizar a raiz da solucao.");
     }
+
 }

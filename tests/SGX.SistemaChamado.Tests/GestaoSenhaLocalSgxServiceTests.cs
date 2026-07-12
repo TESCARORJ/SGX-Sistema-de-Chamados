@@ -109,7 +109,7 @@ public sealed class GestaoSenhaLocalSgxServiceTests
             "xunit");
 
         Assert.Equal(responseExistente.Mensagem, responseInexistente.Mensagem);
-        Assert.Equal("Se o e-mail estiver cadastrado, enviaremos as instruções para redefinição de senha.", responseExistente.Mensagem);
+        Assert.Equal("Se o e-mail estiver cadastrado, enviaremos as instruÃ§Ãµes para redefiniÃ§Ã£o de senha.", responseExistente.Mensagem);
     }
 
     [Fact]

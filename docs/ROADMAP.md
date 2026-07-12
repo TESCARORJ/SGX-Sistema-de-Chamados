@@ -49,7 +49,7 @@ Nova ordem estrategica do ciclo ITSM:
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
 7. Sprint 7 - Gerenciamento de Requisicoes (92% - Em desenvolvimento)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
-9. Sprint 9 - Gerenciamento de Incidentes (50% - Em desenvolvimento)
+9. Sprint 9 - Gerenciamento de Incidentes (36% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
 11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
 12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
@@ -68,6 +68,7 @@ Nova ordem estrategica do ciclo ITSM:
 - Cadastros Administrativos (Sprints 1 a 6) implementado funcionalmente, com integracao aos chamados, seed inicial consolidado e documentacao de fechamento
 - Historico/Auditoria (Governanca) implementado funcionalmente - Sprints 1, 2 e 3 consolidadas com checklist 63/63
 - Sprint 5 - Regras de fechamento, aceite e reabertura encerrada tecnicamente com 32/32 itens concluidos; homologacao formal permanece pendente e sera executada posteriormente
+- Sprint 9 - Gerenciamento de Incidentes atualizado para checklist tecnico de 50 itens, com 18 concluidos e 32 pendentes
 - API real de notificacoes
 - Relatorios exportaveis
 - Testes automatizados frontend/e2e
@@ -2062,4 +2063,3 @@ Pendencias planejadas:
 - testes E2E completos;
 - exportacoes avancadas e dashboards configuraveis;
 - cache de indicadores, materialized views e otimizacoes para alto volume.
-

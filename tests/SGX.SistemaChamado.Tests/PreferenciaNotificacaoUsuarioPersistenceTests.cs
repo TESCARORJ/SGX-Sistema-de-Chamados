@@ -212,6 +212,7 @@ public sealed class PreferenciaNotificacaoUsuarioPersistenceTests : IClassFixtur
 
 public sealed class PreferenciaNotificacaoUsuarioPersistenceDatabaseFixture : IAsyncLifetime
 {
+    private const string DatabaseName = "sgx_notificacoes_tests";
     private string _connectionString = string.Empty;
 
     public async Task InitializeAsync()
@@ -229,7 +230,7 @@ public sealed class PreferenciaNotificacaoUsuarioPersistenceDatabaseFixture : IA
 
         var builder = new NpgsqlConnectionStringBuilder(baseConnectionString)
         {
-            Database = $"sgx_preferencia_notificacao_tests_{Guid.NewGuid():N}"
+            Database = DatabaseName
         };
 
         _connectionString = builder.ConnectionString;
@@ -238,11 +239,7 @@ public sealed class PreferenciaNotificacaoUsuarioPersistenceDatabaseFixture : IA
         await context.Database.MigrateAsync();
     }
 
-    public async Task DisposeAsync()
-    {
-        await using var context = CreateContext();
-        await context.Database.EnsureDeletedAsync();
-    }
+    public Task DisposeAsync() => Task.CompletedTask;
 
     public SGXSistemaChamadoDbContext CreateContext()
     {

@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
@@ -18,6 +19,7 @@ using SGX.SistemaChamado.Application.Interfaces.Auditoria;
 using SGX.SistemaChamado.Application.Options;
 using SGX.SistemaChamado.Application.Validators;
 using SGX.SistemaChamado.Infrastructure;
+using System.Net;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -34,6 +36,7 @@ public static class ServiceCollectionExtensions
         services.AddSwaggerGen();
         ConfigurarCors(services, configuration, environment);
         ConfigurarHealthChecks(services);
+        ConfigurarForwardedHeaders(services, configuration);
 
         services.AddValidatorsFromAssemblyContaining<ApiInfoRequestValidator>();
 
@@ -248,6 +251,113 @@ public static class ServiceCollectionExtensions
         services.AddHealthChecks()
             .AddCheck("api-live", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), tags: ["live"])
             .AddCheck<DatabaseReadyHealthCheck>("postgresql-ready", tags: ["ready"]);
+    }
+
+    private static void ConfigurarForwardedHeaders(IServiceCollection services, IConfiguration configuration)
+    {
+        var proxiesConfiaveisConfigurados = configuration.GetSection("ReverseProxy:TrustedProxies").Get<string[]>() ?? [];
+        var redesConfiaveisConfiguradas = configuration.GetSection("ReverseProxy:TrustedNetworks").Get<string[]>() ?? [];
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = 1;
+
+            RemoverRedeConhecida(options, IPAddress.Parse("10.0.0.0"), 8);
+            RemoverRedeConhecida(options, IPAddress.Parse("172.16.0.0"), 12);
+            RemoverRedeConhecida(options, IPAddress.Parse("192.168.0.0"), 16);
+            RemoverRedeConhecida(options, IPAddress.Parse("127.0.0.0"), 8);
+            RemoverRedeConhecida(options, IPAddress.Parse("::1"), 128);
+
+            AdicionarProxyConhecidoSeNecessario(options, IPAddress.Loopback);
+            AdicionarProxyConhecidoSeNecessario(options, IPAddress.IPv6Loopback);
+            AdicionarRedeConhecidaSeNecessario(options, IPAddress.Parse("127.0.0.0"), 8);
+            AdicionarRedeConhecidaSeNecessario(options, IPAddress.IPv6Loopback, 128);
+
+            foreach (var proxyConfigurado in proxiesConfiaveisConfigurados)
+            {
+                if (!IPAddress.TryParse(proxyConfigurado, out var enderecoProxy))
+                {
+                    continue;
+                }
+
+                AdicionarProxyConhecidoSeNecessario(options, enderecoProxy);
+            }
+
+            foreach (var redeConfigurada in redesConfiaveisConfiguradas)
+            {
+                if (!TryParseCidr(redeConfigurada, out var prefixoRede, out var tamanhoPrefixo))
+                {
+                    continue;
+                }
+
+                AdicionarRedeConhecidaSeNecessario(options, prefixoRede, tamanhoPrefixo);
+            }
+        });
+    }
+
+    private static void RemoverRedeConhecida(ForwardedHeadersOptions options, IPAddress prefixo, int tamanhoPrefixo)
+    {
+        for (var indice = options.KnownNetworks.Count - 1; indice >= 0; indice--)
+        {
+            var rede = options.KnownNetworks[indice];
+            if (rede.Prefix.Equals(prefixo) && rede.PrefixLength == tamanhoPrefixo)
+            {
+                options.KnownNetworks.RemoveAt(indice);
+            }
+        }
+    }
+
+    private static void AdicionarProxyConhecidoSeNecessario(ForwardedHeadersOptions options, IPAddress proxy)
+    {
+        if (!options.KnownProxies.Contains(proxy))
+        {
+            options.KnownProxies.Add(proxy);
+        }
+    }
+
+    private static void AdicionarRedeConhecidaSeNecessario(ForwardedHeadersOptions options, IPAddress prefixo, int tamanhoPrefixo)
+    {
+        var redeJaConhecida = options.KnownNetworks.Any(rede =>
+            rede.Prefix.Equals(prefixo) &&
+            rede.PrefixLength == tamanhoPrefixo);
+
+        if (!redeJaConhecida)
+        {
+            options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(prefixo, tamanhoPrefixo));
+        }
+    }
+
+    private static bool TryParseCidr(string valor, out IPAddress prefixo, out int tamanhoPrefixo)
+    {
+        prefixo = IPAddress.Loopback;
+        tamanhoPrefixo = 0;
+
+        if (string.IsNullOrWhiteSpace(valor))
+        {
+            return false;
+        }
+
+        var partes = valor.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (partes.Length != 2)
+        {
+            return false;
+        }
+
+        if (!IPAddress.TryParse(partes[0], out var prefixoParseado) || prefixoParseado is null)
+        {
+            return false;
+        }
+
+        prefixo = prefixoParseado;
+
+        if (!int.TryParse(partes[1], out tamanhoPrefixo))
+        {
+            return false;
+        }
+
+        var tamanhoMaximo = prefixo.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ? 32 : 128;
+        return tamanhoPrefixo >= 0 && tamanhoPrefixo <= tamanhoMaximo;
     }
 
     private static SymmetricSecurityKey ObterChaveJwtLocal(AuthOptions authOptions)

@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
+  readonly VITE_HTTP_TIMEOUT_MS?: string
   readonly VITE_AZURE_CLIENT_ID: string
   readonly VITE_AZURE_TENANT_ID: string
   readonly VITE_AZURE_AUTHORITY: string

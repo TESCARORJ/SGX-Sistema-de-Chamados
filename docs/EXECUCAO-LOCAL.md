@@ -1,5 +1,9 @@
 ﻿# Execucao Local
 
+Para um passo a passo especifico do Linux Mint, consulte:
+
+- `docs/EXECUCAO-LOCAL-LINUX-MINT.md`
+
 ## 1. PostgreSQL
 
 Suba um PostgreSQL local (ou via Docker) e configure:
@@ -29,6 +33,23 @@ Se o banco ainda não existir:
 ```sql
 CREATE DATABASE sgx_sistema_chamados OWNER user_sgxsc;
 ```
+
+### Banco fixo para testes de notificacoes/templates
+
+Os testes de persistencia de notificacoes/templates usam o database fixo `sgx_notificacoes_tests`.
+Esse banco precisa existir antes de executar a suite filtrada, e o owner deve ser `user_sgxsc`.
+
+Se voce estiver usando o PostgreSQL local do sistema com socket em `/var/run/postgresql`, uma forma segura de provisionar sem conceder `CREATEDB` ao usuario de aplicacao e usar um cliente PostgreSQL com o UID do superusuario local:
+
+```bash
+docker run --rm --user 122:127 -v /var/run/postgresql:/var/run/postgresql postgres:16-alpine psql -h /var/run/postgresql -U postgres -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'sgx_notificacoes_tests';"
+docker run --rm --user 122:127 -v /var/run/postgresql:/var/run/postgresql postgres:16-alpine psql -h /var/run/postgresql -U postgres -d postgres -c "CREATE DATABASE sgx_notificacoes_tests OWNER user_sgxsc;"
+```
+
+Importante:
+- os testes continuam usando PostgreSQL real;
+- `ResetAsync()` limpa os dados de teste com `ExecuteDeleteAsync()` e nao remove o database;
+- a suite nao deve exigir `CREATEDB` para `user_sgxsc`.
 
 Importante:
 - Em `Development`, variavel de ambiente `ConnectionStrings__DefaultConnection` sobrescreve `appsettings.Development.json`.

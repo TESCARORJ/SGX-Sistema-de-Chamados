@@ -15,6 +15,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   api:
     build:
@@ -22,10 +28,18 @@ services:
       dockerfile: src/SGX.SistemaChamado.Api/Dockerfile
     container_name: sgx-api
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_ENVIRONMENT: Production
+      DOTNET_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-sgx_sistema_chamados};Username=${POSTGRES_USER:-user_sgxsc};Password=${POSTGRES_PASSWORD:-change_me_local_only}
-      Authentication__ModoLocalHabilitado: ${AUTH_MODO_LOCAL_HABILITADO:-true}
+      Authentication__LoginLocalHabilitado: ${AUTH_LOGIN_LOCAL_HABILITADO:-true}
+      Authentication__ModoLocalHabilitado: "false"
+      Authentication__JwtLocalIssuer: ${AUTH_JWT_LOCAL_ISSUER:-SGX.Local}
+      Authentication__JwtLocalAudience: ${AUTH_JWT_LOCAL_AUDIENCE:-SGX.SistemaChamado.Api}
+      Authentication__JwtLocalChaveAssinatura: ${AUTH_JWT_LOCAL_CHAVE_ASSINATURA:-change_me_local_sgx_signing_key_32_chars_min}
+      Authentication__Provedores__Habilitados__0: MicrosoftEntraId
+      Authentication__Provedores__Habilitados__1: LocalSgx
       Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN_0:-http://localhost:8081}
       Cors__AllowedOrigins__1: ${CORS_ALLOWED_ORIGIN_1:-http://127.0.0.1:8081}
     ports:
@@ -35,6 +49,24 @@ services:
         condition: service_healthy
     volumes:
       - anexos_storage:/app/storage/anexos
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -ec 'exec 3<>/dev/tcp/127.0.0.1/8080 &&
+          printf "GET /health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n" >&3 &&
+          IFS= read -r status <&3 &&
+          [[ "$$status" == *"200"* ]]'
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   worker-email:
     build:
@@ -42,7 +74,7 @@ services:
       dockerfile: src/SGX.SistemaChamado.Worker.Email/Dockerfile
     container_name: sgx-worker-email
     environment:
-      DOTNET_ENVIRONMENT: ${DOTNET_ENVIRONMENT:-Development}
+      DOTNET_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB:-sgx_sistema_chamados};Username=${POSTGRES_USER:-user_sgxsc};Password=${POSTGRES_PASSWORD:-change_me_local_only}
       EmailWorker__ImapHost: ${EMAILWORKER_IMAPHOST:-}
       EmailWorker__ImapPorta: ${EMAILWORKER_IMAPPORTA:-993}
@@ -63,18 +95,37 @@ services:
         condition: service_healthy
     volumes:
       - anexos_storage:/app/storage/anexos
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build:
       context: .
       dockerfile: src/SGX.SistemaChamado.Web/Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+        VITE_API_BASE_URL: ""
     container_name: sgx-frontend
     ports:
       - "${FRONTEND_PORT:-8081}:80"
     depends_on:
-      - api
+      api:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:
