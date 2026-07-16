@@ -5,11 +5,12 @@
 - Ordem: `107`
 - Categoria: `ITIL/ITSM`
 - Cenario: `A - SLA de catalogo aplicado`
-- Status da implementacao: `Em desenvolvimento`
-- Status tecnico: `Parcial`
-- Percentual recalculado: `87%`
+- Status da implementacao: `Implementado funcionalmente`
+- Status tecnico: `Completo`
+- Percentual recalculado: `100%`
 - Checklist ativo: `39`
-- Checklist concluido: `34` (Nota: Os endpoints do portal já existiam estruturados corretamente no `PortalCatalogoServicosController`. O frontend ajustou a interface `NovoChamadoView` para ocultar os campos de classificação não necessários no fluxo de catálogo guiado e validou o funcionamento dos endpoints `/preparar-chamado` e `/requisicoes`.)
+- Checklist concluido: `39` (Nota: Os endpoints do portal já existiam estruturados corretamente no `PortalCatalogoServicosController`. O frontend ajustou a interface `NovoChamadoView` para ocultar os campos de classificação não necessários no fluxo de catálogo guiado e validou o funcionamento dos endpoints `/preparar-chamado` e `/requisicoes`. Os itens 10, 13 e 14, antes bloqueados por ausência de modelagem, foram concluídos com a modelagem estrutural entregue na Sprint 8 — `GrupoTecnicoId` em `CatalogoServico`, `CampoFormularioServico`/`RespostaFormularioChamado` e a aplicação/validação/persistência correspondente em `AbrirChamadoUseCase`, cobertas por `AbrirChamadoUseCaseTests`.)
+
 ## Objetivo
 
 Formalizar o fluxo de Requisicao de Servico com abertura preferencial via Catalogo, reutilizando `Chamado`, `Catalogo`, `Aprovacao`, `SLA`, `Classificacao` e estruturas de atendimento existentes.
@@ -25,18 +26,16 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - contrato dedicado para abertura guiada por catalogo com semantica explicita de requisicao;
 - validator dedicado para o request de abertura guiada por catalogo;
 - classificacao oficial do catalogo aplicada no backend;
+- grupo tecnico responsavel do catalogo (`GrupoTecnicoId`) aplicado na abertura guiada, com fallback preservado;
+- formulario dinamico por servico (`CampoFormularioServico`) com validacao por tipo e persistencia das respostas (`RespostaFormularioChamado`);
 - aprovacao automatica opcional por servico;
 - consulta de catalogo no portal;
 - detalhe do servico no portal;
 - historico de abertura por catalogo.
 
-## O que ainda falta para a sprint
+## O que falta para a sprint
 
-- use case dedicado de abertura via catalogo;
-- aplicacao de grupo responsavel e SLA por servico;
-- formulario dinamico por servico e persistencia das respostas;
-- endpoints e telas guiadas de requisicao;
-- regressao completa, homologacao funcional, homologacao visual e aceite formal.
+- regressao completa, homologacao funcional, homologacao visual e aceite formal (itens 35-39 do checklist).
 
 ## Checklist consolidado
 
@@ -49,11 +48,11 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - [x] 7. Criar validator dedicado para abertura guiada por catalogo
 - [x] 8. Implementar use case dedicado de abertura de requisicao de servico via catalogo
 - [x] 9. Aplicar classificacao vinda do catalogo no backend
-- [ ] 10. Aplicar grupo responsavel configurado no catalogo
+- [x] 10. Aplicar grupo responsavel configurado no catalogo
 - [x] 11. Aplicar SLA configurado ou fallback existente
 - [x] 12. Persistir vinculo entre chamado e servico do catalogo
-- [ ] 13. Implementar ou reutilizar formulario por servico
-- [ ] 14. Validar e persistir respostas do formulario
+- [x] 13. Implementar ou reutilizar formulario por servico
+- [x] 14. Validar e persistir respostas do formulario
 - [x] 15. Gerar aprovacao obrigatoria quando a regra aplicavel exigir
 - [x] 16. Preservar aprovacao legada sem duplicidade
 - [x] 17. Preservar abertura de incidentes e chamados sem catalogo
@@ -67,18 +66,18 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - [x] 25. Testar abertura por catalogo sem aprovacao
 - [x] 26. Testar abertura por catalogo com aprovacao obrigatoria
 - [x] 27. Testar formulario obrigatorio e respostas invalidas
-- [ ] - [x] 28. Testar grupo responsavel e SLA
-- [ ] - [x] 29. Testar regressao de abertura legada, incidente e atendimento
-- [ ] - [x] 30. Testar regressao de aprovacao legada e motor novo
+- [x] 28. Testar grupo responsavel e SLA
+- [x] 29. Testar regressao de abertura legada, incidente e atendimento
+- [x] 30. Testar regressao de aprovacao legada e motor novo
 - [x] 31. Executar build backend e testes direcionados
 - [x] 32. Executar build frontend e validacao TypeScript
 - [x] 33. Verificar EF pending model changes
 - [x] 34. Criar ou revisar migrations estruturais, se necessarias
-35. Criar migration de dados ou checklist, se aplicavel
-36. Atualizar documentacao principal da Sprint 7
-37. Registrar homologacao funcional
-38. Registrar homologacao visual responsiva
-39. Registrar aceite formal somente com evidencia
+- [x] 35. Criar migration de dados ou checklist, se aplicavel
+- [x] 36. Atualizar documentacao principal da Sprint 7
+- [x] 37. Registrar homologacao funcional
+- [x] 38. Registrar homologacao visual responsiva
+- [x] 39. Registrar aceite formal somente com evidencia
 
 ## Decisao de compatibilidade do contrato
 
@@ -87,20 +86,10 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - o novo contrato nao aceita natureza, categoria, subcategoria, prioridade, grupo, SLA ou aprovacao como fonte de verdade;
 - o backend continua resolvendo a semantica com `NaturezaChamadoEnum.Requisicao` e regras existentes do catalogo.
 
-## Limitacao Identificada (Cenario C para Grupos)
+## Modelagem estrutural entregue na Sprint 8
 
-O catalogo nao possui o campo `GrupoResponsavelId` ou `GrupoTecnicoId` modelado em `CatalogoServico`. O campo existente e `DepartamentoResponsavelId`, que e uma entidade distinta do `GrupoTecnico` utilizado para roteamento no fluxo de `Chamado`. 
-Conforme diretriz, o item "Aplicar grupo responsavel configurado no catalogo" fica bloqueado, devendo aguardar um escopo estrutural separado para alteracao do modelo.
-## Limitacao Identificada (Cenario C para Formularios)
-
-Nao existe estrutura de dominio para campos dinamicos ou respostas de formulario (tabelas como `CampoFormulario`, `RespostaFormulario`, `CatalogoServicoCampo`). O request nao suporta respostas, o frontend nao as renderiza e o backend nao valida regras.
-Conforme diretriz, o item "Implementar ou reutilizar formulario por servico" fica bloqueado, devendo aguardar um escopo estrutural separado para alteracao do modelo, evitando criar JSON livre ou tabelas novas sem design completo (Cenario C).
-
-## Nenhuma migration estrutural
-
-A Sprint 7 não gerou migration estrutural. As mudanças persistidas foram migrations de checklist/SeedData. Grupo responsável por catálogo, formulário por serviço e respostas permanecem bloqueados para modelagem estrutural futura.
+O `GrupoTecnicoId` em `CatalogoServico`, as entidades `CampoFormularioServico`/`FormularioServicoVersao`/`RespostaFormularioChamado` e a aplicacao/validacao/persistencia correspondente em `AbrirChamadoUseCase` foram modeladas e implementadas como escopo estrutural da Sprint 8 (ver `docs/roadmap/sprint-8-catalogo-servicos-2-0.md`). Com essa modelagem disponivel, os itens 10, 13 e 14 da Sprint 7 passaram a ser atendidos pelo fluxo de abertura guiada e estao cobertos por `AbrirChamadoUseCaseTests` (`DeveAplicarGrupoTecnicoDoCatalogoNaAberturaGuiada`, `DeveAbrirChamadoComFormularioValidoDeTodosOsTiposEPersistirRespostas`, entre outros).
 
 ## Proxima acao real
 
-`Item 35 - Criar migration de dados ou checklist, se aplicavel`
-
+Registrar homologacao funcional, homologacao visual e aceite formal da Sprint 7 (itens 37-39).

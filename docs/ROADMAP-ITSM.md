@@ -19,9 +19,9 @@ Sprints consolidadas:
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
-7. Sprint 7 - Gerenciamento de Requisicoes (92% - Em desenvolvimento)
+7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
-9. Sprint 9 - Gerenciamento de Incidentes (36% - Em desenvolvimento)
+9. Sprint 9 - Gerenciamento de Incidentes (46% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
 11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
 12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
@@ -38,14 +38,17 @@ Sprints consolidadas:
 Observacao:
 - os percentuais seguem a referencia operacional: nao iniciado (0%), parcial (30% a 60%), evolucao planejada (0% a 20%), homologacao preparada (80% a 95%).
 - Sprint 5 foi encerrada tecnicamente com checklist 32/32; a homologacao formal permanece registrada como etapa posterior.
-- Sprint 9 foi sincronizada com checklist tecnico de 50 itens; 18 estao concluidos e 32 permanecem pendentes para a evolucao funcional incremental.
+- Sprint 9 foi sincronizada com checklist tecnico de 50 itens; 23 estao concluidos e 27 permanecem pendentes para a evolucao funcional incremental.
 
-## Atualizacao 2026-07-10 - Sprint 9 Gerenciamento de Incidentes - Checklist tecnico consolidado
+## Atualizacao 2026-07-12 - Sprint 9 Gerenciamento de Incidentes - Checklist tecnico consolidado
 
-- Percentual recalculado para `36%` com base em `18` itens concluidos e `32` pendentes.
-- O checklist generico anterior foi substituido por itens tecnicos, rastreaveis e aderentes ao roadmap ITIL/ITSM.
-- A entrega continua sem funcionalidade de incidente, sem alteracao no fluxo legado e sem impacto na Sprint 8.
-- A documentacao tecnica, a seed, a migration e o teste de checklist foram sincronizados para refletir o novo estado.
+- Percentual recalculado para `46%` com base em `23` itens concluidos e `27` pendentes.
+- O checklist foi reorganizado em trilhas tecnicas de planejamento, modelagem, backend, API, frontend, testes, seguranca, governanca, documentacao e homologacao.
+- Os itens concluidos refletem somente evidencias reais ja existentes em codigo, testes e documentacao, sem implementar funcionalidade nova de incidente.
+- O item `Definir fluxo-alvo ponta a ponta do incidente` foi concluido com evidencia em `docs/sprint-9-fluxo-alvo-incidente.md`.
+- Proxima acao registrada: `Modelar dados operacionais especificos do incidente: servico afetado, CI afetado, causa provavel e solucao de contorno.`
+- A entrega continua sem funcionalidade nova de incidente, sem alteracao no fluxo legado e sem impacto na Sprint 8.
+- A documentacao tecnica, a seed e o teste de checklist foram sincronizados para refletir o novo estado.
 
 ### Quadro resumido da ordem atual
 
@@ -57,7 +60,7 @@ Observacao:
 | Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 62% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Em desenvolvimento | Bloqueado | 94% |
-| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Em desenvolvimento | Parcial | 87% |
+| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Implementado funcionalmente | Completo | 100% |
 | Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Em desenvolvimento | Parcial | 96% |
 
 ## Atualizacao 2026-07-07 - Sprint 8 Catalogo de Servicos 2.0 - Item 66
@@ -148,7 +151,7 @@ Observacao:
 - A auditoria registra `ChamadoId`, `FormularioServicoVersaoId`, quantidade de respostas persistidas e origem `AberturaGuiadaCatalogo`, sem gravar valores das respostas.
 - O historico funcional resumido do item `50` permanece ativo e separado da trilha tecnica.
 - O proximo item pendente da Sprint 8 passa a ser o item `52` (`Testar persistencia das respostas do formulario`).
-| Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 36% |
+| Sprint 9 - Gerenciamento de Incidentes | ITIL/ITSM | Em desenvolvimento | Parcial | 46% |
 | Sprint 10 - Gerenciamento de Mudancas | ITIL/ITSM | Nao iniciado | Nao avaliado | 25% |
 | Sprint 11 - Gerenciamento de Problemas | ITIL/ITSM | Planejado | Nao avaliado | 25% |
 | Sprint 12 - CMDB e Itens de Configuracao | ITIL/ITSM | Em desenvolvimento | Parcial | 50% |
@@ -231,7 +234,7 @@ Observacao:
 - O item `20` foi concluido com a modelagem estrutural de `OpcaoCampoFormularioServico`, ainda sem endpoint administrativo, renderizacao dinamica, versionamento ou respostas persistidas.
 - O item `21` foi concluido com a modelagem estrutural de `FormularioServicoVersao`, preservando `FormularioServico` como cabecalho e deslocando os campos para uma versao especifica, ainda sem publicacao funcional, clonagem ou respostas versionadas.
 - O item `22` foi concluido com a auditoria e consolidacao das configuracoes EF Core de formulario, versao, campos e opcoes, sem adicionar comportamento funcional novo fora da camada de persistencia.
-- Itens transferidos da Sprint 7 agora rastreados na Sprint 8: grupo responsavel do catalogo, formulario por servico e validacao/persistencia de respostas.
+- Itens transferidos da Sprint 7 (grupo responsavel do catalogo, formulario por servico e validacao/persistencia de respostas) foram concluidos com a modelagem estrutural da Sprint 8, fechando os itens 10, 13 e 14 do checklist da Sprint 7.
 - Documento tecnico de apoio: `docs/roadmap/sprint-8-catalogo-servicos-2.md`.
 
 ## Atualizacao 2026-05-27 - Consolidacao da Fundacao ITSM

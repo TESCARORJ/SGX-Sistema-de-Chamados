@@ -47,9 +47,9 @@ Nova ordem estrategica do ciclo ITSM:
 4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
-7. Sprint 7 - Gerenciamento de Requisicoes (92% - Em desenvolvimento)
+7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
-9. Sprint 9 - Gerenciamento de Incidentes (36% - Em desenvolvimento)
+9. Sprint 9 - Gerenciamento de Incidentes (46% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
 11. Sprint 11 - Gerenciamento de Problemas (25% - Planejado)
 12. Sprint 12 - CMDB e Itens de Configuracao (50% - Em desenvolvimento)
@@ -68,7 +68,7 @@ Nova ordem estrategica do ciclo ITSM:
 - Cadastros Administrativos (Sprints 1 a 6) implementado funcionalmente, com integracao aos chamados, seed inicial consolidado e documentacao de fechamento
 - Historico/Auditoria (Governanca) implementado funcionalmente - Sprints 1, 2 e 3 consolidadas com checklist 63/63
 - Sprint 5 - Regras de fechamento, aceite e reabertura encerrada tecnicamente com 32/32 itens concluidos; homologacao formal permanece pendente e sera executada posteriormente
-- Sprint 9 - Gerenciamento de Incidentes atualizado para checklist tecnico de 50 itens, com 18 concluidos e 32 pendentes
+- Sprint 9 - Gerenciamento de Incidentes atualizado para checklist tecnico de 50 itens, com 23 concluidos e 27 pendentes, incluindo o fluxo-alvo ponta a ponta documentado e a proxima acao sincronizada para a modelagem dos dados operacionais especificos
 - API real de notificacoes
 - Relatorios exportaveis
 - Testes automatizados frontend/e2e
@@ -294,7 +294,7 @@ Nova ordem estrategica do ciclo ITSM:
 - O item `20` foi concluido com a modelagem estrutural de `OpcaoCampoFormularioServico`, incluindo opcoes vinculadas ao campo, ordem, ativacao e indices unicos por campo/valor e campo/ordem, ainda sem endpoint administrativo, frontend ou respostas.
 - O item `21` foi concluido com a modelagem estrutural de `FormularioServicoVersao`, adotando versoes separadas do cabecalho do formulario e vinculando os campos a uma versao, ainda sem publicacao funcional, clonagem ou uso na abertura guiada.
 - O item `22` foi concluido com a auditoria e consolidacao do EF Core de formulario, versao, campos e opcoes, reforcando metadata, FKs, `DeleteBehavior.Restrict`, persistencia do enum como `int` e nomes de indices seguros para PostgreSQL.
-- As pendencias transferidas da Sprint 7 agora aparecem explicitamente: grupo tecnico no catalogo, formulario dinamico por servico e validacao/persistencia das respostas.
+- As pendencias transferidas da Sprint 7 (grupo tecnico no catalogo, formulario dinamico por servico e validacao/persistencia das respostas) foram concluidas com a modelagem estrutural da Sprint 8, o que tambem fechou os itens 10, 13 e 14 do checklist da Sprint 7.
 - Detalhamento completo em `docs/roadmap/sprint-8-catalogo-servicos-2.md`.
 
 ## Pontos para reuniao

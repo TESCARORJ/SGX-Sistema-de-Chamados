@@ -1,25 +1,79 @@
-﻿using SGX.SistemaChamado.Application.Interfaces;
+﻿using System.Reflection;
+using SGX.SistemaChamado.Application.Interfaces;
 using SGX.SistemaChamado.Application.UseCases.Admin;
 using SGX.SistemaChamado.Domain.Entities;
 using SGX.SistemaChamado.Domain.Enums;
 using SGX.SistemaChamado.Infrastructure.Persistence.Seed;
+using Xunit.Sdk;
 
 namespace SGX.SistemaChamado.Tests;
 
 public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
 {
+    /// <summary>
+    /// Metodos de teste de <see cref="AbrirChamadoUseCaseTests"/> que precisam existir, ser um
+    /// [Fact]/[Theory] real (nao apenas um metodo publico) e continuar presentes para que os
+    /// itens 10, 13 e 14 do checklist da Sprint 7 possam ser marcados como concluidos. Isso evita
+    /// que o seed declare "concluido" sem uma prova comportamental executavel por tras.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<int, string[]> TestesComportamentaisPorItemChecklist = new Dictionary<int, string[]>
+    {
+        [10] = new[]
+        {
+            nameof(AbrirChamadoUseCaseTests.DeveAplicarGrupoTecnicoDoCatalogoNaAberturaGuiada),
+            nameof(AbrirChamadoUseCaseTests.DevePreservarFallbackQuandoCatalogoNaoPossuiGrupoTecnico),
+            nameof(AbrirChamadoUseCaseTests.DeveIgnorarGrupoTecnicoInativoDoCatalogoEPreservarFluxoLegado),
+        },
+        [13] = new[]
+        {
+            nameof(AbrirChamadoUseCaseTests.DeveAbrirChamadoComFormularioValidoDeTodosOsTiposEPersistirRespostas),
+            nameof(AbrirChamadoUseCaseTests.DeveRejeitarRespostasFormularioPreenchidasQuandoServicoNaoPossuiFormulario),
+        },
+        [14] = new[]
+        {
+            nameof(AbrirChamadoUseCaseTests.DevePersistirRespostaSimplesEMultiplaComVinculosEsperadosSemExporValoresNaAuditoria),
+            nameof(AbrirChamadoUseCaseTests.DeveRejeitarAberturaQuandoCampoObrigatorioNaoForRespondido),
+            nameof(AbrirChamadoUseCaseTests.NaoDevePersistirRespostasQuandoAberturaGuiadaFalharPorRespostaInvalida),
+        },
+    };
+
     [Fact]
-    public async Task RoadmapSprint7DeveRefletirFluxoParcialSemMarcarEntregasCentraisGenericasComoConcluidas()
+    public void ItensConcluidosDoChecklistDaSprint7DevemTerTesteComportamentalRealEExecutavel()
+    {
+        var metodosDeTeste = typeof(AbrirChamadoUseCaseTests)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .ToDictionary(x => x.Name);
+
+        foreach (var (ordem, nomesDosTestes) in TestesComportamentaisPorItemChecklist)
+        {
+            foreach (var nomeDoTeste in nomesDosTestes)
+            {
+                Assert.True(
+                    metodosDeTeste.TryGetValue(nomeDoTeste, out var metodo),
+                    $"Item {ordem} do checklist da Sprint 7 depende do teste '{nomeDoTeste}', que nao foi encontrado em {nameof(AbrirChamadoUseCaseTests)}.");
+
+                var possuiFactOuTheory = metodo!.GetCustomAttribute<FactAttribute>() is not null
+                    || metodo.GetCustomAttribute<TheoryAttribute>() is not null;
+
+                Assert.True(
+                    possuiFactOuTheory,
+                    $"'{nomeDoTeste}' precisa ser um [Fact] ou [Theory] executavel para provar o item {ordem} do checklist da Sprint 7.");
+            }
+        }
+    }
+
+    [Fact]
+    public async Task RoadmapSprint7DeveRefletirFluxoConcluidoSemMarcarEntregasCentraisGenericasComoConcluidas()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var item = context.RoadmapItsmItens.Single(x => x.Id == SeedData.RoadmapItsmItem18Id);
         Assert.Equal("Sprint 7 - Gerenciamento de Requisicoes", item.Area);
-        Assert.Equal(StatusImplementacaoRoadmapItsm.EmDesenvolvimento, item.StatusImplementacao);
-        Assert.Equal(StatusTecnicoRoadmapItsm.Parcial, item.StatusTecnico);
-        Assert.Equal(92, item.PercentualImplementacao);
+        Assert.Equal(StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente, item.StatusImplementacao);
+        Assert.Equal(StatusTecnicoRoadmapItsm.Completo, item.StatusTecnico);
+        Assert.Equal(100, item.PercentualImplementacao);
         Assert.Equal(
-            "Planejar modelagem estrutural futura para grupo responsavel por catalogo, formulario por servico e persistencia das respostas.",
+            "Registrar homologacao funcional e visual e aceite formal da Sprint 7.",
             RemoverAcentos(item.ProximaAcao));
 
         var checklistAtivo = context.RoadmapChecklistItens
@@ -30,8 +84,8 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.Equal(39, checklistAtivo.Length);
         Assert.All(checklistAtivo, x => Assert.True(x.Ativo));
         Assert.All(checklistAtivo, x => Assert.True(x.Obrigatorio));
-        Assert.Equal(36, checklistAtivo.Count(x => x.Concluido));
-        Assert.Equal(3, checklistAtivo.Count(x => !x.Concluido));
+        Assert.Equal(39, checklistAtivo.Count(x => x.Concluido));
+        Assert.Equal(0, checklistAtivo.Count(x => !x.Concluido));
         Assert.Equal(Enumerable.Range(1, 39), checklistAtivo.Select(x => x.Ordem));
 
         Assert.Equal(
@@ -85,8 +139,15 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.DoesNotContain(checklistAtivo, x => x.Titulo == "Registrar homologacao e aceite");
 
         Assert.Equal(
-            new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39 },
+            Enumerable.Range(1, 39),
             checklistAtivo.Where(x => x.Concluido).Select(x => x.Ordem).ToArray());
+
+        foreach (var ordem in TestesComportamentaisPorItemChecklist.Keys)
+        {
+            Assert.True(
+                checklistAtivo.Single(x => x.Ordem == ordem).Concluido,
+                $"Item {ordem} esta marcado como pendente no seed, mas ha testes comportamentais que provam sua entrega.");
+        }
 
         var useCase = new ObterRoadmapItsmItemUseCase(
             PortalUseCasesTestFactory.Repo<RoadmapItsmItem>(context),
@@ -95,15 +156,15 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         var detalhe = await useCase.ExecutarAsync(SeedData.RoadmapItsmItem18Id);
 
         Assert.Equal(39, detalhe.QuantidadeChecklistAtivo);
-        Assert.Equal(36, detalhe.QuantidadeChecklistConcluido);
-        Assert.Equal(92, detalhe.PercentualImplementacao);
+        Assert.Equal(39, detalhe.QuantidadeChecklistConcluido);
+        Assert.Equal(100, detalhe.PercentualImplementacao);
         Assert.True(detalhe.PercentualCalculadoPorChecklist);
         Assert.Equal(
-            "Planejar modelagem estrutural futura para grupo responsavel por catalogo, formulario por servico e persistencia das respostas.",
+            "Registrar homologacao funcional e visual e aceite formal da Sprint 7.",
             RemoverAcentos(detalhe.ProximaAcao));
 
-        var percentualEsperado = (int)Math.Round((36 * 100.0) / 39, MidpointRounding.AwayFromZero);
-        Assert.Equal(92, percentualEsperado);
+        var percentualEsperado = (int)Math.Round((39 * 100.0) / 39, MidpointRounding.AwayFromZero);
+        Assert.Equal(100, percentualEsperado);
         Assert.Equal(percentualEsperado, detalhe.PercentualImplementacao);
     }
 
