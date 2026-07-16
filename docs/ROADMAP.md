@@ -1,5 +1,5 @@
 
-;k.lpkçlooçklç´-pppç´~pplçoopopo# Roadmap SGX Sistema de Chamados
+# Roadmap SGX Sistema de Chamados
 
 ## Visao geral
 
@@ -43,8 +43,8 @@ Diretriz de seguranca:
 Nova ordem estrategica do ciclo ITSM:
 1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
-3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
-4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
+3. Sprint 3 - Grupos tecnicos, filas e atribuicao (90% - Implementado funcionalmente, pendente apenas homologacao)
+4. Sprint 4 - Motor de Aprovacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
 7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)

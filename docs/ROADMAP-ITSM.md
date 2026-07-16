@@ -15,8 +15,8 @@ Diretriz central da trilha:
 Sprints consolidadas:
 1. Sprint 1 - Fundacao ITSM do chamado (100% - Implementado e validado)
 2. Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM (25% - Planejado)
-3. Sprint 3 - Grupos tecnicos, filas e atribuicao (25% - Planejado)
-4. Sprint 4 - Motor de Aprovacoes ITSM (62% - Implementado funcionalmente)
+3. Sprint 3 - Grupos tecnicos, filas e atribuicao (90% - Implementado funcionalmente, pendente apenas homologacao)
+4. Sprint 4 - Motor de Aprovacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Em desenvolvimento)
 7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)
@@ -56,8 +56,8 @@ Observacao:
 |---|---|---|---|---|
 | Sprint 1 - Fundacao ITSM do chamado | ITIL/ITSM | Implementado e validado | Concluido | 100% |
 | Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
-| Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 25% |
-| Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 62% |
+| Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 90% |
+| Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 94% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Em desenvolvimento | Bloqueado | 94% |
 | Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Implementado funcionalmente | Completo | 100% |
