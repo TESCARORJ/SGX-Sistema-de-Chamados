@@ -10,7 +10,7 @@ Os percentuais vêm de `SeedData.cs` (`RoadmapItsmItem*`, campo `PercentualImple
 
 ## 3. Critério de congelamento (revisado em 16/07/2026)
 
-**Mudança de critério:** o escopo da V1 deixou de ser definido por percentual de conclusão e passou a ser definido por **necessidade funcional para a demo/pitch de substituição do GLPI**. Percentual alto não garante entrada no V1 (Sprint 8 está ~93% e é diferencial, não núcleo); percentual baixo não garante exclusão se a funcionalidade for essencial para a demo (nenhum caso assim identificado até agora, mas o critério permanece).
+**Mudança de critério:** o escopo da V1 deixou de ser definido por percentual de conclusão e passou a ser definido por **necessidade funcional para a demo/pitch de substituição do GLPI**. Percentual alto não garante entrada no V1 (Sprint 8 está em 96% e é diferencial, não núcleo); percentual baixo não garante exclusão se a funcionalidade for essencial para a demo (nenhum caso assim identificado até agora, mas o critério permanece).
 
 Uma sprint entra na V1 se, e somente se, se enquadrar em um destes três grupos:
 - **Núcleo obrigatório**: sem isso a demo não existe — paridade básica esperada de qualquer ferramenta de service desk.
@@ -67,7 +67,6 @@ Critério de ordenação: risco primeiro, núcleo antes de diferencial, e dentro
 ## 8. Divergências sob investigação (16/07/2026) — não confiar nestes números sem reauditoria
 
 - **Sprint 2**: percentual saltou de 25% para 85% sem auditoria de código correspondente registrada. Continua fora do escopo IN pelo critério funcional (não é núcleo, diferencial nem processo), mas o salto merece checagem antes de usar esse número em qualquer outra decisão.
-- **Sprint 8**: caiu de 96% para 93% no recálculo mais recente — provavelmente ajuste de checklist relacionado à Sprint 7/18, não retrabalho, mas não investigado a fundo.
 
 ## 9. Histórico de revisão
 
@@ -77,3 +76,4 @@ Critério de ordenação: risco primeiro, núcleo antes de diferencial, e dentro
 | 15/07/2026 | Corrigida a Sprint 7: não tinha débito de desenvolvimento, era divergência de documentação/seed. Confirmado via auditoria de código real pelo Claude Code. Registrada descontinuação dos scripts de seed via regex. |
 | 16/07/2026 | Critério de congelamento trocado de percentual para funcional (necessidade para demo de substituição do GLPI). Sprint 18 entra no escopo IN apesar do percentual baixo. Ordem de execução reorganizada em fases (0–5). Registradas divergências sob investigação nas Sprints 2, 6 e 8. |
 | 17/07/2026 | Corrigida a Sprint 6: não tinha débito de desenvolvimento, era divergência de documentação/seed (mesma causa raiz da Sprint 7). Seed desatualizado apontava `StatusImplementacao = EmDesenvolvimento` e `StatusTecnico = Bloqueado`; corrigido para `ImplementadoFuncionalmente` e `CompletoComPendenciasEvolutivas`, alinhado a 209/209 testes de lógica pura passando e à integração do `ProcessarEventoCandidatoNotificacaoUseCase` a 5 use cases de chamado. Falta apenas homologação visual/manual e registro de aceite formal. |
+| 20/07/2026 | Corrigida a Sprint 8: não houve queda real de 96% para 93% — era erro de redação deste documento (seções 3 e 8), que citou um valor histórico intermediário do log de progresso (item 64 do checklist, 07/07/2026) como se fosse o estado atual. Auditoria completa confirmou 73/76 itens do checklist concluídos (mesmos 3 pendentes de homologação desde 14/07/2026), 277 testes comportamentais relevantes passando (119 de CatálogoServico + 158 de fluxos relacionados), zero falhas. Nenhuma mudança de código, seed ou schema foi necessária. |
