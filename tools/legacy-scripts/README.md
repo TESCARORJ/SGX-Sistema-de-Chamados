@@ -5,6 +5,20 @@ os documentos de roadmap (`docs/ROADMAP.md`, `docs/ROADMAP-ITSM.md`,
 `docs/roadmap/*.md`) diretamente via regex/substituicao de texto, sem
 revisao de diff estruturado por item de checklist.
 
+Alem desses, ha mais 4 arquivos arquivados aqui de uma natureza um pouco
+diferente:
+
+- `fix_seed.csx` — script C# (nao Python) para edicao de seed.
+- `seed_diff.txt`, `latest_diff.txt`, `seed_edits.txt` — artefatos de
+  diff/anotacao de uma sessao especifica de correcao de seed, do commit
+  `4174ad8` ("feat(notificacoes): integrar eventos ITSM e preparar
+  homologacao da Sprint 6").
+
+Esses 4 arquivos escaparam da varredura original de 15/07/2026 por serem
+de extensao diferente (`.csx`/`.txt`, nao `.py`) e ficaram soltos na raiz
+do repositorio. Mesma causa raiz e mesma politica dos 22 scripts Python:
+edicao de seed fora de processo revisavel, descontinuada.
+
 ## Por que foram descontinuados
 
 Esse padrao de edicao causou a divergencia da Sprint 7: os scripts
