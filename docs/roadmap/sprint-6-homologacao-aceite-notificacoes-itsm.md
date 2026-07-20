@@ -3,8 +3,8 @@
 ## Estado formal atual
 
 - Sprint 6 mantida em `15/16 - 94%`.
-- `StatusImplementacao = EmDesenvolvimento`.
-- `StatusTecnico = Bloqueado`.
+- `StatusImplementacao = ImplementadoFuncionalmente`.
+- `StatusTecnico = CompletoComPendenciasEvolutivas`.
 - Item `16 - Documentar, homologar e registrar aceite da Sprint 6` permanece pendente.
 - Nenhuma migration de conclusao foi criada.
 - Nenhum aceite formal foi registrado.

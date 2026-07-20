@@ -66,7 +66,6 @@ Critério de ordenação: risco primeiro, núcleo antes de diferencial, e dentro
 
 ## 8. Divergências sob investigação (16/07/2026) — não confiar nestes números sem reauditoria
 
-- **Sprint 6**: seed mostra `PercentualImplementacao = 94%` simultâneo a `StatusTecnico = Bloqueado`. Combinação contraditória — ou o percentual está errado, ou o status está desatualizado. Mesmo padrão de divergência documentação/código que a Sprint 7 tinha. Investigar antes de tratar como IN confirmado.
 - **Sprint 2**: percentual saltou de 25% para 85% sem auditoria de código correspondente registrada. Continua fora do escopo IN pelo critério funcional (não é núcleo, diferencial nem processo), mas o salto merece checagem antes de usar esse número em qualquer outra decisão.
 - **Sprint 8**: caiu de 96% para 93% no recálculo mais recente — provavelmente ajuste de checklist relacionado à Sprint 7/18, não retrabalho, mas não investigado a fundo.
 
@@ -77,3 +76,4 @@ Critério de ordenação: risco primeiro, núcleo antes de diferencial, e dentro
 | 14/07/2026 | Criação do documento. Congelamento inicial de escopo, critério por percentual. |
 | 15/07/2026 | Corrigida a Sprint 7: não tinha débito de desenvolvimento, era divergência de documentação/seed. Confirmado via auditoria de código real pelo Claude Code. Registrada descontinuação dos scripts de seed via regex. |
 | 16/07/2026 | Critério de congelamento trocado de percentual para funcional (necessidade para demo de substituição do GLPI). Sprint 18 entra no escopo IN apesar do percentual baixo. Ordem de execução reorganizada em fases (0–5). Registradas divergências sob investigação nas Sprints 2, 6 e 8. |
+| 17/07/2026 | Corrigida a Sprint 6: não tinha débito de desenvolvimento, era divergência de documentação/seed (mesma causa raiz da Sprint 7). Seed desatualizado apontava `StatusImplementacao = EmDesenvolvimento` e `StatusTecnico = Bloqueado`; corrigido para `ImplementadoFuncionalmente` e `CompletoComPendenciasEvolutivas`, alinhado a 209/209 testes de lógica pura passando e à integração do `ProcessarEventoCandidatoNotificacaoUseCase` a 5 use cases de chamado. Falta apenas homologação visual/manual e registro de aceite formal. |
