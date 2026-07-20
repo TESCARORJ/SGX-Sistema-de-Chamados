@@ -47,7 +47,7 @@ Nova ordem estrategica do ciclo ITSM:
 4. Sprint 4 - Motor de Aprovacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
-7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)
+7. Sprint 7 - Gerenciamento de Requisicoes (92% - Implementado funcionalmente, pendente apenas homologacao)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
 9. Sprint 9 - Gerenciamento de Incidentes (46% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)

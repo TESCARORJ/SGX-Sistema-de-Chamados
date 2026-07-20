@@ -63,17 +63,17 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
     }
 
     [Fact]
-    public async Task RoadmapSprint7DeveRefletirFluxoConcluidoSemMarcarEntregasCentraisGenericasComoConcluidas()
+    public async Task RoadmapSprint7DeveRefletirHomologacaoPendenteSemMarcarEntregasCentraisGenericasComoConcluidas()
     {
         using var context = PortalUseCasesTestFactory.CriarContexto();
 
         var item = context.RoadmapItsmItens.Single(x => x.Id == SeedData.RoadmapItsmItem18Id);
         Assert.Equal("Sprint 7 - Gerenciamento de Requisicoes", item.Area);
         Assert.Equal(StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente, item.StatusImplementacao);
-        Assert.Equal(StatusTecnicoRoadmapItsm.Completo, item.StatusTecnico);
-        Assert.Equal(100, item.PercentualImplementacao);
+        Assert.Equal(StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas, item.StatusTecnico);
+        Assert.Equal(92, item.PercentualImplementacao);
         Assert.Equal(
-            "Registrar homologacao funcional e visual e aceite formal da Sprint 7.",
+            "Registrar homologacao funcional, homologacao visual e aceite formal da Sprint 7 (itens 37-39).",
             RemoverAcentos(item.ProximaAcao));
 
         var checklistAtivo = context.RoadmapChecklistItens
@@ -84,8 +84,8 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.Equal(39, checklistAtivo.Length);
         Assert.All(checklistAtivo, x => Assert.True(x.Ativo));
         Assert.All(checklistAtivo, x => Assert.True(x.Obrigatorio));
-        Assert.Equal(39, checklistAtivo.Count(x => x.Concluido));
-        Assert.Equal(0, checklistAtivo.Count(x => !x.Concluido));
+        Assert.Equal(36, checklistAtivo.Count(x => x.Concluido));
+        Assert.Equal(3, checklistAtivo.Count(x => !x.Concluido));
         Assert.Equal(Enumerable.Range(1, 39), checklistAtivo.Select(x => x.Ordem));
 
         Assert.Equal(
@@ -139,7 +139,7 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         Assert.DoesNotContain(checklistAtivo, x => x.Titulo == "Registrar homologacao e aceite");
 
         Assert.Equal(
-            Enumerable.Range(1, 39),
+            Enumerable.Range(1, 36),
             checklistAtivo.Where(x => x.Concluido).Select(x => x.Ordem).ToArray());
 
         foreach (var ordem in TestesComportamentaisPorItemChecklist.Keys)
@@ -156,15 +156,15 @@ public sealed class RoadmapSprint7GerenciamentoRequisicoesChecklistTests
         var detalhe = await useCase.ExecutarAsync(SeedData.RoadmapItsmItem18Id);
 
         Assert.Equal(39, detalhe.QuantidadeChecklistAtivo);
-        Assert.Equal(39, detalhe.QuantidadeChecklistConcluido);
-        Assert.Equal(100, detalhe.PercentualImplementacao);
+        Assert.Equal(36, detalhe.QuantidadeChecklistConcluido);
+        Assert.Equal(92, detalhe.PercentualImplementacao);
         Assert.True(detalhe.PercentualCalculadoPorChecklist);
         Assert.Equal(
-            "Registrar homologacao funcional e visual e aceite formal da Sprint 7.",
+            "Registrar homologacao funcional, homologacao visual e aceite formal da Sprint 7 (itens 37-39).",
             RemoverAcentos(detalhe.ProximaAcao));
 
-        var percentualEsperado = (int)Math.Round((39 * 100.0) / 39, MidpointRounding.AwayFromZero);
-        Assert.Equal(100, percentualEsperado);
+        var percentualEsperado = (int)Math.Round((36 * 100.0) / 39, MidpointRounding.AwayFromZero);
+        Assert.Equal(92, percentualEsperado);
         Assert.Equal(percentualEsperado, detalhe.PercentualImplementacao);
     }
 

@@ -6,10 +6,10 @@
 - Categoria: `ITIL/ITSM`
 - Cenario: `A - SLA de catalogo aplicado`
 - Status da implementacao: `Implementado funcionalmente`
-- Status tecnico: `Completo`
-- Percentual recalculado: `100%`
+- Status tecnico: `Completo com pendencias evolutivas`
+- Percentual recalculado: `92%`
 - Checklist ativo: `39`
-- Checklist concluido: `39` (Nota: Os endpoints do portal já existiam estruturados corretamente no `PortalCatalogoServicosController`. O frontend ajustou a interface `NovoChamadoView` para ocultar os campos de classificação não necessários no fluxo de catálogo guiado e validou o funcionamento dos endpoints `/preparar-chamado` e `/requisicoes`. Os itens 10, 13 e 14, antes bloqueados por ausência de modelagem, foram concluídos com a modelagem estrutural entregue na Sprint 8 — `GrupoTecnicoId` em `CatalogoServico`, `CampoFormularioServico`/`RespostaFormularioChamado` e a aplicação/validação/persistência correspondente em `AbrirChamadoUseCase`, cobertas por `AbrirChamadoUseCaseTests`.)
+- Checklist concluido: `36` (Nota: Os endpoints do portal já existiam estruturados corretamente no `PortalCatalogoServicosController`. O frontend ajustou a interface `NovoChamadoView` para ocultar os campos de classificação não necessários no fluxo de catálogo guiado e validou o funcionamento dos endpoints `/preparar-chamado` e `/requisicoes`. Os itens 10, 13 e 14, antes bloqueados por ausência de modelagem, foram concluídos com a modelagem estrutural entregue na Sprint 8 — `GrupoTecnicoId` em `CatalogoServico`, `CampoFormularioServico`/`RespostaFormularioChamado` e a aplicação/validação/persistência correspondente em `AbrirChamadoUseCase`, cobertas por `AbrirChamadoUseCaseTests`.)
 
 ## Objetivo
 
@@ -35,7 +35,7 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 
 ## O que falta para a sprint
 
-- regressao completa, homologacao funcional, homologacao visual e aceite formal (itens 35-39 do checklist).
+- homologacao funcional, homologacao visual e aceite formal (itens 37-39 do checklist).
 
 ## Checklist consolidado
 
@@ -75,9 +75,9 @@ O checklist generico anterior foi removido porque marcava como concluida uma ent
 - [x] 34. Criar ou revisar migrations estruturais, se necessarias
 - [x] 35. Criar migration de dados ou checklist, se aplicavel
 - [x] 36. Atualizar documentacao principal da Sprint 7
-- [x] 37. Registrar homologacao funcional
-- [x] 38. Registrar homologacao visual responsiva
-- [x] 39. Registrar aceite formal somente com evidencia
+- [ ] 37. Registrar homologacao funcional
+- [ ] 38. Registrar homologacao visual responsiva
+- [ ] 39. Registrar aceite formal somente com evidencia
 
 ## Decisao de compatibilidade do contrato
 
@@ -93,3 +93,7 @@ O `GrupoTecnicoId` em `CatalogoServico`, as entidades `CampoFormularioServico`/`
 ## Proxima acao real
 
 Registrar homologacao funcional, homologacao visual e aceite formal da Sprint 7 (itens 37-39).
+
+## Correcao de 20/07/2026 - homologacao revertida
+
+Os itens 37-39 (homologacao funcional, homologacao visual, aceite formal) haviam sido marcados como concluidos por um script de edicao de seed via regex, sem evidencia real de homologacao. O proprio documento contradizia essa marcacao (checklist `[x]` nos tres itens, mas a secao "Proxima acao real" continuava afirmando que a homologacao ainda precisava ser registrada). Revertido para `Concluido = false` nos tres itens, percentual recalculado de 100% para 92% e status tecnico ajustado para `CompletoComPendenciasEvolutivas`. O codigo e a implementacao funcional nao foram afetados por essa correcao — apenas a marcacao de homologacao, que nunca ocorreu de fato.

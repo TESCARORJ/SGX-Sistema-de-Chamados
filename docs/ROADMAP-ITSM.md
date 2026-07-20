@@ -19,7 +19,7 @@ Sprints consolidadas:
 4. Sprint 4 - Motor de Aprovacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
 5. Sprint 5 - Regras de fechamento, aceite e reabertura (100% - Implementado funcionalmente)
 6. Sprint 6 - Notificacoes ITSM (94% - Implementado funcionalmente, pendente apenas homologacao)
-7. Sprint 7 - Gerenciamento de Requisicoes (100% - Implementado funcionalmente)
+7. Sprint 7 - Gerenciamento de Requisicoes (92% - Implementado funcionalmente, pendente apenas homologacao)
 8. Sprint 8 - Catalogo de Servicos 2.0 (96% - Em desenvolvimento)
 9. Sprint 9 - Gerenciamento de Incidentes (46% - Em desenvolvimento)
 10. Sprint 10 - Gerenciamento de Mudancas (25% - Nao iniciado)
@@ -60,7 +60,7 @@ Observacao:
 | Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 94% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 94% |
-| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Implementado funcionalmente | Completo | 100% |
+| Sprint 7 - Gerenciamento de Requisicoes | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 92% |
 | Sprint 8 - Catalogo de Servicos 2.0 | ITIL/ITSM | Em desenvolvimento | Parcial | 96% |
 
 ## Atualizacao 2026-07-07 - Sprint 8 Catalogo de Servicos 2.0 - Item 66

@@ -15,10 +15,10 @@ public sealed class RoadmapSprint6NotificacoesChecklistTests
 
         var item = context.RoadmapItsmItens.Single(x => x.Id == SeedData.RoadmapItsmItem25Id);
         Assert.Equal("Sprint 6 - Notificacoes ITSM", item.Area);
-        Assert.Equal(StatusImplementacaoRoadmapItsm.EmDesenvolvimento, item.StatusImplementacao);
-        Assert.Equal(StatusTecnicoRoadmapItsm.Bloqueado, item.StatusTecnico);
+        Assert.Equal(StatusImplementacaoRoadmapItsm.ImplementadoFuncionalmente, item.StatusImplementacao);
+        Assert.Equal(StatusTecnicoRoadmapItsm.CompletoComPendenciasEvolutivas, item.StatusTecnico);
         Assert.Equal(94, item.PercentualImplementacao);
-        Assert.Equal("Documentar, homologar e registrar aceite da Sprint 6", RemoverAcentos(item.ProximaAcao));
+        Assert.Equal("Executar homologacao visual/manual (320px/375px/768px/desktop) e registrar aceite formal da Sprint 6.", RemoverAcentos(item.ProximaAcao));
 
         var checklistAtivo = context.RoadmapChecklistItens
             .Where(x => x.RoadmapItemId == SeedData.RoadmapItsmItem25Id && x.Ativo)
@@ -75,7 +75,7 @@ public sealed class RoadmapSprint6NotificacoesChecklistTests
         Assert.Equal(15, detalhe.QuantidadeChecklistConcluido);
         Assert.Equal(94, detalhe.PercentualImplementacao);
         Assert.True(detalhe.PercentualCalculadoPorChecklist);
-        Assert.Equal("Documentar, homologar e registrar aceite da Sprint 6", RemoverAcentos(detalhe.ProximaAcao));
+        Assert.Equal("Executar homologacao visual/manual (320px/375px/768px/desktop) e registrar aceite formal da Sprint 6.", RemoverAcentos(detalhe.ProximaAcao));
 
         var percentualEsperado = (int)Math.Round((15 * 100.0) / 16, MidpointRounding.AwayFromZero);
         Assert.Equal(94, percentualEsperado);
