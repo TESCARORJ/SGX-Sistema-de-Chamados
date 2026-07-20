@@ -56,7 +56,7 @@ Observacao:
 |---|---|---|---|---|
 | Sprint 1 - Fundacao ITSM do chamado | ITIL/ITSM | Implementado e validado | Concluido | 100% |
 | Sprint 2 - Relacionamentos, dependencias e orquestracao ITSM | ITIL/ITSM | Planejado | Nao avaliado | 25% |
-| Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Planejado | Nao avaliado | 90% |
+| Sprint 3 - Grupos tecnicos, filas e atribuicao | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 90% |
 | Sprint 4 - Motor de Aprovacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 94% |
 | Sprint 5 - Regras de fechamento, aceite e reabertura | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 100% |
 | Sprint 6 - Notificacoes ITSM | ITIL/ITSM | Implementado funcionalmente | Completo com pendencias evolutivas | 94% |
