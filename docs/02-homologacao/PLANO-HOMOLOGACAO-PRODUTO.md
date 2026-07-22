@@ -43,7 +43,8 @@ Os itens abaixo podem permanecer como roadmap futuro, desde que documentados:
 - regras de fechamento configuráveis;
 - relatórios executivos exportáveis completos;
 - integração SIEM;
-- automações com IA.
+- automações com IA;
+- Base de Conhecimento 2.0 (Sprint 18): sugestão contextual por serviço/erro conhecido, workflow editorial e avaliação de utilidade. O roteiro da seção 9.9 cobre apenas a fundação já entregue (artigo, publicação, consulta, vínculo ao chamado), conforme `docs/02-homologacao/ESCOPO-CONGELADO-MVP.md`.
 
 ## 4. Ambientes
 

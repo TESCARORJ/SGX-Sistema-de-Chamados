@@ -202,6 +202,8 @@ Quando ocorrerem erros de lock (`MSB3021`/`MSB3027`) ou `PendingModelChangesWarn
 - `docs/CONFIGURACAO-AZURE-AD.md`
 - `docs/ROADMAP.md`
 - `docs/ROADMAP-ITSM.md`
+- `docs/02-homologacao/ESCOPO-CONGELADO-MVP.md`
+- `docs/02-homologacao/PLANO-HOMOLOGACAO-PRODUTO.md`
 - `docs/EXECUCAO-LOCAL.md`
 - `docs/TROUBLESHOOTING-BUILD-EFCORE.md`
 - `docs/EXECUCAO-LOCAL-LINUX-MINT.md`

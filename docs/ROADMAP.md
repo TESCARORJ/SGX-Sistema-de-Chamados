@@ -63,6 +63,14 @@ Nova ordem estrategica do ciclo ITSM:
 20. Sprint 20 - Homologacao institucional ITSM (75% - Em homologacao)
 21. Sprint 21 - Produto, implantacao e operacao (25% - Em desenvolvimento)
 
+## Atualizacao 2026-07-22 - Escopo congelado da MVP V1 e decisao sobre a Sprint 18
+
+- Formalizado o escopo congelado da V1 homologavel em `docs/02-homologacao/ESCOPO-CONGELADO-MVP.md`.
+- Escopo IN: nucleo ja entregue + Sprints 1, 3, 4, 5, 6, 7, 8, 20 e recorte minimo da Sprint 21.
+- Escopo OUT (pos-MVP): Sprints 2, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 e 19.
+- **Sprint 18 - Base de Conhecimento 2.0 confirmada fora do MVP V1**: nenhuma jornada essencial do MVP depende tecnicamente dela. A fundacao de Base de Conhecimento (artigo, publicacao, vinculo opcional ao chamado) ja e nucleo entregue, independente da numeracao de sprint ITSM. Nao houve auditoria funcional completa nem alteracao de codigo/seed desta sprint nesta etapa - apenas confirmacao da ausencia de dependencia bloqueante.
+- Percentuais e status tecnicos de todas as sprints permanecem inalterados por esta atualizacao; nenhuma migration, endpoint ou comportamento de dominio foi alterado.
+
 ## Em evolucao
 
 - Cadastros Administrativos (Sprints 1 a 6) implementado funcionalmente, com integracao aos chamados, seed inicial consolidado e documentacao de fechamento

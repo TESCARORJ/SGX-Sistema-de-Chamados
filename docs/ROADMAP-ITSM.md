@@ -40,6 +40,15 @@ Observacao:
 - Sprint 5 foi encerrada tecnicamente com checklist 32/32; a homologacao formal permanece registrada como etapa posterior.
 - Sprint 9 foi sincronizada com checklist tecnico de 50 itens; 23 estao concluidos e 27 permanecem pendentes para a evolucao funcional incremental.
 
+## Atualizacao 2026-07-22 - Escopo congelado da MVP V1 e decisao sobre a Sprint 18
+
+- Formalizado o escopo congelado da V1 homologavel em `docs/02-homologacao/ESCOPO-CONGELADO-MVP.md`, com criterios de inclusao/exclusao, criterios de aceite, bloqueadores para homologacao, definicoes formais (tecnicamente completo, pronto para homologacao, homologado, pronto para producao) e regras de mudanca futura de escopo.
+- Escopo IN: nucleo ja entregue (incluindo Base de Conhecimento fundacao, `RoadmapItsmItem10Id`, 90%) + Sprints 1, 3, 4, 5, 6, 7, 8, 20 e recorte minimo da Sprint 21.
+- Escopo OUT (pos-MVP): Sprints 2, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 e 19.
+- **Sprint 18 - Base de Conhecimento 2.0 confirmada fora do MVP V1.** Verificado que nenhuma jornada essencial (abertura, atendimento, aprovacao, fechamento, notificacao, SLA, dashboard, catalogo) depende tecnicamente dela: o vinculo `Chamado.ArtigosConhecimento` e uma colecao opcional. Nas buscas e arquivos analisados nesta etapa, nao foram identificadas implementacoes das capacidades especificas da Sprint 18, como sugestao contextual, workflow editorial e avaliacao de utilidade. Esta analise nao constituiu auditoria funcional completa da sprint. Nao foi implementado nenhum item novo nesta etapa - apenas confirmada a ausencia de dependencia bloqueante.
+- Percentual (50%), `StatusImplementacao` e `StatusTecnico` da Sprint 18 em `SeedData.cs` permanecem inalterados por esta atualizacao.
+- Validado nesta revisao: 36/36 testes executados com filtro `FullyQualifiedName~Roadmap` passaram; o build backend foi concluido sem erro; nao houve build nem teste frontend nesta etapa; nao existem `pending model changes` no EF Core.
+
 ## Atualizacao 2026-07-12 - Sprint 9 Gerenciamento de Incidentes - Checklist tecnico consolidado
 
 - Percentual recalculado para `46%` com base em `23` itens concluidos e `27` pendentes.
